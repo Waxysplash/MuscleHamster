@@ -20,16 +20,14 @@
 
 ## 1. CURRENT PROJECT STATE (IMPORTANT)
 
-This project is **pre-implementation**. We currently have:
+This project is **planning complete — ready for implementation**. We have:
 - A PRD (`muscle-hamster-prd.md`)
 - Phase-doc writing methodology (`md-file-creation-instructions-for-new-phases.md`)
 - Session bootstrap rules (this file)
+- **Complete phase roadmap (Phase 00–08)** in `Development/`
+- **GitHub repo**: https://github.com/Waxysplash/MuscleHamster
 
-**We have not yet converted the PRD into phases/subphases.**  
-So early sessions should focus on:
-- Turning the PRD into a phased roadmap
-- Identifying open questions / contradictions
-- Defining “minimum lovable product” boundaries
+Current focus: **Phase 01 — App Shell & Core Navigation**
 
 ---
 
@@ -125,9 +123,13 @@ The PRD includes at least one **inconsistency** that must be resolved before imp
 ### At the end of every session (MANDATORY)
 - Update `progress.md`:
   - Mark completed items with `✅`
-  - Update “Active Phase”
+  - Update "Active Phase"
   - Add new open questions, risks, and decisions made
   - Add links to any new phase/subphase docs created
+- **Push to GitHub**:
+  - Commit all changes with a clear message
+  - Push to `origin main`
+  - Repo: https://github.com/Waxysplash/MuscleHamster
 
 ---
 
