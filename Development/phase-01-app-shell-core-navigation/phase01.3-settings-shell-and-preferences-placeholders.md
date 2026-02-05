@@ -2,7 +2,7 @@
 
 ## Header
 - **Goal:** Create the Settings shell so later phases can plug in account, schedule, audio, and notification controls.
-- **Status:** Planning
+- **Status:** Implemented
 - **Priority:** HIGH
 - **Dependencies:** Phase 01.1
 - **Platforms:** iOS (15+)

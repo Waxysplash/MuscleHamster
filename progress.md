@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** Planning Complete — Ready for Implementation
-**Active Phase:** Phase 01 (App Shell & Core Navigation)
-**Last Updated:** Feb 4, 2026
+**Status:** Implementation In Progress
+**Active Phase:** Phase 01 Complete — Phase 02 Next (Accounts, Authentication & Age Gate)
+**Last Updated:** Feb 4, 2026 (Session 4)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -12,11 +12,12 @@
 
 ## Current Focus (Next 1–3 Sessions)
 
-- [ ] Begin implementation of Phase 01 — App Shell & Core Navigation
-  - [ ] Phase 01.1: Navigation structure and screen skeletons
-  - [ ] Phase 01.2: Home screen shell and tone baseline
-  - [ ] Phase 01.3: Settings shell and preferences placeholders
-  - [ ] Phase 01.4: Review
+- [x] Begin implementation of Phase 01 — App Shell & Core Navigation
+  - [x] Phase 01.1: Navigation structure and screen skeletons ✅
+  - [x] Phase 01.2: Home screen shell and tone baseline ✅
+  - [x] Phase 01.3: Settings shell and preferences placeholders ✅
+  - [x] Phase 01.4: Review ✅
+- [ ] Begin Phase 02 — Accounts, Authentication & Age Gate
 - [ ] Resolve remaining open questions before implementation begins
 
 ---
@@ -51,12 +52,13 @@
   - ✅ phase00.3-after-mvp-next-phases-parking-lot.md
   - ✅ phase00.4-review.md
 
-### Phase 01 — App Shell & Core Navigation (NEXT)
+### Phase 01 — App Shell & Core Navigation ✅
 - `Development/phase-01-app-shell-core-navigation/`
-  - [ ] phase01.1-navigation-structure-and-screen-skeletons.md
-  - [ ] phase01.2-home-screen-shell-and-tone-baseline.md
-  - [ ] phase01.3-settings-shell-and-preferences-placeholders.md
-  - [ ] phase01.4-review.md
+  - ✅ phase01.1-navigation-structure-and-screen-skeletons.md (IMPLEMENTED)
+  - ✅ phase01.2-home-screen-shell-and-tone-baseline.md (IMPLEMENTED)
+  - ✅ phase01.3-settings-shell-and-preferences-placeholders.md (IMPLEMENTED)
+  - ✅ phase01.4-review.md (REVIEWED — SIGN-OFF)
+- `MuscleHamster/` — iOS project created
 
 ### Phase 02 — Accounts, Authentication & Age Gate
 - `Development/phase-02-accounts-authentication-age-gate/`
@@ -110,6 +112,7 @@
 
 ### Post-MVP (Parking Lot)
 - Social features (friends, friend streaks, privacy controls)
+  - Rest-day nudges: on rest days, encourage/poke friends to get their activity done
 - Monetization (ads)
 - Recommendations v1+
 - Offline-first support
@@ -129,4 +132,38 @@
 
 - Feb 4, 2026: Created `A1-new-session-instructions.md` and this `progress.md` scaffold for consistent session onboarding and state tracking.
 - Feb 4, 2026: Phase roadmap (Phase 00–08) fully created. Ready to begin implementation with Phase 01.
+- Feb 4, 2026 (Session 2): **Phase 01.1 Implementation Complete**
+  - Created iOS project structure (`MuscleHamster/`)
+  - Implemented tab bar navigation with 4 tabs: Home, Workouts, Shop, Social
+  - Created skeleton views for all tabs with loading/empty/error states
+  - Added Settings view accessible from Home
+  - Implemented shared state components (ViewState, LoadingView, EmptyStateView, ErrorView)
+  - Added baseline VoiceOver accessibility labels throughout
+  - Created Xcode project file (iOS 15+, portrait only, iPhone)
+- Feb 4, 2026 (Session 3): **Phase 01.3 Implementation Complete**
+  - Upgraded SettingsView with ViewState handling (loading/error states)
+  - Account section with signed-out placeholder state and NavigationLink
+  - Workout Schedule section with NavigationLink to placeholder
+  - Notifications section with toggle (default: off) and conditional reminder time link
+  - Audio section with Sound Effects toggle (default: on), Music toggle (default: on), and audio settings link
+  - Privacy section with NavigationLink to privacy controls placeholder
+  - Support section (Help, Privacy Policy, Terms of Service)
+  - Created 5 placeholder detail views: AccountSettingsView, WorkoutScheduleSettingsView, NotificationSettingsView, AudioSettingsView, PrivacySettingsView
+  - All placeholder views have friendly hamster-toned "coming soon" messaging
+  - Full VoiceOver accessibility labels throughout
+  - Updated Xcode project file with all new files
+- Feb 4, 2026 (Session 3): **Phase 01.2 Implementation Complete**
+  - HomeView already had all required layout areas from Phase 01.1 (hamster, streak, today status, CTAs)
+  - Refined copy to be consistently hamster-voiced (first person): "I'm feeling great today!", "I'll be cheering you on."
+  - Verified no guilt/shame language anywhere in Home screen copy
+  - Added hamster-voiced error message constant for consistent error tone
+  - All states present: loading, first-run empty (encouraging), error (friendly recovery), content
+- Feb 4, 2026 (Session 4): **Phase 01.4 Review Complete — SIGN-OFF**
+  - Exhaustive inventory: 16 files, 12 screens, 4 shared components
+  - Navigation audit: all paths verified (tabs, settings push/back, conditional links)
+  - Baseline states: all 5 main screens have loading/empty/error/content; 5 detail views are correct static placeholders
+  - Copy tone audit: PASS — zero guilt/shame language, consistently warm and hamster-voiced
+  - Accessibility audit: PASS after 2 minor fixes (added .accessibilityAddTraits(.isHeader) to WorkoutsView and ShopView section titles)
+  - Requirements verification: all Phase 01.1, 01.2, 01.3 requirements met
+  - **Phase 01 complete. Ready for Phase 02.**
 
