@@ -2,7 +2,7 @@
 
 ## Header
 - **Goal:** Let users restore a broken streak by spending points after a missed day, with a clear manual choice.
-- **Status:** Planning
+- **Status:** IMPLEMENTED
 - **Priority:** HIGH
 - **Dependencies:** Phase 06.2, Phase 07.1 (points wallet expectations)
 - **Platforms:** iOS (15+)

@@ -2,7 +2,7 @@
 
 ## Header
 - **Goal:** Allow rest-day check-ins via very short micro-tasks that maintain streaks and award small points.
-- **Status:** Planning
+- **Status:** IMPLEMENTED ✅
 - **Priority:** HIGH
 - **Dependencies:** Phase 05
 - **Platforms:** iOS (15+)

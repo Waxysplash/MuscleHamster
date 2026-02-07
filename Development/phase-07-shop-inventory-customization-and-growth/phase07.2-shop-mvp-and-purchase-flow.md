@@ -2,7 +2,7 @@
 
 ## Header
 - **Goal:** Users can browse items, preview them, and purchase with points; purchased items appear in inventory.
-- **Status:** Planning
+- **Status:** Implemented
 - **Priority:** HIGH
 - **Dependencies:** Phase 07.1
 - **Platforms:** iOS (15+)

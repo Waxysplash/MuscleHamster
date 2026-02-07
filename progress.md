@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** MVP Implementation Complete
-**Active Phase:** Post-MVP Planning
-**Last Updated:** Feb 7, 2026 (Session 24)
+**Status:** Post-MVP — Social Features
+**Active Phase:** Phase 09 — Social Features
+**Last Updated:** Feb 7, 2026 (Session 26)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -10,24 +10,26 @@
 
 ---
 
-## Current Focus (MVP Complete!)
+## Current Focus
 
-All MVP phases have been implemented and reviewed:
-- ✅ Phase 01 — App Shell & Core Navigation
-- ✅ Phase 02 — Accounts, Authentication & Age Gate
-- ✅ Phase 03 — Onboarding & User Profile Setup
-- ✅ Phase 04 — Workout Library, Browse, Filter & Recommendation v0
-- ✅ Phase 05 — Workout Player & Completion Rewards
-- ✅ Phase 06 — Rest-Day Check-ins, Streaks & Streak Freeze
-- ✅ Phase 07 — Shop, Inventory, Customization & Growth
-- ✅ Phase 08 — Notifications & Audio Controls
+**Phase 09 — Social Features** (Post-MVP)
 
-**Next Steps (Post-MVP):**
+All MVP phases complete. Now implementing social features:
+- ✅ Phase 01–08 — MVP Core Loop Complete
+- 🔄 Phase 09 — Social Features (IN PROGRESS)
+  - ✅ Phase 09.1 — Friend Data Model and Service Layer (IMPLEMENTED)
+  - [ ] Phase 09.2 — Add Friends UX
+  - [ ] Phase 09.3 — Friends List and Friend Profile View
+  - [ ] Phase 09.4 — Friend Streaks
+  - [ ] Phase 09.5 — Privacy Controls
+  - [ ] Phase 09.6 — Friend Nudges
+  - [ ] Phase 09.7 — Review
+
+**Parallel Work (Content/Assets):**
 - [ ] Add real workout content (exercise catalog, media assets)
 - [ ] Add hamster artwork (states, growth stages, outfits)
 - [ ] Add audio assets (sound effects, music tracks)
 - [ ] Internal testing and polish
-- [ ] Begin Phase 09 (Social features) when ready
 
 ---
 
@@ -119,9 +121,17 @@ All MVP phases have been implemented and reviewed:
   - ✅ phase08.3-notification-tap-routing-and-today-context.md (IMPLEMENTED)
   - ✅ phase08.4-review.md (REVIEWED — SIGN-OFF)
 
+### Phase 09 — Social Features 🔄
+- `Development/phase-09-social-features/`
+  - ✅ phase09.1-friend-data-model-and-service-layer.md (IMPLEMENTED)
+  - [ ] phase09.2-add-friends-ux.md
+  - [ ] phase09.3-friends-list-and-friend-profile-view.md
+  - [ ] phase09.4-friend-streaks.md
+  - [ ] phase09.5-privacy-controls.md
+  - [ ] phase09.6-friend-nudges.md
+  - [ ] phase09.7-review.md
+
 ### Post-MVP (Parking Lot)
-- Social features (friends, friend streaks, privacy controls)
-  - Rest-day nudges: on rest days, encourage/poke friends to get their activity done
 - Monetization (ads)
 - Recommendations v1+
 - Offline-first support
@@ -1150,6 +1160,24 @@ All MVP phases have been implemented and reviewed:
     - Banner dismisses on tap or auto-dismiss timeout
   - Updated Xcode project with 2 new files (AppRoutingState.swift, NotificationContextBanner.swift)
   - **Phase 08.3 complete. Ready for Phase 08.4 (Review).**
+- Feb 7, 2026 (Session 25): **Phase 09 Planning Complete — Social Features**
+  - Created Phase 09 folder structure: `Development/phase-09-social-features/`
+  - Created parent overview: `phase09-social-features.md`
+  - Created 7 subphase documents:
+    - phase09.1-friend-data-model-and-service-layer.md — Core models: FriendRelationship, FriendRequest, FriendStreak, BlockedUser, FriendService
+    - phase09.2-add-friends-ux.md — Username search, contacts import, invite link/QR sharing
+    - phase09.3-friends-list-and-friend-profile-view.md — Social tab, friend rows, friend profile view
+    - phase09.4-friend-streaks.md — Shared streak tracking, break/restore mechanics (150/300 points)
+    - phase09.5-privacy-controls.md — Blocking, visibility settings, unfriending
+    - phase09.6-friend-nudges.md — Rest-day encouragement to friends
+    - phase09.7-review.md — Final review methodology
+  - Key features scoped from PRD:
+    - Add friends via username, contacts, link/QR
+    - View friends' hamsters and progress
+    - Friend streaks with restore options (self only: 150 pts, for both: 300 pts)
+    - Privacy controls (blocking, visibility, unfriending)
+    - Friend nudges (encouragement pokes)
+  - **Phase 09 ready for implementation. Start with Phase 09.1.**
 - Feb 7, 2026 (Session 24): **Phase 08.4 Review Complete — SIGN-OFF**
   - **Exhaustive Inventory:** 12 files audited across Phase 08.1–08.3
     - Phase 08.1: 4 files (AudioPreferences, AudioManager, AudioSettingsView, SettingsView updates)
@@ -1176,4 +1204,51 @@ All MVP phases have been implemented and reviewed:
     - onChange API uses iOS 16 syntax (functional on iOS 15+, update when targeting iOS 17+)
   - **Requirements Verification:** All Phase 08.1, 08.2, 08.3 requirements met
   - **Phase 08 complete. MVP core loop implementation complete.**
+- Feb 7, 2026 (Session 26): **Phase 09.1 Implementation Complete — Friend Data Model and Service Layer**
+  - Created Friend.swift model (Models/):
+    - `FriendRelationshipStatus` enum: pending, accepted, blocked
+    - `FriendRelationship` struct: mutual friendship with status, timestamps, streak reference
+    - `FriendRequestStatus` enum: pending, accepted, declined, cancelled, expired
+    - `FriendRequest` struct: sender/receiver, status, timestamps
+    - `FriendStreakStatus` enum: active, waiting, atRisk, broken, none (with icons, colors)
+    - `FriendStreak` struct: shared streak between two users with separate check-in dates
+    - `BlockedUser` struct: one-directional block record
+    - `FriendProfile` struct: public-facing friend info with visibility controls
+    - `FriendVisibilitySettings` struct: controls what info is visible to friends
+    - `FriendStreakRestoreOption` enum: selfOnly (150 pts), forBoth (300 pts)
+    - `FriendStreakRestoreResult` struct: restore outcome with hamster reactions
+    - `FriendStreakConfig` enum: points costs for restore options
+    - UserDefaults persistence for FriendStreak and FriendVisibilitySettings
+  - Created FriendService.swift (Services/Friend/):
+    - `FriendServiceProtocol` with 25+ methods:
+      - Friend list: getFriends, getFriendCount, areFriends, getFriendProfile
+      - Friend requests: send, accept, decline, cancel, getPendingIncoming/Outgoing
+      - Friend management: removeFriend
+      - Blocking: blockUser, unblockUser, getBlockedUsers, isBlocked, hasBlockBetween
+      - Friend streaks: get, getAll, update, validate, restore (self/both)
+      - Discovery: searchUsers, generateInviteCode, acceptInviteCode
+      - Visibility: getVisibilitySettings, updateVisibilitySettings
+    - `FriendError` enum with 13 error cases and friendly hamster-voiced messages
+    - `MockFriendService` actor implementation with:
+      - In-memory storage for relationships, requests, blocks, streaks
+      - 5 mock friend profiles for testing
+      - Auto-accept logic when both users send requests to each other
+      - Blocking terminates existing friendships and cancels pending requests
+      - Friend streak update/validation logic matching personal streak patterns
+      - Invite code generation and acceptance
+      - Singleton access via `.shared`
+  - Updated ActivityService.swift:
+    - Added friend streak updates to recordCompletion() — triggers after workout completion
+    - Added friend streak updates to recordRestDayCheckIn() — triggers after rest-day check-in
+  - Updated Xcode project with 2 new files (Friend.swift, FriendService.swift)
+  - All requirements from phase09.1-friend-data-model-and-service-layer.md met:
+    - ✅ FriendRelationship model with all fields and helpers
+    - ✅ FriendRequest model with status enum and transitions
+    - ✅ FriendStreak model with streak status enum and calculations
+    - ✅ BlockedUser model
+    - ✅ FriendError enum with friendly messages
+    - ✅ FriendServiceProtocol defining all operations
+    - ✅ MockFriendService actor implementation with in-memory storage
+    - ✅ ActivityService integration to trigger friend streak updates on check-in
+  - **Phase 09.1 complete. Ready for Phase 09.2 (Add Friends UX).**
 

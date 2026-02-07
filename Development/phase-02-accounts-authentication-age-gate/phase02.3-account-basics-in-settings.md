@@ -2,7 +2,7 @@
 
 ## Header
 - **Goal:** Provide clear account state and essential account actions from Settings for MVP testing.
-- **Status:** Planning
+- **Status:** ✅ IMPLEMENTED
 - **Priority:** HIGH
 - **Dependencies:** Phase 01.3, Phase 02.1–02.2
 - **Platforms:** iOS (15+)
