@@ -4,6 +4,7 @@
 //
 //  Customization hub - Browse owned items and customize your hamster
 //  Phase 07.3: Customization MVP - Equip and Place
+//  Phase 10: Replaced SF Symbol with EnclosureView component
 //
 
 import SwiftUI
@@ -106,81 +107,33 @@ struct InventoryView: View {
         }
     }
 
-    // MARK: - Current Look Section
+    // MARK: - Current Look Section (Phase 10: Using EnclosureView)
 
     private var currentLookSection: some View {
         VStack(spacing: 16) {
-            // Hamster preview with equipped items
-            VStack(spacing: 12) {
-                Text("Current Look")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
+            Text("Current Look")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
-                // Hamster display area
-                ZStack {
-                    // Enclosure background
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            LinearGradient(
-                                colors: [.orange.opacity(0.1), .yellow.opacity(0.15)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .frame(height: 200)
+            // Hamster preview with equipped items using EnclosureView
+            EnclosureView(
+                state: .happy,
+                growthStage: .adult,
+                equipped: equippedItems,
+                height: 200
+            )
+            .padding(.horizontal)
 
-                    VStack(spacing: 8) {
-                        // Hamster with equipped items indicator
-                        ZStack {
-                            // Base hamster
-                            Image(systemName: "hare.fill")
-                                .font(.system(size: 70))
-                                .foregroundStyle(.brown)
-
-                            // Outfit indicator
-                            if equippedItems.outfit != nil {
-                                Image(systemName: "tshirt.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(.purple)
-                                    .offset(x: -30, y: 20)
-                            }
-
-                            // Accessory indicator
-                            if equippedItems.accessory != nil {
-                                Image(systemName: "sparkles")
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(.pink)
-                                    .offset(x: 30, y: -25)
-                            }
-                        }
-
-                        // Equipped items labels
-                        HStack(spacing: 12) {
-                            if let outfit = equippedItems.outfit {
-                                equippedItemBadge(outfit, icon: "tshirt.fill", color: .purple)
-                            }
-                            if let accessory = equippedItems.accessory {
-                                equippedItemBadge(accessory, icon: "sparkles", color: .pink)
-                            }
-                        }
-
-                        // Enclosure items count
-                        if !equippedItems.enclosureItems.isEmpty {
-                            HStack(spacing: 4) {
-                                Image(systemName: "house.fill")
-                                    .font(.caption2)
-                                Text("\(equippedItems.enclosureItems.count) items in enclosure")
-                                    .font(.caption)
-                            }
-                            .foregroundStyle(.orange)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.orange.opacity(0.15))
-                            .clipShape(Capsule())
-                        }
+            // Equipped items badges below enclosure
+            if equippedItems.outfit != nil || equippedItems.accessory != nil {
+                HStack(spacing: 12) {
+                    if let outfit = equippedItems.outfit {
+                        equippedItemBadge(outfit, icon: "tshirt.fill", color: .purple)
+                    }
+                    if let accessory = equippedItems.accessory {
+                        equippedItemBadge(accessory, icon: "sparkles", color: .pink)
                     }
                 }
-                .padding(.horizontal)
             }
         }
     }

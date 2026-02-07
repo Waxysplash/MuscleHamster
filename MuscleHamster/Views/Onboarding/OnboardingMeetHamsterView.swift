@@ -3,6 +3,7 @@
 //  MuscleHamster
 //
 //  The emotional "first meet" moment where users see their named hamster for the first time
+//  Phase 10: Replaced custom shapes with EnclosureView component
 //
 
 import SwiftUI
@@ -67,107 +68,19 @@ struct OnboardingMeetHamsterView: View {
         }
     }
 
-    // MARK: - Enclosure View
+    // MARK: - Enclosure View (Phase 10: Using EnclosureView component)
 
     private var enclosureView: some View {
-        VStack(spacing: 0) {
-            // Hamster in enclosure
-            ZStack {
-                // Enclosure background
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.accentColor.opacity(0.1),
-                                Color.accentColor.opacity(0.2)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(height: 200)
-
-                // Ground/bedding
-                VStack {
-                    Spacer()
-                    RoundedRectangle(cornerRadius: 0)
-                        .fill(Color.brown.opacity(0.3))
-                        .frame(height: 40)
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: 24)
-                        )
-                }
-                .frame(height: 200)
-
-                // Hamster placeholder
-                VStack(spacing: 8) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.orange.opacity(0.3))
-                            .frame(width: 100, height: 100)
-
-                        // Hamster face placeholder
-                        VStack(spacing: 4) {
-                            // Eyes
-                            HStack(spacing: 20) {
-                                Circle()
-                                    .fill(Color.black)
-                                    .frame(width: 12, height: 12)
-                                Circle()
-                                    .fill(Color.black)
-                                    .frame(width: 12, height: 12)
-                            }
-
-                            // Nose
-                            Circle()
-                                .fill(Color.pink)
-                                .frame(width: 8, height: 8)
-
-                            // Smile
-                            Image(systemName: "mouth.fill")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.pink.opacity(0.8))
-                        }
-                    }
-
-                    // Paws
-                    HStack(spacing: 30) {
-                        Image(systemName: "pawprint.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.orange.opacity(0.6))
-                        Image(systemName: "pawprint.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.orange.opacity(0.6))
-                    }
-                }
-                .offset(y: -10)
-
-                // Decorative elements
-                VStack {
-                    HStack {
-                        // Food bowl placeholder
-                        Image(systemName: "cup.and.saucer.fill")
-                            .font(.system(size: 24))
-                            .foregroundStyle(.brown.opacity(0.5))
-                            .offset(x: 20, y: 60)
-
-                        Spacer()
-
-                        // Water bottle placeholder
-                        Image(systemName: "drop.fill")
-                            .font(.system(size: 20))
-                            .foregroundStyle(.blue.opacity(0.5))
-                            .offset(x: -20, y: -60)
-                    }
-                    Spacer()
-                }
-                .frame(height: 200)
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(Color.accentColor.opacity(0.3), lineWidth: 3)
-            )
-        }
+        EnclosureView(
+            state: .happy,
+            growthStage: .baby,
+            enclosureItems: [],
+            height: 200
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .strokeBorder(Color.accentColor.opacity(0.3), lineWidth: 3)
+        )
         .accessibilityLabel("\(hamsterName) in their cozy enclosure")
     }
 

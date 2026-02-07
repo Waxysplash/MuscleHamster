@@ -11,6 +11,7 @@
 //  Phase 07.3: Display equipped items and customize button
 //  Phase 07.4: Growth stage display and celebration
 //  Phase 08.3: Notification tap routing with contextual banners
+//  Phase 10: Replaced SF Symbol with EnclosureView component
 //
 
 import SwiftUI
@@ -178,57 +179,41 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Hamster Section (Phase 07.3: Shows equipped items)
+    // MARK: - Hamster Section (Phase 10: Using EnclosureView)
 
     private var hamsterSection: some View {
         let hamsterState = userStats?.hamsterState ?? .chillin
         let hamsterName = authViewModel.userProfile?.hamsterName ?? "Your hamster"
 
         return VStack(spacing: 12) {
+            // Hamster greeting
             Text(hamsterState.greeting)
                 .font(.headline)
                 .foregroundStyle(.primary)
                 .accessibilityAddTraits(.isHeader)
 
-            // Hamster enclosure with equipped items
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(hamsterBackgroundColor(for: hamsterState))
-                    .frame(height: 280)
+            // Hamster enclosure with equipped items (Phase 10)
+            EnclosureView(
+                state: hamsterState,
+                growthStage: currentGrowthStage,
+                equipped: equippedItems,
+                height: 280,
+                showCustomizeButton: true,
+                onCustomizeTapped: {
+                    showInventory = true
+                }
+            )
 
-                VStack(spacing: 12) {
-                    // Hamster with equipped items
-                    ZStack {
-                        // Base hamster
-                        Image(systemName: "hare.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(hamsterIconColor(for: hamsterState))
+            // Hamster name and info below enclosure
+            VStack(spacing: 8) {
+                // Hamster name
+                Text(hamsterName)
+                    .font(.title3)
+                    .fontWeight(.semibold)
 
-                        // Outfit indicator (if equipped)
-                        if let outfit = equippedItems.outfit {
-                            Image(systemName: "tshirt.fill")
-                                .font(.system(size: 22))
-                                .foregroundStyle(.purple)
-                                .offset(x: -35, y: 25)
-                                .accessibilityHidden(true)
-                        }
-
-                        // Accessory indicator (if equipped)
-                        if let accessory = equippedItems.accessory {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.pink)
-                                .offset(x: 35, y: -30)
-                                .accessibilityHidden(true)
-                        }
-                    }
-
-                    // Hamster name
-                    Text(hamsterName)
-                        .font(.title3)
-                        .fontWeight(.semibold)
-
-                    // Growth stage badge (Phase 07.4)
+                // Growth stage and state badges
+                HStack(spacing: 8) {
+                    // Growth stage badge
                     HStack(spacing: 4) {
                         Image(systemName: currentGrowthStage.icon)
                             .font(.caption2)
@@ -243,18 +228,6 @@ struct HomeView: View {
                     .clipShape(Capsule())
                     .accessibilityLabel("Growth stage: \(currentGrowthStage.displayName)")
 
-                    // Equipped items badges
-                    if equippedItems.outfit != nil || equippedItems.accessory != nil {
-                        HStack(spacing: 8) {
-                            if let outfit = equippedItems.outfit {
-                                equippedBadge(name: outfit.name, icon: "tshirt.fill", color: .purple)
-                            }
-                            if let accessory = equippedItems.accessory {
-                                equippedBadge(name: accessory.name, icon: "sparkles", color: .pink)
-                            }
-                        }
-                    }
-
                     // State badge
                     HStack(spacing: 4) {
                         Image(systemName: hamsterState.icon)
@@ -264,67 +237,26 @@ struct HomeView: View {
                             .fontWeight(.medium)
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
                     .background(hamsterBadgeColor(for: hamsterState))
-                    .cornerRadius(12)
+                    .clipShape(Capsule())
                 }
 
-                // Enclosure items indicator (bottom right)
-                if !equippedItems.enclosureItems.isEmpty {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Image(systemName: "house.fill")
-                                    .font(.caption2)
-                                Text("\(equippedItems.enclosureItems.count)")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                            }
-                            .foregroundStyle(.orange)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.white.opacity(0.9))
-                            .clipShape(Capsule())
-                            .padding(12)
+                // Equipped items badges
+                if equippedItems.outfit != nil || equippedItems.accessory != nil {
+                    HStack(spacing: 8) {
+                        if let outfit = equippedItems.outfit {
+                            equippedBadge(name: outfit.name, icon: "tshirt.fill", color: .purple)
+                        }
+                        if let accessory = equippedItems.accessory {
+                            equippedBadge(name: accessory.name, icon: "sparkles", color: .pink)
                         }
                     }
-                    .accessibilityLabel("\(equippedItems.enclosureItems.count) items in enclosure")
-                }
-
-                // Customize button (top right)
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button {
-                            showInventory = true
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "paintbrush.fill")
-                                    .font(.caption)
-                                Text("Customize")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                            }
-                            .foregroundStyle(.accentColor)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(Color.white.opacity(0.95))
-                            .clipShape(Capsule())
-                            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-                        }
-                        .padding(12)
-                        .accessibilityLabel("Customize your hamster")
-                        .accessibilityHint("Open your collection to change outfit, accessories, and enclosure items")
-                    }
-                    Spacer()
                 }
             }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel(hamsterAccessibilityLabel(name: hamsterName, state: hamsterState))
 
+            // State description
             Text(hamsterState.description)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -347,40 +279,6 @@ struct HomeView: View {
         .background(color.opacity(0.15))
         .clipShape(Capsule())
         .accessibilityLabel("Wearing \(name)")
-    }
-
-    private func hamsterAccessibilityLabel(name: String, state: HamsterState) -> String {
-        var label = "\(name) is a \(currentGrowthStage.displayName.lowercased()) hamster, feeling \(state.displayName.lowercased())"
-        if let outfit = equippedItems.outfit {
-            label += ", wearing \(outfit.name)"
-        }
-        if let accessory = equippedItems.accessory {
-            label += " with \(accessory.name)"
-        }
-        if !equippedItems.enclosureItems.isEmpty {
-            label += ", \(equippedItems.enclosureItems.count) items in enclosure"
-        }
-        return label
-    }
-
-    private func hamsterBackgroundColor(for state: HamsterState) -> Color {
-        switch state {
-        case .hungry: return Color.orange.opacity(0.15)
-        case .chillin: return Color.blue.opacity(0.1)
-        case .happy: return Color.green.opacity(0.15)
-        case .excited: return Color.yellow.opacity(0.15)
-        case .proud: return Color.purple.opacity(0.15)
-        }
-    }
-
-    private func hamsterIconColor(for state: HamsterState) -> Color {
-        switch state {
-        case .hungry: return .orange
-        case .chillin: return .blue
-        case .happy: return .green
-        case .excited: return .yellow
-        case .proud: return .purple
-        }
     }
 
     private func hamsterBadgeColor(for state: HamsterState) -> Color {

@@ -4,6 +4,7 @@
 //
 //  Preview and equip/place items from inventory
 //  Phase 07.3: Customization MVP - Equip and Place
+//  Phase 10: Added hamster preview with item equipped
 //
 
 import SwiftUI
@@ -72,11 +73,11 @@ struct InventoryItemPreviewView: View {
         }
     }
 
-    // MARK: - Item Preview Section
+    // MARK: - Item Preview Section (Phase 10: Shows hamster with item)
 
     private var itemPreviewSection: some View {
         VStack(spacing: 16) {
-            // Large preview
+            // Large preview with hamster
             ZStack {
                 // Category gradient background
                 LinearGradient(
@@ -85,10 +86,30 @@ struct InventoryItemPreviewView: View {
                     endPoint: .bottomTrailing
                 )
 
-                // Item icon
-                Image(systemName: item.defaultIcon)
-                    .font(.system(size: 80))
-                    .foregroundStyle(.white.opacity(0.95))
+                // Preview content based on category
+                switch category {
+                case .outfits:
+                    // Show hamster wearing the outfit
+                    HamsterView(
+                        state: .happy,
+                        growthStage: .adult,
+                        outfit: item,
+                        size: 140
+                    )
+
+                case .accessories:
+                    // Show hamster wearing the accessory
+                    HamsterView(
+                        state: .happy,
+                        growthStage: .adult,
+                        accessory: item,
+                        size: 140
+                    )
+
+                case .enclosure:
+                    // Show the enclosure item
+                    EnclosureItemView(item: item, size: 120)
+                }
 
                 // In-use badge
                 if isInUse {
@@ -350,11 +371,13 @@ struct InventoryItemPreviewView: View {
                     .font(.headline)
                     .multilineTextAlignment(.center)
 
-                // Hamster reaction
+                // Hamster reaction (Phase 10: Using HamsterView)
                 VStack(spacing: 8) {
-                    Image(systemName: "hare.fill")
-                        .font(.system(size: 30))
-                        .foregroundStyle(.brown)
+                    HamsterView(
+                        state: .excited,
+                        growthStage: .adult,
+                        size: 60
+                    )
 
                     Text(""\(hamsterReaction)"")
                         .font(.subheadline)

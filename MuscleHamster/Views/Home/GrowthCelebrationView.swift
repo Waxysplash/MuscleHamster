@@ -4,6 +4,7 @@
 //
 //  Celebration modal shown when the hamster reaches a new growth stage
 //  Phase 07.4: Growth progression milestones
+//  Phase 10: Replaced SF Symbol with HamsterView component
 //
 
 import SwiftUI
@@ -76,15 +77,17 @@ struct GrowthCelebrationView: View {
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Grew from \(previousStage?.displayName ?? "baby") to \(milestone.stage.displayName)")
 
-                        // Hamster
+                        // Hamster (Phase 10: Using HamsterView)
                         ZStack {
                             Circle()
                                 .fill(stageColor.opacity(0.2))
                                 .frame(width: 160, height: 160)
 
-                            Image(systemName: "hare.fill")
-                                .font(.system(size: 70 * milestone.stage.sizeMultiplier))
-                                .foregroundStyle(stageColor)
+                            HamsterView(
+                                state: .proud,
+                                growthStage: milestone.stage,
+                                size: 120
+                            )
                         }
                         .scaleEffect(showHamster ? 1.0 : 0.5)
                         .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.6), value: showHamster)
