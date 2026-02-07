@@ -24,6 +24,64 @@
 		A1000036 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000037; };
 		A1000038 /* AudioSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000039; };
 		A100003A /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003B; };
+		A100003C /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003D; };
+		A1000041 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000040; };
+		A1000043 /* AuthError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042; };
+		A1000045 /* AuthServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000044; };
+		A1000047 /* MockAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000046; };
+		A1000049 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000048; };
+		A100004B /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A; };
+		A100004D /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C; };
+		A100004F /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E; };
+		A1000051 /* PasswordResetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000050; };
+		A1000053 /* AuthTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000052; };
+		A1000055 /* SocialAuthButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000054; };
+		A100005F /* AgeGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000060; };
+		A1000061 /* AgeBlockedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000062; };
+		A1000071 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000070; };
+		A1000081 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000080; };
+		A1000083 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000082; };
+		A1000085 /* OnboardingAgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000084; };
+		A1000087 /* OnboardingFitnessLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000086; };
+		A1000089 /* OnboardingGoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000088; };
+		A100008B /* OnboardingFrequencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100008A; };
+		A100008D /* OnboardingScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100008C; };
+		A100008F /* OnboardingTimeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100008E; };
+		A1000091 /* OnboardingIntentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000090; };
+		A1000093 /* OnboardingHamsterNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000094; };
+		A1000095 /* OnboardingMeetHamsterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000096; };
+		A10000A1 /* Workout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A0; };
+		A10000A3 /* WorkoutServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A2; };
+		A10000A5 /* WorkoutError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A4; };
+		A10000A7 /* MockWorkoutService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000A6; };
+		A10000B1 /* WorkoutBrowseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B0; };
+		A10000B3 /* WorkoutCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B2; };
+		A10000B5 /* WorkoutFilterSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B4; };
+		A10000B7 /* ActiveFiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B6; };
+		A10000B9 /* CategoryWorkoutsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000B8; };
+		A10000BB /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000BA; };
+		A10000BD /* WorkoutPlayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000BC; };
+		A10000BF /* WorkoutPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000BE; };
+		A10000C1 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000C0; };
+		A10000C3 /* ActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000C2; };
+		A10000D1 /* RestDayCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000D0; };
+		A10000D3 /* StreakFreezeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000D2; };
+		A10000E1 /* PointsBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000E0; };
+		A10000E3 /* PointsHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000E2; };
+		A10000F1 /* ShopItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000F0; };
+		A10000F3 /* ShopService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000F2; };
+		A10000F5 /* ShopItemCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000F4; };
+		A10000F7 /* ShopCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000F6; };
+		A10000F9 /* ShopItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000F8; };
+		A1000101 /* InventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000100; };
+		A1000103 /* InventoryCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000102; };
+		A1000105 /* InventoryItemPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000104; };
+		A1000111 /* GrowthCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000110; };
+		A1000121 /* AudioPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000120; };
+		A1000123 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000122; };
+		A1000131 /* NotificationPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000130; };
+		A1000133 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000132; };
+		A1000135 /* NotificationPermissionPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000134; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +104,64 @@
 		A1000037 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
 		A1000039 /* AudioSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSettingsView.swift; sourceTree = "<group>"; };
 		A100003B /* PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsView.swift; sourceTree = "<group>"; };
+		A100003D /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
+		A1000040 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		A1000042 /* AuthError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthError.swift; sourceTree = "<group>"; };
+		A1000044 /* AuthServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceProtocol.swift; sourceTree = "<group>"; };
+		A1000046 /* MockAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAuthService.swift; sourceTree = "<group>"; };
+		A1000048 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		A100004A /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		A100004C /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		A100004E /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		A1000050 /* PasswordResetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordResetView.swift; sourceTree = "<group>"; };
+		A1000052 /* AuthTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTextField.swift; sourceTree = "<group>"; };
+		A1000054 /* SocialAuthButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialAuthButton.swift; sourceTree = "<group>"; };
+		A1000060 /* AgeGateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeGateView.swift; sourceTree = "<group>"; };
+		A1000062 /* AgeBlockedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeBlockedView.swift; sourceTree = "<group>"; };
+		A1000070 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		A1000080 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		A1000082 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
+		A1000084 /* OnboardingAgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAgeView.swift; sourceTree = "<group>"; };
+		A1000086 /* OnboardingFitnessLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFitnessLevelView.swift; sourceTree = "<group>"; };
+		A1000088 /* OnboardingGoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingGoalsView.swift; sourceTree = "<group>"; };
+		A100008A /* OnboardingFrequencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFrequencyView.swift; sourceTree = "<group>"; };
+		A100008C /* OnboardingScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingScheduleView.swift; sourceTree = "<group>"; };
+		A100008E /* OnboardingTimeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTimeView.swift; sourceTree = "<group>"; };
+		A1000090 /* OnboardingIntentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingIntentView.swift; sourceTree = "<group>"; };
+		A1000094 /* OnboardingHamsterNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHamsterNameView.swift; sourceTree = "<group>"; };
+		A1000096 /* OnboardingMeetHamsterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMeetHamsterView.swift; sourceTree = "<group>"; };
+		A10000A0 /* Workout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workout.swift; sourceTree = "<group>"; };
+		A10000A2 /* WorkoutServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutServiceProtocol.swift; sourceTree = "<group>"; };
+		A10000A4 /* WorkoutError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutError.swift; sourceTree = "<group>"; };
+		A10000A6 /* MockWorkoutService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWorkoutService.swift; sourceTree = "<group>"; };
+		A10000B0 /* WorkoutBrowseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutBrowseViewModel.swift; sourceTree = "<group>"; };
+		A10000B2 /* WorkoutCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutCardView.swift; sourceTree = "<group>"; };
+		A10000B4 /* WorkoutFilterSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutFilterSheet.swift; sourceTree = "<group>"; };
+		A10000B6 /* ActiveFiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveFiltersView.swift; sourceTree = "<group>"; };
+		A10000B8 /* CategoryWorkoutsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryWorkoutsView.swift; sourceTree = "<group>"; };
+		A10000BA /* WorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDetailView.swift; sourceTree = "<group>"; };
+		A10000BC /* WorkoutPlayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlayerViewModel.swift; sourceTree = "<group>"; };
+		A10000BE /* WorkoutPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlayerView.swift; sourceTree = "<group>"; };
+		A10000C0 /* Activity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
+		A10000C2 /* ActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityService.swift; sourceTree = "<group>"; };
+		A10000D0 /* RestDayCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestDayCheckInView.swift; sourceTree = "<group>"; };
+		A10000D2 /* StreakFreezeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakFreezeView.swift; sourceTree = "<group>"; };
+		A10000E0 /* PointsBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsBalanceView.swift; sourceTree = "<group>"; };
+		A10000E2 /* PointsHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointsHistoryView.swift; sourceTree = "<group>"; };
+		A10000F0 /* ShopItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopItem.swift; sourceTree = "<group>"; };
+		A10000F2 /* ShopService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopService.swift; sourceTree = "<group>"; };
+		A10000F4 /* ShopItemCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopItemCardView.swift; sourceTree = "<group>"; };
+		A10000F6 /* ShopCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopCategoryView.swift; sourceTree = "<group>"; };
+		A10000F8 /* ShopItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopItemDetailView.swift; sourceTree = "<group>"; };
+		A1000100 /* InventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryView.swift; sourceTree = "<group>"; };
+		A1000102 /* InventoryCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryCategoryView.swift; sourceTree = "<group>"; };
+		A1000104 /* InventoryItemPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryItemPreviewView.swift; sourceTree = "<group>"; };
+		A1000110 /* GrowthCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthCelebrationView.swift; sourceTree = "<group>"; };
+		A1000120 /* AudioPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPreferences.swift; sourceTree = "<group>"; };
+		A1000122 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		A1000130 /* NotificationPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreferences.swift; sourceTree = "<group>"; };
+		A1000132 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A1000134 /* NotificationPermissionPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionPromptView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,12 +187,27 @@
 			isa = PBXGroup;
 			children = (
 				A1000002 /* MuscleHamsterApp.swift */,
+				A1000072 /* Models */,
 				A1000024 /* Views */,
+				A1000056 /* Services */,
 				A1000018 /* Assets.xcassets */,
 				A1000019 /* Info.plist */,
 			);
 			path = MuscleHamster;
 			sourceTree = SOURCE_ROOT;
+		};
+		A1000072 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1000070 /* UserProfile.swift */,
+				A10000A0 /* Workout.swift */,
+				A10000C0 /* Activity.swift */,
+				A10000F0 /* ShopItem.swift */,
+				A1000120 /* AudioPreferences.swift */,
+				A1000130 /* NotificationPreferences.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
 		};
 		A1000023 /* Products */ = {
 			isa = PBXGroup;
@@ -93,11 +224,51 @@
 				A1000026 /* Home */,
 				A1000027 /* Workouts */,
 				A1000028 /* Shop */,
+				A1000106 /* Inventory */,
 				A1000029 /* Social */,
 				A100002A /* Settings */,
+				A1000058 /* Auth */,
+				A1000092 /* Onboarding */,
+				A1000136 /* Notifications */,
 				A100002B /* Shared */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A1000136 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A1000134 /* NotificationPermissionPromptView.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		A1000106 /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				A1000100 /* InventoryView.swift */,
+				A1000102 /* InventoryCategoryView.swift */,
+				A1000104 /* InventoryItemPreviewView.swift */,
+			);
+			path = Inventory;
+			sourceTree = "<group>";
+		};
+		A1000092 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				A1000080 /* OnboardingViewModel.swift */,
+				A1000082 /* OnboardingContainerView.swift */,
+				A1000084 /* OnboardingAgeView.swift */,
+				A1000086 /* OnboardingFitnessLevelView.swift */,
+				A1000088 /* OnboardingGoalsView.swift */,
+				A100008A /* OnboardingFrequencyView.swift */,
+				A100008C /* OnboardingScheduleView.swift */,
+				A100008E /* OnboardingTimeView.swift */,
+				A1000090 /* OnboardingIntentView.swift */,
+				A1000094 /* OnboardingHamsterNameView.swift */,
+				A1000096 /* OnboardingMeetHamsterView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		A1000025 /* Navigation */ = {
@@ -112,6 +283,9 @@
 			isa = PBXGroup;
 			children = (
 				A1000006 /* HomeView.swift */,
+				A10000D0 /* RestDayCheckInView.swift */,
+				A10000D2 /* StreakFreezeView.swift */,
+				A1000110 /* GrowthCelebrationView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -120,6 +294,14 @@
 			isa = PBXGroup;
 			children = (
 				A1000008 /* WorkoutsView.swift */,
+				A10000B0 /* WorkoutBrowseViewModel.swift */,
+				A10000B2 /* WorkoutCardView.swift */,
+				A10000B4 /* WorkoutFilterSheet.swift */,
+				A10000B6 /* ActiveFiltersView.swift */,
+				A10000B8 /* CategoryWorkoutsView.swift */,
+				A10000BA /* WorkoutDetailView.swift */,
+				A10000BC /* WorkoutPlayerViewModel.swift */,
+				A10000BE /* WorkoutPlayerView.swift */,
 			);
 			path = Workouts;
 			sourceTree = "<group>";
@@ -128,6 +310,9 @@
 			isa = PBXGroup;
 			children = (
 				A100000A /* ShopView.swift */,
+				A10000F4 /* ShopItemCardView.swift */,
+				A10000F6 /* ShopCategoryView.swift */,
+				A10000F8 /* ShopItemDetailView.swift */,
 			);
 			path = Shop;
 			sourceTree = "<group>";
@@ -145,10 +330,12 @@
 			children = (
 				A100000E /* SettingsView.swift */,
 				A1000033 /* AccountSettingsView.swift */,
+				A100003D /* ProfileSettingsView.swift */,
 				A1000035 /* WorkoutScheduleSettingsView.swift */,
 				A1000037 /* NotificationSettingsView.swift */,
 				A1000039 /* AudioSettingsView.swift */,
 				A100003B /* PrivacySettingsView.swift */,
+				A10000E2 /* PointsHistoryView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -160,8 +347,91 @@
 				A1000012 /* LoadingView.swift */,
 				A1000014 /* EmptyStateView.swift */,
 				A1000016 /* ErrorView.swift */,
+				A10000E0 /* PointsBalanceView.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		A1000056 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1000057 /* Auth */,
+				A10000A8 /* Workout */,
+				A10000C4 /* Activity */,
+				A10000FA /* Shop */,
+				A1000124 /* Audio */,
+				A1000138 /* Notifications */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1000138 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				A1000132 /* NotificationManager.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		A1000124 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				A1000122 /* AudioManager.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		A10000FA /* Shop */ = {
+			isa = PBXGroup;
+			children = (
+				A10000F2 /* ShopService.swift */,
+			);
+			path = Shop;
+			sourceTree = "<group>";
+		};
+		A10000C4 /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				A10000C2 /* ActivityService.swift */,
+			);
+			path = Activity;
+			sourceTree = "<group>";
+		};
+		A10000A8 /* Workout */ = {
+			isa = PBXGroup;
+			children = (
+				A10000A2 /* WorkoutServiceProtocol.swift */,
+				A10000A4 /* WorkoutError.swift */,
+				A10000A6 /* MockWorkoutService.swift */,
+			);
+			path = Workout;
+			sourceTree = "<group>";
+		};
+		A1000057 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A1000040 /* User.swift */,
+				A1000042 /* AuthError.swift */,
+				A1000044 /* AuthServiceProtocol.swift */,
+				A1000046 /* MockAuthService.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		A1000058 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				A1000048 /* AuthViewModel.swift */,
+				A100004A /* WelcomeView.swift */,
+				A1000060 /* AgeGateView.swift */,
+				A1000062 /* AgeBlockedView.swift */,
+				A100004C /* SignUpView.swift */,
+				A100004E /* SignInView.swift */,
+				A1000050 /* PasswordResetView.swift */,
+				A1000052 /* AuthTextField.swift */,
+				A1000054 /* SocialAuthButton.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -249,6 +519,64 @@
 				A1000036 /* NotificationSettingsView.swift in Sources */,
 				A1000038 /* AudioSettingsView.swift in Sources */,
 				A100003A /* PrivacySettingsView.swift in Sources */,
+				A100003C /* ProfileSettingsView.swift in Sources */,
+				A1000041 /* User.swift in Sources */,
+				A1000043 /* AuthError.swift in Sources */,
+				A1000045 /* AuthServiceProtocol.swift in Sources */,
+				A1000047 /* MockAuthService.swift in Sources */,
+				A1000049 /* AuthViewModel.swift in Sources */,
+				A100004B /* WelcomeView.swift in Sources */,
+				A100004D /* SignUpView.swift in Sources */,
+				A100004F /* SignInView.swift in Sources */,
+				A1000051 /* PasswordResetView.swift in Sources */,
+				A1000053 /* AuthTextField.swift in Sources */,
+				A1000055 /* SocialAuthButton.swift in Sources */,
+				A100005F /* AgeGateView.swift in Sources */,
+				A1000061 /* AgeBlockedView.swift in Sources */,
+				A1000071 /* UserProfile.swift in Sources */,
+				A1000081 /* OnboardingViewModel.swift in Sources */,
+				A1000083 /* OnboardingContainerView.swift in Sources */,
+				A1000085 /* OnboardingAgeView.swift in Sources */,
+				A1000087 /* OnboardingFitnessLevelView.swift in Sources */,
+				A1000089 /* OnboardingGoalsView.swift in Sources */,
+				A100008B /* OnboardingFrequencyView.swift in Sources */,
+				A100008D /* OnboardingScheduleView.swift in Sources */,
+				A100008F /* OnboardingTimeView.swift in Sources */,
+				A1000091 /* OnboardingIntentView.swift in Sources */,
+				A1000093 /* OnboardingHamsterNameView.swift in Sources */,
+				A1000095 /* OnboardingMeetHamsterView.swift in Sources */,
+				A10000A1 /* Workout.swift in Sources */,
+				A10000A3 /* WorkoutServiceProtocol.swift in Sources */,
+				A10000A5 /* WorkoutError.swift in Sources */,
+				A10000A7 /* MockWorkoutService.swift in Sources */,
+				A10000B1 /* WorkoutBrowseViewModel.swift in Sources */,
+				A10000B3 /* WorkoutCardView.swift in Sources */,
+				A10000B5 /* WorkoutFilterSheet.swift in Sources */,
+				A10000B7 /* ActiveFiltersView.swift in Sources */,
+				A10000B9 /* CategoryWorkoutsView.swift in Sources */,
+				A10000BB /* WorkoutDetailView.swift in Sources */,
+				A10000BD /* WorkoutPlayerViewModel.swift in Sources */,
+				A10000BF /* WorkoutPlayerView.swift in Sources */,
+				A10000C1 /* Activity.swift in Sources */,
+				A10000C3 /* ActivityService.swift in Sources */,
+				A10000D1 /* RestDayCheckInView.swift in Sources */,
+				A10000D3 /* StreakFreezeView.swift in Sources */,
+				A10000E1 /* PointsBalanceView.swift in Sources */,
+				A10000E3 /* PointsHistoryView.swift in Sources */,
+				A10000F1 /* ShopItem.swift in Sources */,
+				A10000F3 /* ShopService.swift in Sources */,
+				A10000F5 /* ShopItemCardView.swift in Sources */,
+				A10000F7 /* ShopCategoryView.swift in Sources */,
+				A10000F9 /* ShopItemDetailView.swift in Sources */,
+				A1000101 /* InventoryView.swift in Sources */,
+				A1000103 /* InventoryCategoryView.swift in Sources */,
+				A1000105 /* InventoryItemPreviewView.swift in Sources */,
+				A1000111 /* GrowthCelebrationView.swift in Sources */,
+				A1000121 /* AudioPreferences.swift in Sources */,
+				A1000123 /* AudioManager.swift in Sources */,
+				A1000131 /* NotificationPreferences.swift in Sources */,
+				A1000133 /* NotificationManager.swift in Sources */,
+				A1000135 /* NotificationPermissionPromptView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
