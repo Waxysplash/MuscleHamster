@@ -3,6 +3,7 @@
 //  MuscleHamster
 //
 //  Primary tab bar navigation for the app
+//  Phase 08.3: Added notification tap routing support
 //
 
 import SwiftUI
@@ -34,6 +35,7 @@ enum Tab: String, CaseIterable {
 
 struct MainTabView: View {
     @State private var selectedTab: Tab = .home
+    @ObservedObject private var routingState = AppRoutingState.shared
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -66,9 +68,18 @@ struct MainTabView: View {
                 .accessibilityLabel(Tab.social.accessibilityLabel)
         }
         .tint(.accentColor)
+        .onChange(of: routingState.shouldNavigateToHome) { shouldNavigate in
+            if shouldNavigate {
+                // Switch to home tab when notification is tapped
+                selectedTab = .home
+                // Clear the navigation flag
+                routingState.clearPendingDestination()
+            }
+        }
     }
 }
 
 #Preview {
     MainTabView()
+        .environmentObject(AuthViewModel())
 }

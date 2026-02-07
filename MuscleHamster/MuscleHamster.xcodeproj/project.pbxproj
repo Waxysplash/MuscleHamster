@@ -82,6 +82,8 @@
 		A1000131 /* NotificationPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000130; };
 		A1000133 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000132; };
 		A1000135 /* NotificationPermissionPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000134; };
+		A1000141 /* AppRoutingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000140; };
+		A1000143 /* NotificationContextBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000142; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -162,6 +164,8 @@
 		A1000130 /* NotificationPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreferences.swift; sourceTree = "<group>"; };
 		A1000132 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		A1000134 /* NotificationPermissionPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionPromptView.swift; sourceTree = "<group>"; };
+		A1000140 /* AppRoutingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoutingState.swift; sourceTree = "<group>"; };
+		A1000142 /* NotificationContextBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContextBanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +209,7 @@
 				A10000F0 /* ShopItem.swift */,
 				A1000120 /* AudioPreferences.swift */,
 				A1000130 /* NotificationPreferences.swift */,
+				A1000140 /* AppRoutingState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -239,6 +244,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000134 /* NotificationPermissionPromptView.swift */,
+				A1000142 /* NotificationContextBanner.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -577,6 +583,8 @@
 				A1000131 /* NotificationPreferences.swift in Sources */,
 				A1000133 /* NotificationManager.swift in Sources */,
 				A1000135 /* NotificationPermissionPromptView.swift in Sources */,
+				A1000141 /* AppRoutingState.swift in Sources */,
+				A1000143 /* NotificationContextBanner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

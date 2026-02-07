@@ -4,6 +4,7 @@
 //
 //  Centralized manager for notification permissions and scheduling
 //  Phase 08.2: Push Permission UX and Scheduling Rules
+//  Phase 08.3: Notification Tap Routing and Today Context
 //
 
 import Foundation
@@ -14,7 +15,7 @@ import SwiftUI
 
 /// Singleton manager for handling all notification-related functionality
 @MainActor
-final class NotificationManager: ObservableObject {
+final class NotificationManager: NSObject, ObservableObject {
 
     // MARK: - Singleton
 
@@ -46,10 +47,18 @@ final class NotificationManager: ObservableObject {
 
     private let notificationCenter = UNUserNotificationCenter.current()
 
+    /// Callback for when a notification is tapped (set by app on launch)
+    var onNotificationTap: ((_ notificationType: NotificationType, _ hasCheckedInToday: Bool, _ currentStreak: Int) -> Void)?
+
     // MARK: - Init
 
-    private init() {
+    private override init() {
         self.preferences = NotificationPreferences.loadFromUserDefaults()
+
+        super.init()
+
+        // Set ourselves as the notification center delegate
+        notificationCenter.delegate = self
 
         // Check initial permission state
         Task {
@@ -73,6 +82,18 @@ final class NotificationManager: ObservableObject {
         Task { @MainActor in
             await refreshPermissionState()
         }
+    }
+
+    // MARK: - Notification Type Parsing
+
+    /// Parse a notification identifier to determine its type
+    func parseNotificationType(from identifier: String) -> NotificationType? {
+        if identifier.hasPrefix(NotificationType.dailyReminder.identifierPrefix) {
+            return .dailyReminder
+        } else if identifier.hasPrefix(NotificationType.streakAtRisk.identifierPrefix) {
+            return .streakAtRisk
+        }
+        return nil
     }
 
     // MARK: - Permission Management
@@ -314,6 +335,83 @@ final class NotificationManager: ObservableObject {
     /// Get pending notification requests (for debugging)
     func getPendingNotifications() async -> [UNNotificationRequest] {
         return await notificationCenter.pendingNotificationRequests()
+    }
+}
+
+// MARK: - UNUserNotificationCenterDelegate
+
+extension NotificationManager: UNUserNotificationCenterDelegate {
+
+    /// Called when a notification is delivered while app is in foreground
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // Show the notification even when app is in foreground
+        // This allows users to see reminders if they're already in the app
+        completionHandler([.banner, .sound, .badge])
+    }
+
+    /// Called when user taps a notification
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let identifier = response.notification.request.identifier
+
+        Task { @MainActor in
+            await handleNotificationResponse(identifier: identifier)
+        }
+
+        completionHandler()
+    }
+
+    /// Handle a notification tap
+    @MainActor
+    private func handleNotificationResponse(identifier: String) async {
+        print("NotificationManager: Handling notification tap - identifier: \(identifier)")
+
+        // Parse the notification type
+        guard let notificationType = parseNotificationType(from: identifier) else {
+            print("NotificationManager: Unknown notification identifier: \(identifier)")
+            return
+        }
+
+        // Clear badge and delivered notifications
+        notificationCenter.removeAllDeliveredNotifications()
+        await clearBadge()
+
+        // Get current user stats to determine today context
+        // Note: This needs the activity service, but we want to avoid tight coupling
+        // So we use the callback pattern to let the app handle routing
+        let activityService = MockActivityService.shared
+        let userId = UserDefaults.standard.string(forKey: "currentUserId") ?? ""
+
+        var hasCheckedInToday = false
+        var currentStreak = 0
+
+        if !userId.isEmpty {
+            do {
+                let stats = try await activityService.getUserStats(userId: userId)
+                hasCheckedInToday = stats.hasAnyCheckInToday
+                currentStreak = stats.currentStreak
+            } catch {
+                print("NotificationManager: Failed to get user stats: \(error)")
+                // Continue with defaults - routing will still work
+            }
+        }
+
+        // Call the tap handler if set
+        onNotificationTap?(notificationType, hasCheckedInToday, currentStreak)
+
+        // Also update the routing state directly
+        AppRoutingState.shared.handleNotificationTap(
+            notificationType: notificationType,
+            hasCheckedInToday: hasCheckedInToday,
+            currentStreak: currentStreak
+        )
     }
 }
 

@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** Implementation In Progress
-**Active Phase:** Phase 08 — Notifications & Audio Controls
-**Last Updated:** Feb 7, 2026 (Session 23)
+**Status:** MVP Implementation Complete
+**Active Phase:** Post-MVP Planning
+**Last Updated:** Feb 7, 2026 (Session 24)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -10,33 +10,24 @@
 
 ---
 
-## Current Focus (Next 1–3 Sessions)
+## Current Focus (MVP Complete!)
 
-- [x] Begin implementation of Phase 01 — App Shell & Core Navigation ✅
-- [x] Begin Phase 02 — Accounts, Authentication & Age Gate ✅
-- [x] Begin Phase 03 — Onboarding & User Profile Setup ✅
-- [x] Begin Phase 04 — Workout Library, Browse, Filter & Recommendation v0 ✅
-  - [x] Phase 04.1: Workout catalog and metadata strategy ✅
-  - [x] Phase 04.2: Browse and filter UX ✅
-  - [x] Phase 04.3: Recommendation v0 (rules-based and explainable) ✅
-  - [x] Phase 04.4: Review ✅
-- [x] Begin Phase 05 — Workout Player & Completion Rewards ✅
-  - [x] Phase 05.1: Workout player MVP ✅
-  - [x] Phase 05.2: Completion rewards and activity history ✅
-  - [x] Phase 05.3: Workout feedback capture ✅
-  - [x] Phase 05.4: Review ✅
-- [x] Begin Phase 06 — Rest-Day Check-ins, Streaks & Streak Freeze ✅
-  - [x] Phase 06.1: Rest-day micro-tasks ✅
-  - [x] Phase 06.2: Personal streak rules engine ✅
-  - [x] Phase 06.3: Streak freeze restore flow ✅
-  - [x] Phase 06.4: Review ✅
-- [x] Begin Phase 07 — Shop, Inventory, Customization & Growth ✅
-  - [x] Phase 07.1: Points wallet and transaction expectations ✅
-  - [x] Phase 07.2: Shop MVP and purchase flow ✅
-  - [x] Phase 07.3: Customization MVP (equip and place) ✅
-  - [x] Phase 07.4: Growth progression milestones ✅
-  - [x] Phase 07.5: Review ✅
-- [ ] Resolve remaining open questions before implementation begins
+All MVP phases have been implemented and reviewed:
+- ✅ Phase 01 — App Shell & Core Navigation
+- ✅ Phase 02 — Accounts, Authentication & Age Gate
+- ✅ Phase 03 — Onboarding & User Profile Setup
+- ✅ Phase 04 — Workout Library, Browse, Filter & Recommendation v0
+- ✅ Phase 05 — Workout Player & Completion Rewards
+- ✅ Phase 06 — Rest-Day Check-ins, Streaks & Streak Freeze
+- ✅ Phase 07 — Shop, Inventory, Customization & Growth
+- ✅ Phase 08 — Notifications & Audio Controls
+
+**Next Steps (Post-MVP):**
+- [ ] Add real workout content (exercise catalog, media assets)
+- [ ] Add hamster artwork (states, growth stages, outfits)
+- [ ] Add audio assets (sound effects, music tracks)
+- [ ] Internal testing and polish
+- [ ] Begin Phase 09 (Social features) when ready
 
 ---
 
@@ -121,12 +112,12 @@
   - ✅ phase07.4-growth-progression-milestones.md (IMPLEMENTED)
   - ✅ phase07.5-review.md (REVIEWED — SIGN-OFF)
 
-### Phase 08 — Notifications & Audio Controls
+### Phase 08 — Notifications & Audio Controls ✅
 - `Development/phase-08-notifications-and-audio-controls/`
-  - [x] phase08.1-audio-experience-and-settings.md (IMPLEMENTED)
-  - [x] phase08.2-push-permission-ux-and-scheduling-rules.md (IMPLEMENTED)
-  - [ ] phase08.3-notification-tap-routing-and-today-context.md
-  - [ ] phase08.4-review.md
+  - ✅ phase08.1-audio-experience-and-settings.md (IMPLEMENTED)
+  - ✅ phase08.2-push-permission-ux-and-scheduling-rules.md (IMPLEMENTED)
+  - ✅ phase08.3-notification-tap-routing-and-today-context.md (IMPLEMENTED)
+  - ✅ phase08.4-review.md (REVIEWED — SIGN-OFF)
 
 ### Post-MVP (Parking Lot)
 - Social features (friends, friend streaks, privacy controls)
@@ -1110,4 +1101,79 @@
     - Footer: "Your hamster appreciates a good soundtrack!"
   - Updated Xcode project with 2 new files (AudioPreferences.swift, AudioManager.swift)
   - **Phase 08.1 complete. Ready for Phase 08.2 (Push Permission UX and Scheduling Rules).**
+- Feb 7, 2026 (Session 24): **Phase 08.3 Implementation Complete — Notification Tap Routing and Today Context**
+  - Expanded phase08.3 requirements document from stub to comprehensive specification:
+    - Notification tap handling via UNUserNotificationCenterDelegate
+    - Today context determination (workout done, rest-day done, no check-in)
+    - Routing destinations matrix (notification type × context → destination)
+    - Pre-routing checks (safe routing for logged-out/onboarding users)
+    - Contextual banner UX patterns with 3 states (streak safe, action needed, gentle nudge)
+    - Edge cases: stale notifications, foreground handling, multiple taps
+    - Accessibility requirements including VoiceOver announcements
+  - Created AppRoutingState.swift (Models/):
+    - `AppRoutingState` singleton ObservableObject for app-wide routing state
+    - `DeepLinkDestination` enum for routing targets
+    - `NotificationContext` struct with banner type, message, and action button logic
+    - `NotificationBannerType` enum with styling (icon, colors, accessibility)
+    - `handleNotificationTap()` method to process notification taps
+    - Clear methods for consuming routing state
+  - Created NotificationContextBanner.swift (Views/Notifications/):
+    - Animated banner component with slide-in transition
+    - 3 banner states with distinct styling (green/orange/purple)
+    - Optional action button for "action needed" state
+    - Dismiss button with X icon
+    - Auto-dismiss after 8 seconds for non-actionable banners
+    - VoiceOver announcement on appear
+    - Respects Reduce Motion accessibility setting
+    - Full VoiceOver accessibility labels and hints
+  - Updated NotificationManager.swift:
+    - Added NSObject inheritance for UNUserNotificationCenterDelegate conformance
+    - Set delegate in init()
+    - Added `parseNotificationType(from:)` method
+    - Implemented `userNotificationCenter(_:willPresent:)` for foreground notifications
+    - Implemented `userNotificationCenter(_:didReceive:)` for tap handling
+    - `handleNotificationResponse()` loads user stats and triggers routing
+    - Clears badge and delivered notifications on tap
+    - Optional callback for notification taps
+  - Updated MuscleHamsterApp.swift:
+    - Added AppRoutingState environment object
+    - Store current user ID in UserDefaults for notification handler
+    - Clear routing state for logged-out/onboarding users
+  - Updated MainTabView.swift:
+    - Added routingState observation
+    - Switch to Home tab when notification is tapped (via shouldNavigateToHome)
+    - Clear pending destination after navigation
+  - Updated HomeView.swift:
+    - Added notificationBannerSection at top of homeContent
+    - Shows contextual banner when notification context is present
+    - Action button opens rest-day check-in sheet
+    - Banner dismisses on tap or auto-dismiss timeout
+  - Updated Xcode project with 2 new files (AppRoutingState.swift, NotificationContextBanner.swift)
+  - **Phase 08.3 complete. Ready for Phase 08.4 (Review).**
+- Feb 7, 2026 (Session 24): **Phase 08.4 Review Complete — SIGN-OFF**
+  - **Exhaustive Inventory:** 12 files audited across Phase 08.1–08.3
+    - Phase 08.1: 4 files (AudioPreferences, AudioManager, AudioSettingsView, SettingsView updates)
+    - Phase 08.2: 5 files (NotificationPreferences, NotificationManager, NotificationPermissionPromptView, NotificationSettingsView, SettingsView updates)
+    - Phase 08.3: 6 files (AppRoutingState, NotificationContextBanner, NotificationManager updates, MuscleHamsterApp updates, MainTabView updates, HomeView updates)
+  - **Flow-by-Flow Audit:** PASS
+    - Audio flows: mute, volume adjustment, interruption handling, persistence
+    - Notification permission flows: grant, deny, settings guidance, rescheduling
+    - Notification tap routing flows: all 4 context combinations verified, safe routing for logged-out/onboarding users
+  - **Copy Tone Audit:** PASS — Zero guilt/shame language
+    - All notification copy warm and encouraging
+    - "I promise I'll be gentle!", "No spam, no pressure", "All reminders are friendly and judgment-free"
+    - Banner messages: celebratory for success, gentle urgency for action needed
+  - **Accessibility Audit:** PASS
+    - All audio controls have proper labels and hints
+    - All notification controls properly labeled with selection traits
+    - Notification banner has VoiceOver announcements, respects Reduce Motion
+  - **Edge Cases Verified:**
+    - Audio interruption/resume, headphones disconnect, missing audio files
+    - Stale notifications, multiple notification taps, foreground notification handling
+    - Logged-out/onboarding-incomplete routing
+  - **Minor Observations (non-blocking):**
+    - NotificationBannerContainer helper unused (fine for future refactoring)
+    - onChange API uses iOS 16 syntax (functional on iOS 15+, update when targeting iOS 17+)
+  - **Requirements Verification:** All Phase 08.1, 08.2, 08.3 requirements met
+  - **Phase 08 complete. MVP core loop implementation complete.**
 
