@@ -115,6 +115,36 @@ protocol FriendServiceProtocol {
 
     /// Update visibility settings
     func updateVisibilitySettings(userId: String, settings: FriendVisibilitySettings) async throws
+
+    // MARK: - Privacy Settings
+
+    /// Get privacy settings for a user
+    func getPrivacySettings(userId: String) async -> PrivacySettings
+
+    /// Update privacy settings
+    func updatePrivacySettings(userId: String, settings: PrivacySettings) async throws
+
+    // MARK: - Blocked Users with Profiles
+
+    /// Get blocked users with their profile information
+    func getBlockedUsersWithProfiles(userId: String) async -> [(blockedUser: BlockedUser, profile: FriendProfile?)]
+
+    // MARK: - Nudges
+
+    /// Check if user can nudge a friend
+    func canNudge(senderId: String, recipientId: String) async -> NudgeEligibility
+
+    /// Send a nudge to a friend
+    func sendNudge(senderId: String, recipientId: String) async throws -> FriendNudge
+
+    /// Get nudge history for a user
+    func getNudgeHistory(userId: String) async -> NudgeHistory
+
+    /// Get recent received nudges (for display on Home)
+    func getRecentReceivedNudges(userId: String) async -> [FriendNudge]
+
+    /// Clear received nudges (after viewing)
+    func clearReceivedNudges(userId: String) async
 }
 
 // MARK: - Friend Error
@@ -133,6 +163,10 @@ enum FriendError: LocalizedError {
     case inviteCodeInvalid
     case inviteCodeExpired
     case saveFailed
+    case nudgeCooldown
+    case nudgeDailyLimit
+    case nudgeSenderNotCheckedIn
+    case nudgeRecipientCheckedIn
     case unknown(String)
 
     var errorDescription: String? {
@@ -163,6 +197,14 @@ enum FriendError: LocalizedError {
             return "This invite code has expired."
         case .saveFailed:
             return "Couldn't save your changes."
+        case .nudgeCooldown:
+            return "Please wait before nudging again."
+        case .nudgeDailyLimit:
+            return "Daily nudge limit reached."
+        case .nudgeSenderNotCheckedIn:
+            return "Check in first to send encouragement."
+        case .nudgeRecipientCheckedIn:
+            return "Your friend already checked in today."
         case .unknown(let message):
             return message
         }
@@ -197,6 +239,14 @@ enum FriendError: LocalizedError {
             return "This invite code has expired. Time for a fresh one!"
         case .saveFailed:
             return "Oops, something went wrong. Let's try that again!"
+        case .nudgeCooldown:
+            return "You just nudged them! Give them a bit of time."
+        case .nudgeDailyLimit:
+            return "You've encouraged lots of friends today! That's wonderful."
+        case .nudgeSenderNotCheckedIn:
+            return "Check in first to send encouragement to your friends!"
+        case .nudgeRecipientCheckedIn:
+            return "Good news — your friend already checked in today!"
         case .unknown:
             return "Something went a little wrong. Let's give it another try!"
         }
@@ -252,13 +302,15 @@ actor MockFriendService: FriendServiceProtocol {
                     email: profile.email,
                     hamsterName: profile.hamsterName,
                     currentStreak: profile.currentStreak,
+                    longestStreak: profile.longestStreak,
                     totalWorkoutsCompleted: profile.totalWorkoutsCompleted,
                     hamsterState: profile.hamsterState,
                     growthStage: profile.growthStage,
                     equippedOutfitId: profile.equippedOutfitId,
                     equippedAccessoryId: profile.equippedAccessoryId,
                     friendStreak: streak,
-                    visibilitySettings: profile.visibilitySettings
+                    visibilitySettings: profile.visibilitySettings,
+                    memberSince: profile.memberSince
                 )
                 friends.append(profile)
             }
@@ -298,13 +350,15 @@ actor MockFriendService: FriendServiceProtocol {
             email: profile.email,
             hamsterName: profile.hamsterName,
             currentStreak: profile.currentStreak,
+            longestStreak: profile.longestStreak,
             totalWorkoutsCompleted: profile.totalWorkoutsCompleted,
             hamsterState: profile.hamsterState,
             growthStage: profile.growthStage,
             equippedOutfitId: profile.equippedOutfitId,
             equippedAccessoryId: profile.equippedAccessoryId,
             friendStreak: streak,
-            visibilitySettings: profile.visibilitySettings
+            visibilitySettings: profile.visibilitySettings,
+            memberSince: profile.memberSince
         )
 
         // Simulate network delay
@@ -878,6 +932,161 @@ actor MockFriendService: FriendServiceProtocol {
         try? await Task.sleep(nanoseconds: 100_000_000)
     }
 
+    // MARK: - Privacy Settings
+
+    private var privacySettingsCache: [String: PrivacySettings] = [:]
+
+    func getPrivacySettings(userId: String) async -> PrivacySettings {
+        if let cached = privacySettingsCache[userId] {
+            return cached
+        }
+        let settings = PrivacySettings.load(for: userId)
+        privacySettingsCache[userId] = settings
+        return settings
+    }
+
+    func updatePrivacySettings(userId: String, settings: PrivacySettings) async throws {
+        privacySettingsCache[userId] = settings
+        settings.save(for: userId)
+
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 100_000_000)
+    }
+
+    // MARK: - Blocked Users with Profiles
+
+    func getBlockedUsersWithProfiles(userId: String) async -> [(blockedUser: BlockedUser, profile: FriendProfile?)] {
+        let blockedList = blockedUsers.filter { $0.blockerId == userId }
+            .sorted { $0.blockedAt > $1.blockedAt }
+
+        return blockedList.map { blocked in
+            let profile = mockProfiles[blocked.blockedId]
+            return (blockedUser: blocked, profile: profile)
+        }
+    }
+
+    // MARK: - Nudges
+
+    private var nudgeHistoryCache: [String: NudgeHistory] = [:]
+
+    func canNudge(senderId: String, recipientId: String) async -> NudgeEligibility {
+        // Check if they are friends
+        let areFriends = await self.areFriends(userId1: senderId, userId2: recipientId)
+        if !areFriends {
+            return .notFriends
+        }
+
+        // Check for blocks
+        let hasBlock = await hasBlockBetween(userId1: senderId, userId2: recipientId)
+        if hasBlock {
+            return .blocked
+        }
+
+        // Check if sender has checked in today (using ActivityService)
+        let senderStats = await MockActivityService.shared.getUserStats(userId: senderId)
+        if !senderStats.hasAnyCheckInToday {
+            return .senderNotCheckedIn
+        }
+
+        // Check if recipient has already checked in today
+        // For mock, we'll use the friend profile's hamster state
+        // In real implementation, this would check their actual check-in status
+        if let profile = mockProfiles[recipientId] {
+            // If their hamster is happy/excited/proud, they likely checked in
+            if profile.hamsterState == .happy || profile.hamsterState == .excited || profile.hamsterState == .proud {
+                return .recipientAlreadyCheckedIn
+            }
+        }
+
+        // Check nudge history
+        let history = getNudgeHistorySync(for: senderId)
+
+        // Check daily limit
+        if history.isDailyLimitReached {
+            return .dailyLimitReached
+        }
+
+        // Check cooldown for this specific friend
+        if let remaining = history.cooldownRemaining(for: recipientId) {
+            return .cooldownActive(remaining: remaining)
+        }
+
+        return .canNudge
+    }
+
+    func sendNudge(senderId: String, recipientId: String) async throws -> FriendNudge {
+        // Verify eligibility
+        let eligibility = await canNudge(senderId: senderId, recipientId: recipientId)
+
+        switch eligibility {
+        case .canNudge:
+            break
+        case .senderNotCheckedIn:
+            throw FriendError.nudgeSenderNotCheckedIn
+        case .recipientAlreadyCheckedIn:
+            throw FriendError.nudgeRecipientCheckedIn
+        case .cooldownActive:
+            throw FriendError.nudgeCooldown
+        case .dailyLimitReached:
+            throw FriendError.nudgeDailyLimit
+        case .notFriends:
+            throw FriendError.userNotFound
+        case .blocked:
+            throw FriendError.userBlocked
+        }
+
+        // Create the nudge
+        let nudge = FriendNudge(
+            senderId: senderId,
+            recipientId: recipientId,
+            messageIndex: NudgeMessages.randomIndex()
+        )
+
+        // Update sender's history
+        var senderHistory = getNudgeHistorySync(for: senderId)
+        senderHistory.sentNudges.append(nudge)
+        senderHistory.pruneOldNudges()
+        nudgeHistoryCache[senderId] = senderHistory
+        senderHistory.save(for: senderId)
+
+        // Update recipient's history
+        var recipientHistory = getNudgeHistorySync(for: recipientId)
+        recipientHistory.receivedNudges.append(nudge)
+        recipientHistory.pruneOldNudges()
+        nudgeHistoryCache[recipientId] = recipientHistory
+        recipientHistory.save(for: recipientId)
+
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 200_000_000)
+
+        return nudge
+    }
+
+    func getNudgeHistory(userId: String) async -> NudgeHistory {
+        getNudgeHistorySync(for: userId)
+    }
+
+    func getRecentReceivedNudges(userId: String) async -> [FriendNudge] {
+        let history = getNudgeHistorySync(for: userId)
+        return history.recentReceivedNudges.sorted { $0.sentAt > $1.sentAt }
+    }
+
+    func clearReceivedNudges(userId: String) async {
+        var history = getNudgeHistorySync(for: userId)
+        history.receivedNudges = []
+        nudgeHistoryCache[userId] = history
+        history.save(for: userId)
+    }
+
+    private func getNudgeHistorySync(for userId: String) -> NudgeHistory {
+        if let cached = nudgeHistoryCache[userId] {
+            return cached
+        }
+        let history = NudgeHistory.load(for: userId)
+        nudgeHistoryCache[userId] = history
+        return history
+    }
+
     // MARK: - Mock Data Setup
 
     private func setupMockProfiles() {
@@ -888,45 +1097,59 @@ actor MockFriendService: FriendServiceProtocol {
                 email: "alex@example.com",
                 hamsterName: "Peanut",
                 currentStreak: 12,
+                longestStreak: 28,
                 totalWorkoutsCompleted: 45,
                 hamsterState: .excited,
-                growthStage: .juvenile
+                growthStage: .juvenile,
+                equippedOutfitId: "outfit_athlete",
+                memberSince: Calendar.current.date(byAdding: .month, value: -2, to: Date())
             ),
             "mock_friend_2": FriendProfile(
                 id: "mock_friend_2",
                 email: "sam@example.com",
                 hamsterName: "Whiskers",
                 currentStreak: 5,
+                longestStreak: 14,
                 totalWorkoutsCompleted: 23,
                 hamsterState: .happy,
-                growthStage: .baby
+                growthStage: .baby,
+                memberSince: Calendar.current.date(byAdding: .day, value: -21, to: Date())
             ),
             "mock_friend_3": FriendProfile(
                 id: "mock_friend_3",
                 email: "jordan@example.com",
                 hamsterName: "Nugget",
                 currentStreak: 30,
+                longestStreak: 60,
                 totalWorkoutsCompleted: 120,
                 hamsterState: .proud,
-                growthStage: .adult
+                growthStage: .adult,
+                equippedOutfitId: "outfit_superhero",
+                equippedAccessoryId: "accessory_crown",
+                memberSince: Calendar.current.date(byAdding: .month, value: -4, to: Date())
             ),
             "mock_friend_4": FriendProfile(
                 id: "mock_friend_4",
                 email: "taylor@example.com",
                 hamsterName: "Coco",
                 currentStreak: 0,
+                longestStreak: 3,
                 totalWorkoutsCompleted: 8,
                 hamsterState: .hungry,
-                growthStage: .baby
+                growthStage: .baby,
+                memberSince: Calendar.current.date(byAdding: .day, value: -10, to: Date())
             ),
             "mock_friend_5": FriendProfile(
                 id: "mock_friend_5",
                 email: "morgan@example.com",
                 hamsterName: "Biscuit",
                 currentStreak: 7,
+                longestStreak: 21,
                 totalWorkoutsCompleted: 35,
                 hamsterState: .chillin,
-                growthStage: .juvenile
+                growthStage: .juvenile,
+                equippedAccessoryId: "accessory_headband",
+                memberSince: Calendar.current.date(byAdding: .month, value: -1, to: Date())
             )
         ]
     }

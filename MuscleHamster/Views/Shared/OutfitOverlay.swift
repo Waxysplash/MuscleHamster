@@ -4,6 +4,7 @@
 //
 //  Renders outfit overlays on the hamster
 //  Tries to load real asset, falls back to placeholder
+//  Phase 10.1: Updated to use AssetNames and AssetLoader
 //  Phase 10.2: HamsterView Component Architecture
 //
 
@@ -31,10 +32,11 @@ struct OutfitOverlay: View {
     }
 
     /// Attempt to load the real asset image
+    /// Uses Phase 10.1 asset naming conventions
     private func loadAssetImage() -> Image? {
-        let imageName = "outfit_\(outfit.id)"
-        // UIImage returns nil if asset doesn't exist
-        if UIImage(named: imageName) != nil {
+        let imageName = AssetNames.outfit(id: outfit.id)
+        // Use AssetLoader to check existence
+        if AssetLoader.outfitAssetExists(id: outfit.id) {
             return Image(imageName)
         }
         return nil

@@ -86,6 +86,14 @@
 		A1000143 /* NotificationContextBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000142; };
 		A1000151 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000150; };
 		A1000153 /* FriendService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000152; };
+		A1000161 /* FriendRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000160; };
+		A1000163 /* AddFriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000162; };
+		A1000165 /* InviteLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000164; };
+		A1000167 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000166; };
+		A1000171 /* FriendStreakDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000170; };
+		A1000181 /* BlockedUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000180; };
+		A1000183 /* ProfileVisibilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000182; };
+		A1000191 /* NudgeReceivedBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000190; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -170,6 +178,14 @@
 		A1000142 /* NotificationContextBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContextBanner.swift; sourceTree = "<group>"; };
 		A1000150 /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
 		A1000152 /* FriendService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendService.swift; sourceTree = "<group>"; };
+		A1000160 /* FriendRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendRowView.swift; sourceTree = "<group>"; };
+		A1000162 /* AddFriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFriendsView.swift; sourceTree = "<group>"; };
+		A1000164 /* InviteLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InviteLinkView.swift; sourceTree = "<group>"; };
+		A1000166 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
+		A1000170 /* FriendStreakDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendStreakDetailView.swift; sourceTree = "<group>"; };
+		A1000180 /* BlockedUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersView.swift; sourceTree = "<group>"; };
+		A1000182 /* ProfileVisibilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVisibilityView.swift; sourceTree = "<group>"; };
+		A1000190 /* NudgeReceivedBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NudgeReceivedBanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -332,6 +348,12 @@
 			isa = PBXGroup;
 			children = (
 				A100000C /* SocialView.swift */,
+				A1000160 /* FriendRowView.swift */,
+				A1000162 /* AddFriendsView.swift */,
+				A1000164 /* InviteLinkView.swift */,
+				A1000166 /* QRCodeView.swift */,
+				A1000170 /* FriendStreakDetailView.swift */,
+				A1000190 /* NudgeReceivedBanner.swift */,
 			);
 			path = Social;
 			sourceTree = "<group>";
@@ -346,6 +368,8 @@
 				A1000037 /* NotificationSettingsView.swift */,
 				A1000039 /* AudioSettingsView.swift */,
 				A100003B /* PrivacySettingsView.swift */,
+				A1000180 /* BlockedUsersView.swift */,
+				A1000182 /* ProfileVisibilityView.swift */,
 				A10000E2 /* PointsHistoryView.swift */,
 			);
 			path = Settings;
@@ -601,6 +625,14 @@
 				A1000143 /* NotificationContextBanner.swift in Sources */,
 				A1000151 /* Friend.swift in Sources */,
 				A1000153 /* FriendService.swift in Sources */,
+				A1000161 /* FriendRowView.swift in Sources */,
+				A1000163 /* AddFriendsView.swift in Sources */,
+				A1000165 /* InviteLinkView.swift in Sources */,
+				A1000167 /* QRCodeView.swift in Sources */,
+				A1000171 /* FriendStreakDetailView.swift in Sources */,
+				A1000181 /* BlockedUsersView.swift in Sources */,
+				A1000183 /* ProfileVisibilityView.swift in Sources */,
+				A1000191 /* NudgeReceivedBanner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

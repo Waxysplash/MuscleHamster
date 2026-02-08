@@ -3,6 +3,7 @@
 //  MuscleHamster
 //
 //  Reusable expression components for the hamster placeholder
+//  Phase 10.1: Updated to use official HamsterColorPalette
 //  Phase 10.3: Improved SwiftUI Placeholders
 //
 
@@ -19,18 +20,18 @@ struct HamsterEye: View {
 
     var body: some View {
         ZStack {
-            // Eye white/base
+            // Eye base (using official palette)
             Ellipse()
-                .fill(Color.black)
+                .fill(HamsterColorPalette.eyeBlack)
                 .frame(
                     width: size,
                     height: isHalfClosed ? size * 0.4 : (isWide ? size * 1.2 : size)
                 )
 
-            // Sparkle highlight
+            // Sparkle highlight (using official palette)
             if hasSparkle && !isHalfClosed {
                 Circle()
-                    .fill(Color.white)
+                    .fill(HamsterColorPalette.eyeHighlight)
                     .frame(width: size * 0.35, height: size * 0.35)
                     .offset(x: -size * 0.15, y: -size * 0.15)
             }
@@ -44,7 +45,7 @@ struct HamsterNose: View {
 
     var body: some View {
         Ellipse()
-            .fill(Color(red: 1.0, green: 0.7, blue: 0.75)) // Pink
+            .fill(HamsterColorPalette.nosePink)
             .frame(width: size, height: size * 0.7)
     }
 }
@@ -211,15 +212,15 @@ struct HamsterEyebrows: View {
 
     var body: some View {
         HStack(spacing: eyeSpacing) {
-            // Left eyebrow
+            // Left eyebrow (using outline color from palette)
             Capsule()
-                .fill(Color(red: 0.85, green: 0.5, blue: 0.2))
+                .fill(HamsterColorPalette.outline)
                 .frame(width: eyebrowWidth, height: eyebrowHeight)
                 .rotationEffect(leftEyebrowRotation)
 
-            // Right eyebrow
+            // Right eyebrow (using outline color from palette)
             Capsule()
-                .fill(Color(red: 0.85, green: 0.5, blue: 0.2))
+                .fill(HamsterColorPalette.outline)
                 .frame(width: eyebrowWidth, height: eyebrowHeight)
                 .rotationEffect(rightEyebrowRotation)
         }

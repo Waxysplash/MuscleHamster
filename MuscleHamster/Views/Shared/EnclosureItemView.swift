@@ -4,6 +4,7 @@
 //
 //  Renders individual enclosure items (decorations for hamster's home)
 //  Tries to load real asset, falls back to placeholder
+//  Phase 10.1: Updated to use AssetNames and AssetLoader
 //  Phase 10.4: EnclosureView Component
 //
 
@@ -31,9 +32,11 @@ struct EnclosureItemView: View {
     }
 
     /// Attempt to load the real asset image
+    /// Uses Phase 10.1 asset naming conventions
     private func loadAssetImage() -> Image? {
-        let imageName = "enclosure_\(item.id)"
-        if UIImage(named: imageName) != nil {
+        let imageName = AssetNames.enclosureItem(id: item.id)
+        // Use AssetLoader to check existence
+        if AssetLoader.enclosureItemAssetExists(id: item.id) {
             return Image(imageName)
         }
         return nil

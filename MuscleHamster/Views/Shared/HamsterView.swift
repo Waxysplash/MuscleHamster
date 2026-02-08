@@ -4,6 +4,7 @@
 //
 //  Main reusable component for displaying the hamster
 //  Supports state, growth stage, outfit, and accessory overlays
+//  Phase 10.1: Updated to use AssetNames and AssetLoader
 //  Phase 10.2: HamsterView Component Architecture
 //
 
@@ -65,10 +66,11 @@ struct HamsterView: View {
     }
 
     /// Attempt to load the real asset image for the current state and growth stage
+    /// Uses Phase 10.1 asset naming conventions
     private func loadAssetImage() -> Image? {
-        let imageName = "hamster_\(state.rawValue)_\(growthStage.rawValue)"
-        // UIImage returns nil if asset doesn't exist
-        if UIImage(named: imageName) != nil {
+        let imageName = AssetNames.hamster(state: state, growthStage: growthStage)
+        // Use AssetLoader to check existence
+        if AssetLoader.hamsterAssetExists(state: state, growthStage: growthStage) {
             return Image(imageName)
         }
         return nil

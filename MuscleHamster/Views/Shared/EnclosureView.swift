@@ -4,6 +4,7 @@
 //
 //  Scene-based enclosure view for the hamster's home
 //  Layers: background → ground → back items → hamster → front items
+//  Phase 10.1: Updated to use official HamsterColorPalette and EnclosureItemPositioning
 //  Phase 10.4: EnclosureView Component
 //
 
@@ -80,12 +81,12 @@ struct EnclosureView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
-                // Placeholder gradient background
+                // Placeholder gradient background (using official Phase 10.1 palette)
                 LinearGradient(
                     colors: [
-                        Color(red: 1.0, green: 0.97, blue: 0.92),  // Warm cream
+                        HamsterColorPalette.enclosureSkyStart,
                         hamsterConfig.enclosureBackgroundTint,
-                        Color(red: 1.0, green: 0.94, blue: 0.85)   // Light peach
+                        HamsterColorPalette.enclosureSkyEnd
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -94,9 +95,10 @@ struct EnclosureView: View {
         }
     }
 
+    /// Load background image using Phase 10.1 asset naming
     private func loadBackgroundImage() -> Image? {
-        if UIImage(named: "enclosure_bg_default") != nil {
-            return Image("enclosure_bg_default")
+        if AssetLoader.backgroundAssetExists() {
+            return Image(AssetNames.defaultBackground)
         }
         return nil
     }
@@ -107,15 +109,15 @@ struct EnclosureView: View {
         VStack {
             Spacer()
 
-            // Ground/bedding
+            // Ground/bedding (using official Phase 10.1 palette)
             ZStack {
                 // Main ground
                 RoundedRectangle(cornerRadius: 0)
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(red: 0.75, green: 0.55, blue: 0.35).opacity(0.5),
-                                Color(red: 0.65, green: 0.45, blue: 0.25).opacity(0.6)
+                                HamsterColorPalette.enclosureGround.opacity(0.5),
+                                HamsterColorPalette.enclosureGroundDark.opacity(0.6)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -128,7 +130,7 @@ struct EnclosureView: View {
                     GeometryReader { geo in
                         ForEach(0..<15, id: \.self) { i in
                             Circle()
-                                .fill(Color.brown.opacity(0.15))
+                                .fill(HamsterColorPalette.enclosureGroundDark.opacity(0.15))
                                 .frame(width: 4, height: 4)
                                 .offset(
                                     x: CGFloat.random(in: 0...geo.size.width),

@@ -2,7 +2,7 @@
 
 **Goal:** Enable users to send friendly encouragement to friends who haven't checked in yet today, especially on rest days.
 
-**Status:** Planning
+**Status:** IMPLEMENTED
 **Priority:** MEDIUM
 **Dependencies:** Phase 09.3 (Friend Profile View), Phase 09.4 (Friend Streaks), Phase 08 (Notifications)
 **Platforms:** iOS 15+

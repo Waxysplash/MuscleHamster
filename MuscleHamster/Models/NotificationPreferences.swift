@@ -15,6 +15,7 @@ enum NotificationPreferencesKey {
     static let userEnabled = "notification_userEnabled"
     static let dailyReminderEnabled = "notification_dailyReminderEnabled"
     static let streakReminderEnabled = "notification_streakReminderEnabled"
+    static let friendNudgesEnabled = "notification_friendNudgesEnabled"
     static let reminderHour = "notification_reminderHour"
     static let reminderMinute = "notification_reminderMinute"
     static let hasShownPermissionPrompt = "notification_hasShownPermissionPrompt"
@@ -37,6 +38,9 @@ struct NotificationPreferences: Equatable {
     /// Whether streak at risk reminders are enabled
     var streakReminderEnabled: Bool
 
+    /// Whether friend nudge notifications are enabled
+    var friendNudgesEnabled: Bool
+
     /// Hour component of preferred reminder time (0-23)
     var reminderHour: Int
 
@@ -57,6 +61,7 @@ struct NotificationPreferences: Equatable {
     static let defaultUserEnabled = false
     static let defaultDailyReminderEnabled = true
     static let defaultStreakReminderEnabled = true
+    static let defaultFriendNudgesEnabled = true
     static let defaultReminderHour = 8  // 8 AM
     static let defaultReminderMinute = 0
     static let defaultQuietHoursEnabled = true
@@ -67,6 +72,7 @@ struct NotificationPreferences: Equatable {
         userEnabled: Bool = defaultUserEnabled,
         dailyReminderEnabled: Bool = defaultDailyReminderEnabled,
         streakReminderEnabled: Bool = defaultStreakReminderEnabled,
+        friendNudgesEnabled: Bool = defaultFriendNudgesEnabled,
         reminderHour: Int = defaultReminderHour,
         reminderMinute: Int = defaultReminderMinute,
         quietHoursEnabled: Bool = defaultQuietHoursEnabled,
@@ -76,6 +82,7 @@ struct NotificationPreferences: Equatable {
         self.userEnabled = userEnabled
         self.dailyReminderEnabled = dailyReminderEnabled
         self.streakReminderEnabled = streakReminderEnabled
+        self.friendNudgesEnabled = friendNudgesEnabled
         self.reminderHour = reminderHour
         self.reminderMinute = reminderMinute
         self.quietHoursEnabled = quietHoursEnabled
@@ -196,6 +203,7 @@ enum ReminderTimePeriod: String, CaseIterable, Identifiable {
 enum NotificationType: String, CaseIterable, Identifiable {
     case dailyReminder
     case streakAtRisk
+    case friendNudge
 
     var id: String { rawValue }
 
@@ -203,6 +211,7 @@ enum NotificationType: String, CaseIterable, Identifiable {
         switch self {
         case .dailyReminder: return "Daily Workout Reminder"
         case .streakAtRisk: return "Streak at Risk"
+        case .friendNudge: return "Friend Nudges"
         }
     }
 
@@ -210,6 +219,7 @@ enum NotificationType: String, CaseIterable, Identifiable {
         switch self {
         case .dailyReminder: return "A gentle nudge at your preferred time"
         case .streakAtRisk: return "Reminder before your streak resets"
+        case .friendNudge: return "Encouragement from your friends"
         }
     }
 
@@ -217,6 +227,7 @@ enum NotificationType: String, CaseIterable, Identifiable {
         switch self {
         case .dailyReminder: return "bell.fill"
         case .streakAtRisk: return "flame.fill"
+        case .friendNudge: return "hand.wave.fill"
         }
     }
 
@@ -225,6 +236,7 @@ enum NotificationType: String, CaseIterable, Identifiable {
         switch self {
         case .dailyReminder: return "daily_reminder"
         case .streakAtRisk: return "streak_at_risk"
+        case .friendNudge: return "friend_nudge"
         }
     }
 }
@@ -346,6 +358,7 @@ extension NotificationPreferences {
             userEnabled: defaults.object(forKey: NotificationPreferencesKey.userEnabled) as? Bool ?? defaultUserEnabled,
             dailyReminderEnabled: defaults.object(forKey: NotificationPreferencesKey.dailyReminderEnabled) as? Bool ?? defaultDailyReminderEnabled,
             streakReminderEnabled: defaults.object(forKey: NotificationPreferencesKey.streakReminderEnabled) as? Bool ?? defaultStreakReminderEnabled,
+            friendNudgesEnabled: defaults.object(forKey: NotificationPreferencesKey.friendNudgesEnabled) as? Bool ?? defaultFriendNudgesEnabled,
             reminderHour: defaults.object(forKey: NotificationPreferencesKey.reminderHour) as? Int ?? defaultReminderHour,
             reminderMinute: defaults.object(forKey: NotificationPreferencesKey.reminderMinute) as? Int ?? defaultReminderMinute,
             quietHoursEnabled: defaults.object(forKey: NotificationPreferencesKey.quietHoursEnabled) as? Bool ?? defaultQuietHoursEnabled,
@@ -360,6 +373,7 @@ extension NotificationPreferences {
         defaults.set(userEnabled, forKey: NotificationPreferencesKey.userEnabled)
         defaults.set(dailyReminderEnabled, forKey: NotificationPreferencesKey.dailyReminderEnabled)
         defaults.set(streakReminderEnabled, forKey: NotificationPreferencesKey.streakReminderEnabled)
+        defaults.set(friendNudgesEnabled, forKey: NotificationPreferencesKey.friendNudgesEnabled)
         defaults.set(reminderHour, forKey: NotificationPreferencesKey.reminderHour)
         defaults.set(reminderMinute, forKey: NotificationPreferencesKey.reminderMinute)
         defaults.set(quietHoursEnabled, forKey: NotificationPreferencesKey.quietHoursEnabled)

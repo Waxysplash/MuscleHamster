@@ -4,6 +4,7 @@
 //
 //  Renders accessory overlays on the hamster
 //  Positioned on head/neck area
+//  Phase 10.1: Updated to use AssetNames, AssetLoader, and AccessoryPositioning
 //  Phase 10.2: HamsterView Component Architecture
 //
 
@@ -15,20 +16,9 @@ struct AccessoryOverlay: View {
     let size: CGFloat
 
     /// Accessory position relative to hamster center
+    /// Uses Phase 10.1 AccessoryPositioning specifications
     private var accessoryOffset: CGSize {
-        switch accessory.id {
-        case "crown", "accessory_crown", "halo", "accessory_halo", "flower", "accessory_flower", "bandana", "accessory_bandana":
-            // Top of head
-            return CGSize(width: 0, height: -size * 0.35)
-        case "sunglasses", "accessory_sunglasses", "glasses", "accessory_glasses":
-            // Eye level
-            return CGSize(width: 0, height: -size * 0.18)
-        case "headphones", "accessory_headphones", "bowtie", "accessory_bowtie":
-            // Ear level
-            return CGSize(width: 0, height: -size * 0.25)
-        default:
-            return CGSize(width: 0, height: -size * 0.25)
-        }
+        AccessoryPositioning.scaledOffset(for: accessory.id, size: size)
     }
 
     var body: some View {
@@ -50,9 +40,11 @@ struct AccessoryOverlay: View {
     }
 
     /// Attempt to load the real asset image
+    /// Uses Phase 10.1 asset naming conventions
     private func loadAssetImage() -> Image? {
-        let imageName = "accessory_\(accessory.id)"
-        if UIImage(named: imageName) != nil {
+        let imageName = AssetNames.accessory(id: accessory.id)
+        // Use AssetLoader to check existence
+        if AssetLoader.accessoryAssetExists(id: accessory.id) {
             return Image(imageName)
         }
         return nil

@@ -2,7 +2,7 @@
 
 **Goal:** Enable users to control their social privacy through blocking, profile visibility settings, and friend management.
 
-**Status:** Planning
+**Status:** IMPLEMENTED
 **Priority:** HIGH
 **Dependencies:** Phase 09.1 (Data Models), Phase 09.3 (Friends List)
 **Platforms:** iOS 15+
