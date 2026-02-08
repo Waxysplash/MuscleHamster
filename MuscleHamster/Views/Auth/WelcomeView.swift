@@ -26,19 +26,20 @@ struct WelcomeView: View {
 
                 // Hero section
                 VStack(spacing: 24) {
-                    // Placeholder for hamster illustration
-                    Image(systemName: "figure.run.circle.fill")
-                        .font(.system(size: 100))
-                        .foregroundStyle(.accentColor)
+                    // Muscle Hamster logo
+                    Image("AppLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 160, height: 160)
                         .accessibilityHidden(true)
 
                     VStack(spacing: 12) {
-                        Text("Ready to get moving?")
+                        Text("Muscle Hamster")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .multilineTextAlignment(.center)
 
-                        Text("Your new workout buddy is excited to meet you!")
+                        Text("Your friendly workout buddy is excited to meet you!")
                             .font(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -46,7 +47,7 @@ struct WelcomeView: View {
                     }
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Ready to get moving? Your new workout buddy is excited to meet you!")
+                .accessibilityLabel("Muscle Hamster. Your friendly workout buddy is excited to meet you!")
 
                 Spacer()
 
