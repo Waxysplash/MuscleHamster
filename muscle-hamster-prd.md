@@ -40,7 +40,7 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 - User accounts (email/password + Apple/Google social login)
 - Age gate (13+ only)
 - Onboarding flow: age, fitness level, fitness goals (cardio/muscle gain/fat loss/flexibility/general), weekly workout goal, schedule preference (fixed vs. flexible), preferred workout time, fitness intent (maintenance vs. improvement)
-- Virtual hamster with naming, basic appearance customization, growth from baby to maturity
+- Virtual hamster with naming and appearance customization
 - Hamster renaming available anytime
 - Points economy: earn points from workouts, rest-day activities, and watching ads
 - Shop: poses, outfits, enclosure items purchasable with points
@@ -211,8 +211,7 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
   - Chillin': Rest day, check-in completed
   - Hungry: Scheduled workout day, not yet completed
   - Sad/Neglected: Missed check-in (streak broken)
-- Growth: Hamster starts as a baby and progresses through growth stages: baby → juvenile → adult → mature. Growth is triggered by cumulative workout completions and streak milestones. Hamster does not die or regress—growth is purely positive progression.
-- Acceptance criteria: Hamster state updates correctly based on user activity and schedule; growth progression visible at milestone thresholds
+- Acceptance criteria: Hamster state updates correctly based on user activity and schedule
 
 **Feature: Workout Library**
 - Description: Comprehensive collection of no-equipment bodyweight workouts
@@ -360,7 +359,6 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 
 **Hamster:**
 - Name
-- Growth stage (baby → juvenile → adult → mature)
 - Equipped outfit
 - Selected pose
 - Enclosure items and placement
@@ -370,7 +368,6 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 - Workouts completed (date, workout ID, duration, points earned, user rating)
 - Rest-day tasks completed (date, type, points earned)
 - Check-in timestamps
-- Cumulative workout count (used for hamster growth)
 
 **Economy:**
 - Points balance
@@ -532,9 +529,8 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 9. Push notifications (timed to user's preferred workout time)
 10. Shop and basic items
 11. Hamster customization (outfits, poses, enclosure)
-12. Hamster growth progression (baby → mature)
-13. Streak freezes (manual activation after miss)
-14. Smart workout recommendations
+12. Streak freezes (manual activation after miss)
+13. Smart workout recommendations
 
 **Phase 3: Social**
 15. Friends (add via username, contacts, link/QR)
@@ -548,7 +544,7 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 
 ### 8.2 Dependencies
 
-- Hamster art assets (including growth stages) required before customization and growth features
+- Hamster art assets required before customization features
 - Workout content required before workout player and recommendations are useful
 - Sound/music assets required before workout player is complete
 - Auth must be complete before any user-specific features
@@ -559,7 +555,6 @@ Muscle Hamster is a self-care fitness app that makes daily movement feel like nu
 ### 8.3 Open Questions
 
 1. **Workout visuals:** Hamster demonstrating, hamster cheering, or static illustrations? (Depends on art capacity)
-2. **Hamster growth thresholds:** What specific workout counts and/or streak milestones trigger progression from baby → juvenile → adult → mature?
 
 ---
 
