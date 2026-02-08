@@ -4,11 +4,13 @@
 //
 //  Centralized audio playback manager
 //  Phase 08.1: Audio Experience and Settings
+//  Polish: Replaced print() with structured OSLog logging
 //
 
 import Foundation
 import AVFoundation
 import Combine
+import OSLog
 
 // MARK: - Audio Manager
 
@@ -104,7 +106,7 @@ final class AudioManager: NSObject, ObservableObject {
         guard let url = Bundle.main.url(forResource: sound.resourceName, withExtension: sound.fileExtension) else {
             // Audio file not found - this is expected during MVP (no assets yet)
             // Log but don't show error to user
-            print("AudioManager: Sound effect '\(sound.resourceName)' not found in bundle")
+            AppLogger.audio.debug("Sound effect '\(sound.resourceName)' not found in bundle (expected during MVP)")
             return
         }
 
@@ -115,7 +117,7 @@ final class AudioManager: NSObject, ObservableObject {
             sfxPlayers[sound] = player
             player.play()
         } catch {
-            print("AudioManager: Failed to play sound effect '\(sound.displayName)': \(error.localizedDescription)")
+            AppLogger.audio.failure("Failed to play sound effect '\(sound.displayName)'", error: error)
         }
     }
 
@@ -129,7 +131,7 @@ final class AudioManager: NSObject, ObservableObject {
         stopMusic()
 
         guard let url = Bundle.main.url(forResource: track.resourceName, withExtension: track.fileExtension) else {
-            print("AudioManager: Music track '\(track.resourceName)' not found in bundle")
+            AppLogger.audio.debug("Music track '\(track.resourceName)' not found in bundle (expected during MVP)")
             return
         }
 
@@ -144,7 +146,7 @@ final class AudioManager: NSObject, ObservableObject {
             player.play()
             isMusicPlaying = true
         } catch {
-            print("AudioManager: Failed to play music '\(track.displayName)': \(error.localizedDescription)")
+            AppLogger.audio.failure("Failed to play music '\(track.displayName)'", error: error)
         }
     }
 
@@ -222,7 +224,7 @@ final class AudioManager: NSObject, ObservableObject {
             try session.setActive(true)
             isAudioSessionConfigured = true
         } catch {
-            print("AudioManager: Failed to configure audio session: \(error.localizedDescription)")
+            AppLogger.audio.failure("Failed to configure audio session", error: error)
         }
     }
 
@@ -315,6 +317,6 @@ extension AudioManager: AVAudioPlayerDelegate {
     }
 
     nonisolated func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        print("AudioManager: Audio decode error: \(error?.localizedDescription ?? "Unknown error")")
+        AppLogger.audio.error("Audio decode error: \(error?.localizedDescription ?? "Unknown error")")
     }
 }

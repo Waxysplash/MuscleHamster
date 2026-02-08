@@ -241,24 +241,18 @@ enum FitnessIntent: String, Codable, CaseIterable, Identifiable {
 extension UserProfile {
     private static let storageKey = "partialOnboardingProfile"
 
-    /// Save partial progress to UserDefaults
+    /// Save partial progress to UserDefaults with proper error logging
     func saveToUserDefaults() {
-        if let encoded = try? JSONEncoder().encode(self) {
-            UserDefaults.standard.set(encoded, forKey: Self.storageKey)
-        }
+        PersistenceHelper.save(self, forKey: Self.storageKey, context: "UserProfile (onboarding)")
     }
 
-    /// Load partial progress from UserDefaults
+    /// Load partial progress from UserDefaults with proper error logging
     static func loadFromUserDefaults() -> UserProfile? {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
-              let profile = try? JSONDecoder().decode(UserProfile.self, from: data) else {
-            return nil
-        }
-        return profile
+        PersistenceHelper.load(UserProfile.self, forKey: storageKey, context: "UserProfile (onboarding)")
     }
 
     /// Clear saved progress from UserDefaults
     static func clearFromUserDefaults() {
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        PersistenceHelper.remove(forKey: storageKey, context: "UserProfile (onboarding)")
     }
 }

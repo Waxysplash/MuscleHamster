@@ -49,12 +49,7 @@ class AuthViewModel: ObservableObject {
     /// Loads the user profile from UserDefaults
     private func loadUserProfile(for user: User) {
         let key = "userProfile_\(user.id)"
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let profile = try? JSONDecoder().decode(UserProfile.self, from: data) else {
-            userProfile = nil
-            return
-        }
-        userProfile = profile
+        userProfile = PersistenceHelper.load(UserProfile.self, forKey: key, context: "UserProfile for \(user.id)")
     }
 
     /// Updates the user profile and persists to storage
@@ -64,10 +59,8 @@ class AuthViewModel: ObservableObject {
         // Update in memory
         userProfile = profile
 
-        // Persist to UserDefaults
-        if let encoded = try? JSONEncoder().encode(profile) {
-            UserDefaults.standard.set(encoded, forKey: "userProfile_\(user.id)")
-        }
+        // Persist to UserDefaults with proper logging
+        PersistenceHelper.save(profile, forKey: "userProfile_\(user.id)", context: "UserProfile for \(user.id)")
     }
 
     // MARK: - Sign Up
@@ -137,9 +130,7 @@ class AuthViewModel: ObservableObject {
         userProfile = profile
 
         // Persist profile to UserDefaults for now (would be server in production)
-        if let encoded = try? JSONEncoder().encode(profile) {
-            UserDefaults.standard.set(encoded, forKey: "userProfile_\(user.id)")
-        }
+        PersistenceHelper.save(profile, forKey: "userProfile_\(user.id)", context: "UserProfile for \(user.id)")
 
         // Update the user in the auth service
         await authService.updateUser(user)

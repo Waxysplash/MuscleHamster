@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** Post-MVP — Social Features
-**Active Phase:** Phase 09 — Social Features
-**Last Updated:** Feb 7, 2026 (Session 26)
+**Status:** Post-MVP — Content/Asset Production
+**Active Phase:** Phase 10.1 — Art Asset Specifications (IMPLEMENTED)
+**Last Updated:** Feb 7, 2026 (Session 34)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -14,22 +14,41 @@
 
 **Phase 09 — Social Features** (Post-MVP)
 
-All MVP phases complete. Now implementing social features:
+All MVP phases complete. Social features implementation complete:
 - ✅ Phase 01–08 — MVP Core Loop Complete
-- 🔄 Phase 09 — Social Features (IN PROGRESS)
+- ✅ Phase 09 — Social Features (COMPLETE)
   - ✅ Phase 09.1 — Friend Data Model and Service Layer (IMPLEMENTED)
-  - [ ] Phase 09.2 — Add Friends UX
-  - [ ] Phase 09.3 — Friends List and Friend Profile View
-  - [ ] Phase 09.4 — Friend Streaks
-  - [ ] Phase 09.5 — Privacy Controls
-  - [ ] Phase 09.6 — Friend Nudges
-  - [ ] Phase 09.7 — Review
+  - ✅ Phase 09.2 — Add Friends UX (IMPLEMENTED)
+  - ✅ Phase 09.3 — Friends List and Friend Profile View (IMPLEMENTED)
+  - ✅ Phase 09.4 — Friend Streaks (IMPLEMENTED)
+  - ✅ Phase 09.5 — Privacy Controls (IMPLEMENTED)
+  - ✅ Phase 09.6 — Friend Nudges (IMPLEMENTED)
+  - ✅ Phase 09.7 — Review (REVIEWED — SIGN-OFF)
 
 **Parallel Work (Content/Assets):**
 - [ ] Add real workout content (exercise catalog, media assets)
-- [ ] Add hamster artwork (states, growth stages, outfits)
+- 🔄 Add hamster artwork (states, growth stages, outfits)
+  - ✅ Character style guide created (`Assets/hamster-character-style-guide.md`)
+  - ✅ Phase 10.1 Art Asset Specifications (IMPLEMENTED)
+    - Created `ArtAssetSpec.swift` with color palette, dimensions, naming conventions
+    - Updated all hamster views to use official HamsterColorPalette
+    - Created asset catalog folder structure (Hamsters, Outfits, Accessories, Enclosure, Backgrounds)
+    - Created example imageset templates for artists
+    - Added AssetLoader utility for checking asset availability
+    - Added debug AssetStatusView for tracking asset implementation progress
+  - [ ] Base hamster design (5 states × 4 growth stages = 20 assets)
+  - [ ] Starter outfits (8 pieces)
+  - [ ] Starter accessories (8 pieces)
+  - [ ] Enclosure items (8 decorations)
+  - [ ] Enclosure background (1 default)
 - [ ] Add audio assets (sound effects, music tracks)
-- [ ] Internal testing and polish
+- ✅ Internal testing and polish (Session 34)
+  - ✅ Replaced print() statements with OSLog-based AppLogger
+  - ✅ Created PersistenceHelper for centralized, logged persistence
+  - ✅ Created unit test infrastructure with 75+ tests
+  - ✅ Fixed error handling (replaced try? with PersistenceHelper)
+  - ✅ Added missing accessibility labels
+  - ✅ Fixed async Task cancellation in views (HomeView, SettingsView, etc.)
 
 ---
 
@@ -47,7 +66,10 @@ All MVP phases complete. Now implementing social features:
 
 ## Risks / Dependencies
 
-- [ ] **Art assets**: hamster states, growth stages, outfits, enclosure items
+- 🔄 **Art assets**: hamster states, growth stages, outfits, enclosure items
+  - ✅ Style guide complete — ready for artist handoff
+  - ✅ Phase 10.1 code infrastructure complete — asset catalog ready for PNG drops
+  - ⏳ Awaiting artist to create actual PNG assets
 - [ ] **Workout content**: workout definitions + exercise catalog metadata and media needs
 - [ ] **Audio assets**: music + SFX + mute controls (and platform audio behavior)
 - [x] **Policy/compliance**: age gate (13+) ✅ — privacy features, data export/deletion requirements still pending
@@ -121,15 +143,25 @@ All MVP phases complete. Now implementing social features:
   - ✅ phase08.3-notification-tap-routing-and-today-context.md (IMPLEMENTED)
   - ✅ phase08.4-review.md (REVIEWED — SIGN-OFF)
 
-### Phase 09 — Social Features 🔄
+### Phase 09 — Social Features ✅
 - `Development/phase-09-social-features/`
   - ✅ phase09.1-friend-data-model-and-service-layer.md (IMPLEMENTED)
-  - [ ] phase09.2-add-friends-ux.md
-  - [ ] phase09.3-friends-list-and-friend-profile-view.md
-  - [ ] phase09.4-friend-streaks.md
-  - [ ] phase09.5-privacy-controls.md
-  - [ ] phase09.6-friend-nudges.md
-  - [ ] phase09.7-review.md
+  - ✅ phase09.2-add-friends-ux.md (IMPLEMENTED)
+  - ✅ phase09.3-friends-list-and-friend-profile-view.md (IMPLEMENTED)
+  - ✅ phase09.4-friend-streaks.md (IMPLEMENTED)
+  - ✅ phase09.5-privacy-controls.md (IMPLEMENTED)
+  - ✅ phase09.6-friend-nudges.md (IMPLEMENTED)
+  - ✅ phase09.7-review.md (REVIEWED — SIGN-OFF)
+
+### Phase 10 — Hamster Appearance & Enclosure 🔄
+- `Development/phase-10-hamster-appearance-and-enclosure/`
+  - ✅ phase10.1-art-asset-specifications.md (IMPLEMENTED)
+    - Created `ArtAssetSpec.swift` with HamsterColorPalette, AssetNames, AssetDimensions
+    - Updated views: HamsterPlaceholder, HamsterExpressions, EnclosureView, etc.
+    - Created asset catalog structure (Hamsters/, Outfits/, Accessories/, Enclosure/, Backgrounds/)
+    - Added AssetLoader utility for checking asset availability
+    - Added AssetStatusView debug tool
+  - [ ] phase10.2 — Awaiting artist assets
 
 ### Post-MVP (Parking Lot)
 - Monetization (ads)
@@ -1251,4 +1283,362 @@ All MVP phases complete. Now implementing social features:
     - ✅ MockFriendService actor implementation with in-memory storage
     - ✅ ActivityService integration to trigger friend streak updates on check-in
   - **Phase 09.1 complete. Ready for Phase 09.2 (Add Friends UX).**
+- Feb 7, 2026 (Session 27): **Phase 09.3 Implementation Complete — Friends List and Friend Profile View**
+  - Enhanced FriendProfileView with comprehensive features:
+    - Read-only banner indicating viewing friend's profile
+    - Hamster header with avatar, state badge, growth stage badge
+    - Stats section with current streak, longest streak, workouts, member since
+    - Friend streak section with detailed status:
+      - Check-in status icons for both users (checkmark/clock)
+      - Status messages ("You're in! Waiting for [Name]...", "You both crushed it today!", etc.)
+      - Best together stat showing longest mutual streak
+    - Customization preview showing equipped outfit/accessory
+    - Actions menu (three-dot) with Remove Friend and Block User options
+    - Confirmation dialogs for remove/block with warm, non-guilt messaging
+    - Loading overlay during remove/block operations
+  - Enhanced PendingRequestsView:
+    - Added tabbed interface: Incoming / Sent (outgoing) requests
+    - Incoming requests now show sender's display name, hamster name, and state
+    - Outgoing requests section with cancel functionality
+    - Proper loading states for profile fetching
+  - Updated friend row display:
+    - Friend streak badge with at-risk indicator (orange tint + warning icon)
+    - Enhanced accessibility labels including at-risk status
+  - Updated FriendProfile model:
+    - Added `longestStreak` field for best streak ever
+    - Added `memberSince` field for join date display
+  - Updated MockFriendService:
+    - Mock profiles now include longestStreak, memberSince, equipped items
+    - All FriendProfile creation points updated with new fields
+  - All requirements from phase09.3-friends-list-and-friend-profile-view.md met:
+    - ✅ Friends list as Social tab main content
+    - ✅ Friend row with avatar, state, streak indicators
+    - ✅ Friend requests view with accept/decline and outgoing tab
+    - ✅ Friend profile view with full stats and friend streak display
+    - ✅ Remove friend and block user functionality with confirmations
+    - ✅ At-risk friend streak indicators
+    - ✅ Full VoiceOver accessibility
+  - **Phase 09.3 complete. Ready for Phase 09.4 (Friend Streaks).**
+- Feb 7, 2026 (Session 26): **Phase 09.2 Implementation Complete — Add Friends UX**
+  - Created FriendRowView.swift (Views/Social/):
+    - Reusable row component for displaying friend search results, contact matches, and friend lists
+    - `FriendRelationState` enum: none, pending, incoming, friends, blocked (with button labels/icons)
+    - Avatar with hamster state color and growth stage icon
+    - Action buttons per state: Add, Pending (cancel), Accept/Decline, Friends indicator
+    - Loading state for async actions
+    - `FriendRowCompactView` variant for compact layouts
+    - Full VoiceOver accessibility labels and hints
+  - Created AddFriendsView.swift (Views/Social/):
+    - Main Add Friends modal with search and discovery methods
+    - `AddFriendsViewModel` with debounced search (300ms)
+    - Search section: username search with real-time results
+    - Search results list using FriendRowView
+    - Discovery methods section with 3 cards:
+      - "From Contacts" placeholder
+      - "Share Invite Link" → InviteLinkView
+      - "QR Code" → QRCodeView
+    - `DiscoveryMethodCard` reusable component
+    - Friend request sending/cancelling with optimistic UI updates
+    - Loading/error/empty search states
+    - Full VoiceOver accessibility
+  - Created InviteLinkView.swift (Views/Social/):
+    - Invite link generation and sharing modal
+    - Header illustration with person.2.fill icon
+    - Invite code display (monospaced, bold)
+    - Link preview (truncated for display)
+    - Share button using iOS Share Sheet (UIActivityViewController)
+    - Copy to clipboard with confirmation ("Copied!")
+    - `ShareSheet` UIViewControllerRepresentable wrapper
+    - Loading state while generating invite code
+    - Full VoiceOver accessibility
+  - Created QRCodeView.swift (Views/Social/):
+    - Dual-tab interface: "My Code" / "Scan"
+    - My Code tab:
+      - QR code generation using CoreImage.CIFilterBuiltins
+      - Scaled 10x for crisp display
+      - Invite code text display
+      - Share QR Code button
+    - Scan tab (QRScannerView):
+      - Camera permission handling (AVFoundation)
+      - Permission request, denied, and authorized states
+      - Scan frame overlay with instructions
+      - Scanned user profile display
+      - "Add Friend" and "Scan Another" actions
+      - CameraScannerPlaceholder for testing (simulated scan)
+    - Full VoiceOver accessibility
+  - Rewrote SocialView.swift from placeholder to full implementation:
+    - `SocialViewModel` for friends list and pending requests management
+    - 4 view states: loading, empty, content, error
+    - Empty state with "Find Friends" CTA and pending requests link
+    - Friends list with two sections:
+      - "Active Streaks" — friends with active friend streaks
+      - "Friends (count)" — all friends
+    - Pending requests section when count > 0
+    - Add friends toolbar button with badge showing pending request count
+    - Friend rows show personal streak, friend streak, hamster state
+    - `PendingRequestsView` modal for accepting/declining requests
+    - `FriendProfileView` for viewing friend details with stats
+    - NavigationLink to friend profiles
+    - Pull-to-refresh and auto-refresh on returning from Add Friends
+    - Full VoiceOver accessibility
+  - Updated Xcode project with 4 new files in Social group
+  - All requirements from phase09.2-add-friends-ux.md met:
+    - ✅ Add Friends entry point in Social tab
+    - ✅ Username search with debounce
+    - ✅ Friend request sending with optimistic UI
+    - ✅ Invite link generation and sharing
+    - ✅ QR code display and scanning (placeholder scanner)
+    - ✅ Discovery method cards for Contacts, Link, QR
+    - ✅ Friend row with relationship state indicators
+    - ✅ Pending requests view for accepting/declining
+    - ✅ Error states with retry
+    - ✅ Full VoiceOver accessibility
+  - **Phase 09.2 complete. Ready for Phase 09.3 (Friends List and Friend Profile View).**
+- Feb 7, 2026 (Session 28): **Phase 09.4 Implementation Complete — Friend Streaks**
+  - Created FriendStreakDetailView.swift (Views/Social/):
+    - Dedicated view for viewing and managing friend streaks
+    - Header section with both users' hamster avatars and check-in status indicators
+    - Large streak count display with status badge (active, waiting, at risk, broken)
+    - Today's check-in status section showing each user's status (checkmark/clock)
+    - Dynamic status messages based on check-in state:
+      - "You both crushed it today!"
+      - "You're in! Waiting for [Name]..."
+      - "[Name] is in! Time to check in!"
+    - Streak stats section: current streak, best together, days as partners
+    - Restore section (when broken): displays broken streak count, restore button, points balance
+    - Restore success/waiting states with hamster reactions
+    - No streak state with encouraging message
+    - Full VoiceOver accessibility labels
+  - Created FriendStreakRestoreSheet (embedded in FriendStreakDetailView):
+    - Modal sheet with restore options when streak is broken
+    - Three restore options:
+      - "Restore for Both" (300 points) — saves streak for both users
+      - "Restore My Side" (150 points) — fixes your side, friend needs to restore theirs
+      - "Start Fresh" (0 points) — accept broken streak, start new
+    - Points cost display for each option
+    - Insufficient points messaging (friendly, no shame)
+    - Confirmation dialogs before point deduction
+    - Restoring overlay with progress indicator
+    - Hamster encouragement messages based on context
+    - Full VoiceOver accessibility
+  - Updated FriendProfileView in SocialView.swift:
+    - Friend streak section now tappable to open detail view
+    - Added "Details" chevron indicator
+    - Restore prompt banner for broken streaks
+    - Sheet navigation to FriendStreakDetailView
+    - Added `showStreakDetail` state variable
+  - Updated friendStreakCard display:
+    - Enhanced with "Details" navigation hint
+    - Added restore prompt for broken streaks
+  - Updated Xcode project with 1 new file (FriendStreakDetailView.swift)
+  - All requirements from phase09.4-friend-streaks.md met:
+    - ✅ Friend streak detail view with status display
+    - ✅ Streak stats (current, best together, days as partners)
+    - ✅ Check-in status for both users
+    - ✅ Restore flow with three options (self only 150, for both 300, start fresh)
+    - ✅ Confirmation dialogs before point deduction
+    - ✅ Success/waiting states after restore
+    - ✅ Insufficient points handling (friendly messaging)
+    - ✅ Points balance display
+    - ✅ Full VoiceOver accessibility
+    - ✅ Navigation from friend profile to detail view
+  - **Phase 09.4 complete. Ready for Phase 09.5 (Privacy Controls).**
+- Feb 7, 2026 (Session 29): **Phase 09.5 Implementation Complete — Privacy Controls**
+  - Updated Friend.swift model:
+    - Added `ProfileVisibilityLevel` enum with three levels: everyone, friendsOnly, private
+    - Each level has displayName, description, detailedDescription, icon, color
+    - Added `allowsIncomingRequests` and `showsInSearch` computed properties
+    - Added `PrivacySettings` struct with profileVisibility and allowFriendRequests
+    - UserDefaults persistence for PrivacySettings
+  - Updated FriendService.swift:
+    - Added `getPrivacySettings()` and `updatePrivacySettings()` to protocol
+    - Added `getBlockedUsersWithProfiles()` method for blocked users list with profiles
+    - MockFriendService implementation with caching and persistence
+  - Created BlockedUsersView.swift:
+    - List of blocked users with avatar, display name, blocked date
+    - Unblock button with confirmation dialog
+    - Empty state: "No Blocked Users. That's good news!"
+    - Loading, error, and content states
+    - Pull-to-refresh support
+    - Full VoiceOver accessibility labels
+  - Created ProfileVisibilityView.swift:
+    - Radio-style picker for visibility levels
+    - Info banner explaining the feature
+    - Level options with icons, names, descriptions
+    - Change preview showing detailed description of new setting
+    - Save button in toolbar with loading state
+    - Full VoiceOver accessibility
+  - Rewrote PrivacySettingsView.swift as central privacy hub:
+    - Profile Visibility section with current setting and navigation
+    - Friend Requests toggle (disabled when profile is Private)
+    - Blocked Users section with count and navigation
+    - Data & Account section with "Coming Soon" placeholders (Download Data, Delete Account)
+    - Auto-saves changes on toggle
+    - Full VoiceOver accessibility
+  - Updated Xcode project with 2 new files (BlockedUsersView.swift, ProfileVisibilityView.swift)
+  - All requirements from phase09.5-privacy-controls.md met:
+    - ✅ Block user flow (already in FriendProfileView from 09.3)
+    - ✅ Unblock user flow from blocked users list
+    - ✅ Blocked users management screen with unblock
+    - ✅ Profile visibility settings with three levels
+    - ✅ Remove friend flow (already in FriendProfileView from 09.3)
+    - ✅ Privacy settings screen as central hub
+    - ✅ Friend request toggle
+    - ✅ Data & Account placeholders for future features
+    - ✅ Full VoiceOver accessibility
+  - **Phase 09.5 complete. Ready for Phase 09.6 (Friend Nudges).**
+- Feb 7, 2026 (Session 30): **Phase 09.6 Implementation Complete — Friend Nudges**
+  - Updated Friend.swift model with nudge data structures:
+    - `FriendNudge` struct with id, senderId, recipientId, sentAt, messageIndex
+    - `NudgeMessages` enum with message rotations for recipients, notifications, and confirmations
+    - `NudgeConfig` enum with cooldown (8 hours) and daily limit (5 nudges)
+    - `NudgeEligibility` enum with all eligibility states and display messages
+    - `NudgeHistory` struct for tracking sent/received nudges with persistence
+    - Cooldown calculation and daily limit tracking
+  - Updated FriendService.swift:
+    - Added `canNudge()` method to check eligibility
+    - Added `sendNudge()` method with full validation and history tracking
+    - Added `getNudgeHistory()`, `getRecentReceivedNudges()`, `clearReceivedNudges()` methods
+    - Added nudge-specific error cases (nudgeCooldown, nudgeDailyLimit, nudgeSenderNotCheckedIn, nudgeRecipientCheckedIn)
+    - Friendly hamster-voiced error messages for all nudge errors
+  - Updated NotificationPreferences.swift:
+    - Added `friendNudgesEnabled` property with default true
+    - Added `friendNudge` case to NotificationType enum
+    - Updated persistence (load/save) to include new property
+  - Updated NotificationManager.swift:
+    - Added `toggleFriendNudges()` method
+  - Updated NotificationSettingsView.swift:
+    - Added Friend Nudges toggle with hand.wave icon
+    - Purple accent color, proper accessibility labels
+  - Updated SocialView.swift (FriendProfileView):
+    - Added nudge section with eligibility-aware display
+    - Nudge button available when friend hasn't checked in and sender has
+    - Eligibility states: canNudge, senderNotCheckedIn, recipientAlreadyCheckedIn, cooldownActive, dailyLimitReached
+    - Nudge sent overlay with success animation and confirmation message
+    - Full VoiceOver accessibility for all nudge states
+  - Created NudgeReceivedBanner.swift:
+    - Animated banner component for received nudges
+    - Shows sender name and encouragement message
+    - Auto-dismiss after 8 seconds
+    - Dismiss button with X icon
+    - MultipleNudgesBanner variant for batched nudges
+    - Respects Reduce Motion accessibility setting
+    - Full VoiceOver accessibility
+  - Updated HomeView.swift:
+    - Added nudge received banner section
+    - Loads received nudges on content load
+    - Shows banner when nudges are available (after other modals)
+    - Sequential display for multiple nudges
+    - Clears nudges after viewing
+  - Updated Xcode project with 1 new file (NudgeReceivedBanner.swift)
+  - All requirements from phase09.6-friend-nudges.md met:
+    - ✅ Nudge button on friend profile view
+    - ✅ Nudge sending logic with cooldown enforcement (8 hours per friend)
+    - ✅ Daily limit (5 nudges per day)
+    - ✅ Eligibility checks (sender must be checked in, recipient must not be)
+    - ✅ In-app nudge banner on Home screen
+    - ✅ Nudge opt-out toggle in notification settings
+    - ✅ Nudge record tracking for cooldown and history
+    - ✅ Friendly nudge message rotation (8 messages for recipient, 5 for sender confirmation)
+    - ✅ Full VoiceOver accessibility
+  - **Phase 09.6 complete. Ready for Phase 09.7 (Review).**
+- Feb 7, 2026 (Session 31): **Phase 09.7 Review Complete — SIGN-OFF**
+  - **Exhaustive Codebase Search:**
+    - 14 files audited covering all Phase 09 social features (5,857+ lines)
+    - Models: Friend.swift (903 lines) - all data models verified
+    - Services: FriendService.swift (1,175 lines) - 30+ methods implemented
+    - Views: 10 social-related views audited
+    - Integration: ActivityService friend streak updates verified
+  - **Verification Checklist:**
+    - ✅ Data Model Verification — all models store required fields, handle transitions correctly
+    - ✅ Service Layer Verification — all protocol methods implemented, integrations working
+    - ✅ UI Verification — all screens functional with proper ViewState handling
+    - ✅ Accessibility Verification — VoiceOver navigable, proper labels and hints
+    - ✅ Tone Verification — zero guilt/shame language, all messaging warm and encouraging
+    - ✅ Privacy Verification — blocking silent, visibility effective, contacts never raw
+    - ✅ Edge Cases — mutual requests auto-accept, block terminates streaks, cooldowns enforced
+  - **Bug Fixed:**
+    - BlockedUsersView.swift line 171: `HamsterState.color` returns String, not Color
+    - Fix: Added `hamsterStateColor()` helper function matching pattern in SocialView
+  - **Flow-by-Flow Audit:**
+    - Friend Request Flows: search → send → accept/decline → friendship ✅
+    - Friend List Flows: view → tap → profile → back ✅
+    - Friend Streak Flows: both check-in → increment, restore options ✅
+    - Blocking Flows: block → terminates friendship/streak → unblock available ✅
+    - Nudge Flows: check in → nudge available → cooldown → notification ✅
+    - Privacy Flows: visibility changes take effect immediately ✅
+  - **Requirements Verification:**
+    - Phase 09.1 (Data Model/Service): All requirements met ✅
+    - Phase 09.2 (Add Friends UX): All requirements met ✅
+    - Phase 09.3 (Friends List/Profile): All requirements met ✅
+    - Phase 09.4 (Friend Streaks): All requirements met ✅
+    - Phase 09.5 (Privacy Controls): All requirements met ✅
+    - Phase 09.6 (Friend Nudges): All requirements met ✅
+  - **Phase 09 complete. Social features ready for release.**
+- Feb 7, 2026 (Session 32): **Hamster Character Style Guide Created**
+  - Created comprehensive style guide: `Assets/hamster-character-style-guide.md`
+  - **Character Design Specs:**
+    - Base design: cute cartoon, chibi proportions, warm orange fur (#F5A623)
+    - 4 emotional states defined: Happy/Fed, Chillin', Hungry, Sad/Neglected
+    - 4 growth stages defined: Baby, Juvenile, Adult, Mature
+    - Color palette, line work, and expression guidelines documented
+  - **Customization System:**
+    - Outfit categories: fitness wear, casual, sporty, seasonal, premium
+    - Pose categories: exercise, victory, cute, silly
+    - Enclosure items: equipment, furniture, decorations
+  - **Technical Specs:**
+    - File formats: PNG (3x resolution for Retina)
+    - Naming convention: `hamster_[stage]_[state]_[pose].png`
+    - Asset checklist for MVP launch
+  - **Tone Guidelines:**
+    - Hamster is supportive friend, never judgmental
+    - Even "hungry" state is hopeful/inviting, not accusatory
+  - **Ready for artist handoff.**
+- Feb 7, 2026 (Session 33): **Phase 10.1 — Art Asset Specifications Implementation**
+  - Created `ArtAssetSpec.swift` with comprehensive asset infrastructure:
+    - `HamsterColorPalette` — Official color constants (#F5A623 orange, #FFE4B5 cream, etc.)
+    - `AssetDimensions` — Sizes for all asset types at @1x/@2x/@3x
+    - `AssetNames` — Naming convention helpers (hamster_{state}_{growthStage}, outfit_{id}, etc.)
+    - `AccessoryPositioning` — Offset calculations for accessory placement
+    - `EnclosureItemPositioning` — Zone-based placement for enclosure decorations
+    - `AssetLoader` — Utilities for checking asset availability and generating missing asset reports
+  - Updated existing views to use official color palette:
+    - `HamsterPlaceholder.swift` — Now uses HamsterColorPalette constants
+    - `HamsterExpressions.swift` — Eye, nose, eyebrow colors from palette
+    - `EnclosureView.swift` — Background and ground colors from palette
+    - `HamsterView.swift` — Uses AssetNames for asset loading
+    - `OutfitOverlay.swift`, `AccessoryOverlay.swift`, `EnclosureItemView.swift` — Updated asset loaders
+  - Created asset catalog folder structure:
+    - `Assets.xcassets/Hamsters/` — For 20 hamster base assets
+    - `Assets.xcassets/Outfits/` — For 8 outfit overlays
+    - `Assets.xcassets/Accessories/` — For 8 accessory items
+    - `Assets.xcassets/Enclosure/` — For 8 enclosure items
+    - `Assets.xcassets/Backgrounds/` — For enclosure backgrounds
+    - Example imageset folders created with Contents.json templates
+  - Created `AssetStatusView.swift` debug tool:
+    - Shows which assets are loaded vs placeholder
+    - Progress tracking for art asset implementation
+    - Color palette preview for artists
+  - **Code infrastructure complete. Ready for artist to drop PNG files into asset catalog.**
+- Feb 7, 2026 (Session 33 continued): **Internal Testing & Polish — Phase 1**
+  - **Created Logger utility** (`Utilities/Logger.swift`):
+    - Centralized OSLog-based logging with categories (notifications, audio, auth, routing, etc.)
+    - Added helper methods: success(), failure(), stateChange(), userAction(), timing()
+    - Debug-only logging function for development
+  - **Replaced all print() statements** with structured OSLog logging:
+    - `NotificationManager.swift` — 11 print statements replaced
+    - `AudioManager.swift` — 5 print statements replaced
+    - `AppRoutingState.swift` — 1 print statement replaced
+    - Using appropriate log levels (info, debug, error, warning)
+  - **Created unit test infrastructure** (`MuscleHamsterTests/`):
+    - `MuscleHamsterTests.swift` — Base test class
+    - `PointsConfigTests.swift` — 12 tests for points calculation logic
+    - `GrowthConfigTests.swift` — 18 tests for growth milestone thresholds
+    - `StreakValidationTests.swift` — 20 tests for streak status validation
+    - `UserStatsTests.swift` — 25+ tests for transactions, feedback, growth helpers
+    - Test coverage for: streak multipliers, workout points, rest day points, growth triggers
+  - **Remaining polish tasks identified**:
+    - Fix try? error handling patterns
+    - Add missing accessibility labels
+    - Fix async Task cancellation
 

@@ -48,7 +48,7 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { loadSettings() }
+        .task { await loadSettingsAsync() }
     }
 
     // MARK: - Settings List
@@ -579,20 +579,21 @@ struct SettingsView: View {
 
     // MARK: - Data Loading
 
-    private func loadSettings() {
+    /// Async settings loading - cancellation-safe when used with .task modifier
+    @MainActor
+    private func loadSettingsAsync() async {
         viewState = .loading
+
         // Load points if signed in
-        Task {
-            if let userId = authViewModel.currentUser?.id {
-                let stats = await MockActivityService.shared.getUserStats(userId: userId)
-                await MainActor.run {
-                    totalPoints = stats.totalPoints
-                }
-            }
-            await MainActor.run {
-                viewState = .content
-            }
+        if let userId = authViewModel.currentUser?.id {
+            guard !Task.isCancelled else { return }
+            let stats = await MockActivityService.shared.getUserStats(userId: userId)
+            guard !Task.isCancelled else { return }
+            totalPoints = stats.totalPoints
         }
+
+        guard !Task.isCancelled else { return }
+        viewState = .content
     }
 }
 

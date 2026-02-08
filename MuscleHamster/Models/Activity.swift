@@ -1168,24 +1168,18 @@ extension UserStats {
         "userStats_\(userId)"
     }
 
-    /// Save to UserDefaults
+    /// Save to UserDefaults with proper error logging
     func save(for userId: String) {
-        if let encoded = try? JSONEncoder().encode(self) {
-            UserDefaults.standard.set(encoded, forKey: Self.storageKey(for: userId))
-        }
+        PersistenceHelper.save(self, forKey: Self.storageKey(for: userId), context: "UserStats for \(userId)")
     }
 
-    /// Load from UserDefaults
+    /// Load from UserDefaults with proper error logging
     static func load(for userId: String) -> UserStats? {
-        guard let data = UserDefaults.standard.data(forKey: storageKey(for: userId)),
-              let stats = try? JSONDecoder().decode(UserStats.self, from: data) else {
-            return nil
-        }
-        return stats
+        PersistenceHelper.load(UserStats.self, forKey: storageKey(for: userId), context: "UserStats for \(userId)")
     }
 
     /// Clear saved stats
     static func clear(for userId: String) {
-        UserDefaults.standard.removeObject(forKey: storageKey(for: userId))
+        PersistenceHelper.remove(forKey: storageKey(for: userId), context: "UserStats for \(userId)")
     }
 }

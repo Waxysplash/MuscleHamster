@@ -316,6 +316,7 @@ struct FriendProfile: Codable, Identifiable, Equatable {
     let email: String           // Email (may be partially masked)
     let hamsterName: String?    // Their hamster's name
     let currentStreak: Int      // Their personal streak
+    let longestStreak: Int      // Their longest personal streak ever
     let totalWorkoutsCompleted: Int
     let hamsterState: HamsterState
     let growthStage: GrowthStage
@@ -323,24 +324,28 @@ struct FriendProfile: Codable, Identifiable, Equatable {
     let equippedAccessoryId: String?
     let friendStreak: FriendStreak? // Mutual streak with viewing user
     let visibilitySettings: FriendVisibilitySettings?
+    let memberSince: Date?      // When they joined
 
     init(
         id: String,
         email: String,
         hamsterName: String? = nil,
         currentStreak: Int = 0,
+        longestStreak: Int = 0,
         totalWorkoutsCompleted: Int = 0,
         hamsterState: HamsterState = .chillin,
         growthStage: GrowthStage = .baby,
         equippedOutfitId: String? = nil,
         equippedAccessoryId: String? = nil,
         friendStreak: FriendStreak? = nil,
-        visibilitySettings: FriendVisibilitySettings? = nil
+        visibilitySettings: FriendVisibilitySettings? = nil,
+        memberSince: Date? = nil
     ) {
         self.id = id
         self.email = email
         self.hamsterName = hamsterName
         self.currentStreak = currentStreak
+        self.longestStreak = longestStreak
         self.totalWorkoutsCompleted = totalWorkoutsCompleted
         self.hamsterState = hamsterState
         self.growthStage = growthStage
@@ -348,6 +353,7 @@ struct FriendProfile: Codable, Identifiable, Equatable {
         self.equippedAccessoryId = equippedAccessoryId
         self.friendStreak = friendStreak
         self.visibilitySettings = visibilitySettings
+        self.memberSince = memberSince
     }
 
     /// Display name (hamster name or masked email)
@@ -504,6 +510,334 @@ enum FriendStreakConfig {
     }
 }
 
+// MARK: - Profile Visibility Level
+
+/// Controls who can find and view your profile
+enum ProfileVisibilityLevel: String, Codable, CaseIterable, Identifiable {
+    case everyone      // Anyone can see your profile and send requests
+    case friendsOnly   // Only friends can see your full profile
+    case `private`     // Hidden from search, no incoming requests
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .everyone: return "Everyone"
+        case .friendsOnly: return "Friends Only"
+        case .private: return "Private"
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .everyone:
+            return "Anyone can find you and see your hamster"
+        case .friendsOnly:
+            return "Only friends can see your profile. Others see a limited view."
+        case .private:
+            return "You're hidden from search. Only existing friends can see you."
+        }
+    }
+
+    var detailedDescription: String {
+        switch self {
+        case .everyone:
+            return "Your profile appears in search results. Anyone can send you friend requests and view your hamster, growth stage, and customizations."
+        case .friendsOnly:
+            return "Only your friends can see your full profile. Non-friends see just your username and a 'Profile is private' message. Anyone can still send friend requests."
+        case .private:
+            return "You don't appear in search results. No one can send you friend requests. Only existing friends can see your profile. Add new friends by sharing your invite link."
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .everyone: return "globe"
+        case .friendsOnly: return "person.2.fill"
+        case .private: return "lock.fill"
+        }
+    }
+
+    var color: String {
+        switch self {
+        case .everyone: return "green"
+        case .friendsOnly: return "blue"
+        case .private: return "orange"
+        }
+    }
+
+    /// Whether this level allows friend requests from non-friends
+    var allowsIncomingRequests: Bool {
+        self != .private
+    }
+
+    /// Whether this level shows in search results
+    var showsInSearch: Bool {
+        self != .private && self != .friendsOnly
+    }
+}
+
+// MARK: - Privacy Settings
+
+/// User privacy preferences for social features
+struct PrivacySettings: Codable, Equatable {
+    var profileVisibility: ProfileVisibilityLevel
+    var allowFriendRequests: Bool
+
+    init(
+        profileVisibility: ProfileVisibilityLevel = .everyone,
+        allowFriendRequests: Bool = true
+    ) {
+        self.profileVisibility = profileVisibility
+        self.allowFriendRequests = allowFriendRequests
+    }
+
+    /// Default privacy settings (open to everyone)
+    static let `default` = PrivacySettings()
+
+    /// Whether incoming friend requests are allowed based on all settings
+    var canReceiveFriendRequests: Bool {
+        allowFriendRequests && profileVisibility.allowsIncomingRequests
+    }
+}
+
+extension PrivacySettings {
+    /// UserDefaults key format
+    static func storageKey(for userId: String) -> String {
+        "privacySettings_\(userId)"
+    }
+
+    /// Save to UserDefaults with proper error logging
+    func save(for userId: String) {
+        PersistenceHelper.save(self, forKey: Self.storageKey(for: userId), context: "PrivacySettings for \(userId)")
+    }
+
+    /// Load from UserDefaults with proper error logging
+    static func load(for userId: String) -> PrivacySettings {
+        PersistenceHelper.load(PrivacySettings.self, forKey: storageKey(for: userId), context: "PrivacySettings for \(userId)") ?? .default
+    }
+}
+
+// MARK: - Friend Nudge
+
+/// Represents a nudge (encouragement) sent between friends
+struct FriendNudge: Codable, Identifiable, Equatable {
+    let id: String
+    let senderId: String       // User who sent the nudge
+    let recipientId: String    // User who received the nudge
+    let sentAt: Date           // When the nudge was sent
+    let messageIndex: Int      // Index into the message rotation
+
+    init(
+        id: String = UUID().uuidString,
+        senderId: String,
+        recipientId: String,
+        sentAt: Date = Date(),
+        messageIndex: Int = 0
+    ) {
+        self.id = id
+        self.senderId = senderId
+        self.recipientId = recipientId
+        self.sentAt = sentAt
+        self.messageIndex = messageIndex
+    }
+
+    /// Display message for the nudge (rotates through friendly messages)
+    var message: String {
+        NudgeMessages.forRecipient[messageIndex % NudgeMessages.forRecipient.count]
+    }
+
+    /// Message with friend's name substituted
+    func messageWithName(_ name: String) -> String {
+        message.replacingOccurrences(of: "[Name]", with: name)
+    }
+}
+
+/// Nudge messages rotation
+enum NudgeMessages {
+    /// Messages shown to the recipient
+    static let forRecipient: [String] = [
+        "[Name] gave your hamster a little cheer!",
+        "[Name]'s hamster is waving at yours!",
+        "Your friend [Name] is thinking of you today!",
+        "[Name] sent some encouragement your way!",
+        "[Name]'s hamster and yours want to see each other happy!",
+        "[Name] believes in you!",
+        "A little encouragement from [Name]!",
+        "Your hamster has a cheerleader — it's [Name]!"
+    ]
+
+    /// Messages shown in push notifications
+    static let notificationBody: [String] = [
+        "[Name]'s hamster is cheering for you! Time to check in?",
+        "Your friend [Name] is rooting for you today!",
+        "[Name] sent some encouragement — your hamster noticed!",
+        "[Name] believes in you! Ready to check in?",
+        "A friendly nudge from [Name]'s hamster!"
+    ]
+
+    /// Messages shown to the sender after sending
+    static let confirmations: [String] = [
+        "Your hamster gave [Name]'s hamster a cheer!",
+        "[Name]'s hamster got your message!",
+        "Encouragement sent!",
+        "[Name] will get a friendly nudge from your hamster!",
+        "Sent! [Name]'s hamster will let them know."
+    ]
+
+    /// Get a random message index
+    static func randomIndex() -> Int {
+        Int.random(in: 0..<forRecipient.count)
+    }
+}
+
+/// Configuration for nudge limits and cooldowns
+enum NudgeConfig {
+    /// Cooldown between nudging the same friend (8 hours)
+    static let perFriendCooldownSeconds: TimeInterval = 8 * 60 * 60
+
+    /// Maximum nudges per day across all friends
+    static let dailyLimit: Int = 5
+
+    /// How long to keep nudge history (7 days)
+    static let historyRetentionDays: Int = 7
+}
+
+/// Eligibility status for sending a nudge
+enum NudgeEligibility: Equatable {
+    case canNudge                           // Nudge is available
+    case senderNotCheckedIn                 // Sender needs to check in first
+    case recipientAlreadyCheckedIn          // Friend already checked in today
+    case cooldownActive(remaining: TimeInterval)  // Recently nudged this friend
+    case dailyLimitReached                  // Hit max nudges for today
+    case notFriends                         // Not friends with this user
+    case blocked                            // One user blocked the other
+
+    var canSend: Bool {
+        self == .canNudge
+    }
+
+    var displayMessage: String {
+        switch self {
+        case .canNudge:
+            return "Send encouragement"
+        case .senderNotCheckedIn:
+            return "Check in first to send encouragement"
+        case .recipientAlreadyCheckedIn:
+            return "Already checked in today"
+        case .cooldownActive(let remaining):
+            return "Nudge again in \(formatTimeRemaining(remaining))"
+        case .dailyLimitReached:
+            return "You've encouraged lots of friends today!"
+        case .notFriends:
+            return "Add as friend first"
+        case .blocked:
+            return "Cannot send"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .canNudge:
+            return "hand.wave.fill"
+        case .senderNotCheckedIn:
+            return "arrow.up.circle"
+        case .recipientAlreadyCheckedIn:
+            return "checkmark.circle.fill"
+        case .cooldownActive:
+            return "clock.fill"
+        case .dailyLimitReached:
+            return "heart.fill"
+        case .notFriends, .blocked:
+            return "xmark.circle"
+        }
+    }
+
+    private func formatTimeRemaining(_ seconds: TimeInterval) -> String {
+        let hours = Int(seconds) / 3600
+        let minutes = (Int(seconds) % 3600) / 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if minutes > 0 {
+            return "\(minutes)m"
+        } else {
+            return "a moment"
+        }
+    }
+}
+
+/// Nudge history tracking for a user
+struct NudgeHistory: Codable {
+    var sentNudges: [FriendNudge]
+    var receivedNudges: [FriendNudge]
+
+    init(sentNudges: [FriendNudge] = [], receivedNudges: [FriendNudge] = []) {
+        self.sentNudges = sentNudges
+        self.receivedNudges = receivedNudges
+    }
+
+    /// Nudges sent today
+    var sentToday: [FriendNudge] {
+        let calendar = Calendar.current
+        return sentNudges.filter { calendar.isDateInToday($0.sentAt) }
+    }
+
+    /// Whether the daily limit has been reached
+    var isDailyLimitReached: Bool {
+        sentToday.count >= NudgeConfig.dailyLimit
+    }
+
+    /// Get cooldown remaining for a specific friend (nil if no cooldown)
+    func cooldownRemaining(for friendId: String) -> TimeInterval? {
+        guard let lastNudge = sentNudges
+            .filter({ $0.recipientId == friendId })
+            .max(by: { $0.sentAt < $1.sentAt }) else {
+            return nil
+        }
+
+        let elapsed = Date().timeIntervalSince(lastNudge.sentAt)
+        let remaining = NudgeConfig.perFriendCooldownSeconds - elapsed
+
+        return remaining > 0 ? remaining : nil
+    }
+
+    /// Unread/new received nudges (within last 24 hours, not yet acknowledged)
+    var recentReceivedNudges: [FriendNudge] {
+        let oneDayAgo = Date().addingTimeInterval(-24 * 60 * 60)
+        return receivedNudges.filter { $0.sentAt > oneDayAgo }
+    }
+
+    /// Prune old nudges beyond retention period
+    mutating func pruneOldNudges() {
+        let cutoff = Calendar.current.date(
+            byAdding: .day,
+            value: -NudgeConfig.historyRetentionDays,
+            to: Date()
+        ) ?? Date()
+
+        sentNudges = sentNudges.filter { $0.sentAt > cutoff }
+        receivedNudges = receivedNudges.filter { $0.sentAt > cutoff }
+    }
+}
+
+extension NudgeHistory {
+    /// UserDefaults key format
+    static func storageKey(for userId: String) -> String {
+        "nudgeHistory_\(userId)"
+    }
+
+    /// Save to UserDefaults with proper error logging
+    func save(for userId: String) {
+        PersistenceHelper.save(self, forKey: Self.storageKey(for: userId), context: "NudgeHistory for \(userId)")
+    }
+
+    /// Load from UserDefaults with proper error logging
+    static func load(for userId: String) -> NudgeHistory {
+        PersistenceHelper.load(NudgeHistory.self, forKey: storageKey(for: userId), context: "NudgeHistory for \(userId)") ?? NudgeHistory()
+    }
+}
+
 // MARK: - Persistence
 
 extension FriendStreak {
@@ -514,22 +848,16 @@ extension FriendStreak {
         return "friendStreak_\(sortedIds[0])_\(sortedIds[1])"
     }
 
-    /// Save to UserDefaults
+    /// Save to UserDefaults with proper error logging
     func save() {
         let key = Self.storageKey(userId1: userId1, userId2: userId2)
-        if let encoded = try? JSONEncoder().encode(self) {
-            UserDefaults.standard.set(encoded, forKey: key)
-        }
+        PersistenceHelper.save(self, forKey: key, context: "FriendStreak between \(userId1) and \(userId2)")
     }
 
-    /// Load from UserDefaults
+    /// Load from UserDefaults with proper error logging
     static func load(userId1: String, userId2: String) -> FriendStreak? {
         let key = storageKey(userId1: userId1, userId2: userId2)
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let streak = try? JSONDecoder().decode(FriendStreak.self, from: data) else {
-            return nil
-        }
-        return streak
+        return PersistenceHelper.load(FriendStreak.self, forKey: key, context: "FriendStreak between \(userId1) and \(userId2)")
     }
 }
 
@@ -539,19 +867,13 @@ extension FriendVisibilitySettings {
         "friendVisibility_\(userId)"
     }
 
-    /// Save to UserDefaults
+    /// Save to UserDefaults with proper error logging
     func save(for userId: String) {
-        if let encoded = try? JSONEncoder().encode(self) {
-            UserDefaults.standard.set(encoded, forKey: Self.storageKey(for: userId))
-        }
+        PersistenceHelper.save(self, forKey: Self.storageKey(for: userId), context: "FriendVisibilitySettings for \(userId)")
     }
 
-    /// Load from UserDefaults
+    /// Load from UserDefaults with proper error logging
     static func load(for userId: String) -> FriendVisibilitySettings {
-        guard let data = UserDefaults.standard.data(forKey: storageKey(for: userId)),
-              let settings = try? JSONDecoder().decode(FriendVisibilitySettings.self, from: data) else {
-            return .default
-        }
-        return settings
+        PersistenceHelper.load(FriendVisibilitySettings.self, forKey: storageKey(for: userId), context: "FriendVisibilitySettings for \(userId)") ?? .default
     }
 }

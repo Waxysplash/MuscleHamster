@@ -51,11 +51,10 @@ struct NotificationSettingsView: View {
             // Initialize time picker values from current preferences
             selectedHour = notificationManager.preferences.reminderHour
             selectedMinute = notificationManager.preferences.reminderMinute
-
-            // Refresh permission state
-            Task {
-                await notificationManager.refreshPermissionState()
-            }
+        }
+        .task {
+            // Refresh permission state - auto-cancelled when view disappears
+            await notificationManager.refreshPermissionState()
         }
     }
 
@@ -334,6 +333,31 @@ struct NotificationSettingsView: View {
             .accessibilityLabel("Streak at Risk Reminder")
             .accessibilityValue(notificationManager.preferences.streakReminderEnabled ? "On" : "Off")
             .accessibilityHint("Get an evening reminder if you haven't checked in")
+
+            // Friend nudges toggle
+            Toggle(isOn: Binding(
+                get: { notificationManager.preferences.friendNudgesEnabled },
+                set: { notificationManager.toggleFriendNudges($0) }
+            )) {
+                HStack(spacing: 12) {
+                    Image(systemName: "hand.wave.fill")
+                        .font(.title3)
+                        .foregroundStyle(.purple)
+                        .frame(width: 28)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Friend Nudges")
+                            .foregroundStyle(.primary)
+
+                        Text("Encouragement from your friends")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .accessibilityLabel("Friend Nudges")
+            .accessibilityValue(notificationManager.preferences.friendNudgesEnabled ? "On" : "Off")
+            .accessibilityHint("Receive friendly encouragement when friends nudge you")
         } footer: {
             Text("All reminders are friendly and judgment-free. Your hamster just wants to help!")
         }

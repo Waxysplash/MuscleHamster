@@ -5,11 +5,13 @@
 //  Centralized manager for notification permissions and scheduling
 //  Phase 08.2: Push Permission UX and Scheduling Rules
 //  Phase 08.3: Notification Tap Routing and Today Context
+//  Polish: Replaced print() with structured OSLog logging
 //
 
 import Foundation
 import UserNotifications
 import SwiftUI
+import OSLog
 
 // MARK: - Notification Manager
 
@@ -138,7 +140,7 @@ final class NotificationManager: NSObject, ObservableObject {
 
             return granted
         } catch {
-            print("NotificationManager: Failed to request permission: \(error)")
+            AppLogger.notifications.failure("Failed to request permission", error: error)
             await refreshPermissionState()
             return false
         }
@@ -206,9 +208,9 @@ final class NotificationManager: NSObject, ObservableObject {
 
         do {
             try await notificationCenter.add(request)
-            print("NotificationManager: Scheduled daily reminder for \(preferences.formattedReminderTime)")
+            AppLogger.notifications.success("Scheduled daily reminder", context: preferences.formattedReminderTime)
         } catch {
-            print("NotificationManager: Failed to schedule daily reminder: \(error)")
+            AppLogger.notifications.failure("Failed to schedule daily reminder", error: error)
         }
     }
 
@@ -237,9 +239,9 @@ final class NotificationManager: NSObject, ObservableObject {
 
         do {
             try await notificationCenter.add(request)
-            print("NotificationManager: Scheduled streak at risk reminder for \(preferences.streakReminderHour):00")
+            AppLogger.notifications.success("Scheduled streak at risk reminder", context: "\(preferences.streakReminderHour):00")
         } catch {
-            print("NotificationManager: Failed to schedule streak at risk reminder: \(error)")
+            AppLogger.notifications.failure("Failed to schedule streak at risk reminder", error: error)
         }
     }
 
@@ -248,7 +250,7 @@ final class NotificationManager: NSObject, ObservableObject {
         notificationCenter.removeAllPendingNotificationRequests()
         notificationCenter.removeAllDeliveredNotifications()
         await clearBadge()
-        print("NotificationManager: Cancelled all notifications")
+        AppLogger.notifications.info("Cancelled all notifications")
     }
 
     /// Cancel a specific notification type
@@ -286,6 +288,11 @@ final class NotificationManager: NSObject, ObservableObject {
     /// Toggle streak at risk reminder
     func toggleStreakReminder(_ enabled: Bool) {
         preferences.streakReminderEnabled = enabled
+    }
+
+    /// Toggle friend nudges
+    func toggleFriendNudges(_ enabled: Bool) {
+        preferences.friendNudgesEnabled = enabled
     }
 
     /// Initialize preferences from user's onboarding workout time preference
@@ -371,11 +378,11 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
     /// Handle a notification tap
     @MainActor
     private func handleNotificationResponse(identifier: String) async {
-        print("NotificationManager: Handling notification tap - identifier: \(identifier)")
+        AppLogger.notifications.info("Handling notification tap - identifier: \(identifier)")
 
         // Parse the notification type
         guard let notificationType = parseNotificationType(from: identifier) else {
-            print("NotificationManager: Unknown notification identifier: \(identifier)")
+            AppLogger.notifications.warning("Unknown notification identifier: \(identifier)")
             return
         }
 
@@ -398,7 +405,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
                 hasCheckedInToday = stats.hasAnyCheckInToday
                 currentStreak = stats.currentStreak
             } catch {
-                print("NotificationManager: Failed to get user stats: \(error)")
+                AppLogger.notifications.failure("Failed to get user stats for notification routing", error: error)
                 // Continue with defaults - routing will still work
             }
         }

@@ -4,10 +4,12 @@
 //
 //  Manages app-wide routing state for deep links and notification taps
 //  Phase 08.3: Notification Tap Routing and Today Context
+//  Polish: Replaced print() with structured OSLog logging
 //
 
 import Foundation
 import SwiftUI
+import OSLog
 
 // MARK: - App Routing State
 
@@ -62,7 +64,7 @@ final class AppRoutingState: ObservableObject {
         // Trigger navigation to home tab
         shouldNavigateToHome = true
 
-        print("AppRoutingState: Handling notification tap - type: \(notificationType), checkedIn: \(hasCheckedInToday)")
+        AppLogger.routing.info("Handling notification tap - type: \(String(describing: notificationType)), checkedIn: \(hasCheckedInToday)")
     }
 
     /// Clear the pending destination after it's been consumed

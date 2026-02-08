@@ -4,6 +4,7 @@
 //
 //  SwiftUI shape-based cute hamster placeholder
 //  Replaces SF Symbol "hare.fill" with a proper hamster character
+//  Phase 10.1: Updated to use official HamsterColorPalette
 //  Phase 10.3: Improved SwiftUI Placeholders
 //
 
@@ -16,12 +17,12 @@ struct HamsterPlaceholder: View {
     let growthStage: GrowthStage
     let size: CGFloat
 
-    // MARK: - Colors
+    // MARK: - Colors (from official Phase 10.1 color palette)
 
-    private let bodyColor = Color(red: 0.96, green: 0.65, blue: 0.14)       // #F5A623
-    private let bellyColor = Color(red: 1.0, green: 0.89, blue: 0.71)       // #FFE4B5
-    private let earInnerColor = Color(red: 1.0, green: 0.85, blue: 0.85)    // Light pink
-    private let outlineColor = Color(red: 0.83, green: 0.54, blue: 0.18)    // #D4892E
+    private var bodyColor: Color { HamsterColorPalette.hamsterOrange }
+    private var bellyColor: Color { HamsterColorPalette.hamsterCream }
+    private var earInnerColor: Color { HamsterColorPalette.nosePink.opacity(0.5) }
+    private var outlineColor: Color { HamsterColorPalette.outline }
 
     // MARK: - Proportions based on growth stage
 
@@ -80,6 +81,8 @@ struct HamsterPlaceholder: View {
                 .offset(y: size * 0.38)
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("A \(growthStage.displayName.lowercased()) hamster feeling \(state.displayName.lowercased())")
     }
 
     // MARK: - Body Parts

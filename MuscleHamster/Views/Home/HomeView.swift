@@ -31,8 +31,11 @@ struct HomeView: View {
     @State private var pendingGrowthMilestone: GrowthMilestone?
     @State private var currentGrowthStage: GrowthStage = .baby
     @State private var showNotificationBanner = false
+    @State private var receivedNudges: [FriendNudge] = []
+    @State private var showNudgeBanner = false
 
     private let activityService = MockActivityService.shared
+    private let friendService = MockFriendService.shared
     private let shopService = MockShopService.shared
 
     var body: some View {
@@ -73,8 +76,8 @@ struct HomeView: View {
                 }
             }
         }
-        .onAppear {
-            loadContent()
+        .task {
+            await loadContentAsync()
         }
         .sheet(isPresented: $showRestDayCheckIn) {
             RestDayCheckInView()
@@ -127,6 +130,9 @@ struct HomeView: View {
                 // Notification context banner (Phase 08.3)
                 notificationBannerSection
 
+                // Friend nudge received banner (Phase 09.6)
+                nudgeReceivedBannerSection
+
                 hamsterSection
                 todayStatusSection
                 dailyActionsSection
@@ -176,6 +182,56 @@ struct HomeView: View {
                 insertion: .move(edge: .top).combined(with: .opacity),
                 removal: .opacity
             ))
+        }
+    }
+
+    // MARK: - Nudge Received Banner Section (Phase 09.6)
+
+    @ViewBuilder
+    private var nudgeReceivedBannerSection: some View {
+        if showNudgeBanner, let nudge = receivedNudges.first {
+            NudgeReceivedBanner(
+                nudge: nudge,
+                senderName: nudgeSenderName(for: nudge),
+                onDismiss: {
+                    withAnimation {
+                        dismissNudgeBanner()
+                    }
+                }
+            )
+            .transition(.asymmetric(
+                insertion: .move(edge: .top).combined(with: .opacity),
+                removal: .opacity
+            ))
+        }
+    }
+
+    private func nudgeSenderName(for nudge: FriendNudge) -> String {
+        // For mock, we'll use a simple sender name lookup
+        // In real implementation, this would come from friend profiles
+        "A friend"
+    }
+
+    private func dismissNudgeBanner() {
+        showNudgeBanner = false
+        // Clear the nudge from the list
+        if !receivedNudges.isEmpty {
+            receivedNudges.removeFirst()
+        }
+        // Show next nudge if available
+        if !receivedNudges.isEmpty {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                    showNudgeBanner = true
+                }
+            }
+        } else {
+            // Clear all received nudges from service
+            if let userId = authViewModel.currentUser?.id {
+                Task {
+                    await friendService.clearReceivedNudges(userId: userId)
+                }
+            }
         }
     }
 
@@ -749,54 +805,84 @@ struct HomeView: View {
 
     // MARK: - Data Loading
 
+    /// Synchronous wrapper for use in sheet callbacks
     private func loadContent() {
+        Task {
+            await loadContentAsync()
+        }
+    }
+
+    /// Async content loading - cancellation-safe when used with .task modifier
+    @MainActor
+    private func loadContentAsync() async {
         viewState = .loading
 
-        Task {
-            // Load user stats if we have a logged-in user
-            if let userId = authViewModel.currentUser?.id {
-                // Phase 06.2: Validate streak status first (this may update streak if broken)
-                streakStatus = await activityService.validateStreak(userId: userId)
+        // Load user stats if we have a logged-in user
+        if let userId = authViewModel.currentUser?.id {
+            // Check for cancellation before each major async operation
+            guard !Task.isCancelled else { return }
 
-                // Refresh hamster state based on current activity
-                _ = await activityService.refreshHamsterState(userId: userId)
+            // Phase 06.2: Validate streak status first (this may update streak if broken)
+            streakStatus = await activityService.validateStreak(userId: userId)
 
-                // Get updated stats
-                userStats = await activityService.getUserStats(userId: userId)
+            guard !Task.isCancelled else { return }
 
-                // Phase 07.3: Load equipped items for display
-                equippedItems = await shopService.getEquippedItems(userId: userId)
+            // Refresh hamster state based on current activity
+            _ = await activityService.refreshHamsterState(userId: userId)
 
-                // Phase 07.4: Load growth stage and check for pending celebration
-                currentGrowthStage = await activityService.getCurrentGrowthStage(userId: userId)
-                if let milestone = await activityService.getPendingGrowthCelebration(userId: userId) {
-                    await MainActor.run {
-                        pendingGrowthMilestone = milestone
-                        showGrowthCelebration = true
-                    }
-                }
+            guard !Task.isCancelled else { return }
 
-                // Phase 06.3: Auto-show streak freeze prompt if streak is broken
-                // Only show once per session to avoid being annoying
-                // (only show if growth celebration isn't showing)
-                if case .broken(let previousStreak) = streakStatus,
-                   previousStreak > 0,
-                   !hasShownStreakFreezeThisSession,
-                   pendingGrowthMilestone == nil {
-                    await MainActor.run {
-                        hasShownStreakFreezeThisSession = true
-                        showStreakFreeze = true
-                    }
-                }
+            // Get updated stats
+            userStats = await activityService.getUserStats(userId: userId)
+
+            guard !Task.isCancelled else { return }
+
+            // Phase 07.3: Load equipped items for display
+            equippedItems = await shopService.getEquippedItems(userId: userId)
+
+            guard !Task.isCancelled else { return }
+
+            // Phase 07.4: Load growth stage and check for pending celebration
+            currentGrowthStage = await activityService.getCurrentGrowthStage(userId: userId)
+            if let milestone = await activityService.getPendingGrowthCelebration(userId: userId) {
+                pendingGrowthMilestone = milestone
+                showGrowthCelebration = true
             }
 
-            // Short delay for smooth transition
-            try? await Task.sleep(nanoseconds: 300_000_000)
+            guard !Task.isCancelled else { return }
 
-            await MainActor.run {
-                viewState = .content
+            // Phase 06.3: Auto-show streak freeze prompt if streak is broken
+            // Only show once per session to avoid being annoying
+            // (only show if growth celebration isn't showing)
+            if case .broken(let previousStreak) = streakStatus,
+               previousStreak > 0,
+               !hasShownStreakFreezeThisSession,
+               pendingGrowthMilestone == nil {
+                hasShownStreakFreezeThisSession = true
+                showStreakFreeze = true
+            }
+
+            guard !Task.isCancelled else { return }
+
+            // Phase 09.6: Load received nudges
+            let nudges = await friendService.getRecentReceivedNudges(userId: userId)
+            if !nudges.isEmpty {
+                receivedNudges = nudges
+                // Only show banner if not showing growth celebration or streak freeze
+                if pendingGrowthMilestone == nil && !showStreakFreeze {
+                    showNudgeBanner = true
+                }
             }
         }
+
+        guard !Task.isCancelled else { return }
+
+        // Short delay for smooth transition
+        try? await Task.sleep(nanoseconds: 300_000_000)
+
+        guard !Task.isCancelled else { return }
+
+        viewState = .content
     }
 
     /// Hamster-voiced error message for the Home screen

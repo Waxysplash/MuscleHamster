@@ -327,24 +327,18 @@ extension Inventory {
         "inventory_\(userId)"
     }
 
-    /// Save to UserDefaults
+    /// Save to UserDefaults with proper error logging
     func save(for userId: String) {
-        if let encoded = try? JSONEncoder().encode(self) {
-            UserDefaults.standard.set(encoded, forKey: Self.storageKey(for: userId))
-        }
+        PersistenceHelper.save(self, forKey: Self.storageKey(for: userId), context: "Inventory for \(userId)")
     }
 
-    /// Load from UserDefaults
+    /// Load from UserDefaults with proper error logging
     static func load(for userId: String) -> Inventory? {
-        guard let data = UserDefaults.standard.data(forKey: storageKey(for: userId)),
-              let inventory = try? JSONDecoder().decode(Inventory.self, from: data) else {
-            return nil
-        }
-        return inventory
+        PersistenceHelper.load(Inventory.self, forKey: storageKey(for: userId), context: "Inventory for \(userId)")
     }
 
     /// Clear saved inventory
     static func clear(for userId: String) {
-        UserDefaults.standard.removeObject(forKey: storageKey(for: userId))
+        PersistenceHelper.remove(forKey: storageKey(for: userId), context: "Inventory for \(userId)")
     }
 }
