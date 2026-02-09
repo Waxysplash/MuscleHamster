@@ -11,14 +11,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { WorkoutService } from '../services/WorkoutService';
-import { useUserProfile } from '../context/UserProfileContext';
-import { useActivity } from '../context/ActivityContext';
-import { ActivityService } from '../services/ActivityService';
-import { WorkoutType, WorkoutTypeInfo, DurationBucketInfo } from '../models/Workout';
-import { FitnessLevelInfo } from '../models/UserProfile';
-import LoadingView from '../components/LoadingView';
-import ErrorView from '../components/ErrorView';
+import { WorkoutService } from '../../services/WorkoutService';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { useActivity } from '../../context/ActivityContext';
+import { ActivityService } from '../../services/ActivityService';
+import { WorkoutType, WorkoutTypeInfo, DurationBucketInfo } from '../../models/Workout';
+import { FitnessLevelInfo } from '../../models/UserProfile';
+import LoadingView from '../../components/LoadingView';
+import ErrorView from '../../components/ErrorView';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2;

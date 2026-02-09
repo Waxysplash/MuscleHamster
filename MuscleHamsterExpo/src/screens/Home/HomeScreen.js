@@ -10,17 +10,17 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useActivity } from '../context/ActivityContext';
-import { useUserProfile } from '../context/UserProfileContext';
-import { HamsterStateInfo, StreakStatus } from '../models/Activity';
-import { GrowthStage, GrowthStageInfo, calculateGrowthStage, GrowthTriggerType } from '../models/Growth';
-import LoadingView from '../components/LoadingView';
-import GrowthCelebrationView from '../components/GrowthCelebrationView';
-import NotificationContextBanner from '../components/NotificationContextBanner';
-import HamsterView from '../components/HamsterView';
-import EnclosureView from '../components/EnclosureView';
-import { useInventory } from '../context/InventoryContext';
-import { createNotificationContext, NotificationType } from '../models/Notification';
+import { useActivity } from '../../context/ActivityContext';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { HamsterStateInfo, StreakStatus } from '../../models/Activity';
+import { GrowthStage, GrowthStageInfo, calculateGrowthStage, GrowthTriggerType } from '../../models/Growth';
+import LoadingView from '../../components/LoadingView';
+import GrowthCelebrationView from '../../components/GrowthCelebrationView';
+import NotificationContextBanner from '../../components/NotificationContextBanner';
+import HamsterView from '../../components/HamsterView';
+import EnclosureView from '../../components/EnclosureView';
+import { useInventory } from '../../context/InventoryContext';
+import { createNotificationContext, NotificationType } from '../../models/Notification';
 
 export default function HomeScreen({ navigation }) {
   const { profile } = useUserProfile();

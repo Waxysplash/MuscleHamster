@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useActivity } from '../context/ActivityContext';
-import { RestDayActivity, RestDayActivityInfo } from '../models/Activity';
+import { useActivity } from '../../context/ActivityContext';
+import { RestDayActivity, RestDayActivityInfo } from '../../models/Activity';
 
 const CheckInState = {
   SELECTION: 'selection',

@@ -1,8 +1,9 @@
 /**
- * ShopCategoryScreen.js
+ * ShopScreen.js
  * MuscleHamster Expo
  *
- * Displays items from a specific shop category with filtering and sorting
+ * Full shop implementation with featured items, categories, and purchase flow
+ * Ported from Phase 07: Shop MVP (Swift version)
  */
 
 import React, { useState, useCallback } from 'react';
@@ -18,51 +19,27 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { ShopService } from '../services/ShopService';
-import { useActivity } from '../context/ActivityContext';
+import { ShopService } from '../../services/ShopService';
+import { useActivity } from '../../context/ActivityContext';
 import {
   ShopItemCategory,
   ShopItemCategoryInfo,
-  ShopItemRarity,
   ShopItemRarityInfo,
-} from '../models/ShopItem';
-import LoadingView from '../components/LoadingView';
-import ErrorView from '../components/ErrorView';
+} from '../../models/ShopItem';
+import LoadingView from '../../components/LoadingView';
+import ErrorView from '../../components/ErrorView';
 
-const SortOption = {
-  PRICE_LOW: 'price_low',
-  PRICE_HIGH: 'price_high',
-  RARITY: 'rarity',
-  NAME: 'name',
-};
-
-const SortOptionLabels = {
-  [SortOption.PRICE_LOW]: 'Price: Low to High',
-  [SortOption.PRICE_HIGH]: 'Price: High to Low',
-  [SortOption.RARITY]: 'Rarity',
-  [SortOption.NAME]: 'Name',
-};
-
-const rarityOrder = {
-  [ShopItemRarity.LEGENDARY]: 0,
-  [ShopItemRarity.RARE]: 1,
-  [ShopItemRarity.UNCOMMON]: 2,
-  [ShopItemRarity.COMMON]: 3,
-};
-
-export default function ShopCategoryScreen({ route, navigation }) {
-  const { category } = route.params || {};
-  const categoryInfo = ShopItemCategoryInfo[category] || {};
+export default function ShopScreen({ navigation }) {
   const { totalPoints, spendPoints } = useActivity();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
+  const [featuredItems, setFeaturedItems] = useState([]);
+  const [newItems, setNewItems] = useState([]);
   const [ownedItemIds, setOwnedItemIds] = useState(new Set());
-  const [sortBy, setSortBy] = useState(SortOption.RARITY);
-  const [showSortModal, setShowSortModal] = useState(false);
 
   // Item detail modal
   const [selectedItem, setSelectedItem] = useState(null);
@@ -70,29 +47,27 @@ export default function ShopCategoryScreen({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      loadCategoryData();
-    }, [category])
+      loadShopData();
+    }, [])
   );
 
-  const loadCategoryData = async () => {
-    if (!category) {
-      setError('No category specified');
-      setIsLoading(false);
-      return;
-    }
-
+  const loadShopData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [allItems, inventory] = await Promise.all([
-        ShopService.getItems(category),
+      const [items, featured, newArrivals, inventory] = await Promise.all([
+        ShopService.getAllItems(),
+        ShopService.getFeaturedItems(),
+        ShopService.getNewItems(),
         ShopService.getInventory(),
       ]);
 
-      setItems(allItems);
+      setAllItems(items);
+      setFeaturedItems(featured);
+      setNewItems(newArrivals);
       setOwnedItemIds(new Set(inventory.ownedItems.map((o) => o.itemId)));
     } catch (e) {
-      setError('Failed to load items');
+      setError('Failed to load shop');
     } finally {
       setIsLoading(false);
     }
@@ -100,27 +75,8 @@ export default function ShopCategoryScreen({ route, navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadCategoryData();
+    await loadShopData();
     setRefreshing(false);
-  };
-
-  const getSortedItems = () => {
-    const sorted = [...items];
-    switch (sortBy) {
-      case SortOption.PRICE_LOW:
-        sorted.sort((a, b) => a.price - b.price);
-        break;
-      case SortOption.PRICE_HIGH:
-        sorted.sort((a, b) => b.price - a.price);
-        break;
-      case SortOption.RARITY:
-        sorted.sort((a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity]);
-        break;
-      case SortOption.NAME:
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-    }
-    return sorted;
   };
 
   const handlePurchase = async () => {
@@ -131,11 +87,15 @@ export default function ShopCategoryScreen({ route, navigation }) {
       const result = await ShopService.purchaseItem(selectedItem.id, totalPoints);
 
       if (result.success) {
+        // Deduct points
         await spendPoints(result.pointsSpent, `Purchased ${selectedItem.name}`);
+
+        // Update owned items
         setOwnedItemIds((prev) => new Set([...prev, selectedItem.id]));
 
+        // Show success
         Alert.alert(
-          result.message,
+          '🎉 ' + result.message,
           result.hamsterReaction,
           [{ text: 'Yay!', onPress: () => setSelectedItem(null) }]
         );
@@ -149,94 +109,145 @@ export default function ShopCategoryScreen({ route, navigation }) {
     }
   };
 
+  const getCategoryCount = (category) => {
+    return allItems.filter((item) => item.category === category).length;
+  };
+
+  const getOwnedCount = () => {
+    return ownedItemIds.size;
+  };
+
   if (isLoading) {
-    return <LoadingView message={`Loading ${categoryInfo.displayName || 'items'}...`} />;
+    return <LoadingView message="Opening the shop..." />;
   }
 
   if (error) {
-    return <ErrorView message={error} onRetry={loadCategoryData} />;
+    return <ErrorView message={error} onRetry={loadShopData} />;
   }
-
-  const sortedItems = getSortedItems();
 
   return (
     <View style={styles.container}>
-      {/* Header with sort */}
-      <View style={styles.header}>
-        <View style={styles.headerInfo}>
-          <View style={[styles.categoryIcon, { backgroundColor: categoryInfo.color + '20' }]}>
-            <Ionicons name={categoryInfo.icon} size={24} color={categoryInfo.color} />
-          </View>
-          <View>
-            <Text style={styles.headerTitle}>{categoryInfo.displayName}</Text>
-            <Text style={styles.headerSubtitle}>{items.length} items</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.sortButton}
-          onPress={() => setShowSortModal(true)}
-        >
-          <Ionicons name="swap-vertical" size={18} color="#007AFF" />
-          <Text style={styles.sortButtonText}>Sort</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Items Grid */}
       <ScrollView
-        contentContainerStyle={styles.itemsGrid}
+        contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {sortedItems.map((item) => (
-          <CategoryItemCard
-            key={item.id}
-            item={item}
-            isOwned={ownedItemIds.has(item.id)}
-            onPress={() => setSelectedItem(item)}
-          />
-        ))}
-      </ScrollView>
+        {/* Points Header */}
+        <View style={styles.pointsHeader}>
+          <Ionicons name="star" size={20} color="#FF9500" />
+          <Text style={styles.pointsText}>{totalPoints} points</Text>
+        </View>
 
-      {/* Sort Modal */}
-      <Modal
-        visible={showSortModal}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setShowSortModal(false)}
-      >
-        <TouchableOpacity
-          style={styles.sortModalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowSortModal(false)}
-        >
-          <View style={styles.sortModalContent}>
-            <Text style={styles.sortModalTitle}>Sort By</Text>
-            {Object.values(SortOption).map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={styles.sortOption}
-                onPress={() => {
-                  setSortBy(option);
-                  setShowSortModal(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.sortOptionText,
-                    sortBy === option && styles.sortOptionTextActive,
-                  ]}
-                >
-                  {SortOptionLabels[option]}
-                </Text>
-                {sortBy === option && (
-                  <Ionicons name="checkmark" size={20} color="#007AFF" />
-                )}
-              </TouchableOpacity>
-            ))}
+        {/* Welcome Section */}
+        <View style={styles.welcomeCard}>
+          <View style={styles.welcomeRow}>
+            <Ionicons name="sparkles" size={24} color="#FFD700" />
+            <View style={styles.welcomeInfo}>
+              <Text style={styles.welcomeTitle}>Welcome to the Shop!</Text>
+              <Text style={styles.welcomeSubtitle}>
+                Find something special for your hamster
+              </Text>
+            </View>
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </View>
+
+        {/* My Collection Link */}
+        {getOwnedCount() > 0 && (
+          <TouchableOpacity
+            style={styles.collectionLink}
+            onPress={() => navigation.navigate('Inventory')}
+          >
+            <View style={styles.collectionIcon}>
+              <Ionicons name="archive" size={20} color="#007AFF" />
+            </View>
+            <View style={styles.collectionInfo}>
+              <Text style={styles.collectionTitle}>My Collection</Text>
+              <Text style={styles.collectionSubtitle}>
+                {getOwnedCount()} items owned
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+          </TouchableOpacity>
+        )}
+
+        {/* Featured Section */}
+        {featuredItems.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="star" size={18} color="#FFD700" />
+              <Text style={styles.sectionTitle}>Featured</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {featuredItems.map((item) => (
+                <FeaturedItemCard
+                  key={item.id}
+                  item={item}
+                  isOwned={ownedItemIds.has(item.id)}
+                  onPress={() => setSelectedItem(item)}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Categories Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Categories</Text>
+          {Object.values(ShopItemCategory).map((category) => {
+            const info = ShopItemCategoryInfo[category];
+            const count = getCategoryCount(category);
+            return (
+              <TouchableOpacity
+                key={category}
+                style={styles.categoryRow}
+                onPress={() => navigation.navigate('ShopCategory', { category })}
+              >
+                <View style={[styles.categoryIcon, { backgroundColor: info.color + '20' }]}>
+                  <Ionicons name={info.icon} size={22} color={info.color} />
+                </View>
+                <View style={styles.categoryInfo}>
+                  <Text style={styles.categoryLabel}>{info.displayName}</Text>
+                  <Text style={styles.categoryDesc}>{info.description}</Text>
+                </View>
+                <View style={styles.categoryCount}>
+                  <Text style={styles.categoryCountText}>{count}</Text>
+                  <Text style={styles.categoryCountLabel}>items</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* New Arrivals Section */}
+        {newItems.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="sparkle" size={18} color="#5856D6" />
+              <Text style={styles.sectionTitle}>New Arrivals</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {newItems.map((item) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  isOwned={ownedItemIds.has(item.id)}
+                  onPress={() => setSelectedItem(item)}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+      </ScrollView>
 
       {/* Item Detail Modal */}
       <ItemDetailModal
@@ -251,8 +262,45 @@ export default function ShopCategoryScreen({ route, navigation }) {
   );
 }
 
-// Category Item Card (larger format for grid)
-function CategoryItemCard({ item, isOwned, onPress }) {
+// Featured Item Card
+function FeaturedItemCard({ item, isOwned, onPress }) {
+  const rarityInfo = ShopItemRarityInfo[item.rarity];
+  const categoryInfo = ShopItemCategoryInfo[item.category];
+
+  return (
+    <TouchableOpacity style={styles.featuredCard} onPress={onPress}>
+      {item.isNew && (
+        <View style={styles.newBadge}>
+          <Text style={styles.newBadgeText}>NEW</Text>
+        </View>
+      )}
+      <View style={[styles.featuredIcon, { backgroundColor: categoryInfo.color + '20' }]}>
+        <Ionicons name={categoryInfo.icon} size={32} color={categoryInfo.color} />
+      </View>
+      <Text style={styles.featuredName} numberOfLines={1}>{item.name}</Text>
+      <View style={styles.rarityRow}>
+        <View style={[styles.rarityDot, { backgroundColor: rarityInfo.color }]} />
+        <Text style={[styles.rarityText, { color: rarityInfo.color }]}>
+          {rarityInfo.displayName}
+        </Text>
+      </View>
+      {isOwned ? (
+        <View style={styles.ownedBadge}>
+          <Ionicons name="checkmark-circle" size={14} color="#34C759" />
+          <Text style={styles.ownedText}>Owned</Text>
+        </View>
+      ) : (
+        <View style={styles.priceRow}>
+          <Ionicons name="star" size={14} color="#FF9500" />
+          <Text style={styles.priceText}>{item.price}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+// Regular Item Card
+function ItemCard({ item, isOwned, onPress }) {
   const rarityInfo = ShopItemRarityInfo[item.rarity];
   const categoryInfo = ShopItemCategoryInfo[item.category];
 
@@ -264,31 +312,24 @@ function CategoryItemCard({ item, isOwned, onPress }) {
         </View>
       )}
       <View style={[styles.itemIcon, { backgroundColor: categoryInfo.color + '20' }]}>
-        <Ionicons name={categoryInfo.icon} size={32} color={categoryInfo.color} />
+        <Ionicons name={categoryInfo.icon} size={24} color={categoryInfo.color} />
       </View>
-      <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-      <View style={styles.rarityRow}>
-        <View style={[styles.rarityDot, { backgroundColor: rarityInfo.color }]} />
-        <Text style={[styles.rarityText, { color: rarityInfo.color }]}>
-          {rarityInfo.displayName}
-        </Text>
-      </View>
+      <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
       {isOwned ? (
-        <View style={styles.ownedBadge}>
-          <Ionicons name="checkmark-circle" size={16} color="#34C759" />
-          <Text style={styles.ownedText}>Owned</Text>
+        <View style={styles.ownedBadgeSmall}>
+          <Ionicons name="checkmark" size={12} color="#34C759" />
         </View>
       ) : (
-        <View style={styles.priceRow}>
-          <Ionicons name="star" size={16} color="#FF9500" />
-          <Text style={styles.priceText}>{item.price}</Text>
+        <View style={styles.priceRowSmall}>
+          <Ionicons name="star" size={12} color="#FF9500" />
+          <Text style={styles.priceTextSmall}>{item.price}</Text>
         </View>
       )}
     </TouchableOpacity>
   );
 }
 
-// Item Detail Modal (reused from ShopScreen)
+// Item Detail Modal
 function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, onClose }) {
   if (!item) return null;
 
@@ -313,17 +354,19 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
         </View>
 
         <ScrollView contentContainerStyle={styles.modalContent}>
+          {/* Item Preview */}
           <View style={[styles.previewContainer, { backgroundColor: categoryInfo.color + '15' }]}>
             <View style={[styles.previewIcon, { backgroundColor: categoryInfo.color + '30' }]}>
               <Ionicons name={categoryInfo.icon} size={60} color={categoryInfo.color} />
             </View>
           </View>
 
+          {/* Item Info */}
           <Text style={styles.itemDetailName}>{item.name}</Text>
 
           <View style={styles.badgesRow}>
             <View style={[styles.rarityBadge, { backgroundColor: rarityInfo.color + '20' }]}>
-              <View style={[styles.rarityDotLarge, { backgroundColor: rarityInfo.color }]} />
+              <Ionicons name={rarityInfo.icon} size={14} color={rarityInfo.color} />
               <Text style={[styles.rarityBadgeText, { color: rarityInfo.color }]}>
                 {rarityInfo.displayName}
               </Text>
@@ -338,6 +381,7 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
 
           <Text style={styles.itemDescription}>{item.description}</Text>
 
+          {/* Price Section */}
           <View style={styles.priceSection}>
             <View style={styles.priceLarge}>
               <Ionicons name="star" size={24} color="#FF9500" />
@@ -349,6 +393,7 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
           </View>
         </ScrollView>
 
+        {/* Purchase Button */}
         <View style={styles.modalFooter}>
           {isOwned ? (
             <View style={styles.ownedButton}>
@@ -389,64 +434,144 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
   },
-  header: {
+  content: {
+    paddingBottom: 32,
+  },
+  pointsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255,149,0,0.1)',
+  },
+  pointsText: {
+    marginLeft: 6,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF9500',
+  },
+  welcomeCard: {
+    margin: 16,
     padding: 16,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#8B5CF6',
   },
-  headerInfo: {
+  welcomeRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  categoryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+  welcomeInfo: {
+    marginLeft: 12,
+    flex: 1,
   },
-  headerTitle: {
+  welcomeTitle: {
     fontSize: 18,
     fontWeight: '700',
   },
-  headerSubtitle: {
+  welcomeSubtitle: {
     fontSize: 14,
     color: '#8E8E93',
     marginTop: 2,
   },
-  sortButton: {
+  collectionLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 14,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+  },
+  collectionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     backgroundColor: 'rgba(0,122,255,0.1)',
-    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sortButtonText: {
-    marginLeft: 4,
-    fontSize: 14,
+  collectionInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  collectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
   },
-  itemsGrid: {
+  collectionSubtitle: {
+    fontSize: 13,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+  section: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+  },
+  sectionHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 12,
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  itemCard: {
-    width: '48%',
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginLeft: 6,
+  },
+  horizontalScroll: {
+    paddingRight: 16,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 8,
+  },
+  categoryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoryInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  categoryLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  categoryDesc: {
+    fontSize: 13,
+    color: '#8E8E93',
+    marginTop: 2,
+  },
+  categoryCount: {
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  categoryCountText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  categoryCountLabel: {
+    fontSize: 11,
+    color: '#8E8E93',
+  },
+  // Featured Card
+  featuredCard: {
+    width: 150,
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 14,
-    margin: '1%',
+    marginRight: 12,
     alignItems: 'center',
   },
-  itemIcon: {
+  featuredIcon: {
     width: 64,
     height: 64,
     borderRadius: 16,
@@ -454,12 +579,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  itemName: {
+  featuredName: {
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 6,
-    height: 40,
+    marginBottom: 4,
   },
   rarityRow: {
     flexDirection: 'row',
@@ -471,11 +595,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginRight: 4,
-  },
-  rarityDotLarge: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
   },
   rarityText: {
     fontSize: 12,
@@ -509,48 +628,52 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    zIndex: 1,
   },
   newBadgeText: {
     fontSize: 9,
     fontWeight: '700',
     color: '#fff',
   },
-  // Sort Modal
-  sortModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+  // Item Card
+  itemCard: {
+    width: 120,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  itemIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  itemName: {
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  ownedBadgeSmall: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(52, 199, 89, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sortModalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    width: '80%',
-    maxWidth: 300,
-  },
-  sortModalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  sortOption: {
+  priceRowSmall: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
   },
-  sortOptionText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  sortOptionTextActive: {
+  priceTextSmall: {
+    marginLeft: 3,
+    fontSize: 13,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#FF9500',
   },
   // Modal
   modalContainer: {
@@ -612,7 +735,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
-    gap: 6,
+    gap: 4,
   },
   rarityBadgeText: {
     fontSize: 13,

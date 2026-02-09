@@ -4,14 +4,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
-import HomeScreen from '../screens/HomeScreen';
-import WorkoutsScreen from '../screens/WorkoutsScreen';
-import ShopScreen from '../screens/ShopScreen';
-import ShopCategoryScreen from '../screens/ShopCategoryScreen';
-import RestDayCheckInScreen from '../screens/RestDayCheckInScreen';
-import StreakFreezeScreen from '../screens/StreakFreezeScreen';
-import WorkoutDetailScreen from '../screens/Workout/WorkoutDetailScreen';
-import WorkoutPlayerScreen from '../screens/Workout/WorkoutPlayerScreen';
+import { HomeScreen } from '../screens/Home';
+import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen } from '../screens/Workout';
+import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
+import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
 import { useActivity } from '../context/ActivityContext';
 import { useFriends } from '../context/FriendContext';
 

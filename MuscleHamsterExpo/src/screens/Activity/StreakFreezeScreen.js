@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useActivity } from '../context/ActivityContext';
-import { PointsConfig } from '../models/Activity';
+import { useActivity } from '../../context/ActivityContext';
+import { PointsConfig } from '../../models/Activity';
 
 const FreezeState = {
   PROMPT: 'prompt',
