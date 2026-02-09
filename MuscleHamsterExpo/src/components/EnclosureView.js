@@ -36,7 +36,6 @@ const Colors = {
 
 export default function EnclosureView({
   hamsterState = 'happy',
-  growthStage = 'adult',
   width = 300,
   height = 250,
   showWheel = true,
@@ -207,7 +206,6 @@ export default function EnclosureView({
       <View style={[styles.hamsterWrapper, { bottom: height * 0.08 }]}>
         <HamsterView
           state={hamsterState}
-          growthStage={growthStage}
           size={hamsterSize}
           showHeadband={!equippedAccessory}
           equippedOutfit={equippedOutfit}

@@ -154,16 +154,11 @@ export default function FriendProfileScreen() {
             <Text style={styles.hamsterName}>{profile.hamsterName}</Text>
           )}
 
-          {/* Status badges */}
+          {/* Status badge */}
           <View style={styles.statusBadges}>
             <View style={[styles.statusBadge, { backgroundColor: `${stateColor}22` }]}>
               <Text style={[styles.statusBadgeText, { color: stateColor }]}>
                 {profile.hamsterState}
-              </Text>
-            </View>
-            <View style={[styles.statusBadge, { backgroundColor: 'rgba(175, 82, 222, 0.15)' }]}>
-              <Text style={[styles.statusBadgeText, { color: '#AF52DE' }]}>
-                {profile.growthStage}
               </Text>
             </View>
           </View>

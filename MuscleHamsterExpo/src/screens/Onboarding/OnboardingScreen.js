@@ -258,11 +258,10 @@ function AgeStep({ profile, updateProfile }) {
             updateProfile('age', isNaN(age) ? null : age);
           }}
           keyboardType="number-pad"
-          placeholder="Your age"
+          placeholder="Age"
           maxLength={3}
           accessibilityLabel="Enter your age"
         />
-        <Text style={styles.ageLabel}>years old</Text>
       </View>
       {profile.age && profile.age < 13 && (
         <Text style={styles.errorText}>You must be 13 or older to use this app.</Text>
@@ -650,11 +649,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: 120,
     color: '#007AFF',
-  },
-  ageLabel: {
-    fontSize: 18,
-    color: '#8E8E93',
-    marginLeft: 8,
   },
   optionCard: {
     flexDirection: 'row',

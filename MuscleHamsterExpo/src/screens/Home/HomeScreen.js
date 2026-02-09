@@ -1,4 +1,4 @@
-// Home Screen - Full Implementation with Growth Celebration and Notifications
+// Home Screen - Full Implementation with Notifications
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -13,13 +13,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { HamsterStateInfo, StreakStatus } from '../../models/Activity';
-import { GrowthStage, GrowthStageInfo, calculateGrowthStage, GrowthTriggerType } from '../../models/Growth';
 import LoadingView from '../../components/LoadingView';
-import GrowthCelebrationView from '../../components/GrowthCelebrationView';
 import NotificationContextBanner from '../../components/NotificationContextBanner';
-import HamsterView from '../../components/HamsterView';
-import EnclosureView from '../../components/EnclosureView';
+import HamsterPortrait from '../../components/HamsterPortrait';
 import { useInventory } from '../../context/InventoryContext';
+import { LinearGradient } from 'expo-linear-gradient';
 import { createNotificationContext, NotificationType } from '../../models/Notification';
 
 export default function HomeScreen({ navigation }) {
@@ -46,12 +44,6 @@ export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [hasShownStreakFreeze, setHasShownStreakFreeze] = useState(false);
 
-  // Growth celebration state
-  const [showGrowthCelebration, setShowGrowthCelebration] = useState(false);
-  const [pendingGrowthMilestone, setPendingGrowthMilestone] = useState(null);
-  const [currentGrowthStage, setCurrentGrowthStage] = useState(GrowthStage.BABY);
-  const [previousGrowthStage, setPreviousGrowthStage] = useState(GrowthStage.BABY);
-
   // Notification banner state
   const [notificationContext, setNotificationContext] = useState(null);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
@@ -64,67 +56,22 @@ export default function HomeScreen({ navigation }) {
     }, [loadStats, loadInventory])
   );
 
-  // Calculate growth stage and check for milestone
-  useEffect(() => {
-    if (stats) {
-      const newStage = calculateGrowthStage(
-        stats.totalWorkoutsCompleted || 0,
-        currentStreak,
-        stats.longestStreak || 0
-      );
-
-      // Check if we reached a new stage
-      if (newStage !== currentGrowthStage && newStage !== previousGrowthStage) {
-        // Determine what triggered the growth
-        const triggerType = currentStreak > (stats.totalWorkoutsCompleted || 0)
-          ? GrowthTriggerType.STREAK
-          : GrowthTriggerType.WORKOUTS;
-        const triggerValue = triggerType === GrowthTriggerType.STREAK
-          ? currentStreak
-          : stats.totalWorkoutsCompleted;
-
-        setPendingGrowthMilestone({
-          stage: newStage,
-          achievedAt: new Date().toISOString(),
-          triggerType,
-          triggerValue,
-        });
-
-        setPreviousGrowthStage(currentGrowthStage);
-        setCurrentGrowthStage(newStage);
-
-        // Show celebration after a short delay
-        setTimeout(() => {
-          setShowGrowthCelebration(true);
-        }, 500);
-      } else if (newStage !== currentGrowthStage) {
-        setCurrentGrowthStage(newStage);
-      }
-    }
-  }, [stats, currentStreak]);
-
   // Show streak freeze if needed
   useEffect(() => {
     if (
       previousBrokenStreak &&
       previousBrokenStreak > 0 &&
-      !hasShownStreakFreeze &&
-      !showGrowthCelebration
+      !hasShownStreakFreeze
     ) {
       setHasShownStreakFreeze(true);
       navigation.navigate('StreakFreeze');
     }
-  }, [previousBrokenStreak, hasShownStreakFreeze, navigation, showGrowthCelebration]);
+  }, [previousBrokenStreak, hasShownStreakFreeze, navigation]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await loadStats();
     setRefreshing(false);
-  };
-
-  const handleGrowthCelebrationDismiss = () => {
-    setShowGrowthCelebration(false);
-    setPendingGrowthMilestone(null);
   };
 
   const handleNotificationBannerDismiss = () => {
@@ -138,7 +85,6 @@ export default function HomeScreen({ navigation }) {
 
   const hamsterInfo = HamsterStateInfo[hamsterState] || HamsterStateInfo.hungry;
   const hamsterName = profile?.hamsterName || 'Your Hamster';
-  const growthInfo = GrowthStageInfo[currentGrowthStage];
 
   const getStreakStatusInfo = () => {
     if (!streakStatus) return { icon: 'flame-outline', color: '#8E8E93', text: 'Start your streak!' };
@@ -188,45 +134,36 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.pointsText}>{totalPoints} points</Text>
         </View>
 
-        {/* Hamster Enclosure Section */}
-        <View style={styles.enclosureSection}>
-          <EnclosureView
-            hamsterState={hamsterState}
-            growthStage={currentGrowthStage}
-            width={340}
-            height={280}
-            showWheel={true}
-            showPlants={true}
-            showBowl={true}
-            equippedOutfit={equippedOutfit}
-            equippedAccessory={equippedAccessory}
-            placedItems={placedEnclosureItems}
-          />
-
-          {/* Status Badge Overlay */}
-          <View style={styles.statusOverlay}>
-            <View style={[styles.stateBadge, { backgroundColor: '#fff' }]}>
-              <Ionicons name={hamsterInfo.icon} size={16} color={hamsterInfo.color} />
-              <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
-                {hamsterInfo.displayName}
-              </Text>
-            </View>
-          </View>
-
-          {/* Hamster Info Below Enclosure */}
-          <View style={styles.hamsterInfoSection}>
-            <Text style={styles.hamsterName}>{hamsterName}</Text>
-
-            {/* Growth Stage Badge */}
-            <View style={styles.growthBadgeContainer}>
-              <View style={[styles.growthBadge, { backgroundColor: growthInfo.color + '20' }]}>
-                <Ionicons name={growthInfo.icon} size={14} color={growthInfo.color} />
-                <Text style={[styles.growthBadgeText, { color: growthInfo.color }]}>
-                  {growthInfo.displayName}
+        {/* Hamster Portrait Section */}
+        <View style={styles.portraitSection}>
+          <LinearGradient
+            colors={['#87CEEB', '#4ECDC4']}
+            style={styles.portraitBackground}
+          >
+            {/* Status Badge */}
+            <View style={styles.statusOverlay}>
+              <View style={[styles.stateBadge, { backgroundColor: '#fff' }]}>
+                <Ionicons name={hamsterInfo.icon} size={16} color={hamsterInfo.color} />
+                <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
+                  {hamsterInfo.displayName}
                 </Text>
               </View>
             </View>
 
+            {/* Hamster Portrait - Large and Prominent */}
+            <View style={styles.hamsterPortraitWrapper}>
+              <HamsterPortrait
+                state={hamsterState}
+                size={280}
+                showHeadband={!equippedAccessory}
+                equippedAccessory={equippedAccessory}
+              />
+            </View>
+          </LinearGradient>
+
+          {/* Hamster Info Below Portrait */}
+          <View style={styles.hamsterInfoSection}>
+            <Text style={styles.hamsterName}>{hamsterName}</Text>
             <Text style={styles.hamsterGreeting}>{hamsterInfo.greeting}</Text>
 
             {/* Customize Button */}
@@ -361,14 +298,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
-
-      {/* Growth Celebration Modal */}
-      <GrowthCelebrationView
-        visible={showGrowthCelebration}
-        milestone={pendingGrowthMilestone}
-        hamsterName={hamsterName}
-        onDismiss={handleGrowthCelebrationDismiss}
-      />
     </>
   );
 }
@@ -394,15 +323,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FF9500',
   },
-  enclosureSection: {
+  portraitSection: {
     alignItems: 'center',
     marginHorizontal: 16,
     marginTop: 16,
+  },
+  portraitBackground: {
+    width: '100%',
+    borderRadius: 24,
+    paddingVertical: 24,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  hamsterPortraitWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statusOverlay: {
     position: 'absolute',
     top: 12,
     right: 12,
+    zIndex: 10,
   },
   stateBadge: {
     flexDirection: 'row',
@@ -430,21 +371,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-  },
-  growthBadgeContainer: {
-    marginTop: 6,
-  },
-  growthBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  growthBadgeText: {
-    marginLeft: 4,
-    fontSize: 13,
-    fontWeight: '600',
   },
   hamsterGreeting: {
     marginTop: 8,
