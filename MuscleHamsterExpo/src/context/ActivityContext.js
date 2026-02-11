@@ -1,6 +1,7 @@
-// Activity Context - Phase 05-06
+// Activity Context - Phase 05-06 (with Firestore)
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { ActivityService } from '../services/ActivityService';
+import { ActivityService, setActivityUserId } from '../services/ActivityService';
+import { useAuth } from './AuthContext';
 import { HamsterState, createDefaultUserStats } from '../models/Activity';
 
 const ActivityContext = createContext(null);
@@ -14,20 +15,18 @@ export const useActivity = () => {
 };
 
 export const ActivityProvider = ({ children }) => {
+  const { currentUser } = useAuth();
   const [stats, setStats] = useState(createDefaultUserStats());
   const [isLoading, setIsLoading] = useState(true);
   const [streakStatus, setStreakStatus] = useState(null);
 
-  // Load stats on mount
-  useEffect(() => {
-    loadStats();
-  }, []);
-
   const loadStats = useCallback(async () => {
     setIsLoading(true);
+    console.log('Loading activity stats...');
     try {
       const userStats = await ActivityService.getUserStats();
       setStats(userStats);
+      console.log('Stats loaded, validating streak...');
 
       // Also validate streak
       const streakResult = await ActivityService.validateStreak();
@@ -36,12 +35,27 @@ export const ActivityProvider = ({ children }) => {
       if (streakResult.stats) {
         setStats(streakResult.stats);
       }
+      console.log('Activity loading complete');
     } catch (e) {
       console.warn('Failed to load stats:', e);
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  // Set user ID when user changes
+  useEffect(() => {
+    const userId = currentUser?.id || null;
+    setActivityUserId(userId);
+
+    if (userId) {
+      loadStats();
+    } else {
+      setStats(createDefaultUserStats());
+      setStreakStatus(null);
+      setIsLoading(false);
+    }
+  }, [currentUser?.id, loadStats]);
 
   const recordWorkoutCompletion = useCallback(async (completionData) => {
     try {

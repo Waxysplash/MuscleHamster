@@ -53,7 +53,7 @@ const rarityOrder = {
 export default function ShopCategoryScreen({ route, navigation }) {
   const { category } = route.params || {};
   const categoryInfo = ShopItemCategoryInfo[category] || {};
-  const { totalPoints, spendPoints } = useActivity();
+  const { totalPoints, recordShopPurchase } = useActivity();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -131,7 +131,8 @@ export default function ShopCategoryScreen({ route, navigation }) {
       const result = await ShopService.purchaseItem(selectedItem.id, totalPoints);
 
       if (result.success) {
-        await spendPoints(result.pointsSpent, `Purchased ${selectedItem.name}`);
+        // Deduct points and record purchase
+        await recordShopPurchase(selectedItem.id, selectedItem.name, result.pointsSpent);
         setOwnedItemIds((prev) => new Set([...prev, selectedItem.id]));
 
         Alert.alert(

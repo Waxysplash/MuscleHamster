@@ -12,8 +12,27 @@ import {
 const INVENTORY_STORAGE_KEY = '@MuscleHamster:inventory';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Current user ID (set by context)
+let currentUserId = null;
+
 // In-memory cache
 let cachedInventory = null;
+
+// Set the current user ID
+export const setShopUserId = (userId) => {
+  if (currentUserId !== userId) {
+    currentUserId = userId;
+    cachedInventory = null; // Clear cache when user changes
+  }
+};
+
+// Get user-specific storage key
+const getStorageKey = () => {
+  if (currentUserId) {
+    return `${INVENTORY_STORAGE_KEY}:${currentUserId}`;
+  }
+  return INVENTORY_STORAGE_KEY;
+};
 
 // Seed shop items - Simplified catalogue
 // 3 items per category, flat 50 points each
@@ -127,7 +146,8 @@ const loadInventory = async () => {
   if (cachedInventory) return cachedInventory;
 
   try {
-    const stored = await AsyncStorage.getItem(INVENTORY_STORAGE_KEY);
+    const storageKey = getStorageKey();
+    const stored = await AsyncStorage.getItem(storageKey);
     if (stored) {
       cachedInventory = JSON.parse(stored);
     } else {
@@ -145,7 +165,8 @@ const loadInventory = async () => {
 const saveInventory = async (inventory) => {
   cachedInventory = inventory;
   try {
-    await AsyncStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(inventory));
+    const storageKey = getStorageKey();
+    await AsyncStorage.setItem(storageKey, JSON.stringify(inventory));
   } catch (e) {
     console.warn('Failed to save inventory:', e);
   }
@@ -310,6 +331,7 @@ export const ShopService = {
   // Clear all data (for testing)
   async clearAllData() {
     cachedInventory = null;
-    await AsyncStorage.removeItem(INVENTORY_STORAGE_KEY);
+    const storageKey = getStorageKey();
+    await AsyncStorage.removeItem(storageKey);
   },
 };

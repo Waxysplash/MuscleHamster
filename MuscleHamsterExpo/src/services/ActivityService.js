@@ -1,5 +1,7 @@
-// Activity Service - Phase 05-06
+// Activity Service - Phase 05-06 (with Firestore)
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, getDoc, setDoc, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../config/firebase';
 import {
   HamsterState,
   PointsConfig,
@@ -14,11 +16,22 @@ import {
 } from '../models/Activity';
 
 const STORAGE_KEY = '@MuscleHamster:userStats';
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Current user ID (set by context)
+let currentUserId = null;
 
 // In-memory cache
 let cachedStats = null;
 let completionKeys = new Set();
+
+// Set the current user ID
+export const setActivityUserId = (userId) => {
+  if (currentUserId !== userId) {
+    currentUserId = userId;
+    cachedStats = null;
+    completionKeys.clear();
+  }
+};
 
 // Helper functions
 const isSameDay = (date1, date2) => {
@@ -38,15 +51,51 @@ const generateTransactionId = (type, category, entityId, date) => {
   return `${type}-${category}-${entityId || 'none'}-${dateStr}`;
 };
 
-// Load stats from storage
+// Load stats from Firestore or AsyncStorage
 const loadStats = async () => {
   if (cachedStats) return cachedStats;
 
+  console.log('Loading stats, userId:', currentUserId);
+
   try {
+    // Try Firestore first if user is logged in
+    if (currentUserId) {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore timeout')), 5000)
+      );
+
+      const docRef = doc(db, 'userStats', currentUserId);
+      const docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
+
+      if (docSnap.exists()) {
+        cachedStats = docSnap.data();
+        console.log('Loaded stats from Firestore');
+        // Rebuild completion keys
+        cachedStats.workoutHistory?.forEach((c) => {
+          completionKeys.add(`${c.workoutId}-${new Date(c.completedAt).toDateString()}`);
+        });
+        cachedStats.restDayHistory?.forEach((c) => {
+          completionKeys.add(`restday-${new Date(c.completedAt).toDateString()}`);
+        });
+        return cachedStats;
+      } else {
+        console.log('No stats in Firestore');
+      }
+    }
+
+    // Fallback to AsyncStorage
     const stored = await AsyncStorage.getItem(STORAGE_KEY);
     if (stored) {
       cachedStats = JSON.parse(stored);
-      // Rebuild completion keys from history
+      console.log('Loaded stats from AsyncStorage');
+
+      // Migrate to Firestore if user is logged in (don't block on this)
+      if (currentUserId && cachedStats) {
+        const docRef = doc(db, 'userStats', currentUserId);
+        setDoc(docRef, cachedStats).catch(e => console.warn('Stats migration failed:', e));
+      }
+
+      // Rebuild completion keys
       cachedStats.workoutHistory?.forEach((c) => {
         completionKeys.add(`${c.workoutId}-${new Date(c.completedAt).toDateString()}`);
       });
@@ -54,23 +103,42 @@ const loadStats = async () => {
         completionKeys.add(`restday-${new Date(c.completedAt).toDateString()}`);
       });
     } else {
+      console.log('No stored stats, using defaults');
       cachedStats = createDefaultUserStats();
     }
   } catch (e) {
-    console.warn('Failed to load stats:', e);
+    const isTimeout = e.message === 'Firestore timeout';
+    if (isTimeout) {
+      console.warn('Firestore request timed out, using default stats');
+    } else {
+      console.warn('Failed to load stats:', e.message);
+    }
     cachedStats = createDefaultUserStats();
   }
 
   return cachedStats;
 };
 
-// Save stats to storage
+// Save stats to Firestore and cache
 const saveStats = async (stats) => {
   cachedStats = stats;
+
   try {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    if (currentUserId) {
+      const docRef = doc(db, 'userStats', currentUserId);
+      await setDoc(docRef, stats);
+    } else {
+      // Fallback to AsyncStorage if not logged in
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    }
   } catch (e) {
     console.warn('Failed to save stats:', e);
+    // Fallback to AsyncStorage
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    } catch (localError) {
+      console.warn('Local save also failed:', localError);
+    }
   }
 };
 
@@ -130,7 +198,6 @@ const calculateStreakStatus = (stats) => {
 
 export const ActivityService = {
   async getUserStats() {
-    await delay(200);
     const stats = await loadStats();
     return { ...stats };
   },
@@ -142,7 +209,6 @@ export const ActivityService = {
     totalExercises,
     durationSeconds,
   }) {
-    await delay(300);
     const stats = await loadStats();
     const now = new Date();
     const completionKey = `${workoutId}-${now.toDateString()}`;
@@ -230,7 +296,6 @@ export const ActivityService = {
   },
 
   async recordRestDayCheckIn(activity) {
-    await delay(300);
     const stats = await loadStats();
     const now = new Date();
     const completionKey = `restday-${now.toDateString()}`;
@@ -309,7 +374,6 @@ export const ActivityService = {
   },
 
   async recordFeedback(workoutId, feedback) {
-    await delay(200);
     const stats = await loadStats();
 
     const updatedStats = {
@@ -325,7 +389,6 @@ export const ActivityService = {
   },
 
   async validateStreak() {
-    await delay(200);
     const stats = await loadStats();
     const streakInfo = calculateStreakStatus(stats);
 
@@ -367,7 +430,6 @@ export const ActivityService = {
   },
 
   async restoreStreak() {
-    await delay(300);
     const stats = await loadStats();
 
     if (!stats.previousBrokenStreak || stats.previousBrokenStreak === 0) {
@@ -428,7 +490,6 @@ export const ActivityService = {
   },
 
   async acknowledgeStreakReset() {
-    await delay(100);
     const stats = await loadStats();
     const updatedStats = {
       ...stats,
@@ -439,7 +500,6 @@ export const ActivityService = {
   },
 
   async recordShopPurchase(itemId, itemName, price) {
-    await delay(200);
     const stats = await loadStats();
     const now = new Date();
 

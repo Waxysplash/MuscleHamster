@@ -4,25 +4,42 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { ShopService } from '../services/ShopService';
+import { ShopService, setShopUserId } from '../services/ShopService';
+import { useAuth } from './AuthContext';
 
 const InventoryContext = createContext(null);
 
 export function InventoryProvider({ children }) {
+  const { currentUser } = useAuth();
   const [inventory, setInventory] = useState(null);
   const [equippedOutfit, setEquippedOutfit] = useState(null);
   const [equippedAccessory, setEquippedAccessory] = useState(null);
   const [placedEnclosureItems, setPlacedEnclosureItems] = useState([]);
   const [allItems, setAllItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Load inventory on mount
+  // Set user ID when user changes and reload inventory
   useEffect(() => {
-    loadInventory();
-  }, []);
+    const userId = currentUser?.id || null;
+    setShopUserId(userId);
+
+    if (userId) {
+      loadInventory();
+    } else {
+      // Reset to defaults when logged out
+      setInventory(null);
+      setEquippedOutfit(null);
+      setEquippedAccessory(null);
+      setPlacedEnclosureItems([]);
+      setError(null);
+      setIsLoading(false);
+    }
+  }, [currentUser?.id]);
 
   const loadInventory = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const [inv, items] = await Promise.all([
         ShopService.getInventory(),
@@ -36,6 +53,7 @@ export function InventoryProvider({ children }) {
       setPlacedEnclosureItems(inv.placedEnclosureItems || []);
     } catch (e) {
       console.warn('Failed to load inventory:', e);
+      setError(e.message || 'Failed to load inventory');
     } finally {
       setIsLoading(false);
     }
@@ -137,6 +155,7 @@ export function InventoryProvider({ children }) {
   const value = {
     inventory,
     isLoading,
+    error,
     allItems,
     equippedOutfit,
     equippedAccessory,

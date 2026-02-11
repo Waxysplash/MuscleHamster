@@ -6,15 +6,16 @@
  * Ported from Phase 09: Social Features (Swift version)
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import friendService from '../services/FriendService';
 import { useAuth } from './AuthContext';
 
 const FriendContext = createContext(null);
 
 export const FriendProvider = ({ children }) => {
-  const { user } = useAuth();
-  const currentUserId = user?.id || 'currentUser';
+  const { currentUser } = useAuth();
+  // Memoize currentUserId to prevent unnecessary re-renders
+  const currentUserId = useMemo(() => currentUser?.id || null, [currentUser?.id]);
 
   // State
   const [friends, setFriends] = useState([]);
@@ -27,7 +28,16 @@ export const FriendProvider = ({ children }) => {
 
   // Initialize and load data
   const loadFriendData = useCallback(async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      // Reset state when logged out
+      setFriends([]);
+      setPendingRequests([]);
+      setSentRequests([]);
+      setBlockedUsers([]);
+      setReceivedNudges([]);
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -66,6 +76,7 @@ export const FriendProvider = ({ children }) => {
 
   // Actions
   const sendFriendRequest = async (receiverId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       const request = await friendService.sendFriendRequest(currentUserId, receiverId);
       setSentRequests(prev => [...prev, request]);
@@ -76,6 +87,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const acceptFriendRequest = async (requestId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       const relationship = await friendService.acceptFriendRequest(requestId, currentUserId);
       await loadFriendData(); // Reload to get updated friends and streaks
@@ -86,6 +98,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const declineFriendRequest = async (requestId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       await friendService.declineFriendRequest(requestId, currentUserId);
       setPendingRequests(prev => prev.filter(r => r.request.id !== requestId));
@@ -96,6 +109,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const removeFriend = async (friendId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       await friendService.removeFriend(currentUserId, friendId);
       setFriends(prev => prev.filter(f => f.friend.id !== friendId));
@@ -106,6 +120,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const blockUser = async (userId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       const block = await friendService.blockUser(currentUserId, userId);
       await loadFriendData(); // Reload to update all lists
@@ -116,6 +131,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const unblockUser = async (userId) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       await friendService.unblockUser(currentUserId, userId);
       setBlockedUsers(prev => prev.filter(b => b.blockedUser.blockedId !== userId));
@@ -126,6 +142,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const sendNudge = async (recipientId, senderCheckedInToday = true) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       // Check eligibility first
       const eligibility = await friendService.getNudgeEligibility(
@@ -146,6 +163,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const getNudgeEligibility = async (recipientId, senderCheckedInToday = true) => {
+    if (!currentUserId) return { eligibility: 'notLoggedIn', reason: 'Not logged in' };
     return friendService.getNudgeEligibility(currentUserId, recipientId, senderCheckedInToday);
   };
 
@@ -154,6 +172,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const searchUsers = async (query) => {
+    if (!currentUserId) return [];
     try {
       return await friendService.searchUsers(query, currentUserId);
     } catch (err) {
@@ -163,6 +182,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const getLeaderboard = async () => {
+    if (!currentUserId) return [];
     try {
       return await friendService.getFriendsLeaderboard(currentUserId);
     } catch (err) {
@@ -172,6 +192,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const restoreStreak = async (friendId, option) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       const result = await friendService.restoreStreak(currentUserId, friendId, option);
       await loadFriendData(); // Reload to get updated streak
@@ -182,6 +203,7 @@ export const FriendProvider = ({ children }) => {
   };
 
   const recordCheckIn = async () => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
       await friendService.recordCheckIn(currentUserId);
       await loadFriendData(); // Reload to get updated streaks

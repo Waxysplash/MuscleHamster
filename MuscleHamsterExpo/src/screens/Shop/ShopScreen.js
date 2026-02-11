@@ -30,7 +30,7 @@ import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
 
 export default function ShopScreen({ navigation }) {
-  const { totalPoints, spendPoints } = useActivity();
+  const { totalPoints, recordShopPurchase } = useActivity();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -87,8 +87,8 @@ export default function ShopScreen({ navigation }) {
       const result = await ShopService.purchaseItem(selectedItem.id, totalPoints);
 
       if (result.success) {
-        // Deduct points
-        await spendPoints(result.pointsSpent, `Purchased ${selectedItem.name}`);
+        // Deduct points and record purchase
+        await recordShopPurchase(selectedItem.id, selectedItem.name, result.pointsSpent);
 
         // Update owned items
         setOwnedItemIds((prev) => new Set([...prev, selectedItem.id]));

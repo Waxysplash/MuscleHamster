@@ -37,12 +37,25 @@ export function NotificationProvider({ children }) {
 
   // Listen for notification interactions
   useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    );
+    let subscription = null;
+    try {
+      subscription = Notifications.addNotificationResponseReceivedListener(
+        handleNotificationResponse
+      );
+    } catch (error) {
+      console.warn('Failed to add notification listener:', error);
+    }
 
-    return () => subscription.remove();
-  }, []);
+    return () => {
+      if (subscription) {
+        try {
+          subscription.remove();
+        } catch (error) {
+          console.warn('Failed to remove notification listener:', error);
+        }
+      }
+    };
+  }, [handleNotificationResponse]);
 
   const checkPermissionStatus = async () => {
     const { status } = await Notifications.getPermissionsAsync();

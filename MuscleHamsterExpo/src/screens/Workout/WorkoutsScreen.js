@@ -33,13 +33,7 @@ export default function WorkoutsScreen({ navigation }) {
   const [recommendedWorkouts, setRecommendedWorkouts] = useState([]);
   const [allWorkouts, setAllWorkouts] = useState([]);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadWorkouts();
-    }, [profile])
-  );
-
-  const loadWorkouts = async () => {
+  const loadWorkouts = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -69,7 +63,13 @@ export default function WorkoutsScreen({ navigation }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [profile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadWorkouts();
+    }, [loadWorkouts])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
