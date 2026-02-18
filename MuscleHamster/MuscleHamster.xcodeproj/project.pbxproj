@@ -94,6 +94,9 @@
 		A1000181 /* BlockedUsersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000180; };
 		A1000183 /* ProfileVisibilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000182; };
 		A1000191 /* NudgeReceivedBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000190; };
+		A10001A1 /* DailyExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10001A0; };
+		A10001A3 /* FitnessTip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10001A2; };
+		A10001A5 /* DailyExerciseCheckInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10001A4; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -186,6 +189,9 @@
 		A1000180 /* BlockedUsersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedUsersView.swift; sourceTree = "<group>"; };
 		A1000182 /* ProfileVisibilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVisibilityView.swift; sourceTree = "<group>"; };
 		A1000190 /* NudgeReceivedBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NudgeReceivedBanner.swift; sourceTree = "<group>"; };
+		A10001A0 /* DailyExercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExercise.swift; sourceTree = "<group>"; };
+		A10001A2 /* FitnessTip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTip.swift; sourceTree = "<group>"; };
+		A10001A4 /* DailyExerciseCheckInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyExerciseCheckInView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +232,8 @@
 				A1000070 /* UserProfile.swift */,
 				A10000A0 /* Workout.swift */,
 				A10000C0 /* Activity.swift */,
+				A10001A0 /* DailyExercise.swift */,
+				A10001A2 /* FitnessTip.swift */,
 				A10000F0 /* ShopItem.swift */,
 				A1000120 /* AudioPreferences.swift */,
 				A1000130 /* NotificationPreferences.swift */,
@@ -310,6 +318,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000006 /* HomeView.swift */,
+				A10001A4 /* DailyExerciseCheckInView.swift */,
 				A10000D0 /* RestDayCheckInView.swift */,
 				A10000D2 /* StreakFreezeView.swift */,
 				A1000110 /* GrowthCelebrationView.swift */,
@@ -633,6 +642,9 @@
 				A1000181 /* BlockedUsersView.swift in Sources */,
 				A1000183 /* ProfileVisibilityView.swift in Sources */,
 				A1000191 /* NudgeReceivedBanner.swift in Sources */,
+				A10001A1 /* DailyExercise.swift in Sources */,
+				A10001A3 /* FitnessTip.swift in Sources */,
+				A10001A5 /* DailyExerciseCheckInView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
