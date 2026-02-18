@@ -2,7 +2,7 @@
 
 **Status:** Post-MVP — Content/Asset Production
 **Active Phase:** Content & Asset Production — Workout Content + Art Sourcing
-**Last Updated:** Feb 18, 2026 (Session 35)
+**Last Updated:** Feb 18, 2026 (Session 36)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -48,6 +48,12 @@ All MVP phases complete. Social features implementation complete:
 - ✅ Phase 01–08 — MVP Core Loop Complete
 - ✅ Phase 09 — Social Features (COMPLETE)
 - ✅ Phase 10.1 — Art Asset Specifications (IMPLEMENTED)
+- ✅ Daily Check-In, Tips & Facts, Workout Simplification (Session 36)
+  - ✅ Daily exercise check-in — 35 bodyweight exercises, deterministic per-user-per-day via djb2 hash
+  - ✅ Fitness tips — 40 tips (nutrition/exercise/recovery/mindset/fun facts), rotates daily on home screen
+  - ✅ Home screen restructured — tip card, daily exercise as primary action, secondary workout/rest day row
+  - ✅ Daily check-in earns 25 base points (streak multiplier capped at 1.5x, mutual exclusion with rest day)
+  - ✅ Workouts tab simplified — "Get Moving" vertical list (beginner, equipment-free), "Browse All Workouts" link
 - ✅ Internal testing and polish (Session 34)
   - ✅ Replaced print() statements with OSLog-based AppLogger
   - ✅ Created PersistenceHelper for centralized, logged persistence

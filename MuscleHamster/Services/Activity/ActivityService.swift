@@ -48,6 +48,14 @@ protocol ActivityServiceProtocol {
     /// Get all disliked workout IDs for recommendation filtering
     func getDislikedWorkoutIds(userId: String) async -> Set<String>
 
+    // MARK: - Daily Exercise Check-ins
+
+    /// Record a daily exercise check-in and calculate rewards
+    func recordDailyCheckIn(
+        exercise: DailyExercise,
+        userId: String
+    ) async throws -> DailyExerciseCheckIn
+
     // MARK: - Rest-Day Check-ins
 
     /// Record a rest-day check-in and calculate rewards
@@ -357,6 +365,82 @@ actor MockActivityService: ActivityServiceProtocol {
     func getDislikedWorkoutIds(userId: String) async -> Set<String> {
         let stats = await getUserStats(userId: userId)
         return stats.dislikedWorkoutIds
+    }
+
+    // MARK: - Daily Exercise Check-ins
+
+    func recordDailyCheckIn(
+        exercise: DailyExercise,
+        userId: String
+    ) async throws -> DailyExerciseCheckIn {
+        // Load current stats
+        var stats = await getUserStats(userId: userId)
+
+        // Daily check-in and rest day are mutually exclusive (both are "light" check-ins)
+        // But a full workout is always allowed on top of a daily check-in
+        if stats.hasRestDayCheckInToday || stats.hasDailyCheckInToday {
+            throw ActivityError.alreadyCheckedInToday
+        }
+
+        // Calculate streak (same logic as workout/rest day)
+        let newStreak = calculateNewStreak(from: stats)
+
+        // Calculate points
+        let points = PointsConfig.calculateDailyCheckInPoints(currentStreak: newStreak)
+
+        // Create check-in record
+        let checkIn = DailyExerciseCheckIn(
+            id: UUID().uuidString,
+            exerciseId: exercise.id,
+            exerciseName: exercise.name,
+            completedAt: Date(),
+            pointsEarned: points
+        )
+
+        // Track if streak was broken before this check-in
+        let wasStreakBroken = stats.isStreakBroken
+
+        // Update streak
+        stats.currentStreak = newStreak
+        stats.longestStreak = max(stats.longestStreak, newStreak)
+        stats.lastActivityDate = Date()
+        stats.lastCheckInDate = Date()
+        stats.dailyCheckInHistory.insert(checkIn, at: 0)
+
+        // Clear broken streak tracking if starting fresh
+        if wasStreakBroken {
+            stats.previousBrokenStreak = 0
+        }
+
+        // Record transaction
+        let transactionId = PointsTransaction.generateId(
+            category: .dailyCheckIn,
+            entityId: checkIn.id,
+            date: Date()
+        )
+        stats.addTransaction(
+            id: transactionId,
+            type: .earn,
+            category: .dailyCheckIn,
+            amount: points,
+            description: exercise.name,
+            entityId: checkIn.id
+        )
+
+        // Update hamster state — more active than rest day's .chillin
+        stats.hamsterState = .happy
+
+        // Persist
+        statsCache[userId] = stats
+        stats.save(for: userId)
+
+        // Update friend streaks
+        await MockFriendService.shared.updateFriendStreaks(userId: userId)
+
+        // Simulate network delay
+        try? await Task.sleep(nanoseconds: 200_000_000)
+
+        return checkIn
     }
 
     // MARK: - Rest-Day Check-ins
@@ -719,6 +803,11 @@ actor MockActivityService: ActivityServiceProtocol {
                 return .excited
             }
             // Default after workout
+            return .happy
+        }
+
+        // Daily exercise check-in today?
+        if stats.hasDailyCheckInToday {
             return .happy
         }
 

@@ -12,10 +12,8 @@ struct WorkoutsView: View {
 
     @State private var viewState: ViewState = .loading
     @State private var workouts: [Workout] = []
-    @State private var recommendedWorkouts: [RecommendedWorkout] = []
 
     private let workoutService: MockWorkoutService = MockWorkoutService()
-    private let activityService: MockActivityService = .shared
 
     var body: some View {
         NavigationStack {
@@ -51,176 +49,182 @@ struct WorkoutsView: View {
     private var workoutsContent: some View {
         ScrollView {
             VStack(spacing: 24) {
-                recommendedSection
-                browseSection
+                getMovingSection
+                browseAllSection
             }
             .padding()
         }
     }
 
-    // MARK: - Recommended Section
+    // MARK: - Get Moving Section
 
-    private var recommendedSection: some View {
+    /// Beginner-friendly, equipment-free workouts shown as approachable vertical cards
+    private var suggestedWorkouts: [Workout] {
+        let filtered = workouts.filter { $0.difficulty == .beginner && $0.isEquipmentFree }
+        return Array(filtered.prefix(4))
+    }
+
+    private var getMovingSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Recommended for You")
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Get Moving")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .accessibilityAddTraits(.isHeader)
 
-                Spacer()
-
-                if hasProfile {
-                    Image(systemName: "sparkles")
-                        .foregroundStyle(.accentColor)
-                        .accessibilityLabel("Personalized for your profile")
-                }
-            }
-
-            if recommendedWorkouts.isEmpty {
-                noRecommendationsPlaceholder
-            } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(recommendedWorkouts) { recommendation in
-                            NavigationLink {
-                                WorkoutDetailView(workout: recommendation.workout)
-                            } label: {
-                                recommendedWorkoutCard(recommendation)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private var noRecommendationsPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .fill(Color.accentColor.opacity(0.1))
-            .frame(height: 120)
-            .overlay {
-                VStack {
-                    Image(systemName: "sparkles")
-                        .font(.title)
-                        .foregroundStyle(.accentColor)
-                        .accessibilityHidden(true)
-                    Text("Complete your profile for personalized recommendations")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding()
-            }
-            .accessibilityLabel("Complete your profile to see personalized workout recommendations")
-    }
-
-    private func recommendedWorkoutCard(_ recommendation: RecommendedWorkout) -> some View {
-        let workout = recommendation.workout
-
-        return VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: workout.category.icon)
-                    .foregroundStyle(.accentColor)
-                    .accessibilityHidden(true)
-                Spacer()
-                Text(workout.displayDuration)
-                    .font(.caption)
+                Text("Quick workouts to feel great today")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            Text(workout.name)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(.primary)
-                .lineLimit(2)
-                .multilineTextAlignment(.leading)
-
-            Text(workout.displayDifficulty)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            // "Why this was suggested" explanation
-            if !recommendation.explanation.isEmpty {
-                Text(recommendation.explanation)
-                    .font(.caption2)
-                    .foregroundStyle(.accentColor)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-            }
-        }
-        .frame(width: 160)
-        .padding()
-        .background(Color.accentColor.opacity(0.1))
-        .cornerRadius(12)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(workout.name), \(workout.displayDifficulty), \(workout.displayDuration). \(recommendation.explanation)")
-        .accessibilityHint("Double tap to view workout details")
-    }
-
-    /// Whether the user has a profile with preferences for personalization
-    private var hasProfile: Bool {
-        guard let profile = authViewModel.userProfile else { return false }
-        return profile.isComplete
-    }
-
-    // MARK: - Browse Section
-
-    private var browseSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Browse by Category")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .accessibilityAddTraits(.isHeader)
-
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 12) {
-                ForEach(WorkoutType.allCases) { category in
-                    NavigationLink {
-                        CategoryWorkoutsView(category: category)
-                    } label: {
-                        categoryCard(category)
+            if suggestedWorkouts.isEmpty {
+                // Fallback if no beginner/equipment-free workouts exist
+                noSuggestionsPlaceholder
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(suggestedWorkouts) { workout in
+                        NavigationLink {
+                            WorkoutDetailView(workout: workout)
+                        } label: {
+                            suggestedWorkoutCard(workout)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
     }
 
-    private func categoryCard(_ category: WorkoutType) -> some View {
-        VStack(spacing: 8) {
+    private var noSuggestionsPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color.accentColor.opacity(0.1))
+            .frame(height: 100)
+            .overlay {
+                VStack(spacing: 8) {
+                    Image(systemName: "figure.run")
+                        .font(.title2)
+                        .foregroundStyle(.accentColor)
+                        .accessibilityHidden(true)
+                    Text("More workouts coming soon!")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .accessibilityLabel("More workouts coming soon")
+    }
+
+    private func suggestedWorkoutCard(_ workout: Workout) -> some View {
+        HStack(spacing: 16) {
+            // Category icon
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.15))
                     .frame(width: 48, height: 48)
 
-                Image(systemName: category.icon)
-                    .font(.title2)
+                Image(systemName: workout.category.icon)
+                    .font(.title3)
                     .foregroundStyle(.accentColor)
             }
             .accessibilityHidden(true)
 
-            Text(category.displayName)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(.primary)
+            // Workout info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(workout.name)
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
 
-            Text(category.description)
+                Text(workout.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            // Duration badge
+            Text("~\(workout.duration.approximateMinutes) min")
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(.accentColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(Capsule())
+
+            Image(systemName: "chevron.right")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity)
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(16)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(category.displayName) workouts")
-        .accessibilityHint(category.description)
+        .accessibilityLabel("\(workout.name), about \(workout.duration.approximateMinutes) minutes. \(workout.description)")
+        .accessibilityHint("Double tap to view workout details")
+    }
+
+    // MARK: - Browse All Section
+
+    private var browseAllSection: some View {
+        NavigationLink {
+            allWorkoutsListView
+        } label: {
+            HStack {
+                Image(systemName: "list.bullet")
+                    .foregroundStyle(.accentColor)
+                Text("Browse All Workouts")
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text("\(workouts.count) workouts")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Browse all \(workouts.count) workouts")
+    }
+
+    /// Full catalog list view
+    private var allWorkoutsListView: some View {
+        List {
+            ForEach(WorkoutType.allCases) { category in
+                let categoryWorkouts = workouts.filter { $0.category == category }
+                if !categoryWorkouts.isEmpty {
+                    Section(category.displayName) {
+                        ForEach(categoryWorkouts) { workout in
+                            NavigationLink {
+                                WorkoutDetailView(workout: workout)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: workout.category.icon)
+                                        .foregroundStyle(.accentColor)
+                                        .frame(width: 28)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(workout.name)
+                                            .font(.body)
+                                            .fontWeight(.medium)
+                                        Text("\(workout.displayDifficulty) \u{00B7} \(workout.displayDuration)")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("All Workouts")
     }
 
     // MARK: - Data Loading
@@ -230,66 +234,9 @@ struct WorkoutsView: View {
         do {
             // Load all workouts
             workouts = try await workoutService.getAllWorkouts()
-
-            // Load personalized recommendations based on user profile
-            await loadRecommendations()
-
             viewState = workouts.isEmpty ? .empty : .content
         } catch {
             viewState = .error("I couldn't find the workouts right now. Let's try again!")
-        }
-    }
-
-    private func loadRecommendations() async {
-        // If user has a profile, get personalized recommendations
-        if let profile = authViewModel.userProfile,
-           let userId = authViewModel.currentUser?.id,
-           profile.isComplete {
-            do {
-                // Get user's workout feedback for recommendation filtering
-                let userStats = await activityService.getUserStats(userId: userId)
-                let dislikedIds = userStats.dislikedWorkoutIds
-                let lovedIds = userStats.lovedWorkoutIds
-
-                // Get recent workout IDs from history
-                let recentWorkoutIds = Set(userStats.recentCompletions.map { $0.workoutId })
-
-                // Get recent body focus areas
-                let recentBodyFocus = Set(userStats.recentCompletions.flatMap { completion -> [BodyFocus] in
-                    // Look up the workout to get its body focus areas
-                    if let workout = workouts.first(where: { $0.id == completion.workoutId }) {
-                        return Array(workout.bodyFocus)
-                    }
-                    return []
-                })
-
-                recommendedWorkouts = try await workoutService.getRecommendedWorkoutsWithExplanations(
-                    for: profile,
-                    recentWorkoutIds: recentWorkoutIds,
-                    recentBodyFocus: recentBodyFocus,
-                    dislikedWorkoutIds: dislikedIds,
-                    lovedWorkoutIds: lovedIds,
-                    limit: 5
-                )
-            } catch {
-                // Fallback to non-personalized recommendations
-                recommendedWorkouts = workouts.prefix(5).map { workout in
-                    RecommendedWorkout(
-                        workout: workout,
-                        explanation: "A great workout to try!",
-                        relevanceScore: 0
-                    )
-                }
-            }
-        } else {
-            // User hasn't completed profile - show general recommendations
-            recommendedWorkouts = workouts.prefix(5).map { workout in
-                RecommendedWorkout(
-                    workout: workout,
-                    explanation: "A great workout to try!",
-                    relevanceScore: 0
-                )
-            }
         }
     }
 }

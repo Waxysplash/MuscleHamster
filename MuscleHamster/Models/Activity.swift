@@ -273,6 +273,7 @@ enum TransactionType: String, Codable, CaseIterable {
 enum TransactionCategory: String, Codable, CaseIterable {
     case workout        // Completed a workout
     case restDay        // Completed rest-day check-in
+    case dailyCheckIn   // Completed daily exercise check-in
     case streakFreeze   // Used streak freeze to restore streak
     case shopPurchase   // Purchased item from shop (Phase 07.2)
     case adReward       // Watched rewarded ad (Post-MVP)
@@ -281,6 +282,7 @@ enum TransactionCategory: String, Codable, CaseIterable {
         switch self {
         case .workout: return "Workout"
         case .restDay: return "Rest Day"
+        case .dailyCheckIn: return "Daily Exercise"
         case .streakFreeze: return "Streak Freeze"
         case .shopPurchase: return "Shop Purchase"
         case .adReward: return "Bonus Reward"
@@ -291,6 +293,7 @@ enum TransactionCategory: String, Codable, CaseIterable {
         switch self {
         case .workout: return "figure.run"
         case .restDay: return "leaf.fill"
+        case .dailyCheckIn: return "checkmark.circle.fill"
         case .streakFreeze: return "snowflake"
         case .shopPurchase: return "bag.fill"
         case .adReward: return "gift.fill"
@@ -716,6 +719,8 @@ struct UserStats: Codable, Equatable {
     var restDayHistory: [RestDayCheckIn]
     /// Total rest-day check-ins completed
     var totalRestDayCheckIns: Int
+    /// Daily exercise check-in history
+    var dailyCheckInHistory: [DailyExerciseCheckIn]
     /// The date of the last qualifying check-in (workout or rest day)
     /// Used for streak validation - tracks the calendar day of last check-in
     var lastCheckInDate: Date?
@@ -747,6 +752,7 @@ struct UserStats: Codable, Equatable {
         workoutFeedback: [String: WorkoutFeedback] = [:],
         restDayHistory: [RestDayCheckIn] = [],
         totalRestDayCheckIns: Int = 0,
+        dailyCheckInHistory: [DailyExerciseCheckIn] = [],
         lastCheckInDate: Date? = nil,
         previousBrokenStreak: Int = 0,
         transactions: [PointsTransaction] = [],
@@ -764,6 +770,7 @@ struct UserStats: Codable, Equatable {
         self.workoutFeedback = workoutFeedback
         self.restDayHistory = restDayHistory
         self.totalRestDayCheckIns = totalRestDayCheckIns
+        self.dailyCheckInHistory = dailyCheckInHistory
         self.lastCheckInDate = lastCheckInDate
         self.previousBrokenStreak = previousBrokenStreak
         self.transactions = transactions
@@ -964,9 +971,19 @@ struct UserStats: Codable, Equatable {
         restDayHistory.contains { Calendar.current.isDateInToday($0.completedAt) }
     }
 
-    /// Whether the user has any check-in today (workout or rest day)
+    /// Whether the user has done a daily exercise check-in today
+    var hasDailyCheckInToday: Bool {
+        dailyCheckInHistory.contains { Calendar.current.isDateInToday($0.completedAt) }
+    }
+
+    /// Today's daily exercise check-in, if any
+    var todaysDailyCheckIn: DailyExerciseCheckIn? {
+        dailyCheckInHistory.first { Calendar.current.isDateInToday($0.completedAt) }
+    }
+
+    /// Whether the user has any check-in today (workout, rest day, or daily exercise)
     var hasAnyCheckInToday: Bool {
-        hasCompletedWorkoutToday || hasRestDayCheckInToday
+        hasCompletedWorkoutToday || hasRestDayCheckInToday || hasDailyCheckInToday
     }
 
     /// Today's rest-day check-in, if any
@@ -1153,6 +1170,20 @@ enum PointsConfig {
         var points = Double(activity.pointsAwarded)
 
         // Apply streak multiplier (same as workouts but capped at 1.5x for rest days)
+        let multiplier = min(streakMultiplier(for: currentStreak), 1.5)
+        points *= multiplier
+
+        return Int(points.rounded())
+    }
+
+    /// Base points for completing the daily exercise check-in
+    static let dailyCheckInBasePoints = 25
+
+    /// Calculate points for a daily exercise check-in
+    static func calculateDailyCheckInPoints(currentStreak: Int) -> Int {
+        var points = Double(dailyCheckInBasePoints)
+
+        // Apply streak multiplier capped at 1.5x (same as rest day)
         let multiplier = min(streakMultiplier(for: currentStreak), 1.5)
         points *= multiplier
 

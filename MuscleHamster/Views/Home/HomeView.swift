@@ -33,6 +33,8 @@ struct HomeView: View {
     @State private var showNotificationBanner = false
     @State private var receivedNudges: [FriendNudge] = []
     @State private var showNudgeBanner = false
+    @State private var todaysExercise: DailyExercise?
+    @State private var showDailyExerciseCheckIn = false
 
     private let activityService = MockActivityService.shared
     private let friendService = MockFriendService.shared
@@ -86,6 +88,15 @@ struct HomeView: View {
                     loadContent()
                 }
         }
+        .sheet(isPresented: $showDailyExerciseCheckIn) {
+            if let exercise = todaysExercise {
+                DailyExerciseCheckInView(exercise: exercise)
+                    .onDisappear {
+                        // Reload content when returning from daily exercise check-in
+                        loadContent()
+                    }
+            }
+        }
         .sheet(isPresented: $showStreakFreeze) {
             if case .broken(let previousStreak) = streakStatus, previousStreak > 0 {
                 StreakFreezeView(
@@ -135,6 +146,7 @@ struct HomeView: View {
 
                 hamsterSection
                 todayStatusSection
+                tipSection
                 dailyActionsSection
                 streakSection
             }
@@ -358,11 +370,43 @@ struct HomeView: View {
         }
     }
 
+    // MARK: - Tip Section
+
+    private var tipSection: some View {
+        let tip = FitnessTip.todaysTip()
+
+        return HStack(spacing: 12) {
+            Image(systemName: "lightbulb.fill")
+                .font(.title3)
+                .foregroundStyle(.yellow)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Did you know?")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+
+                Text(tip.text)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding()
+        .background(Color.yellow.opacity(0.1))
+        .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Did you know? \(tip.text)")
+    }
+
     // MARK: - Today Status Section
 
     private var todayStatusSection: some View {
         let hasWorkoutToday = userStats?.hasCompletedWorkoutToday ?? false
         let hasRestDayToday = userStats?.hasRestDayCheckInToday ?? false
+        let hasDailyCheckIn = userStats?.hasDailyCheckInToday ?? false
         let pointsToday = totalPointsEarnedToday
         let totalPoints = userStats?.totalPoints ?? 0
 
@@ -405,6 +449,32 @@ struct HomeView: View {
                 .cornerRadius(12)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Workout complete! You earned \(pointsToday) points today.")
+            } else if hasDailyCheckIn {
+                // Daily exercise check-in completed
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.green)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Daily exercise done!")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        if pointsToday > 0 {
+                            Text("You earned \(pointsToday) points today.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Spacer()
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(12)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Daily exercise done! You earned \(pointsToday) points today.")
             } else if hasRestDayToday {
                 // Rest day check-in completed
                 HStack(spacing: 12) {
@@ -452,83 +522,177 @@ struct HomeView: View {
         }
     }
 
-    /// Calculate total points earned today (workouts + rest day check-ins)
+    /// Calculate total points earned today (workouts + rest day + daily exercise check-ins)
     private var totalPointsEarnedToday: Int {
         let workoutPoints = userStats?.pointsEarnedToday ?? 0
         let restDayPoints = userStats?.todaysRestDayCheckIn?.pointsEarned ?? 0
-        return workoutPoints + restDayPoints
+        let dailyCheckInPoints = userStats?.todaysDailyCheckIn?.pointsEarned ?? 0
+        return workoutPoints + restDayPoints + dailyCheckInPoints
     }
 
     // MARK: - Daily Actions Section
 
     private var dailyActionsSection: some View {
-        let hasCheckedIn = userStats?.hasAnyCheckInToday ?? false
         let hasWorkoutToday = userStats?.hasCompletedWorkoutToday ?? false
         let hasRestDayToday = userStats?.hasRestDayCheckInToday ?? false
+        let hasDailyCheckIn = userStats?.hasDailyCheckInToday ?? false
+        // Daily check-in and rest day are mutually exclusive
+        let hasLightCheckIn = hasRestDayToday || hasDailyCheckIn
 
         return VStack(alignment: .leading, spacing: 12) {
-            Button {
-                // Workout action placeholder - will navigate to workouts tab
-            } label: {
-                HStack {
-                    Image(systemName: "figure.run")
-                    Text("Start a Workout")
-                        .fontWeight(.medium)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                }
-                .padding()
-                .background(Color.accentColor.opacity(0.1))
-                .cornerRadius(12)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Start a workout")
-            .accessibilityHint("Opens the workout selection")
-
-            // Rest Day Check-in Button
-            if hasRestDayToday {
-                // Already did rest-day check-in today
-                restDayCompletedView
-            } else if hasWorkoutToday {
-                // Already did workout today - rest day not needed
-                restDayNotNeededView
+            // Primary card: Today's Daily Exercise
+            if hasDailyCheckIn {
+                // Already completed daily exercise — green checkmark card
+                dailyExerciseCompletedView
+            } else if hasRestDayToday {
+                // Rest day was done instead — show that
+                dailyExerciseUnavailableView(reason: "Rest day check-in done today")
             } else {
-                // Available for rest-day check-in
+                // Daily exercise available — THE primary action
+                dailyExerciseCard
+            }
+
+            // Secondary row: Workout and Rest Day buttons
+            HStack(spacing: 12) {
+                // Start a Workout button (always available)
                 Button {
-                    showRestDayCheckIn = true
+                    // Workout action placeholder - will navigate to workouts tab
                 } label: {
-                    HStack {
-                        Image(systemName: "moon.stars.fill")
-                        Text("Rest Day Check-in")
+                    HStack(spacing: 6) {
+                        Image(systemName: "figure.run")
+                            .font(.subheadline)
+                        Text("Start a Workout")
+                            .font(.subheadline)
                             .fontWeight(.medium)
                         Spacer()
                         Image(systemName: "chevron.right")
+                            .font(.caption2)
                     }
-                    .padding()
-                    .foregroundStyle(.purple)
-                    .background(Color.purple.opacity(0.08))
-                    .cornerRadius(12)
+                    .padding(12)
+                    .background(Color.accentColor.opacity(0.1))
+                    .cornerRadius(10)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Rest day check-in")
-                .accessibilityHint("Log a rest day and spend time with your hamster")
+                .accessibilityLabel("Start a workout")
+                .accessibilityHint("Opens the workout selection")
+
+                // Rest Day Check-in button
+                if hasLightCheckIn || hasWorkoutToday {
+                    // Already checked in — disabled state
+                    HStack(spacing: 6) {
+                        Image(systemName: "moon.stars.fill")
+                            .font(.subheadline)
+                        Text("Rest Day")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Spacer()
+                        Image(systemName: "checkmark")
+                            .font(.caption2)
+                    }
+                    .padding(12)
+                    .foregroundStyle(.secondary)
+                    .background(Color.gray.opacity(0.08))
+                    .cornerRadius(10)
+                    .accessibilityLabel("Rest day check-in not available")
+                } else {
+                    Button {
+                        showRestDayCheckIn = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "moon.stars.fill")
+                                .font(.subheadline)
+                            Text("Rest Day")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                        }
+                        .padding(12)
+                        .foregroundStyle(.purple)
+                        .background(Color.purple.opacity(0.08))
+                        .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Rest day check-in")
+                    .accessibilityHint("Log a rest day and spend time with your hamster")
+                }
             }
         }
     }
 
-    /// View when rest-day check-in is already completed today
-    private var restDayCompletedView: some View {
+    /// Primary daily exercise card — large, prominent
+    private var dailyExerciseCard: some View {
+        Button {
+            showDailyExerciseCheckIn = true
+        } label: {
+            VStack(spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Today's Exercise")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.secondary)
+
+                        if let exercise = todaysExercise {
+                            Text(exercise.displayPrompt)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.primary)
+
+                            Text(exercise.instruction)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
+
+                    Spacer()
+
+                    if let exercise = todaysExercise {
+                        ZStack {
+                            Circle()
+                                .fill(Color.accentColor.opacity(0.15))
+                                .frame(width: 56, height: 56)
+
+                            Image(systemName: exercise.icon)
+                                .font(.title2)
+                                .foregroundStyle(.accentColor)
+                        }
+                    }
+                }
+
+                // "I Did It!" button
+                Text("I Did It!")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
+                    .foregroundStyle(.white)
+                    .cornerRadius(10)
+            }
+            .padding()
+            .background(Color.accentColor.opacity(0.08))
+            .cornerRadius(16)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Today's exercise: \(todaysExercise?.displayPrompt ?? "loading"). Tap I Did It to complete.")
+    }
+
+    /// View when daily exercise is already completed today
+    private var dailyExerciseCompletedView: some View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
+                .font(.title2)
                 .foregroundStyle(.green)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Rest day check-in done!")
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Daily exercise done!")
                     .font(.subheadline)
-                    .fontWeight(.medium)
-                if let checkIn = userStats?.todaysRestDayCheckIn {
-                    Text("You earned \(checkIn.pointsEarned) points.")
+                    .fontWeight(.semibold)
+                if let checkIn = userStats?.todaysDailyCheckIn {
+                    Text("You earned \(checkIn.pointsEarned) points for \(checkIn.exerciseName).")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -536,34 +700,35 @@ struct HomeView: View {
 
             Spacer()
 
-            Image(systemName: "moon.stars.fill")
-                .foregroundStyle(.purple.opacity(0.5))
+            Image(systemName: todaysExercise?.icon ?? "checkmark.circle.fill")
+                .font(.title3)
+                .foregroundStyle(.green.opacity(0.5))
         }
         .padding()
-        .background(Color.green.opacity(0.08))
-        .cornerRadius(12)
+        .background(Color.green.opacity(0.1))
+        .cornerRadius(16)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Rest day check-in complete. You earned \(userStats?.todaysRestDayCheckIn?.pointsEarned ?? 0) points.")
+        .accessibilityLabel("Daily exercise complete. You earned \(userStats?.todaysDailyCheckIn?.pointsEarned ?? 0) points.")
     }
 
-    /// View when workout was done so rest day is not needed
-    private var restDayNotNeededView: some View {
+    /// View when daily exercise is unavailable (e.g., rest day was done)
+    private func dailyExerciseUnavailableView(reason: String) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: "star.fill")
+            Image(systemName: "moon.stars.fill")
                 .font(.title3)
-                .foregroundStyle(.yellow)
+                .foregroundStyle(.purple)
 
-            Text("Workout done — rest day not needed!")
+            Text(reason)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             Spacer()
         }
         .padding()
-        .background(Color.yellow.opacity(0.08))
-        .cornerRadius(12)
+        .background(Color.purple.opacity(0.08))
+        .cornerRadius(16)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("You completed a workout today, so a rest day check-in is not needed.")
+        .accessibilityLabel(reason)
     }
 
     // MARK: - Streak Section (Phase 06.2: Enhanced with StreakStatus, Phase 06.3: Streak Freeze)
@@ -836,6 +1001,9 @@ struct HomeView: View {
             userStats = await activityService.getUserStats(userId: userId)
 
             guard !Task.isCancelled else { return }
+
+            // Load today's daily exercise (deterministic per user per day)
+            todaysExercise = DailyExercise.todaysExercise(for: userId)
 
             // Phase 07.3: Load equipped items for display
             equippedItems = await shopService.getEquippedItems(userId: userId)
