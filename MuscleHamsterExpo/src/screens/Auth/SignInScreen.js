@@ -12,15 +12,39 @@ import {
 import AuthTextField from '../../components/AuthTextField';
 import SocialAuthButton from '../../components/SocialAuthButton';
 import { useAuth } from '../../context/AuthContext';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 
 export default function SignInScreen({ navigation }) {
-  const { signIn, error, clearError } = useAuth();
+  const { signIn, signInWithApple, isAppleAvailable, error, clearError } = useAuth();
+  const { signIn: googleSignIn, loading: googleLoading, error: googleError } = useGoogleAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(null); // 'apple' | 'google' | null
 
   const passwordRef = useRef();
+
+  const handleAppleSignIn = async () => {
+    if (socialLoading) return;
+    setSocialLoading('apple');
+    clearError();
+
+    await signInWithApple();
+    // Auth state listener will handle navigation
+
+    setSocialLoading(null);
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (socialLoading) return;
+    setSocialLoading('google');
+    clearError();
+
+    await googleSignIn();
+    // Auth state listener will handle navigation
+    // Note: loading state is managed by useGoogleAuth hook
+  };
 
   // Validation
   const isValidEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
@@ -89,9 +113,9 @@ export default function SignInScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* Auth Error */}
-        {error && (
+        {(error || googleError) && (
           <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{error}</Text>
+            <Text style={styles.errorBannerText}>{error || googleError}</Text>
           </View>
         )}
 
@@ -124,8 +148,20 @@ export default function SignInScreen({ navigation }) {
         </View>
 
         {/* Social Buttons */}
-        <SocialAuthButton provider="apple" onPress={() => {}} />
-        <SocialAuthButton provider="google" onPress={() => {}} />
+        {Platform.OS === 'ios' && isAppleAvailable && (
+          <SocialAuthButton
+            provider="apple"
+            onPress={handleAppleSignIn}
+            loading={socialLoading === 'apple'}
+            disabled={!!socialLoading || isSubmitting}
+          />
+        )}
+        <SocialAuthButton
+          provider="google"
+          onPress={handleGoogleSignIn}
+          loading={socialLoading === 'google' || googleLoading}
+          disabled={!!socialLoading || isSubmitting || googleLoading}
+        />
 
         {/* Sign Up Link */}
         <TouchableOpacity

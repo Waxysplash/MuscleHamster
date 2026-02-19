@@ -1,4 +1,16 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { auth } from '../config/firebase';
+import {
+  isAppleSignInAvailable,
+  signInWithApple as socialSignInWithApple,
+} from '../services/SocialAuthService';
 
 // Auth state enum equivalent
 export const AuthState = {
@@ -7,33 +19,52 @@ export const AuthState = {
   AUTHENTICATED: 'authenticated',
 };
 
-// Auth error messages with hamster voice
-const AuthErrors = {
-  invalidEmail: "That email doesn't look quite right. Mind double-checking it?",
-  weakPassword: 'Your hamster needs a stronger password! At least 8 characters, please.',
-  emailAlreadyInUse: "Looks like you've been here before! Try signing in instead.",
-  invalidCredentials: "That didn't quite work. Double-check your email and password?",
-  userNotFound: "We couldn't find that account. Want to create one instead?",
-  networkError: "Your hamster can't reach the internet right now. Check your connection and try again!",
-  unknown: 'Something unexpected happened. Let\'s try again!',
+// Map Firebase error codes to friendly hamster messages
+const getErrorMessage = (errorCode) => {
+  const errorMessages = {
+    'auth/invalid-email': "That email doesn't look quite right. Mind double-checking it?",
+    'auth/weak-password': 'Your hamster needs a stronger password! At least 6 characters, please.',
+    'auth/email-already-in-use': "Looks like you've been here before! Try signing in instead.",
+    'auth/invalid-credential': "That didn't quite work. Double-check your email and password?",
+    'auth/user-not-found': "We couldn't find that account. Want to create one instead?",
+    'auth/wrong-password': "That password doesn't match. Want to try again?",
+    'auth/too-many-requests': "Whoa, slow down! Too many attempts. Try again in a bit.",
+    'auth/network-request-failed': "Your hamster can't reach the internet right now. Check your connection!",
+  };
+  return errorMessages[errorCode] || 'Something unexpected happened. Let\'s try again!';
 };
 
 const AuthContext = createContext(null);
 
-// Mock auth service - in-memory storage
-const registeredUsers = {};
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-const isValidEmail = (email) => {
-  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  return emailRegex.test(email);
-};
-
 export function AuthProvider({ children }) {
-  const [authState, setAuthState] = useState(AuthState.UNAUTHENTICATED);
+  const [authState, setAuthState] = useState(AuthState.UNKNOWN);
   const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState(null);
+  const [isAppleAvailable, setIsAppleAvailable] = useState(false);
+
+  // Check Apple Sign-In availability on mount
+  useEffect(() => {
+    isAppleSignInAvailable().then(setIsAppleAvailable);
+  }, []);
+
+  // Listen for auth state changes (handles persistence automatically)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setCurrentUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          profileComplete: false, // Will be updated by UserProfileContext
+        });
+        setAuthState(AuthState.AUTHENTICATED);
+      } else {
+        setCurrentUser(null);
+        setAuthState(AuthState.UNAUTHENTICATED);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -42,100 +73,81 @@ export function AuthProvider({ children }) {
   const signUp = useCallback(async (email, password) => {
     setError(null);
 
-    // Simulate network delay
-    await delay(800 + Math.random() * 700);
-
-    // Validate email
-    if (!isValidEmail(email)) {
-      setError(AuthErrors.invalidEmail);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Auth state listener will handle setting currentUser
+      return true;
+    } catch (err) {
+      console.log('Sign up error:', err.code, err.message);
+      setError(getErrorMessage(err.code));
       return false;
     }
-
-    // Validate password
-    if (password.length < 8) {
-      setError(AuthErrors.weakPassword);
-      return false;
-    }
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // Check if user exists
-    if (registeredUsers[normalizedEmail]) {
-      setError(AuthErrors.emailAlreadyInUse);
-      return false;
-    }
-
-    // Register user
-    registeredUsers[normalizedEmail] = password;
-    const user = { id: Date.now().toString(), email: normalizedEmail, profileComplete: false };
-    setCurrentUser(user);
-    setAuthState(AuthState.AUTHENTICATED);
-    return true;
   }, []);
 
   const signIn = useCallback(async (email, password) => {
     setError(null);
 
-    await delay(800 + Math.random() * 700);
-
-    if (!isValidEmail(email)) {
-      setError(AuthErrors.invalidEmail);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // Auth state listener will handle setting currentUser
+      return true;
+    } catch (err) {
+      console.log('Sign in error:', err.code, err.message);
+      setError(getErrorMessage(err.code));
       return false;
     }
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-    if (!registeredUsers[normalizedEmail]) {
-      setError(AuthErrors.userNotFound);
-      return false;
-    }
-
-    if (registeredUsers[normalizedEmail] !== password) {
-      setError(AuthErrors.invalidCredentials);
-      return false;
-    }
-
-    const user = { id: Date.now().toString(), email: normalizedEmail, profileComplete: false };
-    setCurrentUser(user);
-    setAuthState(AuthState.AUTHENTICATED);
-    return true;
   }, []);
 
   const signOut = useCallback(async () => {
-    await delay(300);
-    setCurrentUser(null);
-    setAuthState(AuthState.UNAUTHENTICATED);
+    try {
+      await firebaseSignOut(auth);
+      // Auth state listener will handle clearing currentUser
+    } catch (err) {
+      console.error('Sign out error:', err);
+    }
   }, []);
 
   const resetPassword = useCallback(async (email) => {
     setError(null);
 
-    await delay(800 + Math.random() * 700);
-
-    if (!isValidEmail(email)) {
-      setError(AuthErrors.invalidEmail);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return true;
+    } catch (err) {
+      setError(getErrorMessage(err.code));
       return false;
     }
+  }, []);
 
-    const normalizedEmail = email.toLowerCase().trim();
+  const signInWithApple = useCallback(async () => {
+    setError(null);
 
-    if (!registeredUsers[normalizedEmail]) {
-      setError(AuthErrors.userNotFound);
-      return false;
+    const result = await socialSignInWithApple();
+
+    if (result.cancelled) {
+      // User cancelled - no error needed
+      return { success: false, cancelled: true };
     }
 
-    // In real app, would send email
-    return true;
+    if (!result.success) {
+      setError(result.error);
+      return { success: false };
+    }
+
+    // Auth state listener will handle setting currentUser
+    return { success: true };
   }, []);
 
   const value = {
     authState,
     currentUser,
     error,
+    isAppleAvailable,
     signUp,
     signIn,
     signOut,
     resetPassword,
+    signInWithApple,
     clearError,
   };
 

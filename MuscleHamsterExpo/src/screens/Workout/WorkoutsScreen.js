@@ -1,39 +1,69 @@
-// Workouts Screen - Simplified with Get Moving + Browse All
-import React, { useState, useCallback } from 'react';
+// Workouts Screen - Full Implementation
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { WorkoutService } from '../../services/WorkoutService';
-import { WorkoutTypeInfo, DurationBucketInfo } from '../../models/Workout';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { useActivity } from '../../context/ActivityContext';
+import { ActivityService } from '../../services/ActivityService';
+import { WorkoutType, WorkoutTypeInfo, DurationBucketInfo } from '../../models/Workout';
 import { FitnessLevelInfo } from '../../models/UserProfile';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
 
+const screenWidth = Dimensions.get('window').width;
+const cardWidth = (screenWidth - 48) / 2;
+
 export default function WorkoutsScreen({ navigation }) {
+  const { profile } = useUserProfile();
+  const { stats } = useActivity();
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [recommendedWorkouts, setRecommendedWorkouts] = useState([]);
   const [allWorkouts, setAllWorkouts] = useState([]);
 
   const loadWorkouts = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
+      // Get all workouts
       const workouts = await WorkoutService.getAllWorkouts();
       setAllWorkouts(workouts);
+
+      // Get recommended workouts based on profile
+      if (profile) {
+        const recentIds = await ActivityService.getRecentWorkoutIds(5);
+        const dislikedIds = await ActivityService.getDislikedWorkoutIds();
+        const lovedIds = await ActivityService.getLovedWorkoutIds();
+
+        const recommended = await WorkoutService.getRecommendedWorkouts(profile, {
+          recentWorkoutIds: recentIds,
+          dislikedWorkoutIds: dislikedIds,
+          lovedWorkoutIds: lovedIds,
+        });
+        setRecommendedWorkouts(recommended);
+      } else {
+        // Fallback for users without profile
+        const featured = await WorkoutService.getFeaturedWorkouts();
+        setRecommendedWorkouts(featured.map((w) => ({ ...w, explanation: 'A great workout to try!' })));
+      }
     } catch (e) {
-      setError("I couldn't find the workouts right now. Let's try again!");
+      setError('Failed to load workouts');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [profile]);
 
   useFocusEffect(
     useCallback(() => {
@@ -51,17 +81,20 @@ export default function WorkoutsScreen({ navigation }) {
     navigation.navigate('WorkoutDetail', { workoutId: workout.id });
   };
 
-  // Beginner-friendly, equipment-free workouts
-  const suggestedWorkouts = allWorkouts
-    .filter((w) => w.difficulty === 'beginner' && w.equipment?.includes('none'))
-    .slice(0, 4);
+  const getWorkoutCountByType = (type) => {
+    return allWorkouts.filter((w) => w.category === type).length;
+  };
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
-      case 'beginner': return '#34C759';
-      case 'intermediate': return '#FF9500';
-      case 'advanced': return '#FF3B30';
-      default: return '#8E8E93';
+      case 'beginner':
+        return '#34C759';
+      case 'intermediate':
+        return '#FF9500';
+      case 'advanced':
+        return '#FF3B30';
+      default:
+        return '#8E8E93';
     }
   };
 
@@ -81,94 +114,111 @@ export default function WorkoutsScreen({ navigation }) {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      {/* Get Moving Section */}
+      {/* Recommended Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Get Moving</Text>
-        <Text style={styles.sectionSubtitle}>Quick workouts to feel great today</Text>
-
-        {suggestedWorkouts.length === 0 ? (
-          <View style={styles.noSuggestionsCard}>
-            <Ionicons name="fitness" size={28} color="#007AFF" />
-            <Text style={styles.noSuggestionsText}>More workouts coming soon!</Text>
-          </View>
-        ) : (
-          suggestedWorkouts.map((workout) => {
+        <View style={styles.sectionHeader}>
+          <Ionicons name="sparkles" size={20} color="#007AFF" />
+          <Text style={styles.sectionTitle}>Recommended for You</Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.recommendedScroll}
+        >
+          {recommendedWorkouts.map((workout) => {
             const typeInfo = WorkoutTypeInfo[workout.category];
             const durationInfo = DurationBucketInfo[workout.duration];
             return (
               <TouchableOpacity
                 key={workout.id}
-                style={styles.suggestedCard}
+                style={styles.recommendedCard}
                 onPress={() => navigateToWorkout(workout)}
-                accessibilityLabel={`${workout.name}, about ${durationInfo?.range}. ${workout.description}`}
+                accessibilityLabel={`${workout.name}, ${typeInfo?.displayName}`}
               >
-                {/* Category icon */}
-                <View style={[styles.categoryCircle, { backgroundColor: (typeInfo?.color || '#007AFF') + '20' }]}>
-                  <Ionicons name={typeInfo?.icon || 'fitness'} size={24} color={typeInfo?.color || '#007AFF'} />
+                <View style={[styles.categoryBadge, { backgroundColor: typeInfo?.color + '20' }]}>
+                  <Ionicons name={typeInfo?.icon || 'fitness'} size={24} color={typeInfo?.color} />
                 </View>
-
-                {/* Workout info */}
-                <View style={styles.suggestedInfo}>
-                  <Text style={styles.suggestedName} numberOfLines={1}>{workout.name}</Text>
-                  <Text style={styles.suggestedDescription} numberOfLines={1}>{workout.description}</Text>
-                </View>
-
-                {/* Duration badge */}
                 <View style={styles.durationBadge}>
-                  <Text style={styles.durationText}>~{durationInfo?.minutes || '?'} min</Text>
+                  <Ionicons name="time-outline" size={12} color="#8E8E93" />
+                  <Text style={styles.durationText}>{durationInfo?.range}</Text>
                 </View>
-
-                <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+                <Text style={styles.workoutName} numberOfLines={1}>{workout.name}</Text>
+                <View style={styles.difficultyRow}>
+                  <View style={[styles.difficultyDot, { backgroundColor: getDifficultyColor(workout.difficulty) }]} />
+                  <Text style={styles.difficultyText}>
+                    {FitnessLevelInfo[workout.difficulty]?.displayName}
+                  </Text>
+                </View>
+                {workout.explanation && (
+                  <Text style={styles.explanationText} numberOfLines={2}>
+                    {workout.explanation}
+                  </Text>
+                )}
               </TouchableOpacity>
             );
-          })
-        )}
+          })}
+        </ScrollView>
       </View>
 
-      {/* All Workouts (grouped by category) */}
+      {/* Browse Categories */}
       <View style={styles.section}>
-        <View style={styles.allWorkoutsHeader}>
-          <Ionicons name="list" size={20} color="#007AFF" />
-          <Text style={styles.sectionTitle}>All Workouts</Text>
-          <Text style={styles.workoutCountText}>{allWorkouts.length} workouts</Text>
+        <Text style={styles.sectionTitle}>Browse by Type</Text>
+        <View style={styles.grid}>
+          {Object.values(WorkoutType).map((type) => {
+            const info = WorkoutTypeInfo[type];
+            const count = getWorkoutCountByType(type);
+            return (
+              <TouchableOpacity
+                key={type}
+                style={[styles.categoryCard, { width: cardWidth }]}
+                onPress={() => {
+                  // For now, just show first workout of this type
+                  const workout = allWorkouts.find((w) => w.category === type);
+                  if (workout) {
+                    navigateToWorkout(workout);
+                  }
+                }}
+                accessibilityLabel={`${info.displayName} workouts, ${count} available`}
+              >
+                <View style={[styles.categoryIcon, { backgroundColor: info.color + '15' }]}>
+                  <Ionicons name={info.icon} size={28} color={info.color} />
+                </View>
+                <Text style={styles.categoryLabel}>{info.displayName}</Text>
+                <Text style={styles.categoryCount}>{count} workouts</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-        {Object.keys(WorkoutTypeInfo).map((type) => {
-          const categoryWorkouts = allWorkouts.filter((w) => w.category === type);
-          if (categoryWorkouts.length === 0) return null;
-          const typeInfo = WorkoutTypeInfo[type];
+      </View>
 
+      {/* All Workouts */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>All Workouts</Text>
+        {allWorkouts.map((workout) => {
+          const typeInfo = WorkoutTypeInfo[workout.category];
+          const durationInfo = DurationBucketInfo[workout.duration];
           return (
-            <View key={type} style={styles.categorySection}>
-              <View style={styles.categorySectionHeader}>
-                <Ionicons name={typeInfo.icon} size={18} color={typeInfo.color} />
-                <Text style={styles.categorySectionTitle}>{typeInfo.displayName}</Text>
+            <TouchableOpacity
+              key={workout.id}
+              style={styles.workoutRow}
+              onPress={() => navigateToWorkout(workout)}
+              accessibilityLabel={`${workout.name}`}
+            >
+              <View style={[styles.workoutRowIcon, { backgroundColor: typeInfo?.color + '15' }]}>
+                <Ionicons name={typeInfo?.icon || 'fitness'} size={24} color={typeInfo?.color} />
               </View>
-              {categoryWorkouts.map((workout) => {
-                const durationInfo = DurationBucketInfo[workout.duration];
-                return (
-                  <TouchableOpacity
-                    key={workout.id}
-                    style={styles.workoutRow}
-                    onPress={() => navigateToWorkout(workout)}
-                    accessibilityLabel={workout.name}
-                  >
-                    <View style={[styles.workoutRowIcon, { backgroundColor: typeInfo.color + '15' }]}>
-                      <Ionicons name={typeInfo.icon} size={22} color={typeInfo.color} />
-                    </View>
-                    <View style={styles.workoutRowInfo}>
-                      <Text style={styles.workoutRowName}>{workout.name}</Text>
-                      <View style={styles.workoutRowMeta}>
-                        <View style={[styles.difficultyDot, { backgroundColor: getDifficultyColor(workout.difficulty) }]} />
-                        <Text style={styles.workoutRowDetail}>
-                          {FitnessLevelInfo[workout.difficulty]?.displayName} · {durationInfo?.range}
-                        </Text>
-                      </View>
-                    </View>
-                    <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+              <View style={styles.workoutRowInfo}>
+                <Text style={styles.workoutRowName}>{workout.name}</Text>
+                <View style={styles.workoutRowMeta}>
+                  <Text style={styles.workoutRowDuration}>{durationInfo?.range}</Text>
+                  <View style={[styles.difficultyDot, { backgroundColor: getDifficultyColor(workout.difficulty) }]} />
+                  <Text style={styles.workoutRowDifficulty}>
+                    {FitnessLevelInfo[workout.difficulty]?.displayName}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            </TouchableOpacity>
           );
         })}
       </View>
@@ -188,110 +238,113 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 16,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4,
-  },
-  sectionSubtitle: {
-    fontSize: 15,
-    color: '#8E8E93',
-    marginBottom: 12,
-  },
-  // Suggested workout cards
-  suggestedCard: {
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginLeft: 6,
+    color: '#000',
+  },
+  recommendedScroll: {
+    paddingRight: 16,
+  },
+  recommendedCard: {
+    width: 160,
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
-    marginBottom: 10,
+    marginRight: 12,
   },
-  categoryCircle: {
+  categoryBadge: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  suggestedInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  suggestedName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
-  },
-  suggestedDescription: {
-    fontSize: 13,
-    color: '#8E8E93',
-    marginTop: 2,
+    marginBottom: 8,
   },
   durationBadge: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginRight: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   durationText: {
     fontSize: 12,
+    color: '#8E8E93',
+    marginLeft: 4,
+  },
+  workoutName: {
+    fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
-  },
-  noSuggestionsCard: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    gap: 8,
-  },
-  noSuggestionsText: {
-    fontSize: 15,
-    color: '#8E8E93',
-  },
-  // All Workouts header
-  allWorkoutsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
     marginBottom: 4,
+    color: '#000',
   },
-  workoutCountText: {
-    fontSize: 13,
-    color: '#8E8E93',
-    marginLeft: 'auto',
-  },
-  // Category sections
-  categorySection: {
-    marginBottom: 16,
-  },
-  categorySectionHeader: {
+  difficultyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
-    marginTop: 8,
   },
-  categorySectionTitle: {
-    fontSize: 17,
+  difficultyDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  difficultyText: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
+  explanationText: {
+    fontSize: 12,
+    color: '#007AFF',
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  categoryCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  categoryIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  categoryLabel: {
+    fontSize: 15,
     fontWeight: '600',
     color: '#000',
+  },
+  categoryCount: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 2,
   },
   workoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 6,
+    padding: 16,
+    marginBottom: 8,
   },
   workoutRowIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -300,22 +353,21 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   workoutRowName: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: '#000',
   },
   workoutRowMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 3,
+    marginTop: 4,
   },
-  difficultyDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
+  workoutRowDuration: {
+    fontSize: 13,
+    color: '#8E8E93',
+    marginRight: 8,
   },
-  workoutRowDetail: {
+  workoutRowDifficulty: {
     fontSize: 13,
     color: '#8E8E93',
   },

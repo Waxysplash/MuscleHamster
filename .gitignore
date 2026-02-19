@@ -55,3 +55,6 @@ android/
 
 # === Debug ===
 *.log
+
+# === Windows ===
+nul

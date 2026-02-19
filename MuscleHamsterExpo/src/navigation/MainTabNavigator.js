@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
-import { HomeScreen, DailyExerciseCheckInScreen } from '../screens/Home';
+import { HomeScreen } from '../screens/Home';
 import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen } from '../screens/Workout';
 import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
 import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
@@ -109,15 +109,6 @@ function HomeStackScreen() {
         name="BlockedUsers"
         component={BlockedUsersScreen}
         options={{ headerShown: false }}
-      />
-      <HomeStack.Screen
-        name="DailyExerciseCheckIn"
-        component={DailyExerciseCheckInScreen}
-        options={{
-          title: "Today's Exercise",
-          presentation: 'modal',
-          headerShown: false,
-        }}
       />
       <HomeStack.Screen
         name="RestDayCheckIn"

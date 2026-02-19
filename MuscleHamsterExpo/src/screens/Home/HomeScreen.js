@@ -1,4 +1,4 @@
-// Home Screen - Full Implementation with Daily Exercise, Tips & Notifications
+// Home Screen - Full Implementation with Notifications
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -11,11 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../../context/ActivityContext';
-import { useAuth } from '../../context/AuthContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { HamsterStateInfo, StreakStatus } from '../../models/Activity';
-import { getTodaysExercise, getExerciseDisplayPrompt } from '../../models/DailyExercise';
-import { getTodaysTip, TipCategoryInfo } from '../../models/FitnessTip';
 import LoadingView from '../../components/LoadingView';
 import NotificationContextBanner from '../../components/NotificationContextBanner';
 import HamsterPortrait from '../../components/HamsterPortrait';
@@ -24,7 +21,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { createNotificationContext, NotificationType } from '../../models/Notification';
 
 export default function HomeScreen({ navigation }) {
-  const { currentUser } = useAuth();
   const { profile } = useUserProfile();
   const {
     stats,
@@ -52,21 +48,12 @@ export default function HomeScreen({ navigation }) {
   const [notificationContext, setNotificationContext] = useState(null);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
 
-  // Daily exercise state
-  const [todaysExercise, setTodaysExercise] = useState(null);
-
   // Reload stats and inventory when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadStats();
       loadInventory();
-
-      // Load today's exercise
-      if (currentUser?.id) {
-        const exercise = getTodaysExercise(currentUser.id);
-        setTodaysExercise(exercise);
-      }
-    }, [loadStats, loadInventory, currentUser?.id])
+    }, [loadStats, loadInventory])
   );
 
   // Show streak freeze if needed
@@ -99,27 +86,6 @@ export default function HomeScreen({ navigation }) {
   const hamsterInfo = HamsterStateInfo[hamsterState] || HamsterStateInfo.hungry;
   const hamsterName = profile?.hamsterName || 'Your Hamster';
 
-  // Today's tip
-  const todaysTip = getTodaysTip();
-  const tipCategoryInfo = TipCategoryInfo[todaysTip.category];
-
-  // Check-in status helpers
-  const hasCompletedWorkoutToday = stats?.workoutHistory?.some(
-    (w) => new Date(w.completedAt).toDateString() === new Date().toDateString()
-  );
-  const hasDailyCheckInToday = (stats?.dailyCheckInHistory || []).some(
-    (c) => new Date(c.completedAt).toDateString() === new Date().toDateString()
-  );
-  const hasRestDayCheckInToday = (stats?.restDayHistory || []).some(
-    (c) => new Date(c.completedAt).toDateString() === new Date().toDateString()
-  );
-
-  // Points earned today
-  const todayStr = new Date().toDateString();
-  const dailyCheckInPointsToday = (stats?.dailyCheckInHistory || [])
-    .filter((c) => new Date(c.completedAt).toDateString() === todayStr)
-    .reduce((sum, c) => sum + (c.pointsEarned || 0), 0);
-
   const getStreakStatusInfo = () => {
     if (!streakStatus) return { icon: 'flame-outline', color: '#8E8E93', text: 'Start your streak!' };
 
@@ -136,6 +102,9 @@ export default function HomeScreen({ navigation }) {
   };
 
   const streakInfo = getStreakStatusInfo();
+  const hasCompletedWorkoutToday = stats?.workoutHistory?.some(
+    (w) => new Date(w.completedAt).toDateString() === new Date().toDateString()
+  );
 
   if (isLoading && !stats) {
     return <LoadingView message="Waking up your hamster..." />;
@@ -219,11 +188,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.completedInfo}>
                   <Text style={styles.completedTitle}>All done for today!</Text>
                   <Text style={styles.completedSubtitle}>
-                    {hasCompletedWorkoutToday
-                      ? 'Workout completed'
-                      : hasDailyCheckInToday
-                        ? 'Daily exercise done'
-                        : 'Rest day check-in done'}
+                    {hasCompletedWorkoutToday ? 'Workout completed' : 'Rest day check-in done'}
                   </Text>
                 </View>
               </View>
@@ -232,99 +197,40 @@ export default function HomeScreen({ navigation }) {
                 <Ionicons name="time" size={32} color="#FF9500" />
                 <View style={styles.pendingInfo}>
                   <Text style={styles.pendingTitle}>Ready for action!</Text>
-                  <Text style={styles.pendingSubtitle}>Complete your daily exercise or a workout</Text>
+                  <Text style={styles.pendingSubtitle}>Complete a workout or rest day check-in</Text>
                 </View>
               </View>
             )}
-          </View>
-        </View>
-
-        {/* Tip Section */}
-        <View style={styles.section}>
-          <View style={styles.tipCard}>
-            <View style={styles.tipHeader}>
-              <View style={styles.tipIconCircle}>
-                <Ionicons name="bulb" size={20} color="#FFCC00" />
-              </View>
-              <Text style={styles.tipLabel}>Did you know?</Text>
-            </View>
-            <Text style={styles.tipText}>{todaysTip.text}</Text>
-            <View style={styles.tipCategoryBadge}>
-              <Ionicons name={tipCategoryInfo.icon} size={12} color={tipCategoryInfo.color} />
-              <Text style={[styles.tipCategoryText, { color: tipCategoryInfo.color }]}>
-                {tipCategoryInfo.displayName}
-              </Text>
-            </View>
           </View>
         </View>
 
         {/* Daily Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Daily Actions</Text>
-
-          {/* Primary: Daily Exercise Card */}
-          {todaysExercise && !hasDailyCheckInToday && !hasRestDayCheckInToday && (
-            <TouchableOpacity
-              style={styles.dailyExerciseCard}
-              onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
-              accessibilityLabel={`Today's exercise: ${getExerciseDisplayPrompt(todaysExercise)}. Tap to complete.`}
-            >
-              <View style={styles.dailyExerciseTop}>
-                <View style={styles.dailyExerciseIconCircle}>
-                  <Ionicons name={todaysExercise.icon} size={28} color="#007AFF" />
-                </View>
-                <View style={styles.dailyExerciseInfo}>
-                  <Text style={styles.dailyExerciseLabel}>Today's Exercise</Text>
-                  <Text style={styles.dailyExercisePrompt}>
-                    {getExerciseDisplayPrompt(todaysExercise)}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.dailyExerciseCTA}>
-                <Text style={styles.dailyExerciseCTAText}>I Did It!</Text>
-                <Ionicons name="chevron-forward" size={20} color="#fff" />
-              </View>
-            </TouchableOpacity>
-          )}
-
-          {/* Daily exercise completed card */}
-          {hasDailyCheckInToday && (
-            <View style={styles.dailyExerciseCompleted}>
-              <Ionicons name="checkmark-circle" size={28} color="#34C759" />
-              <View style={styles.dailyExerciseCompletedInfo}>
-                <Text style={styles.dailyExerciseCompletedTitle}>Daily Exercise Done!</Text>
-                {dailyCheckInPointsToday > 0 && (
-                  <Text style={styles.dailyExerciseCompletedPoints}>
-                    +{dailyCheckInPointsToday} points earned
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
-
-          {/* Secondary actions row */}
-          <View style={styles.secondaryActionsRow}>
-            <TouchableOpacity
-              style={[styles.secondaryButton, styles.workoutButton]}
-              onPress={() => navigation.navigate('Workouts')}
-              accessibilityLabel="Start a workout"
-            >
-              <Ionicons name="fitness" size={22} color="#fff" />
-              <Text style={styles.secondaryButtonText}>Start Workout</Text>
-            </TouchableOpacity>
-
-            {!hasCompletedWorkoutToday && !hasDailyCheckInToday && !hasRestDayCheckInToday && (
+        {!hasCheckedInToday && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.actionsRow}>
               <TouchableOpacity
-                style={[styles.secondaryButton, styles.restDayButton]}
-                onPress={() => navigation.navigate('RestDayCheckIn')}
-                accessibilityLabel="Rest day check-in"
+                style={[styles.actionButton, styles.workoutButton]}
+                onPress={() => navigation.navigate('Workouts')}
+                accessibilityLabel="Start a workout"
               >
-                <Ionicons name="cafe" size={22} color="#fff" />
-                <Text style={styles.secondaryButtonText}>Rest Day</Text>
+                <Ionicons name="fitness" size={28} color="#fff" />
+                <Text style={styles.actionButtonText}>Start Workout</Text>
               </TouchableOpacity>
-            )}
+
+              {!hasCompletedWorkoutToday && (
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.restDayButton]}
+                  onPress={() => navigation.navigate('RestDayCheckIn')}
+                  accessibilityLabel="Rest day check-in"
+                >
+                  <Ionicons name="cafe" size={28} color="#fff" />
+                  <Text style={styles.actionButtonText}>Rest Day</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Streak Section */}
         <View style={styles.section}>
@@ -340,7 +246,7 @@ export default function HomeScreen({ navigation }) {
           >
             <View style={styles.streakContent}>
               <Ionicons name={streakInfo.icon} size={40} color={streakInfo.color} />
-              <View style={styles.streakInfoBlock}>
+              <View style={styles.streakInfo}>
                 <Text style={[styles.streakNumber, { color: streakInfo.color }]}>
                   {currentStreak}
                 </Text>
@@ -536,130 +442,18 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     marginTop: 2,
   },
-  // Tip Section
-  tipCard: {
-    backgroundColor: 'rgba(255,204,0,0.1)',
-    borderRadius: 16,
-    padding: 16,
-  },
-  tipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  tipIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,204,0,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  tipLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#B8860B',
-  },
-  tipText: {
-    fontSize: 15,
-    color: '#3C3C43',
-    lineHeight: 22,
-  },
-  tipCategoryBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    gap: 4,
-  },
-  tipCategoryText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  // Daily Exercise Card
-  dailyExerciseCard: {
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  dailyExerciseTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  dailyExerciseIconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dailyExerciseInfo: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  dailyExerciseLabel: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
-    fontWeight: '500',
-  },
-  dailyExercisePrompt: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 2,
-  },
-  dailyExerciseCTA: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 12,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  dailyExerciseCTAText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  // Daily exercise completed
-  dailyExerciseCompleted: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(52,199,89,0.1)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  dailyExerciseCompletedInfo: {
-    marginLeft: 12,
-  },
-  dailyExerciseCompletedTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#34C759',
-  },
-  dailyExerciseCompletedPoints: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  // Secondary actions
-  secondaryActionsRow: {
+  actionsRow: {
     flexDirection: 'row',
     gap: 12,
   },
-  secondaryButton: {
+  actionButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 12,
-    gap: 6,
+    gap: 8,
   },
   workoutButton: {
     backgroundColor: '#34C759',
@@ -667,12 +461,11 @@ const styles = StyleSheet.create({
   restDayButton: {
     backgroundColor: '#5856D6',
   },
-  secondaryButtonText: {
-    fontSize: 15,
+  actionButtonText: {
+    fontSize: 16,
     fontWeight: '600',
     color: '#fff',
   },
-  // Streak
   streakCard: {
     backgroundColor: '#F2F2F7',
     borderRadius: 16,
@@ -683,7 +476,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  streakInfoBlock: {
+  streakInfo: {
     marginLeft: 16,
   },
   streakNumber: {
@@ -732,7 +525,6 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     textAlign: 'center',
   },
-  // Stats
   statsGrid: {
     flexDirection: 'row',
     gap: 12,

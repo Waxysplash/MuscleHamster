@@ -83,19 +83,6 @@ export const ActivityProvider = ({ children }) => {
     }
   }, []);
 
-  const recordDailyCheckIn = useCallback(async (exercise) => {
-    try {
-      const result = await ActivityService.recordDailyCheckIn(exercise);
-      if (result.stats) {
-        setStats(result.stats);
-      }
-      return result;
-    } catch (e) {
-      console.warn('Failed to record daily check-in:', e);
-      throw e;
-    }
-  }, []);
-
   const recordFeedback = useCallback(async (workoutId, feedback) => {
     try {
       const result = await ActivityService.recordFeedback(workoutId, feedback);
@@ -158,7 +145,6 @@ export const ActivityProvider = ({ children }) => {
     loadStats,
     recordWorkoutCompletion,
     recordRestDayCheckIn,
-    recordDailyCheckIn,
     recordFeedback,
     restoreStreak,
     acknowledgeStreakReset,

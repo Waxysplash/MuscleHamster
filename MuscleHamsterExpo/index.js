@@ -1,8 +1,6 @@
 import { registerRootComponent } from 'expo';
 
-// TEMPORARY: Show wheel preview instead of full app
-// To restore: change './src/screens/WheelPreview' back to './App'
-import App from './src/screens/WheelPreview';
+import App from './App';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,

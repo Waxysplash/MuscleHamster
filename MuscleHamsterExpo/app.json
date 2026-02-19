@@ -7,23 +7,39 @@
     "icon": "./assets/branding/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "musclehamster",
     "splash": {
       "image": "./assets/branding/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4A90D9"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.musclehamster.app",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.musclehamster.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/branding/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4A90D9"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/branding/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser",
+      "expo-apple-authentication"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0d1ab199-4a96-4a74-b718-9eee0ca7eacf"
+      }
     }
   }
 }

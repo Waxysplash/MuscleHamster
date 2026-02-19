@@ -145,7 +145,6 @@ export const TransactionType = {
 export const TransactionCategory = {
   WORKOUT: 'workout',
   REST_DAY: 'restDay',
-  DAILY_CHECK_IN: 'dailyCheckIn',
   STREAK_FREEZE: 'streakFreeze',
   SHOP_PURCHASE: 'shopPurchase',
   AD_REWARD: 'adReward',
@@ -154,7 +153,6 @@ export const TransactionCategory = {
 export const TransactionCategoryInfo = {
   [TransactionCategory.WORKOUT]: { displayName: 'Workout', icon: 'fitness', color: '#34C759' },
   [TransactionCategory.REST_DAY]: { displayName: 'Rest Day', icon: 'cafe', color: '#5856D6' },
-  [TransactionCategory.DAILY_CHECK_IN]: { displayName: 'Daily Exercise', icon: 'checkmark-circle', color: '#007AFF' },
   [TransactionCategory.STREAK_FREEZE]: { displayName: 'Streak Freeze', icon: 'snow', color: '#5AC8FA' },
   [TransactionCategory.SHOP_PURCHASE]: { displayName: 'Shop', icon: 'bag', color: '#FF9500' },
   [TransactionCategory.AD_REWARD]: { displayName: 'Bonus', icon: 'gift', color: '#FF2D55' },
@@ -167,8 +165,6 @@ export const PointsConfig = {
   streakFreezeCost: 100,
   maxStreakMultiplier: 2.0,
   restDayMaxMultiplier: 1.5,
-  dailyCheckInBasePoints: 25,
-  dailyCheckInMaxMultiplier: 1.5,
 
   calculateWorkoutPoints: (exercisesCompleted, currentStreak, wasPartial = false) => {
     let points = PointsConfig.baseWorkoutPoints + (exercisesCompleted * PointsConfig.pointsPerExercise);
@@ -189,11 +185,6 @@ export const PointsConfig = {
     const streakMultiplier = Math.min(1 + (currentStreak * 0.07), PointsConfig.restDayMaxMultiplier);
     return Math.round(basePoints * streakMultiplier);
   },
-
-  calculateDailyCheckInPoints: (currentStreak) => {
-    const streakMultiplier = Math.min(1 + (currentStreak * 0.07), PointsConfig.dailyCheckInMaxMultiplier);
-    return Math.round(PointsConfig.dailyCheckInBasePoints * streakMultiplier);
-  },
 };
 
 // Create default user stats
@@ -209,7 +200,6 @@ export const createDefaultUserStats = () => ({
   hamsterState: HamsterState.HUNGRY,
   workoutHistory: [],
   restDayHistory: [],
-  dailyCheckInHistory: [],
   workoutFeedback: {},
   transactions: [],
 });
@@ -248,21 +238,6 @@ export const createRestDayCheckIn = ({
 }) => ({
   id,
   activity,
-  completedAt,
-  pointsEarned,
-});
-
-// Create daily exercise check-in record
-export const createDailyExerciseCheckIn = ({
-  id,
-  exerciseId,
-  exerciseName,
-  completedAt,
-  pointsEarned,
-}) => ({
-  id,
-  exerciseId,
-  exerciseName,
   completedAt,
   pointsEarned,
 });

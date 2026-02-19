@@ -11,7 +11,6 @@ import {
   createDefaultUserStats,
   createWorkoutCompletion,
   createRestDayCheckIn,
-  createDailyExerciseCheckIn,
   createTransaction,
   RestDayActivityInfo,
 } from '../models/Activity';
@@ -78,9 +77,6 @@ const loadStats = async () => {
         cachedStats.restDayHistory?.forEach((c) => {
           completionKeys.add(`restday-${new Date(c.completedAt).toDateString()}`);
         });
-        cachedStats.dailyCheckInHistory?.forEach((c) => {
-          completionKeys.add(`dailycheckin-${new Date(c.completedAt).toDateString()}`);
-        });
         return cachedStats;
       } else {
         console.log('No stats in Firestore');
@@ -105,9 +101,6 @@ const loadStats = async () => {
       });
       cachedStats.restDayHistory?.forEach((c) => {
         completionKeys.add(`restday-${new Date(c.completedAt).toDateString()}`);
-      });
-      cachedStats.dailyCheckInHistory?.forEach((c) => {
-        completionKeys.add(`dailycheckin-${new Date(c.completedAt).toDateString()}`);
       });
     } else {
       console.log('No stored stats, using defaults');
@@ -380,82 +373,6 @@ export const ActivityService = {
     };
   },
 
-  async recordDailyCheckIn(exercise) {
-    const stats = await loadStats();
-    const now = new Date();
-    const dailyCheckInKey = `dailycheckin-${now.toDateString()}`;
-    const restDayKey = `restday-${now.toDateString()}`;
-
-    // Mutual exclusion: daily check-in and rest day cannot both be done
-    if (completionKeys.has(dailyCheckInKey) || completionKeys.has(restDayKey)) {
-      return {
-        success: false,
-        error: "You've already checked in today! Come back tomorrow.",
-      };
-    }
-
-    const points = PointsConfig.calculateDailyCheckInPoints(stats.currentStreak);
-
-    // Update streak
-    const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;
-    let newStreak = stats.currentStreak;
-
-    if (!lastCheckIn || !isSameDay(lastCheckIn, now)) {
-      if (!lastCheckIn || isYesterday(lastCheckIn)) {
-        newStreak = stats.currentStreak + 1;
-      } else {
-        newStreak = 1;
-      }
-    }
-
-    // Create check-in record
-    const checkIn = createDailyExerciseCheckIn({
-      id: `dc-${Date.now()}`,
-      exerciseId: exercise.id,
-      exerciseName: exercise.name,
-      completedAt: now.toISOString(),
-      pointsEarned: points,
-    });
-
-    // Create transaction
-    const transaction = createTransaction({
-      id: generateTransactionId(TransactionType.EARN, TransactionCategory.DAILY_CHECK_IN, exercise.id, now),
-      type: TransactionType.EARN,
-      category: TransactionCategory.DAILY_CHECK_IN,
-      amount: points,
-      description: `Daily Exercise: ${exercise.name}`,
-      timestamp: now.toISOString(),
-      entityId: exercise.id,
-      balanceAfter: stats.totalPoints + points,
-    });
-
-    // Update stats
-    const updatedStats = {
-      ...stats,
-      totalPoints: stats.totalPoints + points,
-      currentStreak: newStreak,
-      longestStreak: Math.max(stats.longestStreak, newStreak),
-      lastActivityDate: now.toISOString(),
-      lastCheckInDate: now.toISOString(),
-      previousBrokenStreak: null,
-      hamsterState: HamsterState.HAPPY,
-      dailyCheckInHistory: [checkIn, ...(stats.dailyCheckInHistory || [])].slice(0, 100),
-      transactions: [transaction, ...stats.transactions].slice(0, 500),
-    };
-
-    completionKeys.add(dailyCheckInKey);
-    await saveStats(updatedStats);
-
-    return {
-      success: true,
-      pointsEarned: points,
-      newStreak,
-      checkIn,
-      encouragement: exercise.encouragement,
-      stats: updatedStats,
-    };
-  },
-
   async recordFeedback(workoutId, feedback) {
     const stats = await loadStats();
 
@@ -617,13 +534,6 @@ export const ActivityService = {
     const stats = await loadStats();
     if (!stats.lastCheckInDate) return false;
     return isSameDay(new Date(stats.lastCheckInDate), new Date());
-  },
-
-  async hasDailyCheckInToday() {
-    const stats = await loadStats();
-    return (stats.dailyCheckInHistory || []).some((c) =>
-      isSameDay(new Date(c.completedAt), new Date())
-    );
   },
 
   async hasCompletedWorkoutToday() {
