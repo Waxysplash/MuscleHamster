@@ -14,10 +14,11 @@ A self-care fitness app where users complete short workouts to earn points and c
 - 75+ unit tests passing
 
 **What's left before launch:**
-1. Hamster artwork (need artist — style guide ready at `Assets/hamster-character-style-guide.md`)
-2. Exercise illustrations (~30-50 images)
-3. Audio assets (music + SFX)
-4. Ad integration (post-MVP)
+1. Hamster artwork — generating with AI (ChatGPT/DALL-E). Prompts ready at `Assets/ai-image-generation-prompts.md`
+2. Exercise content session — NEEDED BEFORE illustrations. Finalize the full exercise list (review existing 24 workouts + 35 daily check-in exercises, decide what ships)
+3. Exercise illustrations — AI-generate after exercise list is finalized
+4. Audio assets (music + SFX)
+5. Ad integration (post-MVP)
 
 ## Two Codebases
 

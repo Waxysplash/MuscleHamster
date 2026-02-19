@@ -41,8 +41,9 @@ All MVP phases complete. Social features implementation complete:
    - [ ] Starter accessories (8 pieces)
    - [ ] Enclosure items (8 decorations)
    - [ ] Enclosure background (1 default)
-3. [ ] **Exercise illustrations** — AI-generate (Midjourney/DALL-E) or source pre-made pack (Icons8/Blush.design) for ~30-50 exercise images + small hamster cheering element
-4. [ ] **Audio assets** — Source from free libraries (Freesound.org, Zapsplat, Uppbeat)
+3. [ ] **Exercise content session** — Need a dedicated session to finalize the full exercise list before creating illustrations. Decide which exercises ship in the app, review/revise the existing 24 workouts and 35 daily check-in exercises, finalize the master exercise list.
+4. [ ] **Exercise illustrations** — AI-generate (ChatGPT/DALL-E) for each exercise in the finalized list + small hamster cheering element
+5. [ ] **Audio assets** — Source from free libraries (Freesound.org, Zapsplat, Uppbeat)
 
 **Completed:**
 - ✅ Phase 01–08 — MVP Core Loop Complete
