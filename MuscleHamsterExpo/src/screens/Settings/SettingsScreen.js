@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
@@ -17,14 +17,20 @@ export default function SettingsScreen({ navigation }) {
   const formattedPoints = totalPoints.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   const handleSignOut = () => {
-    Alert.alert(
-      'Sign out of Muscle Hamster?',
-      'Your hamster will miss you, but your progress is safe!',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: () => signOut() },
-      ]
-    );
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sign out of Muscle Hamster?\n\nYour hamster will miss you, but your progress is safe!')) {
+        signOut();
+      }
+    } else {
+      Alert.alert(
+        'Sign out of Muscle Hamster?',
+        'Your hamster will miss you, but your progress is safe!',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Sign Out', style: 'destructive', onPress: () => signOut() },
+        ]
+      );
+    }
   };
 
   return (

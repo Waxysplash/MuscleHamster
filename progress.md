@@ -1,1644 +1,327 @@
-# Muscle Hamster — Progress
+# Muscle Hamster - Development Progress
 
-**Status:** Post-MVP — Content/Asset Production
-**Active Phase:** Phase 10.1 — Art Asset Specifications (IMPLEMENTED)
-**Last Updated:** Feb 7, 2026 (Session 34)
-
-> **Read-first session context:** `A1-new-session-instructions.md`
-> **Source requirements:** `muscle-hamster-prd.md`
-> **How to write phases:** `md-file-creation-instructions-for-new-phases.md`
-
----
-
-## Current Focus
-
-**Phase 09 — Social Features** (Post-MVP)
-
-All MVP phases complete. Social features implementation complete:
-- ✅ Phase 01–08 — MVP Core Loop Complete
-- ✅ Phase 09 — Social Features (COMPLETE)
-  - ✅ Phase 09.1 — Friend Data Model and Service Layer (IMPLEMENTED)
-  - ✅ Phase 09.2 — Add Friends UX (IMPLEMENTED)
-  - ✅ Phase 09.3 — Friends List and Friend Profile View (IMPLEMENTED)
-  - ✅ Phase 09.4 — Friend Streaks (IMPLEMENTED)
-  - ✅ Phase 09.5 — Privacy Controls (IMPLEMENTED)
-  - ✅ Phase 09.6 — Friend Nudges (IMPLEMENTED)
-  - ✅ Phase 09.7 — Review (REVIEWED — SIGN-OFF)
-
-**Parallel Work (Content/Assets):**
-- [ ] Add real workout content (exercise catalog, media assets)
-- 🔄 Add hamster artwork (states, growth stages, outfits)
-  - ✅ Character style guide created (`Assets/hamster-character-style-guide.md`)
-  - ✅ Phase 10.1 Art Asset Specifications (IMPLEMENTED)
-    - Created `ArtAssetSpec.swift` with color palette, dimensions, naming conventions
-    - Updated all hamster views to use official HamsterColorPalette
-    - Created asset catalog folder structure (Hamsters, Outfits, Accessories, Enclosure, Backgrounds)
-    - Created example imageset templates for artists
-    - Added AssetLoader utility for checking asset availability
-    - Added debug AssetStatusView for tracking asset implementation progress
-  - [ ] Base hamster design (5 states × 4 growth stages = 20 assets)
-  - [ ] Starter outfits (8 pieces)
-  - [ ] Starter accessories (8 pieces)
-  - [ ] Enclosure items (8 decorations)
-  - [ ] Enclosure background (1 default)
-- [ ] Add audio assets (sound effects, music tracks)
-- ✅ Internal testing and polish (Session 34)
-  - ✅ Replaced print() statements with OSLog-based AppLogger
-  - ✅ Created PersistenceHelper for centralized, logged persistence
-  - ✅ Created unit test infrastructure with 75+ tests
-  - ✅ Fixed error handling (replaced try? with PersistenceHelper)
-  - ✅ Added missing accessibility labels
-  - ✅ Fixed async Task cancellation in views (HomeView, SettingsView, etc.)
+## Project Setup
+- [x] Initialize Expo project
+- [x] Organize asset folder structure
+- [x] Update app.json with correct asset paths
+- [x] Remove hamster aging/growth feature from PRD
+- [x] Set up version control (git init, initial commit)
+- [x] Configure ESLint/Prettier
+- [x] Set up navigation library (React Navigation)
 
 ---
 
-## Open Questions (Need Decisions)
+## Phase 1: Core Loop
 
-- [ ] **Offline support for MVP**: PRD conflict (out-of-scope vs non-functional requirement). Decide:
-  - MVP: online-only with graceful retry UX, or
-  - MVP: partial offline (view hamster + downloaded workouts) with later sync
-- [ ] **Workout visuals**: hamster demo vs cheering vs static illustrations (depends on art capacity)
-- [x] **Hamster growth thresholds**: ✅ Defined in phase07.4 — Baby→Juvenile (5 workouts OR 7-day streak), Juvenile→Adult (25 workouts OR 21-day streak), Adult→Mature (75 workouts OR 60-day streak). Uses lifetime totals and longest streak ever.
-- [ ] **Ad frequency & placements**: ensure monetization does not disrupt workout flow (POST-MVP)
-- [ ] **Friend discovery privacy defaults**: contacts import permissions and hashing approach (POST-MVP)
+### Authentication
+- [x] Email/password signup & login (Firebase Auth)
+- [x] Apple Sign-In integration (fully implemented with Firebase)
+- [x] Google Sign-In integration (WORKING - web tested, needs iOS/Android client IDs for production builds)
+- [x] Age gate (13+ only) - enforced in onboarding
+- [x] Password reset flow (Firebase Auth)
 
----
+### Onboarding
+- [x] Age input screen
+- [x] Fitness level selection (Beginner/Intermediate/Hard)
+- [x] Fitness goals selection (Cardio, Muscle Gain, Fat Loss, Flexibility, General)
+- [x] Weekly workout goal setting
+- [x] Schedule preference (Fixed vs Flexible days)
+- [x] Preferred workout time selection
+- [x] Fitness intent (Maintenance vs Improvement)
+- [x] Hamster naming screen
+- [x] First workout selection / Meet hamster screen
 
-## Risks / Dependencies
+### Home Screen
+- [x] Hamster display component (HamsterView, EnclosureView)
+- [x] Hamster states (Happy/Fed, Chillin', Hungry, Sad)
+- [x] Current streak display
+- [x] Today's status indicator
+- [x] Quick action buttons
+- [x] Growth stage display & celebration
+- [x] Points header
+- [x] Customize button (links to Inventory)
 
-- 🔄 **Art assets**: hamster states, growth stages, outfits, enclosure items
-  - ✅ Style guide complete — ready for artist handoff
-  - ✅ Phase 10.1 code infrastructure complete — asset catalog ready for PNG drops
-  - ⏳ Awaiting artist to create actual PNG assets
-- [ ] **Workout content**: workout definitions + exercise catalog metadata and media needs
-- [ ] **Audio assets**: music + SFX + mute controls (and platform audio behavior)
-- [x] **Policy/compliance**: age gate (13+) ✅ — privacy features, data export/deletion requirements still pending
+### Workout Library
+- [x] Exercise database/content (WorkoutService with mock data)
+- [x] Browse workouts screen (WorkoutsScreen)
+- [x] Filter by duration (<15, <30, <45, <60 min)
+- [x] Filter by difficulty
+- [x] Filter by body focus
+- [x] Filter by fitness goal (model support)
 
----
+### Workout Player
+- [x] Exercise display with timer
+- [x] Rest periods between exercises
+- [x] Pause/resume functionality
+- [x] Skip exercise option
+- [x] Completion detection
+- [x] Workout rating (thumbs up/down)
+- [x] App lifecycle handling (background/foreground)
 
-## Phase Docs Index
+### Points System
+- [x] Points balance tracking (ActivityContext)
+- [x] Points awarded for workout completion
+- [x] Transaction history (PointsHistoryScreen)
+- [x] Spend points functionality
 
-### Phase 00 — MVP Overview & Execution Guidelines ✅
-- `Development/phase-00-mvp-overview-execution-guidelines/`
-  - ✅ phase00.1-mvp-definition-and-scope.md
-  - ✅ phase00.2-how-to-use-these-phases.md
-  - ✅ phase00.3-after-mvp-next-phases-parking-lot.md
-  - ✅ phase00.4-review.md
-
-### Phase 01 — App Shell & Core Navigation ✅
-- `Development/phase-01-app-shell-core-navigation/`
-  - ✅ phase01.1-navigation-structure-and-screen-skeletons.md (IMPLEMENTED)
-  - ✅ phase01.2-home-screen-shell-and-tone-baseline.md (IMPLEMENTED)
-  - ✅ phase01.3-settings-shell-and-preferences-placeholders.md (IMPLEMENTED)
-  - ✅ phase01.4-review.md (REVIEWED — SIGN-OFF)
-- `MuscleHamster/` — iOS project created
-
-### Phase 02 — Accounts, Authentication & Age Gate ✅
-- `Development/phase-02-accounts-authentication-age-gate/`
-  - ✅ phase02.1-auth-ux-flows.md (IMPLEMENTED)
-  - ✅ phase02.2-age-gate-and-compliance-behavior.md (IMPLEMENTED)
-  - ✅ phase02.3-account-basics-in-settings.md (IMPLEMENTED)
-  - ✅ phase02.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 03 — Onboarding & User Profile Setup ✅
-- `Development/phase-03-onboarding-user-profile-setup/`
-  - ✅ phase03.1-onboarding-ux-question-flow-and-validation.md (IMPLEMENTED)
-  - ✅ phase03.2-hamster-naming-and-first-meet-moment.md (IMPLEMENTED)
-  - ✅ phase03.3-persist-and-edit-profile-in-settings.md (IMPLEMENTED)
-  - ✅ phase03.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 04 — Workout Library, Browse, Filter & Recommendation v0 ✅
-- `Development/phase-04-workout-library-browse-filter-recommendation-v0/`
-  - ✅ phase04.1-workout-catalog-and-metadata-strategy.md (IMPLEMENTED)
-  - ✅ phase04.2-browse-and-filter-ux.md (IMPLEMENTED)
-  - ✅ phase04.3-recommendation-v0-rules-based-and-explainable.md (IMPLEMENTED)
-  - ✅ phase04.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 05 — Workout Player & Completion Rewards ✅
-- `Development/phase-05-workout-player-and-completion-rewards/`
-  - ✅ phase05.1-workout-player-mvp.md (IMPLEMENTED)
-  - ✅ phase05.2-completion-rewards-and-activity-history.md (IMPLEMENTED)
-  - ✅ phase05.3-workout-feedback-capture.md (IMPLEMENTED)
-  - ✅ phase05.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 06 — Rest-Day Check-ins, Streaks & Streak Freeze ✅
-- `Development/phase-06-rest-day-check-ins-streaks-and-streak-freeze/`
-  - ✅ phase06.1-rest-day-micro-tasks.md (IMPLEMENTED)
-  - ✅ phase06.2-personal-streak-rules-engine.md (IMPLEMENTED)
-  - ✅ phase06.3-streak-freeze-restore-flow.md (IMPLEMENTED)
-  - ✅ phase06.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 07 — Shop, Inventory, Customization & Growth ✅
-- `Development/phase-07-shop-inventory-customization-and-growth/`
-  - ✅ phase07.1-points-wallet-and-transaction-expectations.md (IMPLEMENTED)
-  - ✅ phase07.2-shop-mvp-and-purchase-flow.md (IMPLEMENTED)
-  - ✅ phase07.3-customization-mvp-equip-and-place.md (IMPLEMENTED)
-  - ✅ phase07.4-growth-progression-milestones.md (IMPLEMENTED)
-  - ✅ phase07.5-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 08 — Notifications & Audio Controls ✅
-- `Development/phase-08-notifications-and-audio-controls/`
-  - ✅ phase08.1-audio-experience-and-settings.md (IMPLEMENTED)
-  - ✅ phase08.2-push-permission-ux-and-scheduling-rules.md (IMPLEMENTED)
-  - ✅ phase08.3-notification-tap-routing-and-today-context.md (IMPLEMENTED)
-  - ✅ phase08.4-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 09 — Social Features ✅
-- `Development/phase-09-social-features/`
-  - ✅ phase09.1-friend-data-model-and-service-layer.md (IMPLEMENTED)
-  - ✅ phase09.2-add-friends-ux.md (IMPLEMENTED)
-  - ✅ phase09.3-friends-list-and-friend-profile-view.md (IMPLEMENTED)
-  - ✅ phase09.4-friend-streaks.md (IMPLEMENTED)
-  - ✅ phase09.5-privacy-controls.md (IMPLEMENTED)
-  - ✅ phase09.6-friend-nudges.md (IMPLEMENTED)
-  - ✅ phase09.7-review.md (REVIEWED — SIGN-OFF)
-
-### Phase 10 — Hamster Appearance & Enclosure 🔄
-- `Development/phase-10-hamster-appearance-and-enclosure/`
-  - ✅ phase10.1-art-asset-specifications.md (IMPLEMENTED)
-    - Created `ArtAssetSpec.swift` with HamsterColorPalette, AssetNames, AssetDimensions
-    - Updated views: HamsterPlaceholder, HamsterExpressions, EnclosureView, etc.
-    - Created asset catalog structure (Hamsters/, Outfits/, Accessories/, Enclosure/, Backgrounds/)
-    - Added AssetLoader utility for checking asset availability
-    - Added AssetStatusView debug tool
-  - [ ] phase10.2 — Awaiting artist assets
-
-### Post-MVP (Parking Lot)
-- Monetization (ads)
-- Recommendations v1+
-- Offline-first support
-- Android app
+### Streak Tracking
+- [x] Daily check-in mechanic
+- [x] Streak counter
+- [x] Streak reset on missed day
+- [x] At-risk streak detection
+- [x] Streak freeze screen
 
 ---
 
-## Decisions Log
+## Phase 2: Engagement
 
-> Record decisions here so future sessions don't re-litigate them.
-
-- **Feb 4, 2026**: MVP scope finalized — Social features and Ads are POST-MVP. MVP focuses on core loop: auth, onboarding, workouts, hamster states, points, streaks, customization, notifications.
+- [x] Rest-day micro-tasks (RestDayCheckInScreen)
+- [x] Push notifications infrastructure (NotificationService, NotificationContext)
+- [ ] Push notifications - real device integration
+- [x] Shop screen (browse items)
+- [x] Basic shop items (mock data in ShopService)
+- [x] Hamster customization (outfits)
+- [x] Hamster customization (poses) - model support
+- [x] Enclosure customization (EnclosureView with placed items)
+- [x] Streak freezes (purchase & use)
+- [x] Smart workout recommendations (model support)
+- [x] Inventory system (InventoryScreen, InventoryCategoryScreen, InventoryItemPreviewScreen)
+- [x] Shop categories (ShopCategoryScreen)
 
 ---
 
-## Session Notes
+## Phase 3: Social
 
-- Feb 4, 2026: Created `A1-new-session-instructions.md` and this `progress.md` scaffold for consistent session onboarding and state tracking.
-- Feb 4, 2026: Phase roadmap (Phase 00–08) fully created. Ready to begin implementation with Phase 01.
-- Feb 4, 2026 (Session 2): **Phase 01.1 Implementation Complete**
-  - Created iOS project structure (`MuscleHamster/`)
-  - Implemented tab bar navigation with 4 tabs: Home, Workouts, Shop, Social
-  - Created skeleton views for all tabs with loading/empty/error states
-  - Added Settings view accessible from Home
-  - Implemented shared state components (ViewState, LoadingView, EmptyStateView, ErrorView)
-  - Added baseline VoiceOver accessibility labels throughout
-  - Created Xcode project file (iOS 15+, portrait only, iPhone)
-- Feb 4, 2026 (Session 3): **Phase 01.3 Implementation Complete**
-  - Upgraded SettingsView with ViewState handling (loading/error states)
-  - Account section with signed-out placeholder state and NavigationLink
-  - Workout Schedule section with NavigationLink to placeholder
-  - Notifications section with toggle (default: off) and conditional reminder time link
-  - Audio section with Sound Effects toggle (default: on), Music toggle (default: on), and audio settings link
-  - Privacy section with NavigationLink to privacy controls placeholder
-  - Support section (Help, Privacy Policy, Terms of Service)
-  - Created 5 placeholder detail views: AccountSettingsView, WorkoutScheduleSettingsView, NotificationSettingsView, AudioSettingsView, PrivacySettingsView
-  - All placeholder views have friendly hamster-toned "coming soon" messaging
-  - Full VoiceOver accessibility labels throughout
-  - Updated Xcode project file with all new files
-- Feb 4, 2026 (Session 3): **Phase 01.2 Implementation Complete**
-  - HomeView already had all required layout areas from Phase 01.1 (hamster, streak, today status, CTAs)
-  - Refined copy to be consistently hamster-voiced (first person): "I'm feeling great today!", "I'll be cheering you on."
-  - Verified no guilt/shame language anywhere in Home screen copy
-  - Added hamster-voiced error message constant for consistent error tone
-  - All states present: loading, first-run empty (encouraging), error (friendly recovery), content
-- Feb 4, 2026 (Session 4): **Phase 01.4 Review Complete — SIGN-OFF**
-  - Exhaustive inventory: 16 files, 12 screens, 4 shared components
-  - Navigation audit: all paths verified (tabs, settings push/back, conditional links)
-  - Baseline states: all 5 main screens have loading/empty/error/content; 5 detail views are correct static placeholders
-  - Copy tone audit: PASS — zero guilt/shame language, consistently warm and hamster-voiced
-  - Accessibility audit: PASS after 2 minor fixes (added .accessibilityAddTraits(.isHeader) to WorkoutsView and ShopView section titles)
-  - Requirements verification: all Phase 01.1, 01.2, 01.3 requirements met
-  - **Phase 01 complete. Ready for Phase 02.**
-- Feb 6, 2026 (Session 5): **Phase 02.2 Implementation Complete — Age Gate**
-  - Created AgeGateView.swift — 13+ confirmation screen with two paths: "I am 13 or older" and "I am under 13"
-  - Created AgeBlockedView.swift — friendly, compliant blocked screen for under-13 users (warm tone: "See You Soon!")
-  - Updated WelcomeView.swift to route through age gate before sign-up
-  - Age confirmation persists via @AppStorage (UserDefaults) — returning users skip the gate
-  - Edge case handling: back navigation returns to WelcomeView (still gated), app relaunch preserves state
-  - Sign-in flow bypasses age gate (existing accounts already passed it)
-  - Full VoiceOver accessibility labels on all new elements
-  - Updated Xcode project with new files
-  - **Note:** Phase 02.1 (Auth UX flows) was already implemented in a previous session (WelcomeView, SignUpView, SignInView, PasswordResetView, AuthViewModel, etc.)
-- Feb 6, 2026 (Session 6): **Phase 02.3 Implementation Complete — Account Basics in Settings**
-  - Updated AuthViewModel.swift — added `isSigningOut` loading state for sign-out feedback
-  - Updated SettingsView.swift:
-    - Sign Out section only shown when user is signed in
-    - Added sign-out loading overlay with spinner ("Signing out...")
-    - Added error alert for failed sign-out with retry option
-    - Added `maskedEmail()` for privacy-safe email display (e.g., "u***@example.com")
-  - Rewrote AccountSettingsView.swift from placeholder to full implementation:
-    - Shows user email and "Your account email" label
-    - Shows profile setup status (Complete/Incomplete based on profileComplete flag)
-    - "Danger Zone" section with account deletion placeholder (clearly marked "Coming Soon")
-    - Info alert explaining account deletion will be available later
-    - Fallback signed-out content for edge cases
-    - Full VoiceOver accessibility labels throughout
-  - Edge cases handled: logout during partial onboarding, logout with network issues
-  - **Ready for Phase 02.4 Review**
-- Feb 6, 2026 (Session 6): **Phase 02.4 Review Complete — SIGN-OFF**
-  - Exhaustive inventory: 12 files audited (auth views, age gate, settings, shared components)
-  - Flow-by-flow audit: All 5 critical flows verified (sign up, sign in, age block, password reset, logout)
-  - Interruption scenarios: Background/resume, app relaunch, duplicate taps — all handled
-  - Copy tone audit: PASS — zero guilt/shame language, consistently warm and hamster-voiced
-  - Accessibility audit: PASS — all components have proper labels, hints, and focus management
-  - Requirements verification: All Phase 02.1, 02.2, 02.3 requirements met
-  - **Phase 02 complete. Ready for Phase 03 (Onboarding & User Profile Setup).**
-- Feb 6, 2026 (Session 7): **Phase 03.1 Implementation Complete — Onboarding UX Flow**
-  - Created UserProfile model (Models/UserProfile.swift):
-    - UserProfile struct with all onboarding fields (age, fitnessLevel, fitnessGoals, weeklyWorkoutGoal, schedulePreference, preferredWorkoutTime, fitnessIntent)
-    - 5 supporting enums: FitnessLevel, FitnessGoal, SchedulePreference, WorkoutTime, FitnessIntent
-    - UserDefaults persistence for partial progress (resume after abandonment)
-  - Created OnboardingViewModel.swift:
-    - @MainActor ObservableObject managing 7-step onboarding flow
-    - Step validation (canProceed), navigation (goBack/goNext), progress tracking
-    - Profile persistence and completion handling
-  - Created 8 onboarding views:
-    - OnboardingContainerView: progress bar, step routing, exit confirmation, loading overlay
-    - OnboardingAgeView: number input with validation (13-120)
-    - OnboardingFitnessLevelView: single-select (beginner/intermediate/advanced)
-    - OnboardingGoalsView: multi-select grid (cardio, muscle gain, fat loss, flexibility, general fitness)
-    - OnboardingFrequencyView: days-per-week selector (1-7) with feedback messages
-    - OnboardingScheduleView: fixed vs flexible preference with examples
-    - OnboardingTimeView: preferred workout time (morning/afternoon/evening/no preference)
-    - OnboardingIntentView: maintenance vs improvement with encouragement
-  - Integrated with app routing:
-    - Updated MuscleHamsterApp.swift to check `profileComplete` before showing MainTabView
-    - Added `completeOnboarding(profile:)` method to AuthViewModel
-    - Added `userProfile` published property to AuthViewModel
-    - Updated MockAuthService with `updateUser()` method and proper user data storage
-    - Updated AuthServiceProtocol with `updateUser()` requirement
-  - All views have:
-    - Full VoiceOver accessibility labels and hints
-    - Hamster-voiced friendly copy (no guilt/shame)
-    - Selection state indicators
-    - Consistent styling matching existing auth views
-  - Edge cases handled:
-    - Resume after app kill (partial progress persisted to UserDefaults)
-    - Back navigation preserves all answers
-    - Exit confirmation dialog on step 1 back navigation
-    - Loading overlay during profile save
-  - Updated Xcode project with 10 new files (1 model + 9 views)
-  - **Ready for Phase 03.2 (Hamster Naming and First-Meet Moment)**
-- Feb 6, 2026 (Session 8): **Phase 03.2 Implementation Complete — Hamster Naming and First-Meet Moment**
-  - Updated UserProfile model:
-    - Added `hamsterName` optional String field
-    - Added validation constants (min 1, max 24 characters)
-    - Added `validateHamsterName(_:)` static method with friendly error messages
-    - Added `isValidHamsterName(_:)` helper for quick validation
-    - Allowed characters: letters, numbers, spaces, hyphens, apostrophes
-  - Updated OnboardingViewModel:
-    - Added two new steps: `.hamsterName` (step 7) and `.meetHamster` (step 8)
-    - Added `setHamsterName(_:)` method with trimming
-    - Updated `canProceed` to validate hamster name step
-    - Meet hamster step always allows proceeding
-  - Created OnboardingHamsterNameView.swift:
-    - Text input with real-time validation and character count
-    - Inline validation error messages (empty, too long, invalid characters)
-    - Name suggestions grid (Hammy, Peanut, Whiskers, Nugget, Biscuit, Coco)
-    - Auto-focus on appear, restores saved name when returning to step
-    - Warm hamster-voiced copy ("What should I call you, little one?")
-    - Full VoiceOver accessibility labels and hints
-  - Created OnboardingMeetHamsterView.swift:
-    - Animated entrance sequence (enclosure → name → speech bubble → next steps)
-    - Placeholder hamster illustration in cozy enclosure
-    - Personalized speech bubble with hamster greeting
-    - Hamster mood indicator ("Fed & Happy")
-    - Next step preview (Browse Workouts, Earn Points, Build Streaks)
-    - Full VoiceOver accessibility labels
-  - Updated OnboardingContainerView.swift:
-    - Added cases for hamsterName and meetHamster steps
-    - Dynamic button titles per step ("Meet Your Hamster", "Say Hello!", "Let's Get Started!")
-    - Personalized loading message with hamster name
-    - Step-specific accessibility labels
-  - Updated Xcode project with 2 new files
-  - **Ready for Phase 03.3 (Persist and Edit Profile in Settings)**
-- Feb 6, 2026 (Session 8): **Phase 03.3 Implementation Complete — Persist and Edit Profile in Settings**
-  - Updated AuthViewModel.swift:
-    - Added `loadUserProfile(for:)` method to load profile from UserDefaults on auth check
-    - Added `updateProfile(_:)` method to save profile edits and persist to UserDefaults
-    - Profile now loads automatically when user is authenticated
-  - Created ProfileSettingsView.swift:
-    - Comprehensive profile editing UI with all onboarding fields:
-      - Hamster name (with validation and character count)
-      - Fitness level selection (single-select)
-      - Fitness goals (multi-select with icons)
-      - Weekly workout goal (1-7 days selector)
-      - Schedule preference (fixed vs flexible)
-      - Preferred workout time (with time ranges)
-      - Fitness intent (maintain vs improve)
-    - Info banner explaining how changes affect recommendations
-    - Unsaved changes tracking with interactive dismiss prevention
-    - Save button in toolbar (disabled until valid changes made)
-    - Saving overlay with progress indicator
-    - Success confirmation dialog explaining impact
-    - Full VoiceOver accessibility labels and hints
-  - Updated SettingsView.swift:
-    - Added "My Profile" section showing hamster name and avatar
-    - Links to ProfileSettingsView for editing
-    - Only visible when user has completed onboarding
-  - Updated Xcode project with 1 new file
-  - Edge cases handled:
-    - Profile loads on app launch (checkAuthStatus loads profile)
-    - Changes persist across app relaunch
-    - Unsaved changes warning prevents accidental data loss
-    - Invalid input prevents save
-  - **Ready for Phase 03.4 (Review)**
-- Feb 6, 2026 (Session 8): **Phase 03.4 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:**
-    - 9 onboarding steps audited (age, fitness level, goals, frequency, schedule, time, intent, hamster name, meet hamster)
-    - 7 profile edit points in ProfileSettingsView (all except age, which is intentionally not editable post-onboarding)
-    - 11 views total: 9 onboarding views + OnboardingContainerView + ProfileSettingsView
-  - **Flow-by-Flow Audit:**
-    - First launch → onboarding → Home: PASS
-    - Back navigation preserves data: PASS
-    - Interrupt/resume (background/relaunch): PASS (UserDefaults persistence verified)
-    - Edit profile in Settings: PASS (changes persist and load correctly)
-  - **Bug Fixed:**
-    - AuthViewModel.signIn() was not calling loadUserProfile() — returning users wouldn't have profile loaded until app relaunch
-    - Added loadUserProfile(for: user) to both signIn() and signUp() for consistency
-  - **Copy Tone Audit:** PASS
-    - All onboarding copy is warm, encouraging, no guilt/shame language
-    - "Starting small is smart!", "There's no wrong answer!", "Both paths are great!"
-    - ProfileSettingsView info banner explains impact without pressure
-  - **Accessibility Audit:** PASS
-    - All interactive elements have accessibilityLabel
-    - Selection states use accessibilityAddTraits(.isSelected)
-    - Decorative icons use accessibilityHidden(true)
-    - All hints describe expected behavior
-  - **Requirements Verification:**
-    - Phase 03.1: All 7 original onboarding questions + validation ✅
-    - Phase 03.2: Hamster naming with validation + first-meet moment ✅
-    - Phase 03.3: Profile persistence + editing in Settings ✅
-  - **Phase 03 complete. Ready for Phase 04 (Workout Library, Browse, Filter & Recommendation v0).**
-- Feb 6, 2026 (Session 9): **Phase 04.1 Implementation Complete — Workout Catalog and Metadata Strategy**
-  - Created Workout model (Models/Workout.swift):
-    - `Workout` struct with all metadata fields (difficulty, duration, fitnessGoals, bodyFocus, category, equipmentRequired)
-    - Reuses existing `FitnessLevel` and `FitnessGoal` enums from UserProfile for direct profile alignment
-    - New enums: `DurationBucket` (quick/short/medium/long/extended), `BodyFocus` (10 body areas), `WorkoutType` (8 workout types), `Equipment` (8 equipment types)
-    - All enums follow established pattern: String, Codable, CaseIterable, Identifiable with displayName/description/icon
-  - Created Workout service layer (Services/Workout/):
-    - `WorkoutServiceProtocol.swift` — protocol with getAllWorkouts, getWorkouts (filtered), getRecommendedWorkouts, searchWorkouts
-    - `WorkoutError.swift` — typed errors with hamster-friendly messages
-    - `MockWorkoutService.swift` — actor implementation with 24 seed workouts:
-      - 8 beginner, 8 intermediate, 8 advanced workouts
-      - Coverage across all fitness goals, duration buckets, and workout types
-      - Recommendation logic using profile fitnessLevel and fitnessGoals intersection
-      - Simulated network delays for realistic UX testing
-  - Updated WorkoutsView.swift:
-    - Removed placeholder WorkoutCategory enum
-    - Integrated MockWorkoutService with async/await
-    - Browse section now shows all 8 WorkoutType categories
-    - Recommended section shows workout cards (placeholder until Phase 04.3 profile integration)
-    - Full VoiceOver accessibility labels
-  - Updated Xcode project with 4 new files
-  - **Ready for Phase 04.2 (Browse and Filter UX)**
-- Feb 6, 2026 (Session 9): **Phase 04.2 Implementation Complete — Browse and Filter UX**
-  - Created WorkoutBrowseViewModel.swift:
-    - Filter state management (selectedDuration, selectedDifficulty, selectedGoals, selectedBodyFocus, selectedCategory)
-    - Filter application logic using MockWorkoutService
-    - Active filter chips generation (FilterChip model)
-    - Clear individual/all filters methods
-  - Created WorkoutCardView.swift:
-    - Reusable workout card with category icon, duration badge, name, difficulty
-    - Compact variant for list layouts
-    - Difficulty color coding (green/orange/red)
-    - Full VoiceOver accessibility
-  - Created WorkoutFilterSheet.swift:
-    - Modal sheet with 4 filter sections
-    - Duration: horizontal pills (single-select)
-    - Difficulty: list rows with checkmarks (single-select)
-    - Goals: list rows with circle icons (multi-select)
-    - Body Focus: collapsible 2-column grid (multi-select)
-    - Footer: Clear All and Show Results buttons
-    - All sections with VoiceOver accessibility
-  - Created ActiveFiltersView.swift:
-    - Horizontal scroll of removable filter chips
-    - Tap chip to remove that filter
-    - Clear All button when multiple filters active
-  - Created CategoryWorkoutsView.swift:
-    - Receives WorkoutType parameter
-    - Filter button in toolbar with active count badge
-    - Category header with description and workout count
-    - 2-column grid of WorkoutCardViews
-    - NavigationLinks to WorkoutDetailView
-    - Empty state with Clear Filters action
-  - Created WorkoutDetailView.swift:
-    - Full workout preview with category icon header
-    - Stats row: duration, goals count, equipment
-    - Description section
-    - Body focus tags (FlowLayout for wrapping)
-    - Equipment section (checkmark if none needed)
-    - Fitness goals list
-    - Sticky "Start Workout" button (placeholder for Phase 05)
-    - Custom FlowLayout for wrapping tags
-  - Updated WorkoutsView.swift:
-    - NavigationLinks from recommended cards to WorkoutDetailView
-    - NavigationLinks from category cards to CategoryWorkoutsView
-    - Enhanced category cards with descriptions
-  - Updated Xcode project with 6 new files
-  - **Ready for Phase 04.3 (Recommendation v0)**
-- Feb 6, 2026 (Session 11): **Phase 04.3 Implementation Complete — Recommendation v0 (Rules-Based and Explainable)**
-  - Created RecommendedWorkout model in Workout.swift:
-    - Wraps Workout with `explanation` string for "why this was suggested"
-    - Includes `relevanceScore` for ranking
-  - Updated WorkoutServiceProtocol.swift:
-    - Added `getRecommendedWorkoutsWithExplanations()` method signature
-    - Parameters for profile, recentWorkoutIds, recentBodyFocus (for history-aware recommendations)
-  - Enhanced MockWorkoutService.swift with comprehensive recommendation engine:
-    - Scoring system with weighted factors:
-      - Fitness level match (+30 points, -20 penalty for mismatch)
-      - Fitness goals intersection (+10 per matching goal)
-      - Fitness intent consideration (+10 for improvement/maintenance alignment)
-      - Recent workout avoidance (-25 penalty for recently completed)
-      - Body focus rotation (+15 for fresh muscle groups)
-      - Equipment-free bonus for beginners (+5)
-    - `buildExplanation()` method creates friendly, hamster-toned "why" messages
-    - Fallback to beginner-friendly workouts when no matches
-  - Updated WorkoutsView.swift:
-    - Integrated with AuthViewModel via @EnvironmentObject to access user profile
-    - Recommendations personalized when profile is complete
-    - Sparkles icon indicates personalized recommendations
-    - Recommendation cards now display explanation text (accent color)
-    - Card width increased to 160pt to accommodate explanation text
-    - VoiceOver reads explanation as part of card accessibility label
-    - Fallback messaging for users without complete profiles
-  - Updated MainTabView preview with AuthViewModel environmentObject
-  - Edge cases handled:
-    - New user with no history: uses onboarding preferences only
-    - Sparse catalog: fallback workouts with encouraging "great place to start!" message
-    - Profile incomplete: generic recommendations with "A great workout to try!"
-  - "Why" explanations never shame the user — all copy is warm and encouraging:
-    - "Matches your beginner level"
-    - "Supports your build muscle goal"
-    - "Helps push your limits"
-    - "Great for staying consistent"
-    - "No equipment needed"
-  - **Ready for Phase 04.4 (Review)**
-- Feb 6, 2026 (Session 11): **Phase 04.4 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:**
-    - 11 files audited (1 model, 2 services, 8 views)
-    - 6 metadata enums verified (DurationBucket, FitnessLevel, FitnessGoal, BodyFocus, WorkoutType, Equipment)
-    - 24 seed workouts cover all difficulty levels and workout types
-    - 4 filter categories all functional (duration, difficulty, goals, body focus)
-  - **Flow-by-Flow Audit:**
-    - Browse → filter → start: PASS
-    - Recommendations → understand "why" → choose: PASS
-    - New user vs returning user: PASS (profile integration working)
-  - **Copy Tone Audit:** PASS — zero guilt/shame language, all copy warm and encouraging
-  - **Accessibility Audit:** PASS — all components have proper labels, hints, traits, and selection states
-  - **Requirements Verification:**
-    - Phase 04.1 (Catalog/Metadata): All requirements met ✅
-    - Phase 04.2 (Browse/Filter UX): All requirements met ✅
-    - Phase 04.3 (Recommendation v0): All requirements met ✅
-  - **Minor Observations (non-blocking):**
-    - 2 equipment types unused in seed (resistanceBands, bench) — future content ready
-    - Filter sheet has both Done and Show Results buttons — intentional iOS convention
-  - **Phase 04 complete. Ready for Phase 05 (Workout Player & Completion Rewards).**
-- Feb 6, 2026 (Session 12): **Phase 05.1 Implementation Complete — Workout Player MVP**
-  - Created Exercise model in Workout.swift:
-    - `Exercise` struct with id, name, instructions, duration, type, imageAssetName
-    - `ExerciseType` enum: work, rest, warmup, cooldown (each with icon and displayName)
-    - Added `exercises` array to Workout struct
-    - Added `totalDurationSeconds` and `displayTotalDuration` computed properties
-  - Created WorkoutPlayerViewModel.swift:
-    - `WorkoutPlayerState` enum: loading, active, paused, interrupted, completed, error
-    - @MainActor ObservableObject managing workout playback
-    - Timer management with start/pause/resume/stop
-    - Exercise progression with advanceToNextExercise, skipExercise
-    - Skip confirmation dialog (with guardrails)
-    - End workout early confirmation
-    - App lifecycle handling via NotificationCenter:
-      - `willResignActiveNotification` → pauses and saves state
-      - `didBecomeActiveNotification` → calculates elapsed time and resumes
-    - Background time tracking for accurate timer continuation
-  - Created WorkoutPlayerView.swift:
-    - Full-screen player with dynamic background gradient per exercise type
-    - Loading state with hamster encouragement message
-    - Active player content:
-      - Progress bar showing exercise progress
-      - Current exercise display (type badge, name, instructions)
-      - Circular timer with countdown and progress ring
-      - Control buttons (Skip, Play/Pause, Next/Finish)
-    - Pause and Interrupted states with visual indicators
-    - Completed state with celebration, stats card, and Done button
-    - Error state with friendly message and Go Back button
-    - Skip confirmation alert with gentle "No worries!" messaging
-    - End workout confirmation with partial progress acknowledgement
-    - Full VoiceOver accessibility labels on all elements
-  - Updated WorkoutDetailView.swift:
-    - Added `@State showPlayer: Bool` for navigation
-    - Start Workout button now presents WorkoutPlayerView as fullScreenCover
-  - Updated MockWorkoutService.swift with 24 exercise generator functions:
-    - 8 beginner exercise sets (strength, stretch, cardio, core, yoga, upper body, lower body, HIIT)
-    - 8 intermediate exercise sets (circuit, cardio, core, upper body, legs, HIIT, pilates, mobility)
-    - 8 advanced exercise sets (strength, HIIT, upper body, legs, cardio, yoga, circuit, quick power)
-    - Each workout now has 6-13 exercises with warmup, work, rest, and cooldown phases
-  - Updated Xcode project with 2 new files
-  - All requirements from phase05.1-workout-player-mvp.md met:
-    - ✅ Workout player screen with exercise name, timer, progress
-    - ✅ Pause/resume affordance (large center button)
-    - ✅ Skip behavior with guardrails (confirmation dialog)
-    - ✅ States: Loading, Active, Paused, Interrupted, Completed, Error
-    - ✅ VoiceOver accessibility on all controls and timer
-    - ✅ Background/relaunch handling (timer continues correctly)
-    - ✅ Screen lock handling (pauses and resumes predictably)
-  - **Ready for Phase 05.2 (Completion Rewards and Activity History)**
-- Feb 6, 2026 (Session 13): **Phase 05.2 Implementation Complete — Completion Rewards and Activity History**
-  - Created Activity.swift model with:
-    - `WorkoutCompletion` struct to record each completed workout (id, workoutId, workoutName, completedAt, exercisesCompleted, totalExercises, durationSeconds, pointsEarned, wasPartial)
-    - `HamsterState` enum for hamster moods: hungry, chillin, happy, excited, proud (each with displayName, description, greeting, icon, color)
-    - `UserStats` struct for points, streaks, and activity tracking (totalPoints, currentStreak, longestStreak, totalWorkoutsCompleted, lastActivityDate, hamsterState, workoutHistory)
-    - `PointsConfig` enum with points calculation logic (base 50 points, +5 per exercise, streak multipliers 1x-2x, partial completion penalty)
-    - UserDefaults persistence for UserStats
-  - Created ActivityService.swift:
-    - `ActivityServiceProtocol` defining recordCompletion, getUserStats, refreshHamsterState, hasCompletionForWorkout
-    - `ActivityError` enum with friendly hamster-voiced error messages
-    - `MockActivityService` actor implementation with:
-      - Completion recording with idempotency (prevents duplicate awards)
-      - Points calculation using PointsConfig
-      - Streak calculation (continues if yesterday, resets if gap)
-      - Hamster state calculation based on activity (proud for milestones, excited for 3+ streak, happy after workout, hungry if no recent activity)
-      - Singleton access via `.shared`
-  - Updated WorkoutPlayerViewModel.swift:
-    - Added `completing` state for recording rewards
-    - Added userId property for user context
-    - Added completionData, newHamsterState, previousStreak, newStreak properties
-    - Added recordCompletion() method that calls ActivityService
-    - Added computed properties: pointsEarned, streakIncreased, streakText
-    - Integrated with ActivityService on workout completion (both full and partial)
-  - Updated WorkoutPlayerView.swift:
-    - Added completing state with progress indicator ("Recording your awesome work...")
-    - Enhanced completion screen with:
-      - Dynamic celebration icon/title/message based on hamster state
-      - Points earned display (+X points with star icon)
-      - Streak display with flame icon and streak text
-      - Hamster reaction messages (happy, excited, proud)
-    - Added AuthViewModel environment object for user context
-    - Updated toolbar to hide X during completing state
-  - Updated HomeView.swift:
-    - Added userStats state loaded from ActivityService
-    - Dynamic hamster section with:
-      - State-based greeting, background color, icon color, badge
-      - Hamster name display
-      - State description text
-    - Dynamic today status section with:
-      - Completed/not completed states
-      - Points earned today display
-      - Total points in header
-    - Dynamic streak section with:
-      - Actual streak count
-      - Encouragement text based on streak status
-      - Flame icon intensity based on streak length
-    - Integrated with ActivityService via loadContent()
-  - Updated WorkoutDetailView.swift to pass AuthViewModel to WorkoutPlayerView
-  - Updated Xcode project with 2 new files (Activity.swift, ActivityService.swift)
-  - All requirements from phase05.2-completion-rewards-and-activity-history.md met:
-    - ✅ Points increase on completion
-    - ✅ Check-in for the day satisfied (hasCompletedToday)
-    - ✅ Streak updates as expected
-    - ✅ Hamster state updates on Home
-    - ✅ Completion recorded in history
-    - ✅ Idempotent behavior (duplicate protection)
-    - ✅ App close recovery (UserDefaults persistence)
-  - **Ready for Phase 05.3 (Workout Feedback Capture)**
-- Feb 6, 2026 (Session 14): **Phase 05.3 Implementation Complete — Workout Feedback Capture**
-  - Created WorkoutFeedback enum in Activity.swift:
-    - Three feedback options: loved, liked, notForMe
-    - Each with displayName, icon, and isPositive helper
-    - Designed to be friendly and non-judgmental
-  - Updated WorkoutCompletion struct:
-    - Added optional `feedback` field to store user feedback per completion
-  - Updated UserStats struct:
-    - Added `workoutFeedback` dictionary (workoutId → WorkoutFeedback)
-    - Added helper methods: setFeedback, getFeedback, dislikedWorkoutIds, lovedWorkoutIds
-  - Updated ActivityServiceProtocol and MockActivityService:
-    - Added recordFeedback() method to save feedback
-    - Added getFeedbackForWorkout() and getDislikedWorkoutIds() methods
-    - Added feedbackSaveFailed and completionNotFound error cases
-    - Feedback persists to UserDefaults with UserStats
-  - Updated WorkoutPlayerViewModel:
-    - Added feedback state: feedbackSubmitted, selectedFeedback, isSubmittingFeedback, feedbackError
-    - Added submitFeedback() and skipFeedback() methods
-    - Feedback errors don't block user (non-critical)
-  - Updated WorkoutPlayerView:
-    - Added feedback prompt section on completion screen
-    - Three feedback buttons: Loved It (heart), Liked It (thumbsup), Not For Me (thumbsdown)
-    - Skip button with no-shame messaging ("Skip feedback. That's totally okay!")
-    - Loading state while submitting feedback
-    - Feedback prompt hides after submission or skip
-    - Full VoiceOver accessibility labels and hints
-  - Updated WorkoutServiceProtocol and MockWorkoutService:
-    - Added dislikedWorkoutIds and lovedWorkoutIds parameters to recommendations
-    - Applied -50 penalty for disliked workouts (effectively removes from recommendations)
-    - Applied +20 bonus for loved workouts ("One of your favorites!")
-  - Updated WorkoutsView:
-    - Integrated with ActivityService to fetch user feedback
-    - Passes feedback data to recommendation engine
-    - Also passes recent workout history and body focus for variety
-  - All requirements from phase05.3-workout-feedback-capture.md met:
-    - ✅ Simple post-workout feedback prompt (positive/negative)
-    - ✅ Optional skip path (no shame, frictionless)
-    - ✅ Feedback associated with workout completion
-    - ✅ Feedback influences recommendations (disliked avoided, loved boosted)
-    - ✅ Error handling doesn't block user
-    - ✅ Full VoiceOver accessibility
-  - **Ready for Phase 05.4 (Review)**
-- Feb 6, 2026 (Session 14): **Phase 05.4 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:**
-    - 10 files audited (2 models, 2 services, 1 viewmodel, 5 views)
-    - WorkoutPlayerViewModel: 438 lines, 7 states, 20+ methods
-    - WorkoutPlayerView: 654 lines, 6 content sections, full accessibility
-    - ActivityService: 303 lines, 8 protocol methods, actor-based
-    - Activity.swift: 294 lines, 4 models (WorkoutFeedback, WorkoutCompletion, HamsterState, UserStats)
-  - **Flow-by-Flow Audit:** PASS
-    - Select workout → start → pause/resume → complete → see rewards → return home: All verified
-    - Feedback prompt → skip or submit → Done: Non-blocking, frictionless
-  - **Interruption Scenarios:** PASS
-    - Background mid-workout: Timer pauses, elapsed time calculated on return
-    - Lock/unlock: Same handling via NotificationCenter observers
-    - App relaunch: UserDefaults persistence verified
-  - **Consistency Checks:** PASS
-    - Idempotency: completionKey prevents double-awards (workoutId + date)
-    - History: WorkoutCompletion correctly stored with pointsEarned
-    - Stats: totalPoints, currentStreak, longestStreak all update correctly
-  - **Accessibility Audit:** PASS — all controls have proper labels, hints, values
-  - **Copy Tone Audit:** PASS — zero guilt/shame language, all copy warm and encouraging
-  - **Minor Observations (non-blocking):**
-    - In-memory idempotency keys (clears on restart) — acceptable for MVP
-    - Long background time only advances one exercise — edge case, low priority
-  - **Phase 05 complete. Ready for Phase 06 (Rest-Day Check-ins, Streaks & Streak Freeze).**
-- Feb 6, 2026 (Session 15): **Phase 06.1 Implementation Complete — Rest-Day Micro-Tasks**
-  - Updated Activity.swift model:
-    - Added `RestDayActivity` enum with 6 activity types: petHamster, giveTreat, walk, stretch, journal, meditate
-    - Each activity has displayName, description, icon, pointsAwarded (10-15 points), and hamster reactions
-    - Categorized into quick interactions (hamster-focused) and loggable activities
-    - Added `RestDayCheckIn` struct to record rest-day check-ins with id, activity, completedAt, pointsEarned
-  - Updated UserStats struct:
-    - Added `restDayHistory` array and `totalRestDayCheckIns` counter
-    - Added computed properties: `hasRestDayCheckInToday`, `hasAnyCheckInToday`, `todaysRestDayCheckIn`
-    - `hasCompletedWorkoutToday` renamed for clarity (with `hasCompletedToday` alias for compatibility)
-  - Updated PointsConfig:
-    - Added `calculateRestDayPoints()` method with capped streak multiplier (max 1.5x for rest days)
-  - Updated ActivityServiceProtocol and MockActivityService:
-    - Added `recordRestDayCheckIn()` method with full idempotency (prevents double check-ins same day)
-    - Added `hasCheckedInToday()` method for quick status check
-    - Added `alreadyCheckedInToday` error case with friendly message
-    - Rest-day check-ins properly update streak, points, and hamster state
-  - Created RestDayCheckInView.swift:
-    - Modal sheet with 3 states: selection, confirming, success
-    - Selection screen with quick hamster interactions and loggable activities
-    - Each option shows icon, description, and points badge
-    - Confirming state with progress indicator and friendly message
-    - Success screen with celebration, hamster reaction speech bubble, points earned, and streak maintained message
-    - Full VoiceOver accessibility labels and hints
-    - Error handling with retry option
-  - Updated HomeView.swift:
-    - Added `showRestDayCheckIn` state for sheet presentation
-    - Updated dailyActionsSection with 3 conditional states:
-      - Rest day already completed: shows green checkmark with points earned
-      - Workout already completed: shows "rest day not needed" message
-      - Available: shows purple "Rest Day Check-in" button
-    - Updated todayStatusSection to show rest-day check-in status (purple theme)
-    - Added `totalPointsEarnedToday` computed property for combined workout + rest day points
-    - Sheet reloads content on dismiss to reflect updated stats
-  - Updated Xcode project with 1 new file
-  - All requirements from phase06.1-rest-day-micro-tasks.md met:
-    - ✅ Rest-day check-in prompt from Home
-    - ✅ Micro-task selection: quick interaction (pet/treat) and log activity (walk/stretch/journal/meditate)
-    - ✅ Confirmation/reward feedback with small celebration and points
-    - ✅ Success state: check-in recorded, points granted, hamster "chillin'"
-    - ✅ Error state: save failure with retry without double-awarding
-    - ✅ Edge case: workout completed same day prevents rest-day check-in (not needed)
-    - ✅ Edge case: repeat micro-tasks blocked (only one check-in per day)
-    - ✅ Full VoiceOver accessibility
-  - **Ready for Phase 06.2 (Personal Streak Rules Engine)**
-- Feb 6, 2026 (Session 16): **Phase 06.2 Implementation Complete — Personal Streak Rules Engine**
-  - Created `StreakStatus` enum in Activity.swift:
-    - Four states: `active(days:)`, `atRisk(days:)`, `broken(previousStreak:)`, `none`
-    - Each with displayCount, statusMessage, icon, color helpers
-    - Boolean helpers: isAtRisk, isBroken, isSecure
-  - Updated UserStats struct:
-    - Added `lastCheckInDate` for explicit check-in tracking
-    - Added `previousBrokenStreak` for storing broken streak until acknowledged
-    - Added `calculateStreakStatus()` method for streak state calculation
-    - Added `isStreakBroken`, `effectiveStreak`, `daysSinceLastCheckIn` helpers
-  - Updated ActivityServiceProtocol and MockActivityService:
-    - Added `validateStreak(userId:)` — called on app launch, validates and updates streak
-    - Added `getStreakStatus(userId:)` — gets status without modifying state
-    - Added `acknowledgeStreakReset(userId:)` — clears previousBrokenStreak
-    - Updated recordCompletion and recordRestDayCheckIn to set lastCheckInDate
-    - Streak validation updates currentStreak to 0 and stores previousBrokenStreak when broken
-  - Updated HomeView.swift:
-    - Added `streakStatus` state loaded via validateStreak() on appear
-    - Enhanced streak section with:
-      - Status badges: "AT RISK" (orange), "RESET" (gray), checkmark (green)
-      - Large streak number with status-based coloring
-      - Dynamic status messages based on streak state
-      - Status-based icons (flame, checkmark, reset arrow, sparkles)
-      - Status-based background colors
-    - Full VoiceOver accessibility labels for all streak states
-  - Edge cases handled:
-    - Timezone changes: uses Calendar.current (device's current timezone)
-    - Multiple app opens: validateStreak() is idempotent
-    - Workout + rest-day same day: workout first prevents rest-day, rest-day first allows workout
-    - App relaunch around day boundary: lastCheckInDate persists, status recalculated
-  - **Ready for Phase 06.3 (Streak Freeze Restore Flow)**
-- Feb 6, 2026 (Session 17): **Phase 06.3 Implementation Complete — Streak Freeze Restore Flow**
-  - Updated Activity.swift model:
-    - Added `StreakRestoreResult` struct with success/failure, restoredStreak, pointsSpent, message, and hamsterReaction
-    - Added `PointsConfig.streakFreezeCost` constant (100 points) for streak restore cost
-    - Added `canRestoreStreak`, `hasBrokenStreakToRestore`, `hasEnoughPointsToRestore` computed properties to UserStats
-  - Updated ActivityServiceProtocol and MockActivityService:
-    - Added `canRestoreStreak(userId:)` method for checking eligibility
-    - Added `restoreStreak(userId:)` method that:
-      - Validates broken streak exists and user hasn't started new streak
-      - Checks sufficient points
-      - Deducts points and restores previousBrokenStreak to currentStreak
-      - Sets lastCheckInDate to yesterday (streak "at risk" until today's check-in)
-      - Updates hamster state to happy
-    - Added `noStreakToRestore`, `insufficientPoints`, `streakAlreadyActive` error cases with friendly messages
-  - Created StreakFreezeView.swift:
-    - Modal sheet with 5 states: prompt, restoring, success, declined, error
-    - Prompt screen with:
-      - Broken streak info display
-      - Hamster encouragement message (contextual based on streak length and affordability)
-      - "Restore My Streak" button (when affordable) with points cost display
-      - Insufficient points message (when not affordable)
-      - "Start Fresh" button for accepting reset
-      - Current points balance display
-    - Restoring state with progress indicator
-    - Success state with celebration, restored streak display, hamster reaction, points spent, and reminder to check in
-    - Declined state with encouraging "Fresh Start" messaging
-    - Error state with retry option
-    - Full VoiceOver accessibility labels and hints
-  - Updated HomeView.swift:
-    - Added `showStreakFreeze` and `hasShownStreakFreezeThisSession` state variables
-    - Auto-shows streak freeze sheet when broken streak detected (once per session)
-    - Added "Restore Streak" button in streak section when broken streak is restorable
-    - Sheet reloads content on dismiss
-  - Updated Xcode project with 1 new file
-  - All requirements from phase06.3-streak-freeze-restore-flow.md met:
-    - ✅ Trigger: broken streak detected → gentle notification and restore offer
-    - ✅ Restore option: spend points (100) to restore streak
-    - ✅ "Start Fresh" option: accept reset and begin new streak
-    - ✅ Insufficient points: gentle explanation with alternative
-    - ✅ Error handling: retry safely without double-charging (points only deducted on success)
-    - ✅ Accessibility: clear, reversible choices until confirmed
-    - ✅ Edge cases: user can't restore after starting new streak (check-in blocks restore)
-  - **Ready for Phase 06.4 (Review)**
-- Feb 6, 2026 (Session 17): **Phase 06.4 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:**
-    - 5 files audited: Activity.swift (664 lines), ActivityService.swift (578 lines), HomeView.swift (705 lines), RestDayCheckInView.swift (393 lines), StreakFreezeView.swift (548 lines)
-    - StreakStatus enum with 4 states, RestDayActivity with 6 options, StreakRestoreResult for freeze outcomes
-    - ActivityServiceProtocol with 13 methods, ActivityError with 9 cases
-  - **Flow-by-Flow Audit:** PASS
-    - Rest day → micro-task → points → check-in → streak increments: Verified
-    - Workout → check-in satisfied → streak increments (no double-counting): Verified
-    - Miss day → restore with freeze → streak continues: Verified
-    - Miss day → decline restore → streak resets: Verified
-  - **Edge Case Audit:** PASS
-    - Timezone/late-night: Uses Calendar.current throughout
-    - Repeated opens: validateStreak() idempotent, hasAnyCheckInToday prevents duplicates
-    - Failure/retry: No double-awarding or double-charging
-    - Workout after rest-day: Both allowed, streak only increments once
-    - Restore after new streak: Blocked (hasAnyCheckInToday check)
-  - **Copy Tone Audit:** PASS — Zero guilt/shame language
-  - **Accessibility Audit:** PASS — All interactive elements have proper labels, hints, and traits
-  - **Bug Fixed:**
-    - Removed unused `displayCount` variable in HomeView.streakIcon (line 493)
-  - **Phase 06 complete. Ready for Phase 07 (Shop, Inventory, Customization & Growth).**
-- Feb 6, 2026 (Session 18): **Phase 07.1 Implementation Complete — Points Wallet and Transaction Expectations**
-  - Created full requirements document (phase07.1-points-wallet-and-transaction-expectations.md):
-    - Detailed transaction history model requirements
-    - Points balance display patterns across all screens
-    - Insufficient points messaging guidelines (no shame, warm tone)
-    - Edge cases: idempotency, balance validation, transaction cap
-    - Testing requirements and deliverables
-  - Updated Activity.swift:
-    - Added `TransactionType` enum (earn/spend) with display properties
-    - Added `TransactionCategory` enum (workout/restDay/streakFreeze/shopPurchase/adReward)
-    - Added `PointsTransaction` struct with id, type, category, amount, description, timestamp, entityId, balanceAfter
-    - Added `generateId()` static method for deterministic transaction IDs (idempotency)
-    - Added `transactions: [PointsTransaction]` to UserStats
-    - Added `maxTransactionCount = 500` cap
-    - Added helper methods: `addTransaction()`, `pruneTransactions()`, `recentTransactions()`, `hasTransaction()`
-    - Added computed properties: `todaysTransactions`, `transactionPointsEarnedToday`, `pointsSpentToday`
-  - Updated ActivityService.swift:
-    - Updated `recordCompletion()` to record earn transaction for workout points
-    - Updated `recordRestDayCheckIn()` to record earn transaction for rest-day points
-    - Updated `restoreStreak()` to record spend transaction for streak freeze
-    - All transactions use deterministic IDs for idempotency (duplicate prevention)
-  - Created PointsBalanceView.swift:
-    - Reusable SwiftUI component for consistent points display
-    - Three display styles: full, compact, change
-    - `InsufficientPointsMessage` view with friendly, no-shame messaging
-    - `PointsChangeIndicator` animated component for points earn/spend feedback
-    - Full VoiceOver accessibility labels
-  - Created PointsHistoryView.swift:
-    - Transaction History screen accessible from Settings
-    - Current balance header with today's earned/spent summary
-    - Transaction list (newest first) with category icons, descriptions, amounts
-    - Empty state for new users: "Your points journey starts here!"
-    - Loading and error states with retry option
-    - Full VoiceOver accessibility labels
-  - Updated SettingsView.swift:
-    - Added "Points & Rewards" section showing current balance
-    - Links to PointsHistoryView for viewing transaction history
-    - Loads points from ActivityService on appear
-  - Updated HomeView.swift:
-    - Updated points display to use PointsBalanceView component for consistency
-  - Updated Xcode project with 2 new files (PointsBalanceView.swift, PointsHistoryView.swift)
-  - **Ready for Phase 07.2 (Shop MVP and Purchase Flow)**
-- Feb 6, 2026 (Session 19): **Phase 07.2 Implementation Complete — Shop MVP and Purchase Flow**
-  - Created ShopItem.swift model:
-    - `ShopItemCategory` enum: outfits, accessories, enclosure (each with icon, color, description)
-    - `ShopItemRarity` enum: common, uncommon, rare, legendary (each with color, badge icon)
-    - `ShopItem` struct: id, name, description, category, rarity, price, previewImageName, isNew, isFeatured
-    - `OwnedItem` struct: tracks item ownership with purchase date and points spent
-    - `Inventory` struct: manages owned items, equipped outfit/accessory, placed enclosure items
-    - `PurchaseResult` struct: success/failure with hamster reaction messages
-    - `ShopError` enum: itemNotFound, alreadyOwned, insufficientPoints, purchaseFailed (all with friendly messages)
-    - UserDefaults persistence for Inventory
-  - Created ShopService.swift:
-    - `ShopServiceProtocol` with getAllItems, getItems(category), getFeaturedItems, getItem(id), purchaseItem, getInventory, ownsItem
-    - `MockShopService` actor implementation with 24 seed items:
-      - 8 outfits (Superhero Cape, Athlete Jersey, Wizard Robe, Astronaut Suit, Chef Outfit, Ninja Suit, Pirate Costume, Cozy Sweater)
-      - 8 accessories (Cool Sunglasses, Workout Headband, Golden Crown, Fancy Bowtie, Flower Crown, Angel Wings, Tiny Backpack, Rainbow Scarf)
-      - 8 enclosure items (Rainbow Wheel, Cozy Hammock, Mini Castle, Potted Plants, Adventure Tunnel, Treehouse, Tiny Pool, Fairy Lights)
-    - Items spread across all rarity levels with prices from 40-500 points
-    - Purchase flow with idempotency (can't buy same item twice)
-    - Inventory persistence via UserDefaults
-  - Updated ActivityService.swift:
-    - Added `recordShopPurchase()` method to protocol and MockActivityService
-    - Records spend transaction with deterministic ID for idempotency
-    - Prevents double-charging on retry
-  - Created ShopItemCardView.swift:
-    - Reusable card component with 3 sizes (compact, regular, large)
-    - Category-based gradient backgrounds (purple/pink for outfits, pink/orange for accessories, orange/yellow for enclosure)
-    - Rarity badges with color coding
-    - "NEW" badge for new items
-    - Owned overlay with checkmark
-    - `FeaturedShopItemCard` variant for horizontal featured section
-    - Full VoiceOver accessibility labels
-  - Created ShopCategoryView.swift:
-    - Category detail view with items grid (2 columns)
-    - Category header with icon, name, description
-    - Stats row: total items, owned count, cheapest available price
-    - NavigationLink to ShopItemDetailView for each item
-    - Loading/empty/error states
-  - Created ShopItemDetailView.swift:
-    - Full item preview with category gradient background
-    - Rarity badge and "NEW" label
-    - Item info section with name, category, description, price
-    - Purchase section with 3 states:
-      - Already owned: green checkmark with "Check your inventory" message
-      - Can afford: balance info, "After purchase" preview, buy button
-      - Insufficient points: friendly `InsufficientPointsMessage`, disabled buy button, workout encouragement
-    - Purchase confirmation dialog (prevents accidental purchases)
-    - Purchasing overlay with progress indicator
-    - `PurchaseSuccessView` celebration modal with animation, hamster reaction, points spent
-  - Rewrote ShopView.swift:
-    - Welcome section with sparkles
-    - Featured items horizontal scroll (using FeaturedShopItemCard)
-    - Categories section with item counts and navigation
-    - New Arrivals horizontal scroll
-    - Points balance in toolbar using PointsBalanceView
-    - Pull-to-refresh support
-    - Integration with AuthViewModel for user context
-  - Updated Xcode project with 5 new files
-  - All requirements from phase07.2-shop-mvp-and-purchase-flow.md met:
-    - ✅ Shop browse with categories (poses, outfits, enclosure items)
-    - ✅ Item detail / preview experience
-    - ✅ Purchase confirmation and post-purchase feedback
-    - ✅ Loading/empty/error states
-    - ✅ Insufficient points handling (gentle explanation + suggested next step)
-    - ✅ Item names/prices readable by VoiceOver
-    - ✅ Purchase confirmation prevents accidental purchase
-    - ✅ Items have costs and categories
-    - ✅ Purchases recorded and add items to inventory
-    - ✅ Safe retry without double-charge (idempotent transactions)
-    - ✅ User can't buy same item twice (already owned check)
-  - **Ready for Phase 07.3 (Customization MVP - Equip and Place)**
-- Feb 6, 2026 (Session 20): **Phase 07.3 Implementation Complete — Customization MVP (Equip and Place)**
-  - Updated ShopServiceProtocol with customization methods:
-    - `equipOutfit()` / `unequipOutfit()` - equip/remove outfits (one at a time)
-    - `equipAccessory()` / `unequipAccessory()` - equip/remove accessories (one at a time)
-    - `placeEnclosureItem()` / `removeEnclosureItem()` - place/remove enclosure items (multiple allowed)
-    - `getOwnedItems()` - get owned items by category
-    - `getEquippedItems()` - get all currently equipped/placed items
-  - Created `CustomizationResult` struct for equip/place operation results with hamster reactions
-  - Created `CustomizationError` enum with friendly hamster-voiced error messages
-  - Created `EquippedItems` container struct for outfit, accessory, and enclosure items
-  - Updated `Inventory` struct with equipped status helpers:
-    - `isEquipped()`, `isPlaced()`, `isInUse()`, `inUseCount()`
-  - Created InventoryView.swift (customization hub):
-    - Current look preview showing hamster with equipped items
-    - Category navigation (outfits, accessories, enclosure)
-    - Empty state guiding to shop
-    - Full VoiceOver accessibility
-  - Created InventoryCategoryView.swift (browse owned items):
-    - Grid of owned items with equipped/placed status
-    - Category header with stats
-    - Empty state with shop navigation
-    - `InventoryItemCard` component with in-use indicators
-  - Created InventoryItemPreviewView.swift (preview and equip):
-    - Large item preview with rarity badge
-    - Equip/unequip or place/remove actions
-    - Success overlay with hamster reaction
-    - Loading states for operations
-    - Full VoiceOver accessibility
-  - Updated HomeView.swift:
-    - Hamster section now shows equipped outfit and accessory indicators
-    - Enclosure items count badge
-    - Equipped item name badges below hamster
-    - "Customize" button to access inventory
-    - Loads equipped items on content load
-  - Updated ShopView.swift:
-    - Added "My Collection" toolbar button
-    - Added "My Collection" quick link in welcome section (when items owned)
-    - Sheet navigation to InventoryView
-  - Updated Xcode project with 3 new files (InventoryView, InventoryCategoryView, InventoryItemPreviewView)
-  - All requirements from phase07.3-customization-mvp-equip-and-place.md met:
-    - ✅ Customization hub with categories
-    - ✅ Inventory browsing for owned items
-    - ✅ Preview + apply/equip controls
-    - ✅ Empty state guiding to shop
-    - ✅ Error state with retry
-    - ✅ Success state with immediate visual feedback
-    - ✅ Clear labels for "equipped" vs "owned"
-    - ✅ VoiceOver accessible controls
-    - ✅ Equipped items persist across relaunch (UserDefaults)
-    - ✅ Home reflects latest customization
-  - **Ready for Phase 07.4 (Growth Progression Milestones)**
-- Feb 7, 2026 (Session 21): **Phase 07.4 Requirements Complete — Growth Progression Milestones**
-  - Expanded phase07.4-growth-progression-milestones.md from stub to comprehensive requirements
-  - **Resolved open question: Hamster growth thresholds**
-    - 4 stages: baby → juvenile → adult → mature
-    - Baby→Juvenile: 5 workouts OR 7-day streak
-    - Juvenile→Adult: 25 workouts OR 21-day streak
-    - Adult→Mature: 75 workouts OR 60-day streak
-    - Uses **lifetime totals** and **longest streak ever** (not current streak)
-    - Growth never regresses, purely positive progression
-  - Defined celebration UX flow:
-    - Trigger points: after workout completion, after streak validation
-    - Celebration modal with hamster-voiced copy
-    - Pending celebration persists until shown (survives app crash)
-  - Defined data model:
-    - GrowthStage enum, GrowthMilestone struct, GrowthTrigger enum
-    - UserStats additions: currentGrowthStage, growthHistory, pendingGrowthCelebration
-    - GrowthConfig with threshold constants and check methods
-  - Defined service layer updates (ActivityService growth checking)
-  - Edge cases: multiple milestones at once, reinstall/restore, celebration not shown
-  - Full accessibility and testing requirements
-  - **Phase 07.4 ready for implementation**
-- Feb 7, 2026 (Session 21): **Phase 07.4 Implementation Complete — Growth Progression Milestones**
-  - Updated Activity.swift with growth data model:
-    - `GrowthStage` enum: baby, juvenile, adult, mature (with display properties, icons, celebration messages)
-    - `GrowthTrigger` enum: workouts, streak
-    - `GrowthMilestone` struct for recording achievements
-    - `GrowthConfig` enum with threshold constants and progress calculation
-    - UserStats updated with: currentGrowthStage, growthHistory, pendingGrowthCelebration
-    - Helper methods: checkForGrowth(), recordGrowth(), clearPendingGrowthCelebration()
-  - Updated ActivityService.swift:
-    - Added growth checking methods to protocol: checkAndRecordGrowth, getCurrentGrowthStage, getPendingGrowthCelebration, clearPendingGrowthCelebration
-    - Integrated growth check into recordCompletion() — auto-checks after each workout
-    - MockActivityService implementation with persistence
-  - Created GrowthCelebrationView.swift:
-    - Full-screen celebration modal with animations
-    - Stage transition display (before → after badges)
-    - Hamster speech bubble with stage-specific messages
-    - Confetti effect (respects Reduce Motion setting)
-    - "Hooray!" dismiss button
-    - Full VoiceOver accessibility
-  - Updated HomeView.swift:
-    - Growth stage badge displayed in hamster section
-    - Pending growth celebration check on load
-    - fullScreenCover for GrowthCelebrationView
-    - Updated accessibility labels to include growth stage
-  - Updated Xcode project with 1 new file (GrowthCelebrationView.swift)
-  - **Phase 07.4 complete. Ready for Phase 07.5 (Review).**
-- Feb 7, 2026 (Session 21): **Phase 07.5 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:** 16 files audited (4 models, 2 services, 10 views)
-  - **Flow-by-Flow Audit:** PASS
-    - Earn points (workout/rest-day) → points balance updates: Verified
-    - Shop browse → preview → purchase → inventory updated: Verified
-    - Equip/place item → Home reflects change → relaunch persistence: Verified
-    - Hit growth milestone → celebration appears → Home reflects new stage: Verified
-  - **Consistency Checks:** PASS
-    - Idempotency for workout completions, transactions, shop purchases: All verified
-    - No duplicate charges or awards under retries
-    - Insufficient points handling: Clear and supportive
-  - **Copy Tone Audit:** PASS — Zero guilt/shame language, consistently warm and hamster-voiced
-  - **Accessibility Audit:** PASS after fixes
-    - HomeView: Exemplary accessibility with comprehensive labels
-    - GrowthCelebrationView: Full accessibility with reduceMotion support
-    - ShopView: Fixed — added VoiceOver labels to featured items and new arrivals
-    - InventoryView: Proper labels for owned/equipped states
-  - **Bugs Fixed During Review:**
-    - Added accessibility labels to ShopView featured items and new arrivals (helper: `shopItemAccessibilityLabel`)
-    - Fixed CustomizationError.itemNotOwned tone: "We need to get this" → "This isn't in your collection yet"
-  - **Requirements Verification:** All Phase 07.1–07.4 requirements met
-  - **Phase 07 complete. Ready for Phase 08 (Notifications & Audio Controls).**
-- Feb 7, 2026 (Session 23): **Phase 08.2 Implementation Complete — Push Permission UX and Scheduling Rules**
-  - Expanded phase08.2 requirements document from stub to comprehensive specification:
-    - Permission request approach (after first workout, pre-prompt screen)
-    - Notification preferences model requirements
-    - Reminder scheduling logic (daily + streak at risk)
-    - NotificationSettingsView full layout
-    - Edge cases, accessibility, testing requirements
-  - Created NotificationPreferences.swift (Models/):
-    - `NotificationPreferences` struct with userEnabled, dailyReminderEnabled, streakReminderEnabled, reminderHour/minute
-    - UserDefaults persistence via @AppStorage keys
-    - `ReminderTimePeriod` enum (morning/afternoon/evening/custom)
-    - `NotificationType` enum (dailyReminder/streakAtRisk)
-    - `NotificationContent` enum with hamster-voiced message arrays
-    - `NotificationPermissionState` enum (notDetermined/authorized/denied/provisional/ephemeral)
-    - `WorkoutTime` extension for default reminder hour mapping
-  - Created NotificationManager.swift (Services/Notifications/):
-    - @MainActor singleton for centralized notification management
-    - Permission state tracking and refreshing
-    - Permission request flow with iOS UNUserNotificationCenter integration
-    - Notification scheduling with UNCalendarNotificationTrigger (timezone-aware)
-    - Daily reminder and streak at risk reminder scheduling
-    - Preference updates trigger automatic rescheduling
-    - App lifecycle handling (refresh state on foreground)
-    - `shouldShowPermissionPrompt()` method for first-workout trigger
-    - `handleCheckIn()` for clearing badges on check-in
-  - Created NotificationPermissionPromptView.swift (Views/Notifications/):
-    - Pre-prompt modal sheet with hamster-voiced copy
-    - Shows notification previews (daily reminder, streak support)
-    - "Yes, Remind Me" and "Maybe Later" buttons
-    - Result screen with confirmation or friendly decline message
-    - `NotificationPromptBanner` compact variant for workout completion
-    - Full VoiceOver accessibility labels
-  - Rewrote NotificationSettingsView.swift from placeholder to full implementation:
-    - Permission denied banner with "Open Settings" guidance
-    - Master notifications toggle with permission-aware state
-    - Reminder time section with morning/afternoon/evening/custom options
-    - Custom time picker sheet with DatePicker wheel
-    - Reminder types section (daily workout, streak at risk toggles)
-    - Dynamic status text based on permission state
-    - Full VoiceOver accessibility labels and hints
-  - Updated SettingsView.swift:
-    - Integrated NotificationManager for real permission and scheduling state
-    - Toggle now triggers permission request when needed
-    - Shows reminder time when enabled
-    - Permission denied state shows guidance
-    - Sheet for NotificationPermissionPromptView
-  - Updated WorkoutPlayerView.swift:
-    - Added notification prompt banner on completion screen
-    - `checkNotificationPrompt()` method checks if user should see prompt
-    - Shows after first workout if permission not yet determined
-    - Banner links to full NotificationPermissionPromptView
-  - Updated Xcode project with 3 new files:
-    - NotificationPreferences.swift in Models group
-    - NotificationManager.swift in Services/Notifications group
-    - NotificationPermissionPromptView.swift in Views/Notifications group
-  - **Phase 08.2 complete. Ready for Phase 08.3 (Notification Tap Routing and Today Context).**
-- Feb 7, 2026 (Session 22): **Phase 08.1 Implementation Complete — Audio Experience and Settings**
-  - Expanded phase08.1 requirements document from stub to comprehensive specification:
-    - AudioPreferences data model with persistence
-    - AudioManager singleton service design
-    - Settings UI enhancements (global mute, category toggles, volume sliders)
-    - AudioSettingsView full layout with all controls
-    - Edge cases, accessibility requirements, testing requirements
-  - Created AudioPreferences.swift (Models/):
-    - `AudioPreferences` struct with globalMute, sfxEnabled, musicEnabled, volumes, mixWithOthers
-    - UserDefaults persistence via @AppStorage keys
-    - Computed properties for effective volumes and can-play checks
-    - `SoundEffect` enum with 11 sound effect types (button tap, workout cues, celebrations, etc.)
-    - `MusicTrack` enum with 4 track types (upbeat, chill, intense, ambient)
-  - Created AudioManager.swift (Services/Audio/):
-    - @MainActor singleton for centralized audio playback
-    - AVAudioPlayer management for SFX and music
-    - AVAudioSession configuration (ambient vs playback mode)
-    - Audio interruption handling (phone calls, Siri)
-    - Route change handling (headphone disconnect)
-    - playSFX(), playMusic(), stopMusic(), pauseMusic(), resumeMusic() methods
-    - Preview methods for settings testing
-    - Graceful fallback when audio assets are missing (logs but no error)
-  - Updated SettingsView.swift:
-    - Replaced @State toggles with @AppStorage for persistence
-    - Added global mute toggle with dynamic icon (speaker.slash.fill when muted)
-    - Added subtitles to Sound Effects and Music toggles
-    - Disabled appearance when global mute is on
-    - Added updateAudioPreferences() method to sync with AudioManager
-    - Full VoiceOver accessibility labels for all states
-  - Rewrote AudioSettingsView.swift from placeholder to full implementation:
-    - Muted banner when global mute is active
-    - Volume sliders section (SFX and Music) with percentage display
-    - Dynamic volume icons based on level
-    - Audio Behavior section with "Mix with Other Apps" toggle
-    - Test Sounds section with Preview SFX and Preview Music buttons
-    - Disabled states for sliders/buttons when audio is muted or category is off
-    - Full VoiceOver accessibility with proper hints
-    - Footer: "Your hamster appreciates a good soundtrack!"
-  - Updated Xcode project with 2 new files (AudioPreferences.swift, AudioManager.swift)
-  - **Phase 08.1 complete. Ready for Phase 08.2 (Push Permission UX and Scheduling Rules).**
-- Feb 7, 2026 (Session 24): **Phase 08.3 Implementation Complete — Notification Tap Routing and Today Context**
-  - Expanded phase08.3 requirements document from stub to comprehensive specification:
-    - Notification tap handling via UNUserNotificationCenterDelegate
-    - Today context determination (workout done, rest-day done, no check-in)
-    - Routing destinations matrix (notification type × context → destination)
-    - Pre-routing checks (safe routing for logged-out/onboarding users)
-    - Contextual banner UX patterns with 3 states (streak safe, action needed, gentle nudge)
-    - Edge cases: stale notifications, foreground handling, multiple taps
-    - Accessibility requirements including VoiceOver announcements
-  - Created AppRoutingState.swift (Models/):
-    - `AppRoutingState` singleton ObservableObject for app-wide routing state
-    - `DeepLinkDestination` enum for routing targets
-    - `NotificationContext` struct with banner type, message, and action button logic
-    - `NotificationBannerType` enum with styling (icon, colors, accessibility)
-    - `handleNotificationTap()` method to process notification taps
-    - Clear methods for consuming routing state
-  - Created NotificationContextBanner.swift (Views/Notifications/):
-    - Animated banner component with slide-in transition
-    - 3 banner states with distinct styling (green/orange/purple)
-    - Optional action button for "action needed" state
-    - Dismiss button with X icon
-    - Auto-dismiss after 8 seconds for non-actionable banners
-    - VoiceOver announcement on appear
-    - Respects Reduce Motion accessibility setting
-    - Full VoiceOver accessibility labels and hints
-  - Updated NotificationManager.swift:
-    - Added NSObject inheritance for UNUserNotificationCenterDelegate conformance
-    - Set delegate in init()
-    - Added `parseNotificationType(from:)` method
-    - Implemented `userNotificationCenter(_:willPresent:)` for foreground notifications
-    - Implemented `userNotificationCenter(_:didReceive:)` for tap handling
-    - `handleNotificationResponse()` loads user stats and triggers routing
-    - Clears badge and delivered notifications on tap
-    - Optional callback for notification taps
-  - Updated MuscleHamsterApp.swift:
-    - Added AppRoutingState environment object
-    - Store current user ID in UserDefaults for notification handler
-    - Clear routing state for logged-out/onboarding users
-  - Updated MainTabView.swift:
-    - Added routingState observation
-    - Switch to Home tab when notification is tapped (via shouldNavigateToHome)
-    - Clear pending destination after navigation
-  - Updated HomeView.swift:
-    - Added notificationBannerSection at top of homeContent
-    - Shows contextual banner when notification context is present
-    - Action button opens rest-day check-in sheet
-    - Banner dismisses on tap or auto-dismiss timeout
-  - Updated Xcode project with 2 new files (AppRoutingState.swift, NotificationContextBanner.swift)
-  - **Phase 08.3 complete. Ready for Phase 08.4 (Review).**
-- Feb 7, 2026 (Session 25): **Phase 09 Planning Complete — Social Features**
-  - Created Phase 09 folder structure: `Development/phase-09-social-features/`
-  - Created parent overview: `phase09-social-features.md`
-  - Created 7 subphase documents:
-    - phase09.1-friend-data-model-and-service-layer.md — Core models: FriendRelationship, FriendRequest, FriendStreak, BlockedUser, FriendService
-    - phase09.2-add-friends-ux.md — Username search, contacts import, invite link/QR sharing
-    - phase09.3-friends-list-and-friend-profile-view.md — Social tab, friend rows, friend profile view
-    - phase09.4-friend-streaks.md — Shared streak tracking, break/restore mechanics (150/300 points)
-    - phase09.5-privacy-controls.md — Blocking, visibility settings, unfriending
-    - phase09.6-friend-nudges.md — Rest-day encouragement to friends
-    - phase09.7-review.md — Final review methodology
-  - Key features scoped from PRD:
-    - Add friends via username, contacts, link/QR
-    - View friends' hamsters and progress
-    - Friend streaks with restore options (self only: 150 pts, for both: 300 pts)
-    - Privacy controls (blocking, visibility, unfriending)
-    - Friend nudges (encouragement pokes)
-  - **Phase 09 ready for implementation. Start with Phase 09.1.**
-- Feb 7, 2026 (Session 24): **Phase 08.4 Review Complete — SIGN-OFF**
-  - **Exhaustive Inventory:** 12 files audited across Phase 08.1–08.3
-    - Phase 08.1: 4 files (AudioPreferences, AudioManager, AudioSettingsView, SettingsView updates)
-    - Phase 08.2: 5 files (NotificationPreferences, NotificationManager, NotificationPermissionPromptView, NotificationSettingsView, SettingsView updates)
-    - Phase 08.3: 6 files (AppRoutingState, NotificationContextBanner, NotificationManager updates, MuscleHamsterApp updates, MainTabView updates, HomeView updates)
-  - **Flow-by-Flow Audit:** PASS
-    - Audio flows: mute, volume adjustment, interruption handling, persistence
-    - Notification permission flows: grant, deny, settings guidance, rescheduling
-    - Notification tap routing flows: all 4 context combinations verified, safe routing for logged-out/onboarding users
-  - **Copy Tone Audit:** PASS — Zero guilt/shame language
-    - All notification copy warm and encouraging
-    - "I promise I'll be gentle!", "No spam, no pressure", "All reminders are friendly and judgment-free"
-    - Banner messages: celebratory for success, gentle urgency for action needed
-  - **Accessibility Audit:** PASS
-    - All audio controls have proper labels and hints
-    - All notification controls properly labeled with selection traits
-    - Notification banner has VoiceOver announcements, respects Reduce Motion
-  - **Edge Cases Verified:**
-    - Audio interruption/resume, headphones disconnect, missing audio files
-    - Stale notifications, multiple notification taps, foreground notification handling
-    - Logged-out/onboarding-incomplete routing
-  - **Minor Observations (non-blocking):**
-    - NotificationBannerContainer helper unused (fine for future refactoring)
-    - onChange API uses iOS 16 syntax (functional on iOS 15+, update when targeting iOS 17+)
-  - **Requirements Verification:** All Phase 08.1, 08.2, 08.3 requirements met
-  - **Phase 08 complete. MVP core loop implementation complete.**
-- Feb 7, 2026 (Session 26): **Phase 09.1 Implementation Complete — Friend Data Model and Service Layer**
-  - Created Friend.swift model (Models/):
-    - `FriendRelationshipStatus` enum: pending, accepted, blocked
-    - `FriendRelationship` struct: mutual friendship with status, timestamps, streak reference
-    - `FriendRequestStatus` enum: pending, accepted, declined, cancelled, expired
-    - `FriendRequest` struct: sender/receiver, status, timestamps
-    - `FriendStreakStatus` enum: active, waiting, atRisk, broken, none (with icons, colors)
-    - `FriendStreak` struct: shared streak between two users with separate check-in dates
-    - `BlockedUser` struct: one-directional block record
-    - `FriendProfile` struct: public-facing friend info with visibility controls
-    - `FriendVisibilitySettings` struct: controls what info is visible to friends
-    - `FriendStreakRestoreOption` enum: selfOnly (150 pts), forBoth (300 pts)
-    - `FriendStreakRestoreResult` struct: restore outcome with hamster reactions
-    - `FriendStreakConfig` enum: points costs for restore options
-    - UserDefaults persistence for FriendStreak and FriendVisibilitySettings
-  - Created FriendService.swift (Services/Friend/):
-    - `FriendServiceProtocol` with 25+ methods:
-      - Friend list: getFriends, getFriendCount, areFriends, getFriendProfile
-      - Friend requests: send, accept, decline, cancel, getPendingIncoming/Outgoing
-      - Friend management: removeFriend
-      - Blocking: blockUser, unblockUser, getBlockedUsers, isBlocked, hasBlockBetween
-      - Friend streaks: get, getAll, update, validate, restore (self/both)
-      - Discovery: searchUsers, generateInviteCode, acceptInviteCode
-      - Visibility: getVisibilitySettings, updateVisibilitySettings
-    - `FriendError` enum with 13 error cases and friendly hamster-voiced messages
-    - `MockFriendService` actor implementation with:
-      - In-memory storage for relationships, requests, blocks, streaks
-      - 5 mock friend profiles for testing
-      - Auto-accept logic when both users send requests to each other
-      - Blocking terminates existing friendships and cancels pending requests
-      - Friend streak update/validation logic matching personal streak patterns
-      - Invite code generation and acceptance
-      - Singleton access via `.shared`
-  - Updated ActivityService.swift:
-    - Added friend streak updates to recordCompletion() — triggers after workout completion
-    - Added friend streak updates to recordRestDayCheckIn() — triggers after rest-day check-in
-  - Updated Xcode project with 2 new files (Friend.swift, FriendService.swift)
-  - All requirements from phase09.1-friend-data-model-and-service-layer.md met:
-    - ✅ FriendRelationship model with all fields and helpers
-    - ✅ FriendRequest model with status enum and transitions
-    - ✅ FriendStreak model with streak status enum and calculations
-    - ✅ BlockedUser model
-    - ✅ FriendError enum with friendly messages
-    - ✅ FriendServiceProtocol defining all operations
-    - ✅ MockFriendService actor implementation with in-memory storage
-    - ✅ ActivityService integration to trigger friend streak updates on check-in
-  - **Phase 09.1 complete. Ready for Phase 09.2 (Add Friends UX).**
-- Feb 7, 2026 (Session 27): **Phase 09.3 Implementation Complete — Friends List and Friend Profile View**
-  - Enhanced FriendProfileView with comprehensive features:
-    - Read-only banner indicating viewing friend's profile
-    - Hamster header with avatar, state badge, growth stage badge
-    - Stats section with current streak, longest streak, workouts, member since
-    - Friend streak section with detailed status:
-      - Check-in status icons for both users (checkmark/clock)
-      - Status messages ("You're in! Waiting for [Name]...", "You both crushed it today!", etc.)
-      - Best together stat showing longest mutual streak
-    - Customization preview showing equipped outfit/accessory
-    - Actions menu (three-dot) with Remove Friend and Block User options
-    - Confirmation dialogs for remove/block with warm, non-guilt messaging
-    - Loading overlay during remove/block operations
-  - Enhanced PendingRequestsView:
-    - Added tabbed interface: Incoming / Sent (outgoing) requests
-    - Incoming requests now show sender's display name, hamster name, and state
-    - Outgoing requests section with cancel functionality
-    - Proper loading states for profile fetching
-  - Updated friend row display:
-    - Friend streak badge with at-risk indicator (orange tint + warning icon)
-    - Enhanced accessibility labels including at-risk status
-  - Updated FriendProfile model:
-    - Added `longestStreak` field for best streak ever
-    - Added `memberSince` field for join date display
-  - Updated MockFriendService:
-    - Mock profiles now include longestStreak, memberSince, equipped items
-    - All FriendProfile creation points updated with new fields
-  - All requirements from phase09.3-friends-list-and-friend-profile-view.md met:
-    - ✅ Friends list as Social tab main content
-    - ✅ Friend row with avatar, state, streak indicators
-    - ✅ Friend requests view with accept/decline and outgoing tab
-    - ✅ Friend profile view with full stats and friend streak display
-    - ✅ Remove friend and block user functionality with confirmations
-    - ✅ At-risk friend streak indicators
-    - ✅ Full VoiceOver accessibility
-  - **Phase 09.3 complete. Ready for Phase 09.4 (Friend Streaks).**
-- Feb 7, 2026 (Session 26): **Phase 09.2 Implementation Complete — Add Friends UX**
-  - Created FriendRowView.swift (Views/Social/):
-    - Reusable row component for displaying friend search results, contact matches, and friend lists
-    - `FriendRelationState` enum: none, pending, incoming, friends, blocked (with button labels/icons)
-    - Avatar with hamster state color and growth stage icon
-    - Action buttons per state: Add, Pending (cancel), Accept/Decline, Friends indicator
-    - Loading state for async actions
-    - `FriendRowCompactView` variant for compact layouts
-    - Full VoiceOver accessibility labels and hints
-  - Created AddFriendsView.swift (Views/Social/):
-    - Main Add Friends modal with search and discovery methods
-    - `AddFriendsViewModel` with debounced search (300ms)
-    - Search section: username search with real-time results
-    - Search results list using FriendRowView
-    - Discovery methods section with 3 cards:
-      - "From Contacts" placeholder
-      - "Share Invite Link" → InviteLinkView
-      - "QR Code" → QRCodeView
-    - `DiscoveryMethodCard` reusable component
-    - Friend request sending/cancelling with optimistic UI updates
-    - Loading/error/empty search states
-    - Full VoiceOver accessibility
-  - Created InviteLinkView.swift (Views/Social/):
-    - Invite link generation and sharing modal
-    - Header illustration with person.2.fill icon
-    - Invite code display (monospaced, bold)
-    - Link preview (truncated for display)
-    - Share button using iOS Share Sheet (UIActivityViewController)
-    - Copy to clipboard with confirmation ("Copied!")
-    - `ShareSheet` UIViewControllerRepresentable wrapper
-    - Loading state while generating invite code
-    - Full VoiceOver accessibility
-  - Created QRCodeView.swift (Views/Social/):
-    - Dual-tab interface: "My Code" / "Scan"
-    - My Code tab:
-      - QR code generation using CoreImage.CIFilterBuiltins
-      - Scaled 10x for crisp display
-      - Invite code text display
-      - Share QR Code button
-    - Scan tab (QRScannerView):
-      - Camera permission handling (AVFoundation)
-      - Permission request, denied, and authorized states
-      - Scan frame overlay with instructions
-      - Scanned user profile display
-      - "Add Friend" and "Scan Another" actions
-      - CameraScannerPlaceholder for testing (simulated scan)
-    - Full VoiceOver accessibility
-  - Rewrote SocialView.swift from placeholder to full implementation:
-    - `SocialViewModel` for friends list and pending requests management
-    - 4 view states: loading, empty, content, error
-    - Empty state with "Find Friends" CTA and pending requests link
-    - Friends list with two sections:
-      - "Active Streaks" — friends with active friend streaks
-      - "Friends (count)" — all friends
-    - Pending requests section when count > 0
-    - Add friends toolbar button with badge showing pending request count
-    - Friend rows show personal streak, friend streak, hamster state
-    - `PendingRequestsView` modal for accepting/declining requests
-    - `FriendProfileView` for viewing friend details with stats
-    - NavigationLink to friend profiles
-    - Pull-to-refresh and auto-refresh on returning from Add Friends
-    - Full VoiceOver accessibility
-  - Updated Xcode project with 4 new files in Social group
-  - All requirements from phase09.2-add-friends-ux.md met:
-    - ✅ Add Friends entry point in Social tab
-    - ✅ Username search with debounce
-    - ✅ Friend request sending with optimistic UI
-    - ✅ Invite link generation and sharing
-    - ✅ QR code display and scanning (placeholder scanner)
-    - ✅ Discovery method cards for Contacts, Link, QR
-    - ✅ Friend row with relationship state indicators
-    - ✅ Pending requests view for accepting/declining
-    - ✅ Error states with retry
-    - ✅ Full VoiceOver accessibility
-  - **Phase 09.2 complete. Ready for Phase 09.3 (Friends List and Friend Profile View).**
-- Feb 7, 2026 (Session 28): **Phase 09.4 Implementation Complete — Friend Streaks**
-  - Created FriendStreakDetailView.swift (Views/Social/):
-    - Dedicated view for viewing and managing friend streaks
-    - Header section with both users' hamster avatars and check-in status indicators
-    - Large streak count display with status badge (active, waiting, at risk, broken)
-    - Today's check-in status section showing each user's status (checkmark/clock)
-    - Dynamic status messages based on check-in state:
-      - "You both crushed it today!"
-      - "You're in! Waiting for [Name]..."
-      - "[Name] is in! Time to check in!"
-    - Streak stats section: current streak, best together, days as partners
-    - Restore section (when broken): displays broken streak count, restore button, points balance
-    - Restore success/waiting states with hamster reactions
-    - No streak state with encouraging message
-    - Full VoiceOver accessibility labels
-  - Created FriendStreakRestoreSheet (embedded in FriendStreakDetailView):
-    - Modal sheet with restore options when streak is broken
-    - Three restore options:
-      - "Restore for Both" (300 points) — saves streak for both users
-      - "Restore My Side" (150 points) — fixes your side, friend needs to restore theirs
-      - "Start Fresh" (0 points) — accept broken streak, start new
-    - Points cost display for each option
-    - Insufficient points messaging (friendly, no shame)
-    - Confirmation dialogs before point deduction
-    - Restoring overlay with progress indicator
-    - Hamster encouragement messages based on context
-    - Full VoiceOver accessibility
-  - Updated FriendProfileView in SocialView.swift:
-    - Friend streak section now tappable to open detail view
-    - Added "Details" chevron indicator
-    - Restore prompt banner for broken streaks
-    - Sheet navigation to FriendStreakDetailView
-    - Added `showStreakDetail` state variable
-  - Updated friendStreakCard display:
-    - Enhanced with "Details" navigation hint
-    - Added restore prompt for broken streaks
-  - Updated Xcode project with 1 new file (FriendStreakDetailView.swift)
-  - All requirements from phase09.4-friend-streaks.md met:
-    - ✅ Friend streak detail view with status display
-    - ✅ Streak stats (current, best together, days as partners)
-    - ✅ Check-in status for both users
-    - ✅ Restore flow with three options (self only 150, for both 300, start fresh)
-    - ✅ Confirmation dialogs before point deduction
-    - ✅ Success/waiting states after restore
-    - ✅ Insufficient points handling (friendly messaging)
-    - ✅ Points balance display
-    - ✅ Full VoiceOver accessibility
-    - ✅ Navigation from friend profile to detail view
-  - **Phase 09.4 complete. Ready for Phase 09.5 (Privacy Controls).**
-- Feb 7, 2026 (Session 29): **Phase 09.5 Implementation Complete — Privacy Controls**
-  - Updated Friend.swift model:
-    - Added `ProfileVisibilityLevel` enum with three levels: everyone, friendsOnly, private
-    - Each level has displayName, description, detailedDescription, icon, color
-    - Added `allowsIncomingRequests` and `showsInSearch` computed properties
-    - Added `PrivacySettings` struct with profileVisibility and allowFriendRequests
-    - UserDefaults persistence for PrivacySettings
-  - Updated FriendService.swift:
-    - Added `getPrivacySettings()` and `updatePrivacySettings()` to protocol
-    - Added `getBlockedUsersWithProfiles()` method for blocked users list with profiles
-    - MockFriendService implementation with caching and persistence
-  - Created BlockedUsersView.swift:
-    - List of blocked users with avatar, display name, blocked date
-    - Unblock button with confirmation dialog
-    - Empty state: "No Blocked Users. That's good news!"
-    - Loading, error, and content states
-    - Pull-to-refresh support
-    - Full VoiceOver accessibility labels
-  - Created ProfileVisibilityView.swift:
-    - Radio-style picker for visibility levels
-    - Info banner explaining the feature
-    - Level options with icons, names, descriptions
-    - Change preview showing detailed description of new setting
-    - Save button in toolbar with loading state
-    - Full VoiceOver accessibility
-  - Rewrote PrivacySettingsView.swift as central privacy hub:
-    - Profile Visibility section with current setting and navigation
-    - Friend Requests toggle (disabled when profile is Private)
-    - Blocked Users section with count and navigation
-    - Data & Account section with "Coming Soon" placeholders (Download Data, Delete Account)
-    - Auto-saves changes on toggle
-    - Full VoiceOver accessibility
-  - Updated Xcode project with 2 new files (BlockedUsersView.swift, ProfileVisibilityView.swift)
-  - All requirements from phase09.5-privacy-controls.md met:
-    - ✅ Block user flow (already in FriendProfileView from 09.3)
-    - ✅ Unblock user flow from blocked users list
-    - ✅ Blocked users management screen with unblock
-    - ✅ Profile visibility settings with three levels
-    - ✅ Remove friend flow (already in FriendProfileView from 09.3)
-    - ✅ Privacy settings screen as central hub
-    - ✅ Friend request toggle
-    - ✅ Data & Account placeholders for future features
-    - ✅ Full VoiceOver accessibility
-  - **Phase 09.5 complete. Ready for Phase 09.6 (Friend Nudges).**
-- Feb 7, 2026 (Session 30): **Phase 09.6 Implementation Complete — Friend Nudges**
-  - Updated Friend.swift model with nudge data structures:
-    - `FriendNudge` struct with id, senderId, recipientId, sentAt, messageIndex
-    - `NudgeMessages` enum with message rotations for recipients, notifications, and confirmations
-    - `NudgeConfig` enum with cooldown (8 hours) and daily limit (5 nudges)
-    - `NudgeEligibility` enum with all eligibility states and display messages
-    - `NudgeHistory` struct for tracking sent/received nudges with persistence
-    - Cooldown calculation and daily limit tracking
-  - Updated FriendService.swift:
-    - Added `canNudge()` method to check eligibility
-    - Added `sendNudge()` method with full validation and history tracking
-    - Added `getNudgeHistory()`, `getRecentReceivedNudges()`, `clearReceivedNudges()` methods
-    - Added nudge-specific error cases (nudgeCooldown, nudgeDailyLimit, nudgeSenderNotCheckedIn, nudgeRecipientCheckedIn)
-    - Friendly hamster-voiced error messages for all nudge errors
-  - Updated NotificationPreferences.swift:
-    - Added `friendNudgesEnabled` property with default true
-    - Added `friendNudge` case to NotificationType enum
-    - Updated persistence (load/save) to include new property
-  - Updated NotificationManager.swift:
-    - Added `toggleFriendNudges()` method
-  - Updated NotificationSettingsView.swift:
-    - Added Friend Nudges toggle with hand.wave icon
-    - Purple accent color, proper accessibility labels
-  - Updated SocialView.swift (FriendProfileView):
-    - Added nudge section with eligibility-aware display
-    - Nudge button available when friend hasn't checked in and sender has
-    - Eligibility states: canNudge, senderNotCheckedIn, recipientAlreadyCheckedIn, cooldownActive, dailyLimitReached
-    - Nudge sent overlay with success animation and confirmation message
-    - Full VoiceOver accessibility for all nudge states
-  - Created NudgeReceivedBanner.swift:
-    - Animated banner component for received nudges
-    - Shows sender name and encouragement message
-    - Auto-dismiss after 8 seconds
-    - Dismiss button with X icon
-    - MultipleNudgesBanner variant for batched nudges
-    - Respects Reduce Motion accessibility setting
-    - Full VoiceOver accessibility
-  - Updated HomeView.swift:
-    - Added nudge received banner section
-    - Loads received nudges on content load
-    - Shows banner when nudges are available (after other modals)
-    - Sequential display for multiple nudges
-    - Clears nudges after viewing
-  - Updated Xcode project with 1 new file (NudgeReceivedBanner.swift)
-  - All requirements from phase09.6-friend-nudges.md met:
-    - ✅ Nudge button on friend profile view
-    - ✅ Nudge sending logic with cooldown enforcement (8 hours per friend)
-    - ✅ Daily limit (5 nudges per day)
-    - ✅ Eligibility checks (sender must be checked in, recipient must not be)
-    - ✅ In-app nudge banner on Home screen
-    - ✅ Nudge opt-out toggle in notification settings
-    - ✅ Nudge record tracking for cooldown and history
-    - ✅ Friendly nudge message rotation (8 messages for recipient, 5 for sender confirmation)
-    - ✅ Full VoiceOver accessibility
-  - **Phase 09.6 complete. Ready for Phase 09.7 (Review).**
-- Feb 7, 2026 (Session 31): **Phase 09.7 Review Complete — SIGN-OFF**
-  - **Exhaustive Codebase Search:**
-    - 14 files audited covering all Phase 09 social features (5,857+ lines)
-    - Models: Friend.swift (903 lines) - all data models verified
-    - Services: FriendService.swift (1,175 lines) - 30+ methods implemented
-    - Views: 10 social-related views audited
-    - Integration: ActivityService friend streak updates verified
-  - **Verification Checklist:**
-    - ✅ Data Model Verification — all models store required fields, handle transitions correctly
-    - ✅ Service Layer Verification — all protocol methods implemented, integrations working
-    - ✅ UI Verification — all screens functional with proper ViewState handling
-    - ✅ Accessibility Verification — VoiceOver navigable, proper labels and hints
-    - ✅ Tone Verification — zero guilt/shame language, all messaging warm and encouraging
-    - ✅ Privacy Verification — blocking silent, visibility effective, contacts never raw
-    - ✅ Edge Cases — mutual requests auto-accept, block terminates streaks, cooldowns enforced
-  - **Bug Fixed:**
-    - BlockedUsersView.swift line 171: `HamsterState.color` returns String, not Color
-    - Fix: Added `hamsterStateColor()` helper function matching pattern in SocialView
-  - **Flow-by-Flow Audit:**
-    - Friend Request Flows: search → send → accept/decline → friendship ✅
-    - Friend List Flows: view → tap → profile → back ✅
-    - Friend Streak Flows: both check-in → increment, restore options ✅
-    - Blocking Flows: block → terminates friendship/streak → unblock available ✅
-    - Nudge Flows: check in → nudge available → cooldown → notification ✅
-    - Privacy Flows: visibility changes take effect immediately ✅
-  - **Requirements Verification:**
-    - Phase 09.1 (Data Model/Service): All requirements met ✅
-    - Phase 09.2 (Add Friends UX): All requirements met ✅
-    - Phase 09.3 (Friends List/Profile): All requirements met ✅
-    - Phase 09.4 (Friend Streaks): All requirements met ✅
-    - Phase 09.5 (Privacy Controls): All requirements met ✅
-    - Phase 09.6 (Friend Nudges): All requirements met ✅
-  - **Phase 09 complete. Social features ready for release.**
-- Feb 7, 2026 (Session 32): **Hamster Character Style Guide Created**
-  - Created comprehensive style guide: `Assets/hamster-character-style-guide.md`
-  - **Character Design Specs:**
-    - Base design: cute cartoon, chibi proportions, warm orange fur (#F5A623)
-    - 4 emotional states defined: Happy/Fed, Chillin', Hungry, Sad/Neglected
-    - 4 growth stages defined: Baby, Juvenile, Adult, Mature
-    - Color palette, line work, and expression guidelines documented
-  - **Customization System:**
-    - Outfit categories: fitness wear, casual, sporty, seasonal, premium
-    - Pose categories: exercise, victory, cute, silly
-    - Enclosure items: equipment, furniture, decorations
-  - **Technical Specs:**
-    - File formats: PNG (3x resolution for Retina)
-    - Naming convention: `hamster_[stage]_[state]_[pose].png`
-    - Asset checklist for MVP launch
-  - **Tone Guidelines:**
-    - Hamster is supportive friend, never judgmental
-    - Even "hungry" state is hopeful/inviting, not accusatory
-  - **Ready for artist handoff.**
-- Feb 7, 2026 (Session 33): **Phase 10.1 — Art Asset Specifications Implementation**
-  - Created `ArtAssetSpec.swift` with comprehensive asset infrastructure:
-    - `HamsterColorPalette` — Official color constants (#F5A623 orange, #FFE4B5 cream, etc.)
-    - `AssetDimensions` — Sizes for all asset types at @1x/@2x/@3x
-    - `AssetNames` — Naming convention helpers (hamster_{state}_{growthStage}, outfit_{id}, etc.)
-    - `AccessoryPositioning` — Offset calculations for accessory placement
-    - `EnclosureItemPositioning` — Zone-based placement for enclosure decorations
-    - `AssetLoader` — Utilities for checking asset availability and generating missing asset reports
-  - Updated existing views to use official color palette:
-    - `HamsterPlaceholder.swift` — Now uses HamsterColorPalette constants
-    - `HamsterExpressions.swift` — Eye, nose, eyebrow colors from palette
-    - `EnclosureView.swift` — Background and ground colors from palette
-    - `HamsterView.swift` — Uses AssetNames for asset loading
-    - `OutfitOverlay.swift`, `AccessoryOverlay.swift`, `EnclosureItemView.swift` — Updated asset loaders
-  - Created asset catalog folder structure:
-    - `Assets.xcassets/Hamsters/` — For 20 hamster base assets
-    - `Assets.xcassets/Outfits/` — For 8 outfit overlays
-    - `Assets.xcassets/Accessories/` — For 8 accessory items
-    - `Assets.xcassets/Enclosure/` — For 8 enclosure items
-    - `Assets.xcassets/Backgrounds/` — For enclosure backgrounds
-    - Example imageset folders created with Contents.json templates
-  - Created `AssetStatusView.swift` debug tool:
-    - Shows which assets are loaded vs placeholder
-    - Progress tracking for art asset implementation
-    - Color palette preview for artists
-  - **Code infrastructure complete. Ready for artist to drop PNG files into asset catalog.**
-- Feb 7, 2026 (Session 33 continued): **Internal Testing & Polish — Phase 1**
-  - **Created Logger utility** (`Utilities/Logger.swift`):
-    - Centralized OSLog-based logging with categories (notifications, audio, auth, routing, etc.)
-    - Added helper methods: success(), failure(), stateChange(), userAction(), timing()
-    - Debug-only logging function for development
-  - **Replaced all print() statements** with structured OSLog logging:
-    - `NotificationManager.swift` — 11 print statements replaced
-    - `AudioManager.swift` — 5 print statements replaced
-    - `AppRoutingState.swift` — 1 print statement replaced
-    - Using appropriate log levels (info, debug, error, warning)
-  - **Created unit test infrastructure** (`MuscleHamsterTests/`):
-    - `MuscleHamsterTests.swift` — Base test class
-    - `PointsConfigTests.swift` — 12 tests for points calculation logic
-    - `GrowthConfigTests.swift` — 18 tests for growth milestone thresholds
-    - `StreakValidationTests.swift` — 20 tests for streak status validation
-    - `UserStatsTests.swift` — 25+ tests for transactions, feedback, growth helpers
-    - Test coverage for: streak multipliers, workout points, rest day points, growth triggers
-  - **Remaining polish tasks identified**:
-    - Fix try? error handling patterns
-    - Add missing accessibility labels
-    - Fix async Task cancellation
+- [x] Friends system - UI (SocialScreen, AddFriendsScreen)
+- [x] Friends system - add via username (FriendService)
+- [ ] Friends system - import contacts (not implemented)
+- [ ] Friends system - share link/QR (not implemented)
+- [x] View friends' hamsters (FriendProfileScreen)
+- [x] Friend streaks (model support)
+- [x] Friend streak restoration payments (model support)
+- [x] Blocking users (BlockedUsersScreen)
+- [x] Profile visibility controls (ProfileVisibilityScreen)
+- [x] Pending requests (PendingRequestsScreen)
 
+---
+
+## Phase 4: Monetization
+
+- [ ] Banner ads integration
+- [ ] Interstitial ads integration
+- [ ] Rewarded video ads for bonus points
+
+---
+
+## Settings & Profile
+
+- [x] Settings main screen
+- [x] Account settings
+- [x] Profile settings
+- [x] Notification settings
+- [x] Privacy settings
+- [x] Audio settings
+- [x] Profile visibility settings
+
+---
+
+## Art Assets
+
+### Branding
+- [x] App icon (custom art added)
+- [x] Adaptive icon (custom art added)
+- [ ] Splash screen (needs art)
+- [x] Favicon (custom art added)
+
+### Hamster Character
+- [x] Happy/Fed state (Neutral.png)
+- [x] Chillin' state (Relaxed.png)
+- [x] Hungry state (hungry.png)
+- [x] Sad/Neglected state (sad.png)
+
+### Shop Items
+- [ ] Outfits (minimum 5 for launch)
+- [ ] Poses (minimum 5 for launch)
+- [ ] Enclosure items - small (minimum 5)
+- [ ] Enclosure items - large (minimum 3)
+
+### Workout Visuals
+- [ ] Exercise demonstration images OR
+- [ ] Hamster cheering animations OR
+- [ ] Static exercise illustrations
+
+### UI Elements
+- [ ] Navigation icons (using Ionicons as placeholders)
+- [ ] Action buttons (using Ionicons as placeholders)
+- [ ] Screen backgrounds
+
+### Audio
+- [ ] Workout music tracks
+- [ ] Ambient/home screen music
+- [ ] Sound effects (squeaks, celebrations, UI feedback)
+
+---
+
+## Architecture Summary
+
+### Context Providers (all implemented)
+- AuthContext - authentication state
+- UserProfileContext - user profile & onboarding
+- ActivityContext - workouts, streaks, points
+- InventoryContext - owned items & equipped gear
+- FriendContext - social features
+- NotificationContext - notification management
+
+### Services (all implemented)
+- WorkoutService - workout data & filtering
+- ShopService - shop items & purchases (user-specific inventory)
+- ActivityService - workout tracking (user-specific with Firestore)
+- FriendService - social interactions
+- NotificationService - notification scheduling
+- AudioService - sound management
+
+### Models (all implemented)
+- Activity, UserProfile, Workout, Friend
+- ShopItem, Notification, Growth
+- AudioPreferences, NotificationPreferences
+
+---
+
+## Bug Fixes & Code Quality (2026-02-11)
+
+### Critical Bugs Fixed
+- **FriendContext.js**: Was using `user` from AuthContext but AuthContext exports `currentUser` - all social features were broken
+- **ShopScreen.js & ShopCategoryScreen.js**: Were calling `spendPoints()` but ActivityContext exports `recordShopPurchase()` - purchases were crashing
+
+### High Severity Fixes
+- **ShopService.js**: Added `setShopUserId()` function and user-specific storage keys - inventory was being shared across all users
+- **InventoryContext.js**: Now integrates with user-specific ShopService, reloads on user change, resets on logout
+
+### Medium Severity Fixes
+- **UserProfileContext.js**: Wrapped `loadProfile` in `useCallback` with proper dependencies, improved local-first loading with Firestore background sync
+- **ActivityContext.js**: Fixed useEffect dependencies, removed eslint-disable comment
+- **FriendContext.js**: Added `useMemo` for stable `currentUserId`, added null checks to all action functions
+- **InventoryContext.js**: Added `error` state exposed to UI components
+
+### Low Severity Fixes
+- **WorkoutsScreen.js**: Wrapped `loadWorkouts` in `useCallback` with `[profile]` dependency
+- **NotificationContext.js**: Added error handling for notification listener setup/cleanup
+- **ActivityService.js**: Better timeout error distinction from other Firestore errors
+- **UserProfileContext.js**: Improved timeout handling, local storage fallback with clearer logging
+- **firebase.js**: Added documentation comments for environment variable best practices
+
+### Files Modified
+- `src/context/FriendContext.js`
+- `src/context/ActivityContext.js`
+- `src/context/InventoryContext.js`
+- `src/context/NotificationContext.js`
+- `src/context/UserProfileContext.js`
+- `src/screens/Shop/ShopScreen.js`
+- `src/screens/Shop/ShopCategoryScreen.js`
+- `src/screens/Workout/WorkoutsScreen.js`
+- `src/services/ShopService.js`
+- `src/services/ActivityService.js`
+- `src/config/firebase.js`
+
+---
+
+## Known Gaps & Next Steps
+
+### Blocking for MVP
+1. ~~**Real authentication** - Replace mock auth with Firebase/Supabase~~ ✅ Firebase Auth integrated
+2. **Art assets** - Need actual hamster graphics, not placeholders
+3. **Workout content** - Need real exercise database with instructions
+4. **Push notifications** - Need real device integration
+
+### Nice to Have for MVP
+1. ~~Apple/Google social sign-in~~ ✅ Code complete (Google needs iOS/Android client IDs for production)
+2. Contact import for friends
+3. Share link/QR for friend invites
+4. Ads integration
+
+### Post-MVP
+1. Workout music/audio
+2. Sound effects
+3. More shop items
+4. Improved exercise visuals/animations
+
+---
+
+## Current Asset Folder Structure
+
+```
+assets/
+├── branding/
+│   ├── adaptive-icon.png  (placeholder)
+│   ├── favicon.png        (placeholder)
+│   ├── icon.png           (placeholder)
+│   └── splash-icon.png    (placeholder)
+├── hamster/
+│   └── states/
+├── shop/
+│   ├── outfits/
+│   ├── poses/
+│   └── enclosure/
+├── workouts/
+│   ├── exercises/
+│   └── animations/
+├── ui/
+│   ├── icons/
+│   ├── buttons/
+│   └── backgrounds/
+└── audio/
+    ├── music/
+    └── sfx/
+```
+
+---
+
+*Last updated: 2026-02-11*
+
+---
+
+## Session Notes (2026-02-11)
+
+### Google Sign-In Status
+- **Code**: Complete and working
+- **Configuration**: Complete
+- **Google Cloud Console**: Configured with redirect URIs
+  - `https://auth.expo.io/@waxysplash/MuscleHamsterExpo` (Expo Go)
+  - `http://localhost:8081` (web browser testing) - Added to BOTH "Authorized JavaScript origins" AND "Authorized redirect URIs"
+- **Status**: TESTED AND WORKING (2026-02-12)
+
+### Apple Sign-In
+- Verified as fully implemented (was incorrectly marked incomplete in progress.md)
+
+---
+
+## Session Notes (2026-02-12)
+
+### Completed Today
+1. **Google Sign-In** - Tested and working on web (fixed redirect_uri_mismatch by adding to both JS origins AND redirect URIs)
+2. **Hamster Emotion Art** - Added 4 custom images:
+   - `Neutral.png` → happy state
+   - `Relaxed.png` → chillin' state
+   - `hungry.png` → hungry state
+   - `sad.png` → sad state
+3. **Updated Components** - Replaced SVG-based `HamsterView.js` and `HamsterPortrait.js` with image-based versions
+4. **App Icon** - Added custom art to `icon.png` and `adaptive-icon.png`
+5. **Favicon** - Added custom favicon
+
+### Still Needed
+- Splash screen image
+- Shop items art (outfits, poses, enclosure)
+- Privacy Policy
+
+### Completed
+- ~~Apple Developer Account~~ ✅ Already have one
+- ~~EAS Build setup~~ ✅ Configured and first preview build successful (2026-02-12)
+  - Build ID: `2be33d7b-f753-44dd-8fc3-83858db07665`
+  - Profile: preview (Ad Hoc)
+  - Bundle ID: `com.musclehamster.app`
+  - Apple Team: QQDD6T4S58
+  - **Install Link**: https://expo.dev/accounts/waxysplash/projects/MuscleHamsterExpo/builds/2be33d7b-f753-44dd-8fc3-83858db07665
+
+---
+
+*Last updated: 2026-02-12*

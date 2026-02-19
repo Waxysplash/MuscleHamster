@@ -29,11 +29,53 @@ export function NotificationProvider({ children }) {
   const [notificationContext, setNotificationContext] = useState(null);
   const [lastNotificationResponse, setLastNotificationResponse] = useState(null);
 
+  // Define all helper functions before useEffects that use them
+  const checkPermissionStatus = useCallback(async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    setPermissionStatus(status);
+    return status;
+  }, []);
+
+  const loadPreferences = useCallback(async () => {
+    try {
+      const stored = await AsyncStorage.getItem(PREFERENCES_STORAGE_KEY);
+      if (stored) {
+        setPreferences({ ...NotificationPreferencesDefaults, ...JSON.parse(stored) });
+      }
+    } catch (error) {
+      console.warn('Error loading notification preferences:', error);
+    }
+  }, []);
+
+  const savePreferences = useCallback(async (prefs) => {
+    try {
+      await AsyncStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(prefs));
+    } catch (error) {
+      console.warn('Error saving notification preferences:', error);
+    }
+  }, []);
+
+  const handleNotificationResponse = useCallback((response) => {
+    const { notification } = response;
+    const data = notification.request.content.data || {};
+
+    // Create context for the notification
+    const context = createNotificationContext({
+      notificationType: data.type || NotificationType.GENERAL,
+      tappedAt: new Date(),
+      hasCheckedInToday: data.hasCheckedInToday || false,
+      currentStreak: data.currentStreak || 0,
+    });
+
+    setNotificationContext(context);
+    setLastNotificationResponse(response);
+  }, []);
+
   // Check permission status on mount
   useEffect(() => {
     checkPermissionStatus();
     loadPreferences();
-  }, []);
+  }, [checkPermissionStatus, loadPreferences]);
 
   // Listen for notification interactions
   useEffect(() => {
@@ -57,12 +99,6 @@ export function NotificationProvider({ children }) {
     };
   }, [handleNotificationResponse]);
 
-  const checkPermissionStatus = async () => {
-    const { status } = await Notifications.getPermissionsAsync();
-    setPermissionStatus(status);
-    return status;
-  };
-
   const requestPermission = async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     setPermissionStatus(status);
@@ -79,46 +115,11 @@ export function NotificationProvider({ children }) {
     return status === 'granted';
   };
 
-  const loadPreferences = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(PREFERENCES_STORAGE_KEY);
-      if (stored) {
-        setPreferences({ ...NotificationPreferencesDefaults, ...JSON.parse(stored) });
-      }
-    } catch (error) {
-      console.warn('Error loading notification preferences:', error);
-    }
-  };
-
-  const savePreferences = async (prefs) => {
-    try {
-      await AsyncStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(prefs));
-    } catch (error) {
-      console.warn('Error saving notification preferences:', error);
-    }
-  };
-
   const updatePreferences = useCallback(async (updates) => {
     const updatedPrefs = { ...preferences, ...updates };
     setPreferences(updatedPrefs);
     await savePreferences(updatedPrefs);
-  }, [preferences]);
-
-  const handleNotificationResponse = useCallback((response) => {
-    const { notification } = response;
-    const data = notification.request.content.data || {};
-
-    // Create context for the notification
-    const context = createNotificationContext({
-      notificationType: data.type || NotificationType.GENERAL,
-      tappedAt: new Date(),
-      hasCheckedInToday: data.hasCheckedInToday || false,
-      currentStreak: data.currentStreak || 0,
-    });
-
-    setNotificationContext(context);
-    setLastNotificationResponse(response);
-  }, []);
+  }, [preferences, savePreferences]);
 
   const clearNotificationContext = useCallback(() => {
     setNotificationContext(null);

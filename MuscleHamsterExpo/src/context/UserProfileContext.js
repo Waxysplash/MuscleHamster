@@ -1,13 +1,18 @@
 // User Profile Context - Phase 03 (with Firestore)
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
 import { createEmptyProfile } from '../models/UserProfile';
 
-const PROFILE_STORAGE_KEY = '@MuscleHamster:userProfile';
-const ONBOARDING_PROGRESS_KEY = '@MuscleHamster:onboardingProgress';
+// User-specific storage keys
+const getProfileStorageKey = (userId) => `@MuscleHamster:userProfile:${userId}`;
+const getOnboardingProgressKey = (userId) => `@MuscleHamster:onboardingProgress:${userId}`;
+
+// Legacy keys (for migration)
+const LEGACY_PROFILE_KEY = '@MuscleHamster:userProfile';
+const LEGACY_ONBOARDING_KEY = '@MuscleHamster:onboardingProgress';
 
 const UserProfileContext = createContext(null);
 
@@ -24,6 +29,7 @@ export const UserProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [onboardingProgress, setOnboardingProgress] = useState(null);
+  const lastLoadedUserId = useRef(null);
 
   const loadProfile = useCallback(async () => {
     if (!currentUser?.id) {
@@ -32,135 +38,118 @@ export const UserProfileProvider = ({ children }) => {
       return;
     }
 
-    setIsLoading(true);
-    console.log('=== LOADING PROFILE ===');
-    console.log('User ID:', currentUser.id);
+    const userId = currentUser.id;
 
-    // Step 1: Load from AsyncStorage first for immediate availability
-    let localProfile = null;
-    let localProgress = null;
-    try {
-      const storedProfile = await AsyncStorage.getItem(PROFILE_STORAGE_KEY);
-      const storedProgress = await AsyncStorage.getItem(ONBOARDING_PROGRESS_KEY);
-
-      if (storedProfile) {
-        localProfile = JSON.parse(storedProfile);
-        console.log('Found local profile, profileComplete:', localProfile.profileComplete);
-      }
-      if (storedProgress) {
-        localProgress = JSON.parse(storedProgress);
-      }
-
-      // If we have a complete local profile, use it immediately
-      if (localProfile?.profileComplete) {
-        console.log('Using complete local profile');
-        setProfile(localProfile);
-        setOnboardingProgress(null);
-        setIsLoading(false);
-
-        // Sync with Firestore in background (don't await)
-        syncWithFirestore(localProfile);
-        return;
-      }
-    } catch (localError) {
-      console.warn('Failed to load from AsyncStorage:', localError);
+    // Prevent duplicate loads for same user
+    if (lastLoadedUserId.current === userId && profile?.profileComplete) {
+      console.log('Profile already loaded for this user');
+      setIsLoading(false);
+      return;
     }
 
-    // Step 2: Try Firestore if no complete local profile
+    setIsLoading(true);
+    console.log('=== LOADING PROFILE ===');
+    console.log('User ID:', userId);
+
+    // User-specific storage keys
+    const profileKey = getProfileStorageKey(userId);
+    const progressKey = getOnboardingProgressKey(userId);
+
+    // Step 1: Always check Firestore FIRST for authoritative data
+    // This ensures returning users always get their profile from the cloud
     try {
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Firestore timeout')), 5000)
+        setTimeout(() => reject(new Error('Firestore timeout')), 8000)
       );
 
-      const docRef = doc(db, 'users', currentUser.id);
-      console.log('Fetching from Firestore path: users/' + currentUser.id);
+      const docRef = doc(db, 'users', userId);
+      console.log('Fetching from Firestore path: users/' + userId);
 
       const docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
       console.log('Firestore response - exists:', docSnap.exists());
 
       if (docSnap.exists()) {
         const firestoreData = docSnap.data();
-        console.log('profileComplete:', firestoreData.profileComplete);
+        console.log('Firestore profileComplete:', firestoreData.profileComplete);
 
         if (firestoreData.profileComplete) {
-          // Full profile exists in Firestore - use it and save locally
+          // Full profile exists in Firestore - use it
+          console.log('=== FOUND COMPLETE PROFILE IN FIRESTORE ===');
           setProfile(firestoreData);
           setOnboardingProgress(null);
-          // Cache to AsyncStorage for next time
-          AsyncStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(firestoreData)).catch(e =>
+          lastLoadedUserId.current = userId;
+
+          // Cache to user-specific AsyncStorage for offline access
+          AsyncStorage.setItem(profileKey, JSON.stringify(firestoreData)).catch(e =>
             console.warn('Failed to cache profile locally:', e)
           );
+          setIsLoading(false);
+          return;
         } else if (firestoreData.onboardingProgress) {
           console.log('Profile not complete, restoring onboarding progress');
           setOnboardingProgress(firestoreData.onboardingProgress);
           setProfile(null);
-        } else {
-          // Use local data if available
-          if (localProfile) {
-            setProfile(localProfile);
-          }
-          if (localProgress) {
-            setOnboardingProgress(localProgress);
-          }
-        }
-      } else {
-        // No Firestore data - use local if available
-        if (localProfile) {
-          setProfile(localProfile);
-          // Migrate to Firestore in background
-          setDoc(docRef, localProfile).catch(e => console.warn('Migration failed:', e));
-        }
-        if (localProgress) {
-          setOnboardingProgress(localProgress);
+          lastLoadedUserId.current = userId;
+          setIsLoading(false);
+          return;
         }
       }
+
+      console.log('No complete profile in Firestore, checking local cache...');
     } catch (e) {
       const isTimeout = e.message === 'Firestore timeout';
       console.warn(isTimeout ? 'Firestore timed out' : 'Firestore failed:', e.message);
+      // Continue to check local storage as fallback
+    }
 
-      // Use local data as fallback
-      if (localProfile) {
-        setProfile(localProfile);
-        console.log('Using local profile as fallback');
+    // Step 2: Fall back to user-specific local storage (offline/timeout case)
+    try {
+      const storedProfile = await AsyncStorage.getItem(profileKey);
+      const storedProgress = await AsyncStorage.getItem(progressKey);
+
+      if (storedProfile) {
+        const localProfile = JSON.parse(storedProfile);
+        console.log('Found local profile, profileComplete:', localProfile.profileComplete);
+
+        if (localProfile?.profileComplete) {
+          console.log('Using complete local profile as fallback');
+          setProfile(localProfile);
+          setOnboardingProgress(null);
+          lastLoadedUserId.current = userId;
+          setIsLoading(false);
+          return;
+        }
       }
-      if (localProgress) {
+
+      if (storedProgress) {
+        const localProgress = JSON.parse(storedProgress);
         setOnboardingProgress(localProgress);
       }
-    } finally {
-      console.log('Profile loading complete');
-      setIsLoading(false);
+    } catch (localError) {
+      console.warn('Failed to load from AsyncStorage:', localError);
     }
-  }, [currentUser?.id]);
 
-  // Background sync with Firestore
-  const syncWithFirestore = async (localProfile) => {
-    try {
-      const docRef = doc(db, 'users', currentUser.id);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const firestoreData = docSnap.data();
-        // If Firestore has newer data, update local
-        if (firestoreData.updatedAt > (localProfile.updatedAt || 0)) {
-          setProfile(firestoreData);
-          await AsyncStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(firestoreData));
-        }
-      } else {
-        // Push local profile to Firestore
-        await setDoc(docRef, localProfile);
-      }
-    } catch (e) {
-      console.warn('Background Firestore sync failed:', e);
-    }
-  };
+    // No profile found anywhere - user needs onboarding
+    console.log('No profile found - user needs onboarding');
+    lastLoadedUserId.current = userId;
+    setIsLoading(false);
+  }, [currentUser?.id, profile?.profileComplete]);
 
   // Load profile when user changes
   useEffect(() => {
     if (currentUser?.id) {
+      // Reset state when user changes
+      if (lastLoadedUserId.current && lastLoadedUserId.current !== currentUser.id) {
+        console.log('User changed, resetting profile state');
+        setProfile(null);
+        setOnboardingProgress(null);
+        lastLoadedUserId.current = null;
+      }
       loadProfile();
     } else {
       setProfile(null);
       setOnboardingProgress(null);
+      lastLoadedUserId.current = null;
       setIsLoading(false);
     }
   }, [currentUser?.id, loadProfile]);
@@ -174,27 +163,32 @@ export const UserProfileProvider = ({ children }) => {
       throw new Error('No user logged in');
     }
 
+    const userId = currentUser.id;
+    const profileKey = getProfileStorageKey(userId);
+    const progressKey = getOnboardingProgressKey(userId);
+
     // Add timestamp for sync comparison
     const profileWithTimestamp = {
       ...newProfile,
+      userId: userId, // Store userId in profile for validation
       updatedAt: Date.now(),
     };
 
     // Always save to AsyncStorage first for immediate local availability
-    await AsyncStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileWithTimestamp));
+    await AsyncStorage.setItem(profileKey, JSON.stringify(profileWithTimestamp));
     setProfile(profileWithTimestamp);
-    console.log('Saved to AsyncStorage');
+    console.log('Saved to user-specific AsyncStorage');
 
     // Clear local onboarding progress when profile is complete
     if (newProfile.profileComplete) {
-      await AsyncStorage.removeItem(ONBOARDING_PROGRESS_KEY);
+      await AsyncStorage.removeItem(progressKey);
       setOnboardingProgress(null);
     }
 
     try {
       // Then save to Firestore for cloud sync
-      const docRef = doc(db, 'users', currentUser.id);
-      console.log('Writing to Firestore path: users/' + currentUser.id);
+      const docRef = doc(db, 'users', userId);
+      console.log('Writing to Firestore path: users/' + userId);
       await setDoc(docRef, profileWithTimestamp, { merge: true });
       console.log('=== PROFILE SAVED TO FIRESTORE ===');
 
@@ -211,15 +205,21 @@ export const UserProfileProvider = ({ children }) => {
 
   const saveOnboardingProgress = async (progress) => {
     try {
+      if (!currentUser?.id) {
+        console.warn('No user logged in, cannot save onboarding progress');
+        return;
+      }
+
+      const userId = currentUser.id;
+      const progressKey = getOnboardingProgressKey(userId);
+
       // Save locally for quick access during onboarding
-      await AsyncStorage.setItem(ONBOARDING_PROGRESS_KEY, JSON.stringify(progress));
+      await AsyncStorage.setItem(progressKey, JSON.stringify(progress));
       setOnboardingProgress(progress);
 
-      // Also save to Firestore if logged in
-      if (currentUser?.id) {
-        const docRef = doc(db, 'users', currentUser.id);
-        await setDoc(docRef, { onboardingProgress: progress }, { merge: true });
-      }
+      // Also save to Firestore
+      const docRef = doc(db, 'users', userId);
+      await setDoc(docRef, { onboardingProgress: progress }, { merge: true });
     } catch (e) {
       console.warn('Failed to save onboarding progress:', e);
     }
@@ -246,13 +246,19 @@ export const UserProfileProvider = ({ children }) => {
   const clearProfile = async () => {
     try {
       if (currentUser?.id) {
+        const userId = currentUser.id;
+        const profileKey = getProfileStorageKey(userId);
+        const progressKey = getOnboardingProgressKey(userId);
+
+        // Clear user-specific local storage
+        await AsyncStorage.removeItem(profileKey);
+        await AsyncStorage.removeItem(progressKey);
         // Don't delete from Firestore - just clear local state
         // User data stays in cloud
       }
-      await AsyncStorage.removeItem(PROFILE_STORAGE_KEY);
-      await AsyncStorage.removeItem(ONBOARDING_PROGRESS_KEY);
       setProfile(null);
       setOnboardingProgress(null);
+      lastLoadedUserId.current = null;
     } catch (e) {
       console.warn('Failed to clear profile:', e);
     }

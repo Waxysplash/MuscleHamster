@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
 
 export default function WelcomeScreen({ navigation }) {
   return (
@@ -8,7 +7,11 @@ export default function WelcomeScreen({ navigation }) {
       <View style={styles.content}>
         {/* Hero Section */}
         <View style={styles.hero}>
-          <Ionicons name="fitness" size={100} color="#007AFF" />
+          <Image
+            source={require('../../../assets/hamster/hamster-logo.png')}
+            style={styles.hamsterLogo}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>Ready to get moving?</Text>
           <Text style={styles.subtitle}>
             Your new workout buddy is excited to meet you!
@@ -57,6 +60,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  hamsterLogo: {
+    width: 150,
+    height: 150,
   },
   title: {
     fontSize: 32,

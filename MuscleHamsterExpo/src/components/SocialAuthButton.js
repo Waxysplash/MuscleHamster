@@ -1,28 +1,39 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function SocialAuthButton({ provider, onPress }) {
+export default function SocialAuthButton({ provider, onPress, loading = false, disabled = false }) {
   const isApple = provider === 'apple';
+  const isDisabled = loading || disabled;
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
         isApple ? styles.appleButton : styles.googleButton,
+        isDisabled && styles.buttonDisabled,
       ]}
       onPress={onPress}
-      accessibilityLabel={`Sign in with ${isApple ? 'Apple' : 'Google'}`}
+      disabled={isDisabled}
+      accessibilityLabel={loading ? `Signing in with ${isApple ? 'Apple' : 'Google'}` : `Sign in with ${isApple ? 'Apple' : 'Google'}`}
       accessibilityRole="button"
     >
-      <Ionicons
-        name={isApple ? 'logo-apple' : 'logo-google'}
-        size={20}
-        color={isApple ? '#fff' : '#000'}
-        style={styles.icon}
-      />
+      {loading ? (
+        <ActivityIndicator
+          size="small"
+          color={isApple ? '#fff' : '#000'}
+          style={styles.icon}
+        />
+      ) : (
+        <Ionicons
+          name={isApple ? 'logo-apple' : 'logo-google'}
+          size={20}
+          color={isApple ? '#fff' : '#000'}
+          style={styles.icon}
+        />
+      )}
       <Text style={[styles.text, isApple ? styles.appleText : styles.googleText]}>
-        Continue with {isApple ? 'Apple' : 'Google'}
+        {loading ? `Signing in...` : `Continue with ${isApple ? 'Apple' : 'Google'}`}
       </Text>
     </TouchableOpacity>
   );
@@ -44,6 +55,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#E5E5EA',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   icon: {
     marginRight: 10,

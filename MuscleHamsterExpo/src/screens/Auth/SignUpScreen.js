@@ -12,17 +12,40 @@ import {
 import AuthTextField from '../../components/AuthTextField';
 import SocialAuthButton from '../../components/SocialAuthButton';
 import { useAuth } from '../../context/AuthContext';
+import { useGoogleAuth } from '../../hooks/useGoogleAuth';
 
 export default function SignUpScreen({ navigation }) {
-  const { signUp, error, clearError } = useAuth();
+  const { signUp, signInWithApple, isAppleAvailable, error, clearError } = useAuth();
+  const { signIn: googleSignIn, loading: googleLoading, error: googleError } = useGoogleAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(null); // 'apple' | 'google' | null
 
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+
+  const handleAppleSignIn = async () => {
+    if (socialLoading) return;
+    setSocialLoading('apple');
+    clearError();
+
+    await signInWithApple();
+    // Auth state listener will handle navigation
+
+    setSocialLoading(null);
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (socialLoading) return;
+    setSocialLoading('google');
+    clearError();
+
+    await googleSignIn();
+    // Auth state listener will handle navigation
+  };
 
   // Validation
   const isValidEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email);
@@ -103,9 +126,9 @@ export default function SignUpScreen({ navigation }) {
         </View>
 
         {/* Auth Error */}
-        {error && (
+        {(error || googleError) && (
           <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{error}</Text>
+            <Text style={styles.errorBannerText}>{error || googleError}</Text>
           </View>
         )}
 
@@ -138,8 +161,20 @@ export default function SignUpScreen({ navigation }) {
         </View>
 
         {/* Social Buttons */}
-        <SocialAuthButton provider="apple" onPress={() => {}} />
-        <SocialAuthButton provider="google" onPress={() => {}} />
+        {Platform.OS === 'ios' && isAppleAvailable && (
+          <SocialAuthButton
+            provider="apple"
+            onPress={handleAppleSignIn}
+            loading={socialLoading === 'apple'}
+            disabled={!!socialLoading || isSubmitting}
+          />
+        )}
+        <SocialAuthButton
+          provider="google"
+          onPress={handleGoogleSignIn}
+          loading={socialLoading === 'google' || googleLoading}
+          disabled={!!socialLoading || isSubmitting || googleLoading}
+        />
 
         {/* Sign In Link */}
         <TouchableOpacity
