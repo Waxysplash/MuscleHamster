@@ -26,6 +26,16 @@ struct EnclosureView: View {
     private var hamsterSize: CGFloat { height * 0.4 }
     private var enclosureItemSize: CGFloat { height * 0.2 }
 
+    /// Whether the enclosure contains an exercise wheel
+    private var hasWheel: Bool {
+        enclosureItems.contains { ["wheel", "enc_wheel", "enclosure_wheel"].contains($0.id) }
+    }
+
+    /// Enclosure items excluding the wheel (rendered separately when animated)
+    private var nonWheelItems: [ShopItem] {
+        hasWheel ? enclosureItems.filter { !["wheel", "enc_wheel", "enclosure_wheel"].contains($0.id) } : enclosureItems
+    }
+
     /// Predefined positions for enclosure items (normalized 0-1)
     private let itemPositions: [(x: CGFloat, y: CGFloat, layer: ItemLayer)] = [
         (0.15, 0.35, .back),    // Back left
@@ -55,8 +65,12 @@ struct EnclosureView: View {
                 // Layer 3: Back items (behind hamster)
                 backItemsLayer(in: geometry)
 
-                // Layer 4: Hamster
-                hamsterLayer
+                // Layer 4: Hamster (on wheel if available, otherwise standing)
+                if hasWheel {
+                    wheelRunningLayer
+                } else {
+                    hamsterLayer
+                }
 
                 // Layer 5: Front items (in front of hamster)
                 frontItemsLayer(in: geometry)
@@ -184,15 +198,17 @@ struct EnclosureView: View {
         itemPositions.filter { $0.layer == .front }.map { (x: $0.x, y: $0.y) }
     }
 
-    /// Split items between front and back layers
+    /// Split items between front and back layers (excluding wheel when animated)
     private var backItems: [ShopItem] {
-        let count = min(enclosureItems.count, backPositions.count)
-        return Array(enclosureItems.prefix(count))
+        let items = nonWheelItems
+        let count = min(items.count, backPositions.count)
+        return Array(items.prefix(count))
     }
 
     private var frontItems: [ShopItem] {
-        let backCount = min(enclosureItems.count, backPositions.count)
-        let remaining = Array(enclosureItems.dropFirst(backCount))
+        let items = nonWheelItems
+        let backCount = min(items.count, backPositions.count)
+        let remaining = Array(items.dropFirst(backCount))
         return Array(remaining.prefix(frontPositions.count))
     }
 
@@ -207,6 +223,23 @@ struct EnclosureView: View {
 
             Spacer()
                 .frame(height: groundHeight * 0.3)
+        }
+    }
+
+    // MARK: - Wheel Running Layer
+
+    private var wheelRunningLayer: some View {
+        VStack {
+            Spacer()
+                .frame(height: height * 0.02)
+
+            WheelRunningView(
+                hamsterConfig: hamsterConfig,
+                size: height * 0.65
+            )
+
+            Spacer()
+                .frame(height: groundHeight * 0.1)
         }
     }
 
