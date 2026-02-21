@@ -1732,5 +1732,24 @@ Decision made (Session 38): The app has grown too complex for its core promise o
     - Hamster is always one stage (adult)
     - No growth badges or celebrations
     - Art requirements reduced: 2 states × 1 stage = **2 hamster assets only**
-  - **Ready for testing:** Simplified flow end-to-end
+  - **Committed & Pushed:** `96a2fda` — 14 files changed, 939 insertions, 239 deletions
+  - **Checklist Status:**
+    - [x] Create `FeatureFlags.swift` with toggles
+    - [x] Simplify onboarding flow (2 steps)
+    - [x] Simplify home screen (hub navigation)
+    - [x] Remove Social tab
+    - [x] Remove Workouts tab
+    - [x] Simplify Shop (12 items, no rarities)
+    - [x] Simplify Settings
+    - [x] Simplify hamster states (happy/hungry)
+    - [x] Eliminate growth stages (hamster always adult)
+    - [ ] Test simplified flow end-to-end
+  - **Art Requirements (Simplified):**
+    - 2 hamster assets: `hamster_happy.png`, `hamster_hungry.png`
+    - 12 shop items (4 outfits, 4 accessories, 4 enclosure)
+  - **Next Steps:**
+    - Build & test in Xcode
+    - Source 2 hamster art assets
+    - Verify 35 daily exercises work
+  - **Session 38 complete. Simplified MVP ready for testing.**
 
