@@ -141,14 +141,26 @@ struct HomeView: View {
                 // Notification context banner (Phase 08.3)
                 notificationBannerSection
 
-                // Friend nudge received banner (Phase 09.6)
-                nudgeReceivedBannerSection
+                // Friend nudge received banner (Phase 09.6) - only if social features enabled
+                if FeatureFlags.socialFeatures {
+                    nudgeReceivedBannerSection
+                }
 
                 hamsterSection
                 todayStatusSection
-                tipSection
+
+                // Tip section - only if tips rotation enabled
+                if FeatureFlags.tipsRotation {
+                    tipSection
+                }
+
                 dailyActionsSection
                 streakSection
+
+                // Simplified MVP: Quick access buttons (Shop, Inventory, Settings)
+                if !FeatureFlags.tabBarNavigation {
+                    quickAccessSection
+                }
             }
             .padding()
         }
@@ -263,7 +275,7 @@ struct HomeView: View {
             // Hamster enclosure with equipped items (Phase 10)
             EnclosureView(
                 state: hamsterState,
-                growthStage: currentGrowthStage,
+                growthStage: FeatureFlags.growthMilestones ? currentGrowthStage : .adult,
                 equipped: equippedItems,
                 height: 280,
                 showCustomizeButton: true,
@@ -281,20 +293,22 @@ struct HomeView: View {
 
                 // Growth stage and state badges
                 HStack(spacing: 8) {
-                    // Growth stage badge
-                    HStack(spacing: 4) {
-                        Image(systemName: currentGrowthStage.icon)
-                            .font(.caption2)
-                        Text(currentGrowthStage.displayName)
-                            .font(.caption2)
-                            .fontWeight(.medium)
+                    // Growth stage badge (only if growth milestones enabled)
+                    if FeatureFlags.growthMilestones {
+                        HStack(spacing: 4) {
+                            Image(systemName: currentGrowthStage.icon)
+                                .font(.caption2)
+                            Text(currentGrowthStage.displayName)
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundStyle(growthStageColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(growthStageColor.opacity(0.15))
+                        .clipShape(Capsule())
+                        .accessibilityLabel("Growth stage: \(currentGrowthStage.displayName)")
                     }
-                    .foregroundStyle(growthStageColor)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(growthStageColor.opacity(0.15))
-                    .clipShape(Capsule())
-                    .accessibilityLabel("Growth stage: \(currentGrowthStage.displayName)")
 
                     // State badge
                     HStack(spacing: 4) {
@@ -544,78 +558,84 @@ struct HomeView: View {
             if hasDailyCheckIn {
                 // Already completed daily exercise — green checkmark card
                 dailyExerciseCompletedView
-            } else if hasRestDayToday {
-                // Rest day was done instead — show that
+            } else if hasRestDayToday && FeatureFlags.restDayCheckIn {
+                // Rest day was done instead — show that (only if rest day feature is enabled)
                 dailyExerciseUnavailableView(reason: "Rest day check-in done today")
             } else {
                 // Daily exercise available — THE primary action
                 dailyExerciseCard
             }
 
-            // Secondary row: Workout and Rest Day buttons
-            HStack(spacing: 12) {
-                // Start a Workout button (always available)
-                Button {
-                    // Workout action placeholder - will navigate to workouts tab
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "figure.run")
-                            .font(.subheadline)
-                        Text("Start a Workout")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption2)
-                    }
-                    .padding(12)
-                    .background(Color.accentColor.opacity(0.1))
-                    .cornerRadius(10)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Start a workout")
-                .accessibilityHint("Opens the workout selection")
-
-                // Rest Day Check-in button
-                if hasLightCheckIn || hasWorkoutToday {
-                    // Already checked in — disabled state
-                    HStack(spacing: 6) {
-                        Image(systemName: "moon.stars.fill")
-                            .font(.subheadline)
-                        Text("Rest Day")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        Spacer()
-                        Image(systemName: "checkmark")
-                            .font(.caption2)
-                    }
-                    .padding(12)
-                    .foregroundStyle(.secondary)
-                    .background(Color.gray.opacity(0.08))
-                    .cornerRadius(10)
-                    .accessibilityLabel("Rest day check-in not available")
-                } else {
-                    Button {
-                        showRestDayCheckIn = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "moon.stars.fill")
-                                .font(.subheadline)
-                            Text("Rest Day")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption2)
+            // Secondary row: Workout and Rest Day buttons (only if features enabled)
+            if FeatureFlags.workoutLibrary || FeatureFlags.restDayCheckIn {
+                HStack(spacing: 12) {
+                    // Start a Workout button (only if workout library enabled)
+                    if FeatureFlags.workoutLibrary {
+                        Button {
+                            // Workout action placeholder - will navigate to workouts tab
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "figure.run")
+                                    .font(.subheadline)
+                                Text("Start a Workout")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                            }
+                            .padding(12)
+                            .background(Color.accentColor.opacity(0.1))
+                            .cornerRadius(10)
                         }
-                        .padding(12)
-                        .foregroundStyle(.purple)
-                        .background(Color.purple.opacity(0.08))
-                        .cornerRadius(10)
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Start a workout")
+                        .accessibilityHint("Opens the workout selection")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Rest day check-in")
-                    .accessibilityHint("Log a rest day and spend time with your hamster")
+
+                    // Rest Day Check-in button (only if rest day feature enabled)
+                    if FeatureFlags.restDayCheckIn {
+                        if hasLightCheckIn || hasWorkoutToday {
+                            // Already checked in — disabled state
+                            HStack(spacing: 6) {
+                                Image(systemName: "moon.stars.fill")
+                                    .font(.subheadline)
+                                Text("Rest Day")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Spacer()
+                                Image(systemName: "checkmark")
+                                    .font(.caption2)
+                            }
+                            .padding(12)
+                            .foregroundStyle(.secondary)
+                            .background(Color.gray.opacity(0.08))
+                            .cornerRadius(10)
+                            .accessibilityLabel("Rest day check-in not available")
+                        } else {
+                            Button {
+                                showRestDayCheckIn = true
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "moon.stars.fill")
+                                        .font(.subheadline)
+                                    Text("Rest Day")
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption2)
+                                }
+                                .padding(12)
+                                .foregroundStyle(.purple)
+                                .background(Color.purple.opacity(0.08))
+                                .cornerRadius(10)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Rest day check-in")
+                            .accessibilityHint("Log a rest day and spend time with your hamster")
+                        }
+                    }
                 }
             }
         }
@@ -968,6 +988,64 @@ struct HomeView: View {
         }
     }
 
+    // MARK: - Quick Access Section (Hub Navigation for Simplified MVP)
+
+    @State private var showShop = false
+
+    private var quickAccessSection: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                // Shop button
+                Button {
+                    showShop = true
+                } label: {
+                    quickAccessButton(
+                        icon: "bag.fill",
+                        title: "Shop",
+                        color: .purple
+                    )
+                }
+                .accessibilityLabel("Open Shop")
+                .accessibilityHint("Browse items to customize your hamster")
+
+                // Inventory button
+                Button {
+                    showInventory = true
+                } label: {
+                    quickAccessButton(
+                        icon: "tray.full.fill",
+                        title: "My Items",
+                        color: .pink
+                    )
+                }
+                .accessibilityLabel("Open Inventory")
+                .accessibilityHint("View and equip your items")
+            }
+        }
+        .sheet(isPresented: $showShop) {
+            NavigationStack {
+                ShopView()
+            }
+        }
+    }
+
+    private func quickAccessButton(icon: String, title: String, color: Color) -> some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(color)
+
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(color.opacity(0.1))
+        .cornerRadius(12)
+    }
+
     // MARK: - Data Loading
 
     /// Synchronous wrapper for use in sheet callbacks
@@ -1010,11 +1088,13 @@ struct HomeView: View {
 
             guard !Task.isCancelled else { return }
 
-            // Phase 07.4: Load growth stage and check for pending celebration
-            currentGrowthStage = await activityService.getCurrentGrowthStage(userId: userId)
-            if let milestone = await activityService.getPendingGrowthCelebration(userId: userId) {
-                pendingGrowthMilestone = milestone
-                showGrowthCelebration = true
+            // Phase 07.4: Load growth stage and check for pending celebration (only if enabled)
+            if FeatureFlags.growthMilestones {
+                currentGrowthStage = await activityService.getCurrentGrowthStage(userId: userId)
+                if let milestone = await activityService.getPendingGrowthCelebration(userId: userId) {
+                    pendingGrowthMilestone = milestone
+                    showGrowthCelebration = true
+                }
             }
 
             guard !Task.isCancelled else { return }
@@ -1032,13 +1112,15 @@ struct HomeView: View {
 
             guard !Task.isCancelled else { return }
 
-            // Phase 09.6: Load received nudges
-            let nudges = await friendService.getRecentReceivedNudges(userId: userId)
-            if !nudges.isEmpty {
-                receivedNudges = nudges
-                // Only show banner if not showing growth celebration or streak freeze
-                if pendingGrowthMilestone == nil && !showStreakFreeze {
-                    showNudgeBanner = true
+            // Phase 09.6: Load received nudges (only if social features enabled)
+            if FeatureFlags.socialFeatures {
+                let nudges = await friendService.getRecentReceivedNudges(userId: userId)
+                if !nudges.isEmpty {
+                    receivedNudges = nudges
+                    // Only show banner if not showing growth celebration or streak freeze
+                    if pendingGrowthMilestone == nil && !showStreakFreeze {
+                        showNudgeBanner = true
+                    }
                 }
             }
         }

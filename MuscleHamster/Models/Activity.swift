@@ -651,8 +651,20 @@ enum HamsterState: String, Codable, CaseIterable {
     case excited        // On a streak, extra happy
     case proud          // Major milestone achieved
 
-    var displayName: String {
+    /// Returns simplified state (happy/hungry only) when feature flag is enabled
+    var simplified: HamsterState {
+        if !FeatureFlags.simplifiedHamsterStates { return self }
         switch self {
+        case .hungry, .chillin:
+            return .hungry
+        case .happy, .excited, .proud:
+            return .happy
+        }
+    }
+
+    var displayName: String {
+        let state = FeatureFlags.simplifiedHamsterStates ? simplified : self
+        switch state {
         case .hungry: return "Hungry"
         case .chillin: return "Chillin'"
         case .happy: return "Happy"
@@ -662,27 +674,28 @@ enum HamsterState: String, Codable, CaseIterable {
     }
 
     var description: String {
-        switch self {
-        case .hungry: return "I could use some snacks! Let's do a workout together."
-        case .chillin: return "I'm just hanging out. Ready when you are!"
-        case .happy: return "I'm feeling great! Thanks for the workout."
-        case .excited: return "We're on a roll! Keep up the amazing work!"
-        case .proud: return "Wow, look at us! I'm so proud of what we've done!"
+        let state = FeatureFlags.simplifiedHamsterStates ? simplified : self
+        switch state {
+        case .hungry, .chillin:
+            return "I'm waiting for you! Let's check in together."
+        case .happy, .excited, .proud:
+            return "I'm feeling great! Thanks for checking in."
         }
     }
 
     var greeting: String {
-        switch self {
-        case .hungry: return "Hey there! I'm getting a little hungry..."
-        case .chillin: return "Hey! I'm just lounging around."
-        case .happy: return "Hey! I'm so happy to see you!"
-        case .excited: return "Hey!! We're doing amazing!"
-        case .proud: return "Look at us! We're unstoppable!"
+        let state = FeatureFlags.simplifiedHamsterStates ? simplified : self
+        switch state {
+        case .hungry, .chillin:
+            return "Hey there! Ready to check in?"
+        case .happy, .excited, .proud:
+            return "Hey! I'm so happy to see you!"
         }
     }
 
     var icon: String {
-        switch self {
+        let state = FeatureFlags.simplifiedHamsterStates ? simplified : self
+        switch state {
         case .hungry: return "fork.knife.circle"
         case .chillin: return "leaf.circle"
         case .happy: return "heart.circle.fill"
@@ -692,12 +705,12 @@ enum HamsterState: String, Codable, CaseIterable {
     }
 
     var color: String {
-        switch self {
-        case .hungry: return "orange"
-        case .chillin: return "blue"
-        case .happy: return "green"
-        case .excited: return "yellow"
-        case .proud: return "purple"
+        let state = FeatureFlags.simplifiedHamsterStates ? simplified : self
+        switch state {
+        case .hungry, .chillin:
+            return "orange"
+        case .happy, .excited, .proud:
+            return "green"
         }
     }
 }

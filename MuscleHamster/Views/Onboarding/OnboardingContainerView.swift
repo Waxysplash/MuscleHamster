@@ -89,7 +89,7 @@ struct OnboardingContainerView: View {
             }
         }
         .frame(height: 8)
-        .accessibilityLabel("Progress: step \(viewModel.currentStep.rawValue + 1) of \(OnboardingStep.totalSteps)")
+        .accessibilityLabel("Progress: step \(Int(viewModel.progressFraction * Double(OnboardingStep.totalSteps))) of \(OnboardingStep.totalSteps)")
     }
 
     // MARK: - Step Content
@@ -182,6 +182,11 @@ struct OnboardingContainerView: View {
         default:
             return "Continue to next question"
         }
+    }
+
+    /// Welcome message for simplified onboarding (shown on first step)
+    private var showWelcomeHeader: Bool {
+        FeatureFlags.simplifiedOnboarding && viewModel.currentStep == .hamsterName
     }
 
     // MARK: - Loading Overlay

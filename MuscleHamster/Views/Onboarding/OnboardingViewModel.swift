@@ -32,14 +32,32 @@ enum OnboardingStep: Int, CaseIterable {
         }
     }
 
-    static var totalSteps: Int { allCases.count }
+    static var totalSteps: Int {
+        if FeatureFlags.simplifiedOnboarding {
+            return simplifiedSteps.count
+        }
+        return allCases.count
+    }
+
+    /// Steps used in simplified onboarding (just name + meet)
+    static var simplifiedSteps: [OnboardingStep] {
+        [.hamsterName, .meetHamster]
+    }
+
+    /// Get the first step based on onboarding mode
+    static var firstStep: OnboardingStep {
+        if FeatureFlags.simplifiedOnboarding {
+            return .hamsterName
+        }
+        return .age
+    }
 }
 
 @MainActor
 class OnboardingViewModel: ObservableObject {
     // MARK: - Published Properties
 
-    @Published var currentStep: OnboardingStep = .age
+    @Published var currentStep: OnboardingStep = OnboardingStep.firstStep
     @Published var profile: UserProfile
     @Published var isLoading = false
     @Published var error: String?
@@ -51,16 +69,41 @@ class OnboardingViewModel: ObservableObject {
         // Attempt to restore partial progress
         if let savedProfile = UserProfile.loadFromUserDefaults() {
             self.profile = savedProfile
-            self.currentStep = OnboardingStep(rawValue: savedProfile.currentStep) ?? .age
+            // Restore step, but respect simplified mode
+            if FeatureFlags.simplifiedOnboarding {
+                // In simplified mode, only valid steps are hamsterName and meetHamster
+                let savedStep = OnboardingStep(rawValue: savedProfile.currentStep)
+                if savedStep == .hamsterName || savedStep == .meetHamster {
+                    self.currentStep = savedStep!
+                } else {
+                    self.currentStep = .hamsterName
+                }
+            } else {
+                self.currentStep = OnboardingStep(rawValue: savedProfile.currentStep) ?? .age
+            }
         } else {
             self.profile = UserProfile()
+            self.currentStep = OnboardingStep.firstStep
         }
     }
 
     // MARK: - Navigation
 
+    /// Steps to use based on onboarding mode
+    private var activeSteps: [OnboardingStep] {
+        if FeatureFlags.simplifiedOnboarding {
+            return OnboardingStep.simplifiedSteps
+        }
+        return OnboardingStep.allCases
+    }
+
+    /// Current index within active steps
+    private var currentStepIndex: Int {
+        activeSteps.firstIndex(of: currentStep) ?? 0
+    }
+
     var canGoBack: Bool {
-        currentStep.rawValue > 0
+        currentStepIndex > 0
     }
 
     var canProceed: Bool {
@@ -87,16 +130,17 @@ class OnboardingViewModel: ObservableObject {
     }
 
     var isLastStep: Bool {
-        currentStep.rawValue == OnboardingStep.totalSteps - 1
+        currentStepIndex == activeSteps.count - 1
     }
 
     var progressFraction: Double {
-        Double(currentStep.rawValue + 1) / Double(OnboardingStep.totalSteps)
+        Double(currentStepIndex + 1) / Double(activeSteps.count)
     }
 
     func goBack() {
         guard canGoBack else { return }
-        currentStep = OnboardingStep(rawValue: currentStep.rawValue - 1) ?? .age
+        let newIndex = currentStepIndex - 1
+        currentStep = activeSteps[newIndex]
         saveProgress()
     }
 
@@ -108,7 +152,8 @@ class OnboardingViewModel: ObservableObject {
             return
         }
 
-        currentStep = OnboardingStep(rawValue: currentStep.rawValue + 1) ?? currentStep
+        let newIndex = currentStepIndex + 1
+        currentStep = activeSteps[newIndex]
         profile.currentStep = currentStep.rawValue
         saveProgress()
     }
@@ -161,12 +206,17 @@ class OnboardingViewModel: ObservableObject {
     func clearProgress() {
         UserProfile.clearFromUserDefaults()
         profile = UserProfile()
-        currentStep = .age
+        currentStep = OnboardingStep.firstStep
     }
 
     // MARK: - Completion
 
     func completeOnboarding() async -> UserProfile? {
+        // Apply defaults for simplified onboarding
+        if FeatureFlags.simplifiedOnboarding {
+            profile.applySimplifiedDefaults()
+        }
+
         guard profile.isComplete else {
             error = "Please complete all questions before continuing."
             return nil

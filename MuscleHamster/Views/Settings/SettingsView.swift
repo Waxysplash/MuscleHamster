@@ -56,17 +56,36 @@ struct SettingsView: View {
     private var settingsList: some View {
         List {
             accountSection
+
+            // Profile section (simplified in MVP - just hamster name)
             if authViewModel.userProfile != nil {
                 profileSection
             }
+
+            // Points section (hide transaction history in simplified mode)
             if isSignedIn {
                 pointsSection
             }
-            workoutScheduleSection
+
+            // Workout schedule - only if workout library enabled
+            if FeatureFlags.workoutLibrary {
+                workoutScheduleSection
+            }
+
             notificationsSection
-            audioSection
-            privacySection
+
+            // Audio settings - only if audio system enabled
+            if FeatureFlags.audioSystem {
+                audioSection
+            }
+
+            // Privacy settings - only if social features enabled
+            if FeatureFlags.socialFeatures {
+                privacySection
+            }
+
             supportSection
+
             if isSignedIn {
                 signOutSection
             }
@@ -168,7 +187,7 @@ struct SettingsView: View {
     // MARK: - Profile Section
 
     private var profileSection: some View {
-        Section("My Profile") {
+        Section("My Hamster") {
             NavigationLink {
                 ProfileSettingsView()
             } label: {
@@ -193,7 +212,10 @@ struct SettingsView: View {
                             Text("Your Hamster")
                                 .font(.headline)
                         }
-                        Text("Fitness goals, schedule, and preferences")
+                        // Simplified subtitle when complex profile editing is disabled
+                        Text(FeatureFlags.complexOnboarding
+                            ? "Fitness goals, schedule, and preferences"
+                            : "Edit your hamster's name")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -205,49 +227,63 @@ struct SettingsView: View {
     }
 
     private var profileAccessibilityLabel: String {
+        let subtitle = FeatureFlags.complexOnboarding
+            ? "Edit fitness goals, schedule, and preferences"
+            : "Edit your hamster's name"
         if let name = authViewModel.userProfile?.hamsterName {
-            return "\(name): Edit fitness goals, schedule, and preferences"
+            return "\(name): \(subtitle)"
         }
-        return "Your Hamster: Edit fitness goals, schedule, and preferences"
+        return "Your Hamster: \(subtitle)"
     }
 
     // MARK: - Points Section
 
     private var pointsSection: some View {
         Section("Points & Rewards") {
-            NavigationLink {
-                PointsHistoryView()
-            } label: {
-                HStack(spacing: 12) {
-                    // Points icon
-                    ZStack {
-                        Circle()
-                            .fill(Color.yellow.opacity(0.2))
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: "star.fill")
-                            .font(.title3)
-                            .foregroundStyle(.yellow)
-                    }
-                    .accessibilityHidden(true)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 4) {
-                            Text(formattedPoints)
-                                .font(.headline)
-                            Text("points")
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                        }
-                        Text("View your points history")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+            // Show as NavigationLink only if transaction history is enabled
+            if FeatureFlags.transactionHistory {
+                NavigationLink {
+                    PointsHistoryView()
+                } label: {
+                    pointsRow
                 }
-                .padding(.vertical, 4)
+                .accessibilityLabel("\(totalPoints) points. View your points history")
+            } else {
+                // Simplified: Just show points balance, no navigation
+                pointsRow
+                    .accessibilityLabel("\(totalPoints) points")
             }
-            .accessibilityLabel("\(totalPoints) points. View your points history")
         }
+    }
+
+    private var pointsRow: some View {
+        HStack(spacing: 12) {
+            // Points icon
+            ZStack {
+                Circle()
+                    .fill(Color.yellow.opacity(0.2))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: "star.fill")
+                    .font(.title3)
+                    .foregroundStyle(.yellow)
+            }
+            .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text(formattedPoints)
+                        .font(.headline)
+                    Text("points")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+                Text(FeatureFlags.transactionHistory ? "View your points history" : "Earn points by checking in daily")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 
     private var formattedPoints: String {

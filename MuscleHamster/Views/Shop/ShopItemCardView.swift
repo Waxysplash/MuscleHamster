@@ -99,8 +99,8 @@ struct ShopItemCardView: View {
                 .font(.system(size: size.iconSize))
                 .foregroundStyle(.white.opacity(0.9))
 
-            // Rarity badge
-            if item.rarity != .common {
+            // Rarity badge (only if rarity system enabled)
+            if FeatureFlags.raritySystem && item.rarity != .common {
                 VStack {
                     HStack {
                         Spacer()
@@ -170,7 +170,7 @@ struct ShopItemCardView: View {
     private var rarityBorder: some View {
         RoundedRectangle(cornerRadius: 16)
             .strokeBorder(
-                item.rarity == .legendary || item.rarity == .rare
+                FeatureFlags.raritySystem && (item.rarity == .legendary || item.rarity == .rare)
                     ? rarityColor.opacity(0.5)
                     : Color.clear,
                 lineWidth: 2
@@ -254,10 +254,12 @@ struct FeaturedShopItemCard: View {
 
                     Spacer()
 
-                    // Rarity
-                    Image(systemName: item.rarity.badgeIcon)
-                        .font(.caption)
-                        .foregroundStyle(rarityColor)
+                    // Rarity (only if rarity system enabled)
+                    if FeatureFlags.raritySystem {
+                        Image(systemName: item.rarity.badgeIcon)
+                            .font(.caption)
+                            .foregroundStyle(rarityColor)
+                    }
                 }
 
                 Text(item.description)
@@ -296,7 +298,7 @@ struct FeaturedShopItemCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(
-                    item.rarity == .legendary ? Color.purple.opacity(0.4) : Color.clear,
+                    FeatureFlags.raritySystem && item.rarity == .legendary ? Color.purple.opacity(0.4) : Color.clear,
                     lineWidth: 2
                 )
         )

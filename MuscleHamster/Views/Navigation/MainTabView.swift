@@ -4,6 +4,7 @@
 //
 //  Primary tab bar navigation for the app
 //  Phase 08.3: Added notification tap routing support
+//  Simplified MVP: Conditional tab bar based on FeatureFlags
 //
 
 import SwiftUI
@@ -38,6 +39,21 @@ struct MainTabView: View {
     @ObservedObject private var routingState = AppRoutingState.shared
 
     var body: some View {
+        // Simplified MVP: No tab bar, just HomeView as hub
+        if !FeatureFlags.tabBarNavigation {
+            HomeView()
+                .onChange(of: routingState.shouldNavigateToHome) { shouldNavigate in
+                    if shouldNavigate {
+                        routingState.clearPendingDestination()
+                    }
+                }
+        } else {
+            // Full tab bar navigation
+            tabBarView
+        }
+    }
+
+    private var tabBarView: some View {
         TabView(selection: $selectedTab) {
             HomeView()
                 .tabItem {
@@ -46,12 +62,15 @@ struct MainTabView: View {
                 .tag(Tab.home)
                 .accessibilityLabel(Tab.home.accessibilityLabel)
 
-            WorkoutsView()
-                .tabItem {
-                    Label(Tab.workouts.rawValue, systemImage: Tab.workouts.icon)
-                }
-                .tag(Tab.workouts)
-                .accessibilityLabel(Tab.workouts.accessibilityLabel)
+            // Workouts tab - only if workout library enabled
+            if FeatureFlags.workoutLibrary {
+                WorkoutsView()
+                    .tabItem {
+                        Label(Tab.workouts.rawValue, systemImage: Tab.workouts.icon)
+                    }
+                    .tag(Tab.workouts)
+                    .accessibilityLabel(Tab.workouts.accessibilityLabel)
+            }
 
             ShopView()
                 .tabItem {
@@ -60,12 +79,15 @@ struct MainTabView: View {
                 .tag(Tab.shop)
                 .accessibilityLabel(Tab.shop.accessibilityLabel)
 
-            SocialView()
-                .tabItem {
-                    Label(Tab.social.rawValue, systemImage: Tab.social.icon)
-                }
-                .tag(Tab.social)
-                .accessibilityLabel(Tab.social.accessibilityLabel)
+            // Social tab - only if social features enabled
+            if FeatureFlags.socialFeatures {
+                SocialView()
+                    .tabItem {
+                        Label(Tab.social.rawValue, systemImage: Tab.social.icon)
+                    }
+                    .tag(Tab.social)
+                    .accessibilityLabel(Tab.social.accessibilityLabel)
+            }
         }
         .tint(.accentColor)
         .onChange(of: routingState.shouldNavigateToHome) { shouldNavigate in

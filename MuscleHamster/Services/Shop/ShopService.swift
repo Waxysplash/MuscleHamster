@@ -170,20 +170,47 @@ actor MockShopService: ShopServiceProtocol {
     func getAllItems() async throws -> [ShopItem] {
         // Simulate network delay
         try? await Task.sleep(nanoseconds: 200_000_000)
+
+        // Simplified MVP: Return limited items (4 per category = 12 total)
+        if !FeatureFlags.raritySystem {
+            return simplifiedCatalog
+        }
         return catalog
+    }
+
+    /// Simplified catalog with fewer items (4 per category)
+    private var simplifiedCatalog: [ShopItem] {
+        var items: [ShopItem] = []
+        for category in ShopItemCategory.allCases {
+            let categoryItems = catalog.filter { $0.category == category }
+            // Take first 4 items of each category (sorted by price for variety)
+            items.append(contentsOf: categoryItems.sorted { $0.price < $1.price }.prefix(4))
+        }
+        return items
     }
 
     // MARK: - Get Items by Category
 
     func getItems(in category: ShopItemCategory) async throws -> [ShopItem] {
         try? await Task.sleep(nanoseconds: 150_000_000)
-        return catalog.filter { $0.category == category }
+        let categoryItems = catalog.filter { $0.category == category }
+
+        // Simplified MVP: Return limited items per category
+        if !FeatureFlags.raritySystem {
+            return Array(categoryItems.sorted { $0.price < $1.price }.prefix(4))
+        }
+        return categoryItems
     }
 
     // MARK: - Get Featured Items
 
     func getFeaturedItems() async throws -> [ShopItem] {
         try? await Task.sleep(nanoseconds: 100_000_000)
+
+        // Simplified MVP: No featured section
+        if !FeatureFlags.raritySystem {
+            return []
+        }
         return catalog.filter { $0.isFeatured }
     }
 

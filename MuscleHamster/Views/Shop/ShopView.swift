@@ -313,7 +313,8 @@ struct ShopView: View {
     // MARK: - New Arrivals Section
 
     private var newArrivalsSection: some View {
-        let newItems = allItems.filter { $0.isNew }
+        // Hide new arrivals section in simplified mode
+        let newItems = FeatureFlags.raritySystem ? allItems.filter { $0.isNew } : []
 
         return Group {
             if !newItems.isEmpty {

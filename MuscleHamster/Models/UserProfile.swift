@@ -46,14 +46,31 @@ struct UserProfile: Codable, Equatable {
 
     /// Whether all required fields are filled
     var isComplete: Bool {
-        age != nil &&
-        fitnessLevel != nil &&
-        !fitnessGoals.isEmpty &&
-        weeklyWorkoutGoal != nil &&
-        schedulePreference != nil &&
-        preferredWorkoutTime != nil &&
-        fitnessIntent != nil &&
-        hamsterName != nil && !hamsterName!.isEmpty
+        if FeatureFlags.simplifiedOnboarding {
+            // Simplified MVP: only hamster name required
+            return hamsterName != nil && !hamsterName!.isEmpty
+        } else {
+            // Full onboarding: all fields required
+            return age != nil &&
+                fitnessLevel != nil &&
+                !fitnessGoals.isEmpty &&
+                weeklyWorkoutGoal != nil &&
+                schedulePreference != nil &&
+                preferredWorkoutTime != nil &&
+                fitnessIntent != nil &&
+                hamsterName != nil && !hamsterName!.isEmpty
+        }
+    }
+
+    /// Apply default values for simplified onboarding (skipped questions)
+    mutating func applySimplifiedDefaults() {
+        if age == nil { age = 18 }
+        if fitnessLevel == nil { fitnessLevel = .beginner }
+        if fitnessGoals.isEmpty { fitnessGoals = [.generalFitness] }
+        if weeklyWorkoutGoal == nil { weeklyWorkoutGoal = 3 }
+        if schedulePreference == nil { schedulePreference = .flexible }
+        if preferredWorkoutTime == nil { preferredWorkoutTime = .noPreference }
+        if fitnessIntent == nil { fitnessIntent = .maintenance }
     }
 
     // MARK: - Hamster Name Validation

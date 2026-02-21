@@ -120,10 +120,25 @@ struct ShopItem: Codable, Identifiable, Equatable {
 
     /// Accessibility label for VoiceOver
     var accessibilityLabel: String {
-        var label = "\(name), \(rarity.displayName) \(category.displayName)"
+        var label = name
+        // Only include rarity if feature is enabled
+        if FeatureFlags.raritySystem {
+            label += ", \(rarity.displayName)"
+        }
+        label += " \(category.displayName)"
         label += ", \(price) points"
-        if isNew { label += ", new item" }
+        if isNew && FeatureFlags.raritySystem { label += ", new item" }
         return label
+    }
+
+    /// Whether to show rarity badge (based on feature flag)
+    var showRarity: Bool {
+        FeatureFlags.raritySystem
+    }
+
+    /// Whether to show "NEW" badge (based on feature flag)
+    var showNewBadge: Bool {
+        isNew && FeatureFlags.raritySystem
     }
 }
 
@@ -251,6 +266,11 @@ struct PurchaseResult: Equatable {
     var hamsterReaction: String {
         guard success, let item = item else {
             return "That's okay! We can save up for it together."
+        }
+
+        // Simplified reaction when rarity system is disabled
+        if !FeatureFlags.raritySystem {
+            return "Yay! I love my new \(item.name.lowercased())!"
         }
 
         switch item.rarity {

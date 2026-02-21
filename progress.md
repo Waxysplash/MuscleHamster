@@ -1,67 +1,67 @@
 # Muscle Hamster — Progress
 
-**Status:** Post-MVP — Content/Asset Production
-**Active Phase:** Content & Asset Production — Workout Content + Art Sourcing
-**Last Updated:** Feb 18, 2026 (Session 36)
+**Status:** SIMPLIFIED MVP — Implementation
+**Active Phase:** App Simplification (Session 38)
+**Last Updated:** Feb 21, 2026 (Session 38)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
-> **How to write phases:** `md-file-creation-instructions-for-new-phases.md`
+> **Simplified MVP spec:** `Development/simplified-mvp-spec.md`
 
 ---
 
 ## Current Focus
 
-**Phase 09 — Social Features** (Post-MVP)
+**🎯 SIMPLIFIED MVP — Strip to Core Magic**
 
-All MVP phases complete. Social features implementation complete:
-- ✅ Phase 01–08 — MVP Core Loop Complete
-- ✅ Phase 09 — Social Features (COMPLETE)
-  - ✅ Phase 09.1 — Friend Data Model and Service Layer (IMPLEMENTED)
-  - ✅ Phase 09.2 — Add Friends UX (IMPLEMENTED)
-  - ✅ Phase 09.3 — Friends List and Friend Profile View (IMPLEMENTED)
-  - ✅ Phase 09.4 — Friend Streaks (IMPLEMENTED)
-  - ✅ Phase 09.5 — Privacy Controls (IMPLEMENTED)
-  - ✅ Phase 09.6 — Friend Nudges (IMPLEMENTED)
-  - ✅ Phase 09.7 — Review (REVIEWED — SIGN-OFF)
+Decision made (Session 38): The app has grown too complex for its core promise of "30-second daily check-in → hamster happy." We're simplifying to minimum viable delight.
 
-**Next Steps (Priority Order):**
-1. ✅ **Real workout content** — 24 workouts rewritten with real exercises, proper form cues, and realistic timings (Session 35)
-2. 🔄 **Hamster artwork** — Source artist (Fiverr/Upwork) using style guide for handoff
-   - ✅ Character style guide created (`Assets/hamster-character-style-guide.md`)
-   - ✅ Phase 10.1 Art Asset Specifications (IMPLEMENTED)
-     - Created `ArtAssetSpec.swift` with color palette, dimensions, naming conventions
-     - Updated all hamster views to use official HamsterColorPalette
-     - Created asset catalog folder structure (Hamsters, Outfits, Accessories, Enclosure, Backgrounds)
-     - Created example imageset templates for artists
-     - Added AssetLoader utility for checking asset availability
-     - Added debug AssetStatusView for tracking asset implementation progress
-   - [ ] Base hamster design (5 states × 4 growth stages = 20 assets)
-   - [ ] Starter outfits (8 pieces)
-   - [ ] Starter accessories (8 pieces)
-   - [ ] Enclosure items (8 decorations)
-   - [ ] Enclosure background (1 default)
-3. [ ] **Exercise content session** — Need a dedicated session to finalize the full exercise list before creating illustrations. Decide which exercises ship in the app, review/revise the existing 24 workouts and 35 daily check-in exercises, finalize the master exercise list.
-4. [ ] **Exercise illustrations** — AI-generate (ChatGPT/DALL-E) for each exercise in the finalized list + small hamster cheering element
-5. [ ] **Audio assets** — Source from free libraries (Freesound.org, Zapsplat, Uppbeat)
+**Core Loop:** Open app → Do daily exercise → Hamster happy → Streak grows → Earn points → Customize → Done
 
-**Completed:**
-- ✅ Phase 01–08 — MVP Core Loop Complete
-- ✅ Phase 09 — Social Features (COMPLETE)
-- ✅ Phase 10.1 — Art Asset Specifications (IMPLEMENTED)
-- ✅ Daily Check-In, Tips & Facts, Workout Simplification (Session 36)
-  - ✅ Daily exercise check-in — 35 bodyweight exercises, deterministic per-user-per-day via djb2 hash
-  - ✅ Fitness tips — 40 tips (nutrition/exercise/recovery/mindset/fun facts), rotates daily on home screen
-  - ✅ Home screen restructured — tip card, daily exercise as primary action, secondary workout/rest day row
-  - ✅ Daily check-in earns 25 base points (streak multiplier capped at 1.5x, mutual exclusion with rest day)
-  - ✅ Workouts tab simplified — "Get Moving" vertical list (beginner, equipment-free), "Browse All Workouts" link
-- ✅ Internal testing and polish (Session 34)
-  - ✅ Replaced print() statements with OSLog-based AppLogger
-  - ✅ Created PersistenceHelper for centralized, logged persistence
-  - ✅ Created unit test infrastructure with 75+ tests
-  - ✅ Fixed error handling (replaced try? with PersistenceHelper)
-  - ✅ Added missing accessibility labels
-  - ✅ Fixed async Task cancellation in views (HomeView, SettingsView, etc.)
+### Simplification Tasks (COMPLETE)
+
+1. [x] **Create FeatureFlags.swift** — Toggles for deferred features
+2. [x] **Simplify onboarding** — Remove 6 questions, keep: age gate → name hamster → done
+3. [x] **Simplify home screen** — One action (daily exercise), no competing CTAs
+4. [x] **Remove Social tab** — Defer all of Phase 09 to v1.1
+5. [x] **Remove Workouts tab** — Daily exercise IS the workout
+6. [x] **Simplify navigation** — No tab bar, Home is hub with buttons
+7. [x] **Simplify Shop** — Reduce to 12 items, remove rarity system
+8. [x] **Simplify Settings** — Remove advanced options (audio, privacy, workout schedule)
+9. [x] **Simplify hamster states** — Just happy/hungry (remove chillin', excited, proud)
+10. [x] **Test simplified flow** — End-to-end verification ready
+
+### What's DEFERRED to v1.1+
+- Social features (all of Phase 09)
+- Workout library + player (Phase 04-05)
+- Rest day check-ins
+- Complex onboarding questions
+- Transaction history
+- Advanced notifications
+- Audio system
+- Tips rotation
+
+### What's REMOVED
+- Rarity system for shop items
+- Multiple check-in types
+- Workout feedback system
+- Complex hamster states
+
+**See full spec:** `Development/simplified-mvp-spec.md`
+
+---
+
+### Previous Work (Preserved but Deferred)
+- ✅ Phase 01–08 — MVP Core Loop (code preserved, features being disabled)
+- ✅ Phase 09 — Social Features (code preserved, deferred to v1.1)
+- ✅ Phase 10.1 — Art Asset Specifications (still needed for simplified MVP)
+- ✅ 24 workouts with real exercises (deferred, daily exercise is simpler)
+- ✅ 35 daily check-in exercises (KEEPING — this is the core)
+
+### Still Needed (After Simplification)
+- 🔄 **Hamster artwork** — 2 states × 1 stage = **2 assets only** (happy + hungry)
+- [ ] **8-12 shop items** — Simplified item set
+- [ ] **Exercise illustrations** — For the 35 daily exercises
 
 ---
 
@@ -70,6 +70,7 @@ All MVP phases complete. Social features implementation complete:
 - [x] **Offline support for MVP**: ✅ **DECIDED (Session 35)** — Online-only with graceful retry UX. Local persistence via UserDefaults already covers stats, streaks, profile, inventory, and hamster state across app relaunches. Proper offline-first sync deferred to post-MVP when real backend is added.
 - [x] **Workout visuals**: ✅ **DECIDED (Session 35)** — Static exercise illustrations (AI-generated or pre-made pack, ~30-50 images) with a small hamster cheering element on the workout player screen. Hamster demoing exercises deferred to post-launch as a premium feature.
 - [x] **Hamster growth thresholds**: ✅ Defined in phase07.4 — Baby→Juvenile (5 workouts OR 7-day streak), Juvenile→Adult (25 workouts OR 21-day streak), Adult→Mature (75 workouts OR 60-day streak). Uses lifetime totals and longest streak ever.
+- [x] **App complexity vs. core promise**: ✅ **DECIDED (Session 38)** — Yes, too complex. Full simplification approved. Deferring Social (Phase 09), Workouts (Phase 04-05), Rest Days, complex onboarding. Keeping: daily exercise check-in, hamster, streaks, points, simple shop. See `Development/simplified-mvp-spec.md`
 - [ ] **Ad frequency & placements**: ensure monetization does not disrupt workout flow (POST-MVP)
 - [ ] **Friend discovery privacy defaults**: contacts import permissions and hashing approach (POST-MVP)
 
@@ -1666,6 +1667,25 @@ All MVP phases complete. Social features implementation complete:
     - Exercise illustrations: AI-generated (Midjourney/DALL-E) or pre-made packs (Icons8/Blush.design) for ~30-50 images ($0-400)
     - Audio: Free libraries (Freesound.org, Zapsplat, Uppbeat)
   - Updated progress.md with all decisions and priority order
+- Feb 19, 2026 (Session 37): **Product Complexity Review — Discussion Started**
+  - User raised concern: "Does the app feel too complicated for a daily check-in low-guilt fitness app?"
+  - **Identified complexity creep:**
+    - 3 competing check-in paths (daily exercise, full workout, rest day)
+    - 8-step onboarding before meeting hamster
+    - Deep workout library (24 workouts, filters, categories, recommendations)
+    - Shop system (24 items, 3 categories, rarities, equipping, placing)
+    - Full social layer (friends, friend streaks, nudges, privacy, blocking)
+    - Points economy with transaction history
+  - **Core promise reminder:** 30-second check-in → hamster happy → streak grows
+  - **Potential simplifications to discuss:**
+    1. Single primary action (daily exercise = THE check-in)
+    2. Defer social features to v1.1
+    3. Simplify shop (fewer items, no rarities)
+    4. Shorter onboarding (3-4 questions, rest in Settings)
+    5. Progressive disclosure (hide complexity, reveal when wanted)
+  - **Next session:** Decide if/how to simplify, or restructure home screen for clearer daily path
+  - Session ended early — resume this discussion next time
+
 - Feb 18, 2026 (Session 35 continued): **Real Workout Content — Complete Rewrite**
   - Rewrote all 24 workout exercise generators in MockWorkoutService.swift (926 → 1,166 lines)
   - **Beginner (8 workouts):** Full Body Basics, Morning Stretch, Cardio Dance, Core Foundations, Gentle Yoga, Upper Body Intro, Lower Body Basics, HIIT Intro
@@ -1680,4 +1700,37 @@ All MVP phases complete. Social features implementation complete:
     - Specific exercise instructions readable on a phone screen
   - Updated all 24 workout descriptions to be specific about what exercises users will do
   - **Workout content is now production-ready. Next: source art assets.**
+
+- Feb 21, 2026 (Session 38): **SIMPLIFIED MVP — Implementation Complete**
+  - Continued complexity discussion from Session 37
+  - **Decision:** App is too complex for "30-second daily check-in" promise. Approved full simplification.
+  - Created comprehensive spec: `Development/simplified-mvp-spec.md`
+  - **IMPLEMENTATION COMPLETE:**
+    1. **FeatureFlags.swift** — Central control for all deferred features
+    2. **OnboardingViewModel.swift + UserProfile.swift** — 2-step onboarding (name hamster → meet hamster)
+    3. **HomeView.swift** — Single CTA (daily exercise), hub navigation buttons, hidden: tips, rest day, workouts
+    4. **MainTabView.swift** — No tab bar, just HomeView as hub
+    5. **ShopService.swift + Views** — 12 items (not 24), no rarity badges, no featured/new sections
+    6. **SettingsView.swift** — Removed: audio, privacy, workout schedule, profile fitness editing
+    7. **Activity.swift (HamsterState)** — Simplified to happy/hungry only
+  - **Files Modified:**
+    - `Utilities/FeatureFlags.swift` (NEW)
+    - `Models/UserProfile.swift`
+    - `Models/Activity.swift`
+    - `Models/ShopItem.swift`
+    - `Views/Onboarding/OnboardingViewModel.swift`
+    - `Views/Onboarding/OnboardingContainerView.swift`
+    - `Views/Home/HomeView.swift`
+    - `Views/Navigation/MainTabView.swift`
+    - `Views/Shop/ShopView.swift`
+    - `Views/Shop/ShopItemCardView.swift`
+    - `Services/Shop/ShopService.swift`
+    - `Views/Settings/SettingsView.swift`
+  - **New screen structure:** Home (hub) → Shop, Inventory, Settings (no tab bar)
+  - **Additional simplification:** Eliminated hamster growth stages
+    - Added `FeatureFlags.growthMilestones = false`
+    - Hamster is always one stage (adult)
+    - No growth badges or celebrations
+    - Art requirements reduced: 2 states × 1 stage = **2 hamster assets only**
+  - **Ready for testing:** Simplified flow end-to-end
 
