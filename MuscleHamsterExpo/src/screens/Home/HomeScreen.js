@@ -1,4 +1,4 @@
-// Home Screen - Full Implementation with Notifications
+// Home Screen - Simplified MVP with Hub Navigation
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -12,15 +12,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
-import { HamsterStateInfo, StreakStatus } from '../../models/Activity';
+import { HamsterStateInfo, StreakStatus, getSimplifiedState } from '../../models/Activity';
 import LoadingView from '../../components/LoadingView';
 import NotificationContextBanner from '../../components/NotificationContextBanner';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { useInventory } from '../../context/InventoryContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createNotificationContext, NotificationType } from '../../models/Notification';
+import { getTodaysExercise } from '../../models/DailyExercise';
+import { useAuth } from '../../context/AuthContext';
+import FeatureFlags from '../../config/FeatureFlags';
 
 export default function HomeScreen({ navigation }) {
+  const { currentUser } = useAuth();
   const { profile } = useUserProfile();
   const {
     stats,
@@ -43,6 +47,9 @@ export default function HomeScreen({ navigation }) {
 
   const [refreshing, setRefreshing] = useState(false);
   const [hasShownStreakFreeze, setHasShownStreakFreeze] = useState(false);
+
+  // Get today's exercise (deterministic per user per day)
+  const todaysExercise = getTodaysExercise(currentUser?.uid || 'guest');
 
   // Notification banner state
   const [notificationContext, setNotificationContext] = useState(null);
@@ -83,7 +90,9 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate('RestDayCheckIn');
   };
 
-  const hamsterInfo = HamsterStateInfo[hamsterState] || HamsterStateInfo.hungry;
+  // Use simplified state (happy/hungry) when feature flag is on
+  const displayState = getSimplifiedState(hamsterState);
+  const hamsterInfo = HamsterStateInfo[displayState] || HamsterStateInfo.hungry;
   const hamsterName = profile?.hamsterName || 'Your Hamster';
 
   const getStreakStatusInfo = () => {
@@ -207,27 +216,71 @@ export default function HomeScreen({ navigation }) {
         {/* Daily Actions */}
         {!hasCheckedInToday && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.actionsRow}>
+            <Text style={styles.sectionTitle}>Today's Action</Text>
+            <TouchableOpacity
+              style={[styles.dailyExerciseButton]}
+              onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
+              accessibilityLabel="Do today's exercise"
+            >
+              <Ionicons name="fitness" size={32} color="#fff" />
+              <View style={styles.dailyExerciseInfo}>
+                <Text style={styles.dailyExerciseTitle}>Daily Exercise</Text>
+                <Text style={styles.dailyExerciseSubtitle}>30-60 seconds to feed your hamster!</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#fff" />
+            </TouchableOpacity>
+
+            {/* Show rest day option only if feature is enabled */}
+            {FeatureFlags.restDayCheckIn && !hasCompletedWorkoutToday && (
               <TouchableOpacity
-                style={[styles.actionButton, styles.workoutButton]}
-                onPress={() => navigation.navigate('Workouts')}
-                accessibilityLabel="Start a workout"
+                style={[styles.actionButton, styles.restDayButton, { marginTop: 12 }]}
+                onPress={() => navigation.navigate('RestDayCheckIn')}
+                accessibilityLabel="Rest day check-in"
               >
-                <Ionicons name="fitness" size={28} color="#fff" />
-                <Text style={styles.actionButtonText}>Start Workout</Text>
+                <Ionicons name="cafe" size={28} color="#fff" />
+                <Text style={styles.actionButtonText}>Rest Day</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {/* Hub Navigation - Quick Access */}
+        {!FeatureFlags.tabBarNavigation && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Access</Text>
+            <View style={styles.hubButtonsRow}>
+              <TouchableOpacity
+                style={styles.hubButton}
+                onPress={() => navigation.navigate('Shop')}
+                accessibilityLabel="Go to Shop"
+              >
+                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(255,149,0,0.15)' }]}>
+                  <Ionicons name="bag" size={24} color="#FF9500" />
+                </View>
+                <Text style={styles.hubButtonText}>Shop</Text>
               </TouchableOpacity>
 
-              {!hasCompletedWorkoutToday && (
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.restDayButton]}
-                  onPress={() => navigation.navigate('RestDayCheckIn')}
-                  accessibilityLabel="Rest day check-in"
-                >
-                  <Ionicons name="cafe" size={28} color="#fff" />
-                  <Text style={styles.actionButtonText}>Rest Day</Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                style={styles.hubButton}
+                onPress={() => navigation.navigate('Inventory')}
+                accessibilityLabel="Go to Inventory"
+              >
+                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(88,86,214,0.15)' }]}>
+                  <Ionicons name="grid" size={24} color="#5856D6" />
+                </View>
+                <Text style={styles.hubButtonText}>Inventory</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.hubButton}
+                onPress={() => navigation.navigate('Settings')}
+                accessibilityLabel="Go to Settings"
+              >
+                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(142,142,147,0.15)' }]}>
+                  <Ionicons name="settings" size={24} color="#8E8E93" />
+                </View>
+                <Text style={styles.hubButtonText}>Settings</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -546,5 +599,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93',
     marginTop: 4,
+  },
+  // Daily Exercise button styles
+  dailyExerciseButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#34C759',
+    borderRadius: 16,
+    padding: 20,
+  },
+  dailyExerciseInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  dailyExerciseTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  dailyExerciseSubtitle: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 4,
+  },
+  // Hub navigation styles
+  hubButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  hubButton: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    padding: 16,
+  },
+  hubIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  hubButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#3C3C43',
   },
 });

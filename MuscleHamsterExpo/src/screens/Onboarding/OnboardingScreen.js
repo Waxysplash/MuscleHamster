@@ -1,4 +1,4 @@
-// Onboarding Screen - Phase 03
+// Onboarding Screen - Phase 03 (Simplified MVP)
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -30,8 +30,10 @@ import {
   HAMSTER_NAME_MAX_LENGTH,
   createEmptyProfile,
 } from '../../models/UserProfile';
+import FeatureFlags from '../../config/FeatureFlags';
 
-const STEPS = [
+// Full onboarding steps
+const FULL_STEPS = [
   'age',
   'fitnessLevel',
   'goals',
@@ -43,7 +45,22 @@ const STEPS = [
   'meetHamster',
 ];
 
+// Simplified MVP steps (just age gate + name hamster)
+const SIMPLIFIED_STEPS = [
+  'ageGate',
+  'hamsterName',
+  'meetHamster',
+];
+
+// Get active steps based on feature flag
+const getActiveSteps = () => {
+  return FeatureFlags.simplifiedOnboarding ? SIMPLIFIED_STEPS : FULL_STEPS;
+};
+
+const STEPS = getActiveSteps();
+
 const STEP_TITLES = {
+  ageGate: 'Before we begin...',
   age: "Let's get to know you!",
   fitnessLevel: 'What\'s your fitness level?',
   goals: 'What are your goals?',
@@ -65,6 +82,10 @@ export default function OnboardingScreen({ navigation }) {
   const [profile, setProfile] = useState(createEmptyProfile());
   const [isSaving, setIsSaving] = useState(false);
   const [nameError, setNameError] = useState(null);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+
+  // Get active steps (may change based on feature flag)
+  const activeSteps = FeatureFlags.simplifiedOnboarding ? SIMPLIFIED_STEPS : FULL_STEPS;
 
   // Restore progress on mount
   useEffect(() => {
@@ -86,8 +107,10 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const canProceed = () => {
-    const step = STEPS[currentStep];
+    const step = activeSteps[currentStep];
     switch (step) {
+      case 'ageGate':
+        return ageConfirmed;
       case 'age':
         return profile.age && profile.age >= 13 && profile.age <= 120;
       case 'fitnessLevel':
@@ -113,13 +136,17 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const goNext = async () => {
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < activeSteps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       // Complete onboarding
       setIsSaving(true);
       try {
-        await completeOnboarding(profile);
+        // Apply default values for simplified onboarding
+        const finalProfile = FeatureFlags.simplifiedOnboarding
+          ? applySimplifiedDefaults(profile)
+          : profile;
+        await completeOnboarding(finalProfile);
         navigation.replace('Main');
       } catch (e) {
         Alert.alert('Oops!', 'Something went wrong. Please try again.');
@@ -128,6 +155,18 @@ export default function OnboardingScreen({ navigation }) {
       }
     }
   };
+
+  // Apply default values when using simplified onboarding
+  const applySimplifiedDefaults = (p) => ({
+    ...p,
+    age: p.age || 18,
+    fitnessLevel: p.fitnessLevel || FitnessLevel.BEGINNER,
+    fitnessGoals: p.fitnessGoals.length > 0 ? p.fitnessGoals : [FitnessGoal.GENERAL],
+    weeklyWorkoutGoal: p.weeklyWorkoutGoal || 3,
+    schedulePreference: p.schedulePreference || SchedulePreference.FLEXIBLE,
+    preferredWorkoutTime: p.preferredWorkoutTime || WorkoutTime.NO_PREFERENCE,
+    fitnessIntent: p.fitnessIntent || FitnessIntent.MAINTAIN,
+  });
 
   const goBack = () => {
     if (currentStep > 0) {
@@ -162,9 +201,11 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const renderStepContent = () => {
-    const step = STEPS[currentStep];
+    const step = activeSteps[currentStep];
 
     switch (step) {
+      case 'ageGate':
+        return <AgeGateStep ageConfirmed={ageConfirmed} setAgeConfirmed={setAgeConfirmed} />;
       case 'age':
         return <AgeStep profile={profile} updateProfile={updateProfile} />;
       case 'fitnessLevel':
@@ -196,7 +237,8 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const getButtonText = () => {
-    const step = STEPS[currentStep];
+    const step = activeSteps[currentStep];
+    if (step === 'ageGate') return 'Continue';
     if (step === 'hamsterName') return 'Meet Your Hamster';
     if (step === 'meetHamster') return "Let's Get Started!";
     return 'Continue';
@@ -213,12 +255,12 @@ export default function OnboardingScreen({ navigation }) {
           <View
             style={[
               styles.progressFill,
-              { width: `${((currentStep + 1) / STEPS.length) * 100}%` },
+              { width: `${((currentStep + 1) / activeSteps.length) * 100}%` },
             ]}
           />
         </View>
         <Text style={styles.progressText}>
-          {currentStep + 1} of {STEPS.length}
+          {currentStep + 1} of {activeSteps.length}
         </Text>
       </View>
 
@@ -246,7 +288,7 @@ export default function OnboardingScreen({ navigation }) {
       )}
 
       {/* Title */}
-      <Text style={styles.title}>{STEP_TITLES[STEPS[currentStep]]}</Text>
+      <Text style={styles.title}>{STEP_TITLES[activeSteps[currentStep]]}</Text>
 
       {/* Content */}
       <ScrollView
@@ -277,6 +319,30 @@ export default function OnboardingScreen({ navigation }) {
 }
 
 // Step Components
+
+// Simplified age gate (just a checkbox confirming 13+)
+function AgeGateStep({ ageConfirmed, setAgeConfirmed }) {
+  return (
+    <View style={styles.stepContent}>
+      <Text style={styles.stepDescription}>
+        Muscle Hamster is designed for users 13 years and older.
+      </Text>
+      <TouchableOpacity
+        style={[styles.ageGateOption, ageConfirmed && styles.ageGateOptionSelected]}
+        onPress={() => setAgeConfirmed(!ageConfirmed)}
+        accessibilityLabel="I am 13 years or older"
+        accessibilityState={{ checked: ageConfirmed }}
+        accessibilityRole="checkbox"
+      >
+        <View style={[styles.checkbox, ageConfirmed && styles.checkboxSelected]}>
+          {ageConfirmed && <Ionicons name="checkmark" size={18} color="#fff" />}
+        </View>
+        <Text style={styles.ageGateText}>I am 13 years or older</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function AgeStep({ profile, updateProfile }) {
   return (
     <View style={styles.stepContent}>
@@ -679,6 +745,39 @@ const styles = StyleSheet.create({
   },
   stepContent: {
     paddingTop: 10,
+  },
+  // Age gate styles
+  ageGateOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  ageGateOptionSelected: {
+    backgroundColor: 'rgba(0,122,255,0.1)',
+    borderColor: '#007AFF',
+  },
+  checkbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#C7C7CC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  checkboxSelected: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  ageGateText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#000',
   },
   stepDescription: {
     fontSize: 16,

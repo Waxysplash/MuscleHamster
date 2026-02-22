@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
+import FeatureFlags from '../../config/FeatureFlags';
 
 export default function SettingsScreen({ navigation }) {
   const { currentUser, signOut } = useAuth();
@@ -74,25 +75,27 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Points History */}
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => navigation.navigate('PointsHistory')}
-          accessibilityRole="button"
-        >
-          <View style={[styles.iconBox, { backgroundColor: 'rgba(255,149,0,0.1)' }]}>
-            <Ionicons name="star" size={22} color="#FF9500" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Points History</Text>
-            <Text style={styles.rowSub}>
-              {formattedPoints} points
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-        </TouchableOpacity>
-      </View>
+      {/* Points History - only show if feature enabled */}
+      {FeatureFlags.transactionHistory && (
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => navigation.navigate('PointsHistory')}
+            accessibilityRole="button"
+          >
+            <View style={[styles.iconBox, { backgroundColor: 'rgba(255,149,0,0.1)' }]}>
+              <Ionicons name="star" size={22} color="#FF9500" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Points History</Text>
+              <Text style={styles.rowSub}>
+                {formattedPoints} points
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Notifications */}
       <View style={styles.section}>
@@ -132,68 +135,72 @@ export default function SettingsScreen({ navigation }) {
         )}
       </View>
 
-      {/* Audio */}
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <View style={styles.iconBox}>
-            <Ionicons name="volume-high" size={22} color="#34C759" />
+      {/* Audio - only show if feature enabled */}
+      {FeatureFlags.audioSystem && (
+        <View style={styles.section}>
+          <View style={styles.row}>
+            <View style={styles.iconBox}>
+              <Ionicons name="volume-high" size={22} color="#34C759" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Sound Effects</Text>
+            </View>
+            <Switch
+              value={soundEffects}
+              onValueChange={setSoundEffects}
+              trackColor={{ true: '#007AFF' }}
+              accessibilityLabel="Sound Effects toggle"
+              accessibilityValue={{ text: soundEffects ? 'On' : 'Off' }}
+            />
           </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Sound Effects</Text>
+          <View style={[styles.row, { marginTop: 1 }]}>
+            <View style={styles.iconBox}>
+              <Ionicons name="musical-note" size={22} color="#AF52DE" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Music</Text>
+            </View>
+            <Switch
+              value={music}
+              onValueChange={setMusic}
+              trackColor={{ true: '#007AFF' }}
+              accessibilityLabel="Music toggle"
+              accessibilityValue={{ text: music ? 'On' : 'Off' }}
+            />
           </View>
-          <Switch
-            value={soundEffects}
-            onValueChange={setSoundEffects}
-            trackColor={{ true: '#007AFF' }}
-            accessibilityLabel="Sound Effects toggle"
-            accessibilityValue={{ text: soundEffects ? 'On' : 'Off' }}
-          />
+          <TouchableOpacity
+            style={[styles.row, { marginTop: 1 }]}
+            onPress={() => navigation.navigate('AudioSettings')}
+          >
+            <View style={styles.iconBox}>
+              <Ionicons name="options" size={22} color="#8E8E93" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Audio Settings</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
         </View>
-        <View style={[styles.row, { marginTop: 1 }]}>
-          <View style={styles.iconBox}>
-            <Ionicons name="musical-note" size={22} color="#AF52DE" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Music</Text>
-          </View>
-          <Switch
-            value={music}
-            onValueChange={setMusic}
-            trackColor={{ true: '#007AFF' }}
-            accessibilityLabel="Music toggle"
-            accessibilityValue={{ text: music ? 'On' : 'Off' }}
-          />
-        </View>
-        <TouchableOpacity
-          style={[styles.row, { marginTop: 1 }]}
-          onPress={() => navigation.navigate('AudioSettings')}
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="options" size={22} color="#8E8E93" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Audio Settings</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-        </TouchableOpacity>
-      </View>
+      )}
 
-      {/* Privacy */}
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => navigation.navigate('PrivacySettings')}
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="shield-checkmark" size={22} color="#007AFF" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Privacy Controls</Text>
-            <Text style={styles.rowSub}>Manage your data and visibility</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-        </TouchableOpacity>
-      </View>
+      {/* Privacy - only show if social features enabled */}
+      {FeatureFlags.socialFeatures && (
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => navigation.navigate('PrivacySettings')}
+          >
+            <View style={styles.iconBox}>
+              <Ionicons name="shield-checkmark" size={22} color="#007AFF" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Privacy Controls</Text>
+              <Text style={styles.rowSub}>Manage your data and visibility</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Support */}
       <View style={styles.section}>

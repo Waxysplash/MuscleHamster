@@ -5,11 +5,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
 import { HomeScreen } from '../screens/Home';
+import { DailyExerciseCheckInScreen } from '../screens/Home';
 import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen } from '../screens/Workout';
 import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
 import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
 import { useActivity } from '../context/ActivityContext';
 import { useFriends } from '../context/FriendContext';
+import FeatureFlags from '../config/FeatureFlags';
 
 // Settings screens
 import {
@@ -127,6 +129,28 @@ function HomeStackScreen() {
           presentation: 'modal',
           headerShown: false,
         }}
+      />
+      <HomeStack.Screen
+        name="DailyExerciseCheckIn"
+        component={DailyExerciseCheckInScreen}
+        options={{
+          title: "Today's Exercise",
+          presentation: 'modal',
+        }}
+      />
+      <HomeStack.Screen
+        name="Shop"
+        component={ShopScreen}
+        options={{ title: 'Shop' }}
+      />
+      <HomeStack.Screen
+        name="ShopCategory"
+        component={ShopCategoryScreen}
+        options={({ route }) => ({
+          title: route.params?.category
+            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
+            : 'Category',
+        })}
       />
       <HomeStack.Screen
         name="Inventory"
@@ -297,6 +321,11 @@ function SocialTabIcon({ color, size }) {
 }
 
 export default function MainTabNavigator() {
+  // Simplified MVP: No tab bar, just Home as hub
+  if (!FeatureFlags.tabBarNavigation) {
+    return <HomeStackScreen />;
+  }
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -316,34 +345,39 @@ export default function MainTabNavigator() {
           tabBarAccessibilityLabel: 'Home tab',
         }}
       />
+      {FeatureFlags.workoutLibrary && (
+        <Tab.Screen
+          name="Workouts"
+          component={WorkoutsStackScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="fitness" size={size} color={color} />
+            ),
+            tabBarAccessibilityLabel: 'Workouts tab',
+          }}
+        />
+      )}
       <Tab.Screen
-        name="Workouts"
-        component={WorkoutsStackScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="fitness" size={size} color={color} />
-          ),
-          tabBarAccessibilityLabel: 'Workouts tab',
-        }}
-      />
-      <Tab.Screen
-        name="Shop"
+        name="ShopTab"
         component={ShopStackScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bag" size={size} color={color} />
           ),
           tabBarAccessibilityLabel: 'Shop tab',
+          title: 'Shop',
         }}
       />
-      <Tab.Screen
-        name="Social"
-        component={SocialStackScreen}
-        options={{
-          tabBarIcon: SocialTabIcon,
-          tabBarAccessibilityLabel: 'Social tab',
-        }}
-      />
+      {FeatureFlags.socialFeatures && (
+        <Tab.Screen
+          name="Social"
+          component={SocialStackScreen}
+          options={{
+            tabBarIcon: SocialTabIcon,
+            tabBarAccessibilityLabel: 'Social tab',
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

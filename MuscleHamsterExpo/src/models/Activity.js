@@ -1,4 +1,5 @@
 // Activity Model - Phase 05-06
+import FeatureFlags from '../config/FeatureFlags';
 
 export const HamsterState = {
   HUNGRY: 'hungry',
@@ -6,6 +7,23 @@ export const HamsterState = {
   HAPPY: 'happy',
   EXCITED: 'excited',
   PROUD: 'proud',
+};
+
+// Get simplified state (happy or hungry only)
+export const getSimplifiedState = (state) => {
+  if (!FeatureFlags.simplifiedHamsterStates) return state;
+
+  switch (state) {
+    case HamsterState.HUNGRY:
+    case HamsterState.CHILLIN:
+      return HamsterState.HUNGRY;
+    case HamsterState.HAPPY:
+    case HamsterState.EXCITED:
+    case HamsterState.PROUD:
+      return HamsterState.HAPPY;
+    default:
+      return HamsterState.HUNGRY;
+  }
 };
 
 export const HamsterStateInfo = {

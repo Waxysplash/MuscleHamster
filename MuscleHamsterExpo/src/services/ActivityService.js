@@ -295,6 +295,75 @@ export const ActivityService = {
     };
   },
 
+  // Record daily exercise check-in (simplified MVP)
+  async recordDailyExerciseCheckIn(exercise) {
+    const stats = await loadStats();
+    const now = new Date();
+    const completionKey = `dailyexercise-${now.toDateString()}`;
+
+    // Idempotency check
+    if (completionKeys.has(completionKey)) {
+      return {
+        success: false,
+        error: "You've already completed today's exercise! Come back tomorrow.",
+      };
+    }
+
+    // Calculate points: base 25 + streak multiplier (max 1.5x)
+    const basePoints = 25;
+    const streakMultiplier = Math.min(1 + (stats.currentStreak * 0.07), 1.5);
+    const points = Math.round(basePoints * streakMultiplier);
+
+    // Update streak
+    const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;
+    let newStreak = stats.currentStreak;
+
+    if (!lastCheckIn || !isSameDay(lastCheckIn, now)) {
+      if (!lastCheckIn || isYesterday(lastCheckIn)) {
+        newStreak = stats.currentStreak + 1;
+      } else {
+        newStreak = 1;
+      }
+    }
+
+    // Create transaction
+    const transaction = createTransaction({
+      id: generateTransactionId(TransactionType.EARN, 'dailyExercise', exercise.id, now),
+      type: TransactionType.EARN,
+      category: 'dailyExercise',
+      amount: points,
+      description: `Daily Exercise: ${exercise.name}`,
+      timestamp: now.toISOString(),
+      entityId: exercise.id,
+      balanceAfter: stats.totalPoints + points,
+    });
+
+    // Update stats
+    const updatedStats = {
+      ...stats,
+      totalPoints: stats.totalPoints + points,
+      currentStreak: newStreak,
+      longestStreak: Math.max(stats.longestStreak, newStreak),
+      totalWorkoutsCompleted: stats.totalWorkoutsCompleted + 1,
+      lastActivityDate: now.toISOString(),
+      lastCheckInDate: now.toISOString(),
+      previousBrokenStreak: null,
+      hamsterState: HamsterState.HAPPY,
+      transactions: [transaction, ...stats.transactions].slice(0, 500),
+    };
+
+    completionKeys.add(completionKey);
+    await saveStats(updatedStats);
+
+    return {
+      success: true,
+      pointsEarned: points,
+      newStreak,
+      hamsterReaction: exercise.encouragement,
+      stats: updatedStats,
+    };
+  },
+
   async recordRestDayCheckIn(activity) {
     const stats = await loadStats();
     const now = new Date();
