@@ -1753,3 +1753,33 @@ Decision made (Session 38): The app has grown too complex for its core promise o
     - Verify 35 daily exercises work
   - **Session 38 complete. Simplified MVP ready for testing.**
 
+- Feb 21, 2026 (Session 39): **Expo Port & Art Asset Prep**
+  - **Ported Simplified MVP to Expo (React Native):**
+    - Created `src/config/FeatureFlags.js` — Central feature toggle control
+    - Updated `src/models/Activity.js` — Added `getSimplifiedState()` for happy/hungry mapping
+    - Updated `src/navigation/MainTabNavigator.js` — Hub navigation, hidden Workouts/Social tabs
+    - Updated `src/screens/Home/HomeScreen.js` — Daily exercise button, hub nav buttons
+    - Updated `src/screens/Onboarding/OnboardingScreen.js` — 3 steps (age gate → name hamster → meet hamster)
+    - Updated `src/screens/Settings/SettingsScreen.js` — Hidden audio, privacy, transaction history
+    - Updated `src/services/ActivityService.js` — Added `recordDailyExerciseCheckIn()`
+    - Updated `src/context/ActivityContext.js` — Added `recordDailyCheckIn()`
+  - **Commits:**
+    - `aebda32` — Port simplified MVP to Expo (9 files, 549 insertions)
+    - `030cbd3` — Add simplified MVP art prompts
+  - **Created Simplified Art Prompts:** `Assets/simplified-mvp-art-prompts.md`
+    - Reduced from 45 assets to 12 for MVP
+    - 2 hamster states (happy, hungry)
+    - 3 outfits (cozy sweater, athlete jersey, bathrobe)
+    - 3 accessories (sunglasses, crown, flower crown)
+    - 3 enclosure items (rainbow wheel, hammock, fairy lights)
+    - 1 background
+    - Ready-to-use prompts for ChatGPT/DALL-E or Midjourney
+  - **Both Codebases Now Simplified:**
+    - Swift/iOS: `96a2fda`
+    - Expo/React Native: `aebda32`
+  - **Next Steps for Launch:**
+    1. Generate 12 art assets using AI prompts
+    2. End-to-end testing on real device
+    3. App Store prep (icons, screenshots, description)
+  - **Session 39 complete. Ready for art generation.**
+
