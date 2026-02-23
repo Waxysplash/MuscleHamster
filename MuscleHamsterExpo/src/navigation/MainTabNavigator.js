@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { HomeScreen } from '../screens/Home';
 import { DailyExerciseCheckInScreen } from '../screens/Home';
-import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen } from '../screens/Workout';
+import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen, GymBodyPartScreen } from '../screens/Workout';
 import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
 import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
 import { useActivity } from '../context/ActivityContext';
@@ -177,7 +177,12 @@ function WorkoutsStackScreen() {
       <WorkoutsStack.Screen
         name="WorkoutsMain"
         component={WorkoutsScreen}
-        options={{ title: 'Workouts' }}
+        options={{ headerShown: false }}
+      />
+      <WorkoutsStack.Screen
+        name="GymBodyPartWorkouts"
+        component={GymBodyPartScreen}
+        options={{ headerShown: false }}
       />
       <WorkoutsStack.Screen
         name="WorkoutDetail"
