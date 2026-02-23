@@ -1,5 +1,5 @@
-// Inventory Screen - Phase 07.3
-// Customization hub - Browse owned items and customize your hamster
+// Inventory Screen - Simplified
+// Shows owned items and lets you equip one at a time
 
 import React, { useState, useCallback } from 'react';
 import {
@@ -10,369 +10,343 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  SafeAreaView,
+  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { ShopService } from '../../services/ShopService';
-import { ShopItemCategory, ShopItemCategoryInfo } from '../../models/ShopItem';
 import { getShopItemImage } from '../../config/AssetImages';
-import HamsterView from '../../components/HamsterView';
+import HamsterPortrait from '../../components/HamsterPortrait';
 import LoadingView from '../../components/LoadingView';
-import EmptyStateView from '../../components/EmptyStateView';
-import ErrorView from '../../components/ErrorView';
 
 export default function InventoryScreen({ navigation }) {
-  const [viewState, setViewState] = useState('loading');
-  const [inventory, setInventory] = useState(null);
-  const [allItems, setAllItems] = useState([]);
-  const [equippedItems, setEquippedItems] = useState({ outfit: null, accessory: null });
+  const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [ownedItems, setOwnedItems] = useState([]);
+  const [equippedItemId, setEquippedItemId] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
-      loadContent();
+      loadInventory();
     }, [])
   );
 
-  const loadContent = async () => {
+  const loadInventory = async () => {
     try {
-      const [inv, items] = await Promise.all([
+      const [inventory, allItems] = await Promise.all([
         ShopService.getInventory(),
         ShopService.getAllItems(),
       ]);
 
-      setInventory(inv);
-      setAllItems(items);
+      // Get owned item details
+      const owned = inventory.ownedItems
+        .map((o) => allItems.find((item) => item.id === o.itemId))
+        .filter(Boolean);
 
-      // Get equipped item details
-      const equippedOutfit = inv.equippedOutfit
-        ? items.find((i) => i.id === inv.equippedOutfit)
-        : null;
-      const equippedAccessory = inv.equippedAccessory
-        ? items.find((i) => i.id === inv.equippedAccessory)
-        : null;
-      setEquippedItems({ outfit: equippedOutfit, accessory: equippedAccessory });
+      setOwnedItems(owned);
 
-      // Check if inventory is empty
-      if (inv.ownedItems.length === 0) {
-        setViewState('empty');
-      } else {
-        setViewState('content');
-      }
-    } catch (error) {
-      console.warn('Error loading inventory:', error);
-      setViewState('error');
+      // Get currently equipped item (outfit or accessory - only one at a time)
+      const equipped = inventory.equippedOutfit || inventory.equippedAccessory || null;
+      setEquippedItemId(equipped);
+    } catch (e) {
+      console.error('Failed to load inventory:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadContent();
+    await loadInventory();
     setRefreshing(false);
   };
 
-  const getOwnedItemCount = (category) => {
-    if (!inventory || !allItems.length) return 0;
-    return inventory.ownedItems.filter((owned) => {
-      const item = allItems.find((i) => i.id === owned.itemId);
-      return item?.category === category;
-    }).length;
-  };
-
-  const getInUseCount = (category) => {
-    if (!inventory) return 0;
-
-    switch (category) {
-      case ShopItemCategory.OUTFITS:
-        return inventory.equippedOutfit ? 1 : 0;
-      case ShopItemCategory.ACCESSORIES:
-        return inventory.equippedAccessory ? 1 : 0;
-      case ShopItemCategory.ENCLOSURE:
-        return inventory.placedEnclosureItems?.length || 0;
-      default:
-        return 0;
+  const handleEquip = async (itemId) => {
+    try {
+      // If tapping the currently equipped item, unequip it
+      if (equippedItemId === itemId) {
+        await ShopService.unequipAll();
+        setEquippedItemId(null);
+      } else {
+        // Equip the new item (this unequips any current item)
+        await ShopService.equipItem(itemId);
+        setEquippedItemId(itemId);
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Failed to update outfit');
     }
   };
 
-  const getCategoryColor = (category) => {
-    return ShopItemCategoryInfo[category]?.color || '#8E8E93';
-  };
-
-  const getStatusText = (category, ownedCount, inUseCount) => {
-    if (ownedCount === 0) {
-      return 'No items yet - visit the shop!';
-    }
-
-    switch (category) {
-      case ShopItemCategory.OUTFITS:
-      case ShopItemCategory.ACCESSORIES:
-        return inUseCount > 0
-          ? 'Currently wearing an item'
-          : `${ownedCount} item${ownedCount === 1 ? '' : 's'} available`;
-      case ShopItemCategory.ENCLOSURE:
-        return inUseCount > 0
-          ? `${inUseCount} item${inUseCount === 1 ? '' : 's'} on display`
-          : `${ownedCount} item${ownedCount === 1 ? '' : 's'} available to place`;
-      default:
-        return `${ownedCount} items`;
-    }
-  };
-
-  if (viewState === 'loading') {
-    return <LoadingView message="Opening your collection..." />;
+  if (isLoading) {
+    return <LoadingView message="Opening your wardrobe..." />;
   }
 
-  if (viewState === 'error') {
-    return (
-      <ErrorView
-        message="Couldn't load your collection. Let's try again!"
-        retryAction={loadContent}
-      />
-    );
-  }
-
-  if (viewState === 'empty') {
-    return (
-      <EmptyStateView
-        icon="bag"
-        title="Your Collection is Empty"
-        message="Visit the shop to find outfits, accessories, and items to decorate your hamster's home!"
-        actionTitle="Go to Shop"
-        onAction={() => navigation.navigate('Shop')}
-      />
-    );
-  }
+  const equippedItem = ownedItems.find((item) => item.id === equippedItemId);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      {/* Current Look Preview */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Current Look</Text>
-
-        <View style={styles.previewContainer}>
-          {/* Hamster with equipped items */}
-          <View style={styles.hamsterPreview}>
-            <HamsterView
-              state="happy"
-              size={120}
-              equippedOutfit={inventory?.equippedOutfit}
-              equippedAccessory={inventory?.equippedAccessory}
-            />
-          </View>
-
-          {/* Equipped items badges */}
-          {(equippedItems.outfit || equippedItems.accessory) && (
-            <View style={styles.equippedBadges}>
-              {equippedItems.outfit && (
-                <View style={[styles.equippedBadge, { backgroundColor: 'rgba(175,82,222,0.15)' }]}>
-                  {getShopItemImage(equippedItems.outfit.id) ? (
-                    <Image
-                      source={getShopItemImage(equippedItems.outfit.id)}
-                      style={styles.badgeImage}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Ionicons name="shirt" size={12} color="#AF52DE" />
-                  )}
-                  <Text style={[styles.equippedBadgeText, { color: '#AF52DE' }]}>
-                    {equippedItems.outfit.name}
-                  </Text>
-                </View>
-              )}
-              {equippedItems.accessory && (
-                <View style={[styles.equippedBadge, { backgroundColor: 'rgba(255,45,85,0.15)' }]}>
-                  {getShopItemImage(equippedItems.accessory.id) ? (
-                    <Image
-                      source={getShopItemImage(equippedItems.accessory.id)}
-                      style={styles.badgeImage}
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <Ionicons name="sparkles" size={12} color="#FF2D55" />
-                  )}
-                  <Text style={[styles.equippedBadgeText, { color: '#FF2D55' }]}>
-                    {equippedItems.accessory.name}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
-        </View>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>My Items</Text>
       </View>
 
-      {/* Categories */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Categories</Text>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hamster Preview */}
+        <View style={styles.previewSection}>
+          <View style={styles.previewCard}>
+            <HamsterPortrait
+              state="happy"
+              size={140}
+              equippedOutfit={equippedItemId?.startsWith('outfit') ? equippedItemId : null}
+              equippedAccessory={equippedItemId?.startsWith('acc') ? equippedItemId : null}
+            />
+            {equippedItem ? (
+              <View style={styles.equippedLabel}>
+                <Ionicons name="checkmark-circle" size={14} color="#34C759" />
+                <Text style={styles.equippedLabelText}>Wearing: {equippedItem.name}</Text>
+              </View>
+            ) : (
+              <Text style={styles.noEquippedText}>No item equipped</Text>
+            )}
+          </View>
+        </View>
 
-        {Object.values(ShopItemCategory).map((category) => {
-          const ownedCount = getOwnedItemCount(category);
-          const inUseCount = getInUseCount(category);
-          const categoryInfo = ShopItemCategoryInfo[category];
-          const categoryColor = getCategoryColor(category);
-
-          return (
+        {/* Owned Items */}
+        {ownedItems.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="shirt-outline" size={48} color="#C7C7CC" />
+            <Text style={styles.emptyTitle}>No items yet</Text>
+            <Text style={styles.emptySubtitle}>Visit the shop to buy items for your hamster!</Text>
             <TouchableOpacity
-              key={category}
-              style={styles.categoryRow}
-              onPress={() => navigation.navigate('InventoryCategory', { category })}
-              accessibilityLabel={`${categoryInfo.displayName}, ${ownedCount} items owned, ${inUseCount} in use`}
-              accessibilityHint="Double tap to view and manage items"
+              style={styles.shopButton}
+              onPress={() => navigation.navigate('Shop')}
             >
-              {/* Icon */}
-              <View style={[styles.categoryIcon, { backgroundColor: `${categoryColor}20` }]}>
-                <Ionicons name={categoryInfo.icon} size={24} color={categoryColor} />
-              </View>
+              <Ionicons name="bag" size={18} color="#fff" />
+              <Text style={styles.shopButtonText}>Go to Shop</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.itemsSection}>
+            <Text style={styles.sectionTitle}>Your Items ({ownedItems.length})</Text>
 
-              {/* Info */}
-              <View style={styles.categoryInfo}>
-                <Text style={styles.categoryName}>{categoryInfo.displayName}</Text>
-                <Text style={styles.categoryStatus}>
-                  {getStatusText(category, ownedCount, inUseCount)}
-                </Text>
-              </View>
+            {ownedItems.map((item) => {
+              const isEquipped = equippedItemId === item.id;
+              const itemImage = getShopItemImage(item.id);
 
-              {/* Count and indicator */}
-              <View style={styles.categoryMeta}>
-                {ownedCount > 0 ? (
-                  <View style={styles.countContainer}>
-                    <Text style={styles.countText}>{ownedCount}</Text>
-                    {inUseCount > 0 && (
-                      <View style={styles.inUseIndicator}>
-                        <Ionicons name="checkmark-circle" size={12} color="#34C759" />
-                        <Text style={styles.inUseText}>{inUseCount} active</Text>
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.itemCard, isEquipped && styles.itemCardEquipped]}
+                  onPress={() => handleEquip(item.id)}
+                >
+                  {/* Item Image */}
+                  <View style={styles.itemImageContainer}>
+                    {itemImage ? (
+                      <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
+                    ) : (
+                      <Ionicons name="shirt" size={32} color="#8E8E93" />
+                    )}
+                  </View>
+
+                  {/* Item Info */}
+                  <View style={styles.itemInfo}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={styles.itemDescription}>{item.description}</Text>
+                  </View>
+
+                  {/* Equip Status */}
+                  <View style={styles.equipStatus}>
+                    {isEquipped ? (
+                      <View style={styles.equippedBadge}>
+                        <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                      </View>
+                    ) : (
+                      <View style={styles.equipButton}>
+                        <Text style={styles.equipButtonText}>Wear</Text>
                       </View>
                     )}
                   </View>
-                ) : (
-                  <Text style={styles.emptyText}>Empty</Text>
-                )}
-                <Ionicons name="chevron-forward" size={16} color="#8E8E93" />
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </ScrollView>
+                </TouchableOpacity>
+              );
+            })}
+
+            {/* Unequip Button */}
+            {equippedItemId && (
+              <TouchableOpacity
+                style={styles.unequipButton}
+                onPress={() => handleEquip(equippedItemId)}
+              >
+                <Ionicons name="close-circle-outline" size={18} color="#FF3B30" />
+                <Text style={styles.unequipButtonText}>Remove current item</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
-  contentContainer: {
+  header: {
+    paddingHorizontal: 20,
     paddingVertical: 16,
+    backgroundColor: '#FFF8F0',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(139,90,43,0.1)',
   },
-  section: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#4A3728',
+  },
+  content: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  previewSection: {
+    marginBottom: 20,
+  },
+  previewCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+  },
+  equippedLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 6,
+  },
+  equippedLabelText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#34C759',
+  },
+  noEquippedText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#6B5D52',
+  },
+  itemsSection: {
+    marginTop: 8,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#000',
-  },
-  previewContainer: {
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#FFF5E6',
-    borderRadius: 20,
-  },
-  hamsterPreview: {
-    marginBottom: 16,
-  },
-  hamsterAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#FFE0B2',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  equippedBadges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  equippedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  equippedBadgeText: {
-    marginLeft: 4,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  badgeImage: {
-    width: 20,
-    height: 20,
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#F2F2F7',
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  categoryIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  categoryInfo: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  categoryName: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#000',
+    marginBottom: 12,
+    color: '#4A3728',
   },
-  categoryStatus: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  categoryMeta: {
+  itemCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  countContainer: {
-    alignItems: 'flex-end',
+  itemCardEquipped: {
+    borderColor: '#34C759',
+    backgroundColor: 'rgba(52, 199, 89, 0.05)',
   },
-  countText: {
+  itemImageContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: '#FFF8F0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemImage: {
+    width: 46,
+    height: 46,
+  },
+  itemInfo: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  itemName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
-  inUseIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  itemDescription: {
+    fontSize: 13,
+    color: '#6B5D52',
     marginTop: 2,
   },
-  inUseText: {
-    fontSize: 11,
-    color: '#34C759',
-    marginLeft: 2,
+  equipStatus: {
+    marginLeft: 10,
   },
-  emptyText: {
+  equippedBadge: {
+    padding: 4,
+  },
+  equipButton: {
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  equipButtonText: {
     fontSize: 14,
-    color: '#8E8E93',
+    fontWeight: '600',
+    color: '#fff',
+  },
+  unequipButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    padding: 14,
+    gap: 6,
+  },
+  unequipButtonText: {
+    fontSize: 15,
+    color: '#FF3B30',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A3728',
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#6B5D52',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  shopButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    marginTop: 20,
+    gap: 8,
+  },
+  shopButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

@@ -35,7 +35,7 @@ const getStorageKey = () => {
 };
 
 // Seed shop items - Simplified catalogue
-// 3 items per category, flat 50 points each
+// Wearable items only (no enclosure), flat 50 points each
 const createSeedShopItems = () => {
   const items = [];
 
@@ -48,7 +48,6 @@ const createSeedShopItems = () => {
     rarity: ShopItemRarity.COMMON,
     price: 50,
     previewImageName: 'outfit-1',
-    isFeatured: true,
   }));
 
   items.push(createShopItem({
@@ -69,7 +68,6 @@ const createSeedShopItems = () => {
     rarity: ShopItemRarity.COMMON,
     price: 50,
     previewImageName: 'outfit-3',
-    isNew: true,
   }));
 
   // ACCESSORIES (3 items)
@@ -81,7 +79,6 @@ const createSeedShopItems = () => {
     rarity: ShopItemRarity.COMMON,
     price: 50,
     previewImageName: 'acc-1',
-    isFeatured: true,
   }));
 
   items.push(createShopItem({
@@ -102,40 +99,6 @@ const createSeedShopItems = () => {
     rarity: ShopItemRarity.COMMON,
     price: 50,
     previewImageName: 'acc-5',
-    isNew: true,
-  }));
-
-  // ENCLOSURE (3 items)
-  items.push(createShopItem({
-    id: 'enc-1',
-    name: 'Rainbow Wheel',
-    description: 'Run in style!',
-    category: ShopItemCategory.ENCLOSURE,
-    rarity: ShopItemRarity.COMMON,
-    price: 50,
-    previewImageName: 'enc-1',
-    isFeatured: true,
-  }));
-
-  items.push(createShopItem({
-    id: 'enc-2',
-    name: 'Cozy Hammock',
-    description: 'Perfect for nap time!',
-    category: ShopItemCategory.ENCLOSURE,
-    rarity: ShopItemRarity.COMMON,
-    price: 50,
-    previewImageName: 'enc-2',
-  }));
-
-  items.push(createShopItem({
-    id: 'enc-8',
-    name: 'Fairy Lights',
-    description: 'Magical ambiance!',
-    category: ShopItemCategory.ENCLOSURE,
-    rarity: ShopItemRarity.COMMON,
-    price: 50,
-    previewImageName: 'enc-8',
-    isNew: true,
   }));
 
   return items;
@@ -269,7 +232,8 @@ export const ShopService = {
     });
   },
 
-  async equipOutfit(itemId) {
+  // Equip a single item (replaces any currently equipped item)
+  async equipItem(itemId) {
     await delay(200);
     const inventory = await loadInventory();
 
@@ -277,51 +241,28 @@ export const ShopService = {
       return { success: false, error: "You don't own this item!" };
     }
 
+    // Get the item to determine if it's an outfit or accessory
+    const item = await this.getItem(itemId);
+
+    // Clear both slots and set the new item in the appropriate slot
     const updatedInventory = {
       ...inventory,
-      equippedOutfit: itemId,
+      equippedOutfit: item?.category === ShopItemCategory.OUTFITS ? itemId : null,
+      equippedAccessory: item?.category === ShopItemCategory.ACCESSORIES ? itemId : null,
     };
 
     await saveInventory(updatedInventory);
     return { success: true };
   },
 
-  async unequipOutfit() {
+  // Unequip all items
+  async unequipAll() {
     await delay(200);
     const inventory = await loadInventory();
 
     const updatedInventory = {
       ...inventory,
       equippedOutfit: null,
-    };
-
-    await saveInventory(updatedInventory);
-    return { success: true };
-  },
-
-  async equipAccessory(itemId) {
-    await delay(200);
-    const inventory = await loadInventory();
-
-    if (!inventory.ownedItems.some((o) => o.itemId === itemId)) {
-      return { success: false, error: "You don't own this item!" };
-    }
-
-    const updatedInventory = {
-      ...inventory,
-      equippedAccessory: itemId,
-    };
-
-    await saveInventory(updatedInventory);
-    return { success: true };
-  },
-
-  async unequipAccessory() {
-    await delay(200);
-    const inventory = await loadInventory();
-
-    const updatedInventory = {
-      ...inventory,
       equippedAccessory: null,
     };
 
@@ -329,38 +270,21 @@ export const ShopService = {
     return { success: true };
   },
 
-  async placeEnclosureItem(itemId) {
-    await delay(200);
-    const inventory = await loadInventory();
-
-    if (!inventory.ownedItems.some((o) => o.itemId === itemId)) {
-      return { success: false, error: "You don't own this item!" };
-    }
-
-    if (inventory.placedEnclosureItems.includes(itemId)) {
-      return { success: true }; // Already placed
-    }
-
-    const updatedInventory = {
-      ...inventory,
-      placedEnclosureItems: [...inventory.placedEnclosureItems, itemId],
-    };
-
-    await saveInventory(updatedInventory);
-    return { success: true };
+  // Legacy methods for compatibility
+  async equipOutfit(itemId) {
+    return this.equipItem(itemId);
   },
 
-  async removeEnclosureItem(itemId) {
-    await delay(200);
-    const inventory = await loadInventory();
+  async unequipOutfit() {
+    return this.unequipAll();
+  },
 
-    const updatedInventory = {
-      ...inventory,
-      placedEnclosureItems: inventory.placedEnclosureItems.filter((id) => id !== itemId),
-    };
+  async equipAccessory(itemId) {
+    return this.equipItem(itemId);
+  },
 
-    await saveInventory(updatedInventory);
-    return { success: true };
+  async unequipAccessory() {
+    return this.unequipAll();
   },
 
   // Clear all data (for testing)

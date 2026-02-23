@@ -44,14 +44,14 @@ export default function SettingsScreen({ navigation }) {
           accessibilityRole="button"
           accessibilityLabel={currentUser ? `Account: ${currentUser.email}` : 'Sign In'}
         >
-          <Ionicons name="person-circle" size={40} color="#007AFF" />
+          <Ionicons name="person-circle" size={40} color="#FF9500" />
           <View style={styles.rowInfo}>
             <Text style={styles.rowLabel}>{currentUser ? currentUser.email : 'Sign In'}</Text>
             <Text style={styles.rowSub}>
               {currentUser ? 'Manage your account' : 'Set up your account to save progress'}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
 
@@ -63,7 +63,7 @@ export default function SettingsScreen({ navigation }) {
           accessibilityRole="button"
         >
           <View style={styles.iconBox}>
-            <Ionicons name="paw" size={22} color="#007AFF" />
+            <Ionicons name="paw" size={22} color="#8B5A2B" />
           </View>
           <View style={styles.rowInfo}>
             <Text style={styles.rowLabel}>My Profile</Text>
@@ -71,7 +71,7 @@ export default function SettingsScreen({ navigation }) {
               {profile?.hamsterName ? `${profile.hamsterName}'s settings` : 'Edit your fitness profile'}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
 
@@ -92,7 +92,7 @@ export default function SettingsScreen({ navigation }) {
                 {formattedPoints} points
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
           </TouchableOpacity>
         </View>
       )}
@@ -114,7 +114,7 @@ export default function SettingsScreen({ navigation }) {
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
-            trackColor={{ true: '#007AFF' }}
+            trackColor={{ true: '#FF9500' }}
             accessibilityLabel="Notifications toggle"
             accessibilityValue={{ text: notificationsEnabled ? 'On' : 'Off' }}
           />
@@ -130,7 +130,7 @@ export default function SettingsScreen({ navigation }) {
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Reminder Time</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
           </TouchableOpacity>
         )}
       </View>
@@ -148,7 +148,7 @@ export default function SettingsScreen({ navigation }) {
             <Switch
               value={soundEffects}
               onValueChange={setSoundEffects}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#FF9500' }}
               accessibilityLabel="Sound Effects toggle"
               accessibilityValue={{ text: soundEffects ? 'On' : 'Off' }}
             />
@@ -163,7 +163,7 @@ export default function SettingsScreen({ navigation }) {
             <Switch
               value={music}
               onValueChange={setMusic}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#FF9500' }}
               accessibilityLabel="Music toggle"
               accessibilityValue={{ text: music ? 'On' : 'Off' }}
             />
@@ -173,12 +173,12 @@ export default function SettingsScreen({ navigation }) {
             onPress={() => navigation.navigate('AudioSettings')}
           >
             <View style={styles.iconBox}>
-              <Ionicons name="options" size={22} color="#8E8E93" />
+              <Ionicons name="options" size={22} color="#6B5D52" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Audio Settings</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
           </TouchableOpacity>
         </View>
       )}
@@ -191,13 +191,13 @@ export default function SettingsScreen({ navigation }) {
             onPress={() => navigation.navigate('PrivacySettings')}
           >
             <View style={styles.iconBox}>
-              <Ionicons name="shield-checkmark" size={22} color="#007AFF" />
+              <Ionicons name="shield-checkmark" size={22} color="#8B5A2B" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Privacy Controls</Text>
               <Text style={styles.rowSub}>Manage your data and visibility</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
           </TouchableOpacity>
         </View>
       )}
@@ -206,30 +206,30 @@ export default function SettingsScreen({ navigation }) {
       <View style={styles.section}>
         <TouchableOpacity style={styles.row}>
           <View style={styles.iconBox}>
-            <Ionicons name="help-circle" size={22} color="#007AFF" />
+            <Ionicons name="help-circle" size={22} color="#8B5A2B" />
           </View>
           <View style={styles.rowInfo}>
             <Text style={styles.rowLabel}>Help</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.row, { marginTop: 1 }]}>
           <View style={styles.iconBox}>
-            <Ionicons name="document-text" size={22} color="#8E8E93" />
+            <Ionicons name="document-text" size={22} color="#6B5D52" />
           </View>
           <View style={styles.rowInfo}>
             <Text style={styles.rowLabel}>Privacy Policy</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.row, { marginTop: 1 }]}>
           <View style={styles.iconBox}>
-            <Ionicons name="document-text" size={22} color="#8E8E93" />
+            <Ionicons name="document-text" size={22} color="#6B5D52" />
           </View>
           <View style={styles.rowInfo}>
             <Text style={styles.rowLabel}>Terms of Service</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
 
@@ -255,7 +255,7 @@ export default function SettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 16,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -288,10 +288,11 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   rowSub: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   signOutButton: {
@@ -312,11 +313,11 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   versionNumber: {
     fontSize: 13,
-    color: '#C7C7CC',
+    color: '#8B5A2B',
     marginTop: 2,
   },
 });

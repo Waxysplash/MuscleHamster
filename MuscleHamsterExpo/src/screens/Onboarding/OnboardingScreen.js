@@ -49,7 +49,6 @@ const FULL_STEPS = [
 const SIMPLIFIED_STEPS = [
   'ageGate',
   'hamsterName',
-  'meetHamster',
 ];
 
 // Get active steps based on feature flag
@@ -147,12 +146,13 @@ export default function OnboardingScreen({ navigation }) {
           ? applySimplifiedDefaults(profile)
           : profile;
         await completeOnboarding(finalProfile);
-        navigation.replace('Main');
+        // Navigation is handled automatically by RootNavigator when isProfileComplete becomes true
+        // Do NOT call navigation.replace('Main') here - it causes a race condition
       } catch (e) {
         Alert.alert('Oops!', 'Something went wrong. Please try again.');
-      } finally {
         setIsSaving(false);
       }
+      // Don't set isSaving to false on success - we're transitioning away
     }
   };
 
@@ -192,12 +192,12 @@ export default function OnboardingScreen({ navigation }) {
         hamsterName: 'Hammy',
       };
       await completeOnboarding(defaultProfile);
-      navigation.replace('Main');
+      // Navigation is handled automatically by RootNavigator when isProfileComplete becomes true
     } catch (e) {
       Alert.alert('Oops!', 'Something went wrong. Please try again.');
-    } finally {
       setIsSaving(false);
     }
+    // Don't set isSaving to false on success - we're transitioning away
   };
 
   const renderStepContent = () => {
@@ -239,6 +239,8 @@ export default function OnboardingScreen({ navigation }) {
   const getButtonText = () => {
     const step = activeSteps[currentStep];
     if (step === 'ageGate') return 'Continue';
+    // In simplified mode, hamsterName is the final step
+    if (step === 'hamsterName' && FeatureFlags.simplifiedOnboarding) return "Let's Get Started!";
     if (step === 'hamsterName') return 'Meet Your Hamster';
     if (step === 'meetHamster') return "Let's Get Started!";
     return 'Continue';

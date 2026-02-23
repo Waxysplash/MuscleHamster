@@ -8,7 +8,7 @@ export const FeatureFlags = {
   socialFeatures: false,
 
   // Full workout library with browse, filter, recommendations, workout player
-  workoutLibrary: false,
+  workoutLibrary: true,
 
   // Rest day check-in micro-tasks (pet hamster, give treat, log activity)
   restDayCheckIn: false,
@@ -58,7 +58,7 @@ export const FeatureFlags = {
   // NAVIGATION
 
   // Use tab bar navigation (false = hub navigation from Home)
-  tabBarNavigation: false,
+  tabBarNavigation: true,
 
   // Simplified onboarding (2 steps: age gate + name hamster)
   simplifiedOnboarding: true,

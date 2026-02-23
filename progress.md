@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** SIMPLIFIED MVP — Art Integration Complete
-**Active Phase:** UI Polish & Bug Fixes (Session 40)
-**Last Updated:** Feb 23, 2026 (Session 40)
+**Status:** SIMPLIFIED MVP — UI Polish Complete
+**Active Phase:** Ready for Testing (Session 41)
+**Last Updated:** Feb 23, 2026 (Session 41)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -68,15 +68,29 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 
 ## 🎯 NEXT SESSION PRIORITIES
 
-### Priority 1: Fix Bugs
-- [ ] **Repetitive onboarding** — Users seeing onboarding multiple times
-- [ ] Investigate onboarding completion flag persistence
+### Priority 1: Testing & Launch Prep
+- [ ] End-to-end testing on real device (iOS + Android)
+- [ ] Test onboarding flow (verify bug is fixed)
+- [ ] Test daily exercise check-in flow
+- [ ] Test shop purchase and equip flow
+- [ ] App Store prep (icons, screenshots, description)
 
-### Priority 2: Home Screen UI Polish
-- [ ] Make home page visually appealing to "common eye"
-- [ ] Review layout, spacing, typography
-- [ ] Ensure hamster is prominently displayed with enclosure
-- [ ] Polish status badges and action buttons
+### ✅ COMPLETED (Session 41)
+
+#### Bug Fix: Repetitive Onboarding
+- **Root cause**: Race condition in `OnboardingScreen.js` — calling `navigation.replace('Main')` immediately after `completeOnboarding()` before the context state updated
+- **Fix**: Removed manual navigation; let `RootNavigator` in `App.js` handle the transition automatically when `isProfileComplete` becomes true
+- **Files changed**: `OnboardingScreen.js`, `App.js`
+
+#### UI Polish: Home Screen
+- Added `SafeAreaView` for proper notch/status bar handling
+- Improved points header with badge styling
+- Enhanced hamster portrait section with card styling and shadows
+- Polished Daily Exercise CTA with gradient-like shadow and clearer hierarchy
+- Updated streak card with better typography and softer shadows
+- Refined Quick Access hub buttons with consistent styling
+- Changed background from white to light gray (#FAFAFA) for depth
+- Improved overall spacing, typography, and visual hierarchy
 
 ---
 
@@ -1818,4 +1832,28 @@ Decision made (Session 38): The app has grown too complex for its core promise o
   - **UI polish needed:**
     - Home screen layout needs visual refinement
   - **Session 40 complete. Art integration done. Ready for UI polish.**
+
+- Feb 23, 2026 (Session 41): **Bug Fix & UI Polish Complete**
+  - **Fixed repetitive onboarding bug:**
+    - Root cause: Race condition — `OnboardingScreen.js` called `navigation.replace('Main')` immediately after `completeOnboarding()`, before React state updated
+    - Solution: Removed manual navigation calls; `RootNavigator` in `App.js` now handles the transition automatically when `isProfileComplete` becomes true
+    - Files modified: `OnboardingScreen.js`, `App.js`
+  - **Home Screen UI Polish:**
+    - Added `SafeAreaView` for proper notch/status bar handling
+    - Changed background from white (#fff) to light gray (#FAFAFA) for depth
+    - Improved points header with pill/badge styling
+    - Enhanced hamster portrait section with card styling and platform-specific shadows
+    - Polished Daily Exercise CTA:
+      - Added icon wrapper with semi-transparent background
+      - Added "TODAY'S ACTION" label above title
+      - Added green shadow for prominence
+      - Personalized subtitle with hamster's name
+    - Updated streak card with better typography and softer styling
+    - Refined Quick Access hub buttons with consistent card styling
+    - Improved overall spacing, typography, and visual hierarchy
+  - **Files changed:**
+    - `MuscleHamsterExpo/src/screens/Onboarding/OnboardingScreen.js`
+    - `MuscleHamsterExpo/App.js`
+    - `MuscleHamsterExpo/src/screens/Home/HomeScreen.js`
+  - **Session 41 complete. Ready for end-to-end testing.**
 

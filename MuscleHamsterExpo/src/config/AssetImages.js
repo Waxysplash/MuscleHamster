@@ -64,8 +64,14 @@ export const getHamsterImage = (state) => {
 };
 
 // Helper to get the right hamster image based on equipped items
-// Priority: outfit > accessory > base state
+// Priority: hungry state (no outfit) > outfit > accessory > base state
 export const getHamsterWithEquipment = (state, equippedOutfit, equippedAccessory) => {
+  // If hamster is hungry, always show the sad/hungry image without any outfit
+  // This encourages the user to work out and "feed" their hamster
+  if (state === 'hungry' || state === 'sad') {
+    return HamsterImages.hungry;
+  }
+
   // If wearing an outfit, use the outfit composite image
   if (equippedOutfit && HamsterWearingOutfit[equippedOutfit]) {
     return HamsterWearingOutfit[equippedOutfit];

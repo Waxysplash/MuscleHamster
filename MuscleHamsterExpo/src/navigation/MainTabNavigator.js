@@ -53,19 +53,9 @@ function HomeStackScreen() {
       <HomeStack.Screen
         name="HomeMain"
         component={HomeScreen}
-        options={({ navigation }) => ({
-          title: 'Home',
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Settings')}
-              accessibilityLabel="Settings"
-              accessibilityRole="button"
-              style={{ paddingHorizontal: 8 }}
-            >
-              <Ionicons name="settings-sharp" size={24} color="#007AFF" />
-            </TouchableOpacity>
-          ),
-        })}
+        options={{
+          headerShown: false,
+        }}
       />
       <HomeStack.Screen
         name="Settings"
@@ -320,6 +310,61 @@ function SocialTabIcon({ color, size }) {
   );
 }
 
+// Settings stack for tab
+const SettingsStack = createNativeStackNavigator();
+
+function SettingsStackScreen() {
+  return (
+    <SettingsStack.Navigator>
+      <SettingsStack.Screen
+        name="SettingsMain"
+        component={SettingsScreen}
+        options={{ title: 'Settings' }}
+      />
+      <SettingsStack.Screen
+        name="AccountSettings"
+        component={AccountSettingsScreen}
+        options={{ title: 'Account' }}
+      />
+      <SettingsStack.Screen
+        name="ProfileSettings"
+        component={ProfileSettingsScreen}
+        options={{ title: 'My Profile' }}
+      />
+      <SettingsStack.Screen
+        name="NotificationSettings"
+        component={NotificationSettingsScreen}
+        options={{ title: 'Reminders' }}
+      />
+      <SettingsStack.Screen
+        name="AudioSettings"
+        component={AudioSettingsScreen}
+        options={{ title: 'Audio Settings' }}
+      />
+      <SettingsStack.Screen
+        name="PrivacySettings"
+        component={PrivacySettingsScreen}
+        options={{ title: 'Privacy' }}
+      />
+      <SettingsStack.Screen
+        name="ProfileVisibility"
+        component={ProfileVisibilityScreen}
+        options={{ title: 'Profile Visibility' }}
+      />
+      <SettingsStack.Screen
+        name="PointsHistory"
+        component={PointsHistoryScreen}
+        options={{ title: 'Points History' }}
+      />
+      <SettingsStack.Screen
+        name="BlockedUsers"
+        component={BlockedUsersScreen}
+        options={{ headerShown: false }}
+      />
+    </SettingsStack.Navigator>
+  );
+}
+
 export default function MainTabNavigator() {
   // Simplified MVP: No tab bar, just Home as hub
   if (!FeatureFlags.tabBarNavigation) {
@@ -330,8 +375,12 @@ export default function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
+        tabBarActiveTintColor: '#FF9500',
         tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: {
+          backgroundColor: '#FFF8F0',
+          borderTopColor: 'rgba(139,90,43,0.1)',
+        },
       }}
       initialRouteName="Home"
     >
@@ -345,18 +394,6 @@ export default function MainTabNavigator() {
           tabBarAccessibilityLabel: 'Home tab',
         }}
       />
-      {FeatureFlags.workoutLibrary && (
-        <Tab.Screen
-          name="Workouts"
-          component={WorkoutsStackScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="fitness" size={size} color={color} />
-            ),
-            tabBarAccessibilityLabel: 'Workouts tab',
-          }}
-        />
-      )}
       <Tab.Screen
         name="ShopTab"
         component={ShopStackScreen}
@@ -368,16 +405,26 @@ export default function MainTabNavigator() {
           title: 'Shop',
         }}
       />
-      {FeatureFlags.socialFeatures && (
-        <Tab.Screen
-          name="Social"
-          component={SocialStackScreen}
-          options={{
-            tabBarIcon: SocialTabIcon,
-            tabBarAccessibilityLabel: 'Social tab',
-          }}
-        />
-      )}
+      <Tab.Screen
+        name="Workouts"
+        component={WorkoutsStackScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="fitness" size={size} color={color} />
+          ),
+          tabBarAccessibilityLabel: 'Workouts tab',
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsStackScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings" size={size} color={color} />
+          ),
+          tabBarAccessibilityLabel: 'Settings tab',
+        }}
+      />
     </Tab.Navigator>
   );
 }

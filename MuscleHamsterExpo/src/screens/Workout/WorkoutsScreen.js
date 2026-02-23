@@ -117,7 +117,7 @@ export default function WorkoutsScreen({ navigation }) {
       {/* Recommended Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="sparkles" size={20} color="#007AFF" />
+          <Ionicons name="sparkles" size={20} color="#FF9500" />
           <Text style={styles.sectionTitle}>Recommended for You</Text>
         </View>
         <ScrollView
@@ -139,7 +139,7 @@ export default function WorkoutsScreen({ navigation }) {
                   <Ionicons name={typeInfo?.icon || 'fitness'} size={24} color={typeInfo?.color} />
                 </View>
                 <View style={styles.durationBadge}>
-                  <Ionicons name="time-outline" size={12} color="#8E8E93" />
+                  <Ionicons name="time-outline" size={12} color="#6B5D52" />
                   <Text style={styles.durationText}>{durationInfo?.range}</Text>
                 </View>
                 <Text style={styles.workoutName} numberOfLines={1}>{workout.name}</Text>
@@ -217,7 +217,7 @@ export default function WorkoutsScreen({ navigation }) {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
             </TouchableOpacity>
           );
         })}
@@ -229,7 +229,7 @@ export default function WorkoutsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     paddingBottom: 32,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     marginLeft: 6,
-    color: '#000',
+    color: '#4A3728',
   },
   recommendedScroll: {
     paddingRight: 16,
@@ -274,14 +274,14 @@ const styles = StyleSheet.create({
   },
   durationText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginLeft: 4,
   },
   workoutName: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
-    color: '#000',
+    color: '#4A3728',
   },
   difficultyRow: {
     flexDirection: 'row',
@@ -295,11 +295,11 @@ const styles = StyleSheet.create({
   },
   difficultyText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   explanationText: {
     fontSize: 12,
-    color: '#007AFF',
+    color: '#8B5A2B',
     marginTop: 8,
     fontStyle: 'italic',
   },
@@ -326,11 +326,11 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   categoryCount: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   workoutRow: {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   workoutRowName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   workoutRowMeta: {
     flexDirection: 'row',
@@ -364,11 +364,11 @@ const styles = StyleSheet.create({
   },
   workoutRowDuration: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginRight: 8,
   },
   workoutRowDifficulty: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
 });

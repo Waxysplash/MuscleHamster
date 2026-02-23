@@ -1,4 +1,4 @@
-// Home Screen - Simplified MVP with Hub Navigation
+// Home Screen - Fixed enclosure top, scrollable content below
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -8,6 +8,9 @@ import {
   TouchableOpacity,
   RefreshControl,
   ImageBackground,
+  SafeAreaView,
+  Platform,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,14 +18,14 @@ import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { HamsterStateInfo, StreakStatus, getSimplifiedState } from '../../models/Activity';
 import LoadingView from '../../components/LoadingView';
-import NotificationContextBanner from '../../components/NotificationContextBanner';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { useInventory } from '../../context/InventoryContext';
 import { EnclosureBackground } from '../../config/AssetImages';
-import { createNotificationContext, NotificationType } from '../../models/Notification';
 import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
-import FeatureFlags from '../../config/FeatureFlags';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const ENCLOSURE_HEIGHT = SCREEN_HEIGHT * 0.42; // 42% of screen for enclosure
 
 export default function HomeScreen({ navigation }) {
   const { currentUser } = useAuth();
@@ -42,7 +45,6 @@ export default function HomeScreen({ navigation }) {
   const {
     equippedOutfit,
     equippedAccessory,
-    placedEnclosureItems,
     loadInventory,
   } = useInventory();
 
@@ -51,10 +53,6 @@ export default function HomeScreen({ navigation }) {
 
   // Get today's exercise (deterministic per user per day)
   const todaysExercise = getTodaysExercise(currentUser?.uid || 'guest');
-
-  // Notification banner state
-  const [notificationContext, setNotificationContext] = useState(null);
-  const [showNotificationBanner, setShowNotificationBanner] = useState(false);
 
   // Reload stats and inventory when screen comes into focus
   useFocusEffect(
@@ -79,16 +77,8 @@ export default function HomeScreen({ navigation }) {
   const onRefresh = async () => {
     setRefreshing(true);
     await loadStats();
+    await loadInventory();
     setRefreshing(false);
-  };
-
-  const handleNotificationBannerDismiss = () => {
-    setShowNotificationBanner(false);
-    setNotificationContext(null);
-  };
-
-  const handleNotificationAction = () => {
-    navigation.navigate('RestDayCheckIn');
   };
 
   // Use simplified state (happy/hungry) when feature flag is on
@@ -121,533 +111,470 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Notification Banner */}
-        {showNotificationBanner && notificationContext && (
-          <NotificationContextBanner
-            context={notificationContext}
-            onDismiss={handleNotificationBannerDismiss}
-            onAction={notificationContext.hasActionButton ? handleNotificationAction : null}
-          />
-        )}
-
-        {/* Points Header */}
-        <View style={styles.pointsHeader}>
-          <Ionicons name="star" size={20} color="#FF9500" />
-          <Text style={styles.pointsText}>{totalPoints} points</Text>
-        </View>
-
-        {/* Hamster Portrait Section */}
-        <View style={styles.portraitSection}>
-          <ImageBackground
-            source={EnclosureBackground}
-            style={styles.portraitBackground}
-            resizeMode="cover"
-          >
-            {/* Status Badge */}
-            <View style={styles.statusOverlay}>
-              <View style={[styles.stateBadge, { backgroundColor: '#fff' }]}>
-                <Ionicons name={hamsterInfo.icon} size={16} color={hamsterInfo.color} />
+    <View style={styles.container}>
+      {/* FIXED TOP SECTION - Enclosure with Hamster */}
+      <View style={styles.enclosureSection}>
+        <ImageBackground
+          source={EnclosureBackground}
+          style={styles.enclosureBackground}
+          resizeMode="cover"
+        >
+          <SafeAreaView style={styles.enclosureSafeArea}>
+            {/* Top Bar - State badge left, Name center, Points badge right */}
+            <View style={styles.topBar}>
+              {/* State Badge - Left */}
+              <View style={[styles.stateBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
+                <Ionicons name={hamsterInfo.icon} size={14} color={hamsterInfo.color} />
                 <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
                   {hamsterInfo.displayName}
                 </Text>
               </View>
+
+              {/* Hamster Name - Center */}
+              <View style={styles.nameBadge}>
+                <Text style={styles.hamsterName}>{hamsterName}</Text>
+              </View>
+
+              {/* Points Badge - Right */}
+              <View style={styles.pointsBadge}>
+                <Ionicons name="star" size={16} color="#FF9500" />
+                <Text style={styles.pointsText}>{totalPoints}</Text>
+              </View>
             </View>
 
-            {/* Hamster Portrait - Large and Prominent */}
-            <View style={styles.hamsterPortraitWrapper}>
+            {/* Hamster Portrait - Lowered 25% */}
+            <View style={styles.hamsterContainer}>
               <HamsterPortrait
                 state={displayState}
-                size={280}
+                size={200}
                 equippedOutfit={equippedOutfit}
                 equippedAccessory={equippedAccessory}
               />
             </View>
-          </ImageBackground>
+          </SafeAreaView>
+        </ImageBackground>
+      </View>
 
-          {/* Hamster Info Below Portrait */}
-          <View style={styles.hamsterInfoSection}>
-            <Text style={styles.hamsterName}>{hamsterName}</Text>
-            <Text style={styles.hamsterGreeting}>{hamsterInfo.greeting}</Text>
-
-            {/* Customize Button */}
+      {/* SCROLLABLE BOTTOM SECTION */}
+      <View style={styles.contentSection}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF9500" />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Today's Action Card */}
+          {!hasCheckedInToday ? (
             <TouchableOpacity
-              style={styles.customizeButton}
-              onPress={() => navigation.navigate('Inventory')}
-              accessibilityLabel="Customize your hamster"
-            >
-              <Ionicons name="color-palette" size={16} color="#007AFF" />
-              <Text style={styles.customizeButtonText}>Customize</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Today's Status */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today</Text>
-          <View style={styles.todayCard}>
-            {hasCheckedInToday ? (
-              <View style={styles.completedStatus}>
-                <Ionicons name="checkmark-circle" size={32} color="#34C759" />
-                <View style={styles.completedInfo}>
-                  <Text style={styles.completedTitle}>All done for today!</Text>
-                  <Text style={styles.completedSubtitle}>
-                    {hasCompletedWorkoutToday ? 'Workout completed' : 'Rest day check-in done'}
-                  </Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.pendingStatus}>
-                <Ionicons name="time" size={32} color="#FF9500" />
-                <View style={styles.pendingInfo}>
-                  <Text style={styles.pendingTitle}>Ready for action!</Text>
-                  <Text style={styles.pendingSubtitle}>Complete a workout or rest day check-in</Text>
-                </View>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Daily Actions */}
-        {!hasCheckedInToday && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Today's Action</Text>
-            <TouchableOpacity
-              style={[styles.dailyExerciseButton]}
+              style={styles.actionCard}
               onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
-              accessibilityLabel="Do today's exercise"
+              activeOpacity={0.9}
             >
-              <Ionicons name="fitness" size={32} color="#fff" />
-              <View style={styles.dailyExerciseInfo}>
-                <Text style={styles.dailyExerciseTitle}>Daily Exercise</Text>
-                <Text style={styles.dailyExerciseSubtitle}>30-60 seconds to feed your hamster!</Text>
+              <View style={styles.actionIconWrapper}>
+                <Ionicons name="fitness" size={28} color="#fff" />
+              </View>
+              <View style={styles.actionInfo}>
+                <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
+                <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
+                <Text style={styles.actionSubtitle}>30-60 seconds daily exercise</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="#fff" />
             </TouchableOpacity>
-
-            {/* Show rest day option only if feature is enabled */}
-            {FeatureFlags.restDayCheckIn && !hasCompletedWorkoutToday && (
-              <TouchableOpacity
-                style={[styles.actionButton, styles.restDayButton, { marginTop: 12 }]}
-                onPress={() => navigation.navigate('RestDayCheckIn')}
-                accessibilityLabel="Rest day check-in"
-              >
-                <Ionicons name="cafe" size={28} color="#fff" />
-                <Text style={styles.actionButtonText}>Rest Day</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {/* Hub Navigation - Quick Access */}
-        {!FeatureFlags.tabBarNavigation && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Access</Text>
-            <View style={styles.hubButtonsRow}>
-              <TouchableOpacity
-                style={styles.hubButton}
-                onPress={() => navigation.navigate('Shop')}
-                accessibilityLabel="Go to Shop"
-              >
-                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(255,149,0,0.15)' }]}>
-                  <Ionicons name="bag" size={24} color="#FF9500" />
-                </View>
-                <Text style={styles.hubButtonText}>Shop</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.hubButton}
-                onPress={() => navigation.navigate('Inventory')}
-                accessibilityLabel="Go to Inventory"
-              >
-                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(88,86,214,0.15)' }]}>
-                  <Ionicons name="grid" size={24} color="#5856D6" />
-                </View>
-                <Text style={styles.hubButtonText}>Inventory</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.hubButton}
-                onPress={() => navigation.navigate('Settings')}
-                accessibilityLabel="Go to Settings"
-              >
-                <View style={[styles.hubIconBox, { backgroundColor: 'rgba(142,142,147,0.15)' }]}>
-                  <Ionicons name="settings" size={24} color="#8E8E93" />
-                </View>
-                <Text style={styles.hubButtonText}>Settings</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {/* Streak Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Streak</Text>
-          <TouchableOpacity
-            style={[styles.streakCard, { borderColor: streakInfo.color + '40' }]}
-            onPress={() => {
-              if (previousBrokenStreak && previousBrokenStreak > 0) {
-                navigation.navigate('StreakFreeze');
-              }
-            }}
-            disabled={!previousBrokenStreak}
-          >
-            <View style={styles.streakContent}>
-              <Ionicons name={streakInfo.icon} size={40} color={streakInfo.color} />
-              <View style={styles.streakInfo}>
-                <Text style={[styles.streakNumber, { color: streakInfo.color }]}>
-                  {currentStreak}
+          ) : (
+            <View style={styles.completedCard}>
+              <Ionicons name="checkmark-circle" size={32} color="#34C759" />
+              <View style={styles.completedInfo}>
+                <Text style={styles.completedTitle}>All done for today!</Text>
+                <Text style={styles.completedSubtitle}>
+                  {hasCompletedWorkoutToday ? 'Workout completed' : 'Daily exercise done'}
                 </Text>
-                <Text style={styles.streakLabel}>day streak</Text>
               </View>
             </View>
-            <Text style={styles.streakStatus}>{streakInfo.text}</Text>
+          )}
 
-            {streakStatus?.status === StreakStatus.AT_RISK && (
-              <View style={styles.atRiskBadge}>
-                <Text style={styles.atRiskText}>AT RISK</Text>
-              </View>
-            )}
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            {/* Streak Card */}
+            <View style={[styles.statCard, styles.streakCard]}>
+              <Ionicons name={streakInfo.icon} size={28} color={streakInfo.color} />
+              <Text style={[styles.statNumber, { color: streakInfo.color }]}>{currentStreak}</Text>
+              <Text style={styles.statLabel}>day streak</Text>
+            </View>
 
-            {previousBrokenStreak && previousBrokenStreak > 0 && (
-              <View style={styles.restoreHint}>
-                <Ionicons name="snow" size={16} color="#5AC8FA" />
-                <Text style={styles.restoreHintText}>Tap to restore streak</Text>
+            {/* Workouts Card */}
+            <View style={styles.statCard}>
+              <Ionicons name="barbell" size={28} color="#007AFF" />
+              <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
+              <Text style={styles.statLabel}>workouts</Text>
+            </View>
+
+            {/* Points Card */}
+            <View style={styles.statCard}>
+              <Ionicons name="star" size={28} color="#FF9500" />
+              <Text style={styles.statNumber}>{totalPoints}</Text>
+              <Text style={styles.statLabel}>points</Text>
+            </View>
+          </View>
+
+          {/* Streak Status Message */}
+          {streakStatus?.status === StreakStatus.AT_RISK && (
+            <View style={styles.streakWarning}>
+              <Ionicons name="alert-circle" size={20} color="#FF9500" />
+              <Text style={styles.streakWarningText}>{streakInfo.text}</Text>
+            </View>
+          )}
+
+          {/* Restore Streak Option */}
+          {previousBrokenStreak && previousBrokenStreak > 0 && (
+            <TouchableOpacity
+              style={styles.restoreCard}
+              onPress={() => navigation.navigate('StreakFreeze')}
+            >
+              <Ionicons name="snow" size={24} color="#5AC8FA" />
+              <View style={styles.restoreInfo}>
+                <Text style={styles.restoreTitle}>Streak Freeze Available</Text>
+                <Text style={styles.restoreSubtitle}>Restore your {previousBrokenStreak} day streak</Text>
               </View>
-            )}
+              <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
+            </TouchableOpacity>
+          )}
+
+          {/* Customize Button */}
+          <TouchableOpacity
+            style={styles.customizeButton}
+            onPress={() => navigation.navigate('Inventory')}
+          >
+            <Ionicons name="sparkles" size={20} color="#8B5A2B" />
+            <Text style={styles.customizeText}>Customize {hamsterName}</Text>
+            <Ionicons name="chevron-forward" size={18} color="#8B5A2B" />
           </TouchableOpacity>
 
+          {/* Longest Streak */}
           {stats?.longestStreak > 0 && (
             <Text style={styles.longestStreak}>
-              Longest streak: {stats.longestStreak} days
+              Personal best: {stats.longestStreak} day streak
             </Text>
           )}
-        </View>
-
-        {/* Stats */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Stats</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Ionicons name="fitness" size={24} color="#007AFF" />
-              <Text style={styles.statValue}>{stats?.totalWorkoutsCompleted || 0}</Text>
-              <Text style={styles.statLabel}>Workouts</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Ionicons name="cafe" size={24} color="#5856D6" />
-              <Text style={styles.statValue}>{stats?.totalRestDayCheckIns || 0}</Text>
-              <Text style={styles.statLabel}>Rest Days</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Ionicons name="star" size={24} color="#FF9500" />
-              <Text style={styles.statValue}>{totalPoints}</Text>
-              <Text style={styles.statLabel}>Total Points</Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    </>
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
-  contentContainer: {
-    paddingBottom: 24,
+  // ENCLOSURE SECTION (Fixed at top)
+  enclosureSection: {
+    height: ENCLOSURE_HEIGHT,
+    width: '100%',
   },
-  pointsHeader: {
+  enclosureBackground: {
+    flex: 1,
+    width: '100%',
+  },
+  enclosureSafeArea: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  topBar: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingTop: 8,
+  },
+  pointsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    backgroundColor: 'rgba(255,149,0,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   pointsText: {
-    marginLeft: 6,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#FF9500',
   },
-  portraitSection: {
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 16,
-  },
-  portraitBackground: {
-    width: '100%',
-    borderRadius: 24,
-    paddingVertical: 24,
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  hamsterPortraitWrapper: {
-    alignItems: 'center',
+  hamsterContainer: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 55, // Lowered 25% from center
   },
-  statusOverlay: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    zIndex: 10,
+  nameBadge: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  hamsterName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#4A3728',
   },
   stateBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   stateText: {
-    marginLeft: 4,
     fontSize: 12,
     fontWeight: '600',
   },
-  hamsterInfoSection: {
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 8,
+  // CONTENT SECTION (Scrollable)
+  contentSection: {
+    flex: 1,
+    backgroundColor: '#FFF8F0',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
-  hamsterName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
+  scrollView: {
+    flex: 1,
   },
-  hamsterGreeting: {
-    marginTop: 8,
-    fontSize: 16,
-    color: '#3C3C43',
-    textAlign: 'center',
+  scrollContent: {
+    padding: 20,
+    paddingTop: 24,
+    paddingBottom: 32,
   },
-  customizeButton: {
+  // Action Card
+  actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    backgroundColor: '#FF9500',
     borderRadius: 20,
+    padding: 18,
+    marginBottom: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FF9500',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
-  customizeButtonText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#007AFF',
+  actionIconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  section: {
-    paddingHorizontal: 16,
-    marginTop: 24,
+  actionInfo: {
+    flex: 1,
+    marginLeft: 14,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#000',
+  actionLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.8)',
+    letterSpacing: 1,
   },
-  todayCard: {
-    backgroundColor: '#F2F2F7',
+  actionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 2,
+  },
+  actionSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
+    marginTop: 2,
+  },
+  // Completed Card
+  completedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(52,199,89,0.12)',
     borderRadius: 16,
     padding: 16,
-  },
-  completedStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 20,
   },
   completedInfo: {
     marginLeft: 12,
   },
   completedTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     color: '#34C759',
   },
   completedSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
-  pendingStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pendingInfo: {
-    marginLeft: 12,
-  },
-  pendingTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-  },
-  pendingSubtitle: {
-    fontSize: 14,
-    color: '#8E8E93',
-    marginTop: 2,
-  },
-  actionsRow: {
+  // Stats Row
+  statsRow: {
     flexDirection: 'row',
     gap: 12,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  workoutButton: {
-    backgroundColor: '#34C759',
-  },
-  restDayButton: {
-    backgroundColor: '#5856D6',
-  },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  streakCard: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 2,
-  },
-  streakContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  streakInfo: {
-    marginLeft: 16,
-  },
-  streakNumber: {
-    fontSize: 48,
-    fontWeight: 'bold',
-  },
-  streakLabel: {
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  streakStatus: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#3C3C43',
-  },
-  atRiskBadge: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    backgroundColor: '#FF9500',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  atRiskText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  restoreHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
-  },
-  restoreHintText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: '#5AC8FA',
-  },
-  longestStreak: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    gap: 12,
+    marginBottom: 16,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#8B5A2B',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
-  statValue: {
+  streakCard: {
+    backgroundColor: '#FFF8F0',
+    borderWidth: 1,
+    borderColor: 'rgba(255,59,48,0.2)',
+  },
+  statNumber: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 8,
-    color: '#000',
+    fontWeight: '700',
+    color: '#4A3728',
+    marginTop: 6,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#8E8E93',
-    marginTop: 4,
+    fontSize: 11,
+    color: '#6B5D52',
+    marginTop: 2,
+    fontWeight: '500',
   },
-  // Daily Exercise button styles
-  dailyExerciseButton: {
+  // Streak Warning
+  streakWarning: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#34C759',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: 'rgba(255,149,0,0.12)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
   },
-  dailyExerciseInfo: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  dailyExerciseTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  dailyExerciseSubtitle: {
+  streakWarningText: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.85)',
-    marginTop: 4,
-  },
-  // Hub navigation styles
-  hubButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  hubButton: {
+    color: '#FF9500',
+    fontWeight: '500',
     flex: 1,
+  },
+  // Restore Card
+  restoreCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
-    borderRadius: 12,
+    backgroundColor: 'rgba(90,200,250,0.12)',
+    borderRadius: 16,
     padding: 16,
+    marginBottom: 16,
   },
-  hubIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
+  restoreInfo: {
+    flex: 1,
+    marginLeft: 12,
   },
-  hubButtonText: {
-    fontSize: 13,
+  restoreTitle: {
+    fontSize: 15,
     fontWeight: '600',
-    color: '#3C3C43',
+    color: '#5AC8FA',
+  },
+  restoreSubtitle: {
+    fontSize: 13,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
+  // Customize Button
+  customizeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#8B5A2B',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  customizeText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#8B5A2B',
+    marginLeft: 12,
+  },
+  // Longest Streak
+  longestStreak: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#8E8E93',
+    marginTop: 8,
   },
 });

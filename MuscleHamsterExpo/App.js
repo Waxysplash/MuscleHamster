@@ -30,11 +30,12 @@ function RootNavigator() {
   }
 
   // Authenticated but profile not complete - show onboarding
+  // When onboarding completes, isProfileComplete becomes true and RootNavigator
+  // automatically switches to MainTabNavigator (no manual navigation needed)
   if (!isProfileComplete) {
     return (
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
-        <RootStack.Screen name="Main" component={MainTabNavigator} />
       </RootStack.Navigator>
     );
   }

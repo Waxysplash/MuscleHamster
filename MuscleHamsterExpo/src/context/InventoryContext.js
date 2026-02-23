@@ -1,6 +1,6 @@
 /**
  * InventoryContext.js
- * Manages equipped items and placed enclosure decorations
+ * Manages equipped items (simplified - only one item at a time)
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
@@ -14,7 +14,6 @@ export function InventoryProvider({ children }) {
   const [inventory, setInventory] = useState(null);
   const [equippedOutfit, setEquippedOutfit] = useState(null);
   const [equippedAccessory, setEquippedAccessory] = useState(null);
-  const [placedEnclosureItems, setPlacedEnclosureItems] = useState([]);
   const [allItems, setAllItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +30,6 @@ export function InventoryProvider({ children }) {
       setInventory(null);
       setEquippedOutfit(null);
       setEquippedAccessory(null);
-      setPlacedEnclosureItems([]);
       setError(null);
       setIsLoading(false);
     }
@@ -50,7 +48,6 @@ export function InventoryProvider({ children }) {
       setAllItems(items);
       setEquippedOutfit(inv.equippedOutfit);
       setEquippedAccessory(inv.equippedAccessory);
-      setPlacedEnclosureItems(inv.placedEnclosureItems || []);
     } catch (e) {
       console.warn('Failed to load inventory:', e);
       setError(e.message || 'Failed to load inventory');
@@ -79,78 +76,49 @@ export function InventoryProvider({ children }) {
     })).filter(o => o.item);
   }, [inventory, getItemById]);
 
-  // Equip an outfit
-  const equipOutfit = async (itemId) => {
-    const result = await ShopService.equipOutfit(itemId);
+  // Equip a single item (only one item can be equipped at a time)
+  const equipItem = async (itemId) => {
+    const result = await ShopService.equipItem(itemId);
     if (result.success) {
-      setEquippedOutfit(itemId);
-      await loadInventory(); // Refresh
+      await loadInventory(); // Refresh to get updated state
     }
     return result;
   };
 
-  // Unequip outfit
-  const unequipOutfit = async () => {
-    // Save null as equipped outfit
-    const inv = await ShopService.getInventory();
-    inv.equippedOutfit = null;
-    // Note: ShopService doesn't have unequip, so we'll handle locally
-    setEquippedOutfit(null);
-  };
-
-  // Equip an accessory
-  const equipAccessory = async (itemId) => {
-    const result = await ShopService.equipAccessory(itemId);
+  // Unequip all items
+  const unequipAll = async () => {
+    const result = await ShopService.unequipAll();
     if (result.success) {
-      setEquippedAccessory(itemId);
-      await loadInventory();
+      setEquippedOutfit(null);
+      setEquippedAccessory(null);
     }
     return result;
   };
 
-  // Unequip accessory
-  const unequipAccessory = async () => {
-    setEquippedAccessory(null);
-  };
+  // Legacy methods for compatibility
+  const equipOutfit = (itemId) => equipItem(itemId);
+  const equipAccessory = (itemId) => equipItem(itemId);
+  const unequipOutfit = () => unequipAll();
+  const unequipAccessory = () => unequipAll();
 
-  // Place an enclosure item
-  const placeEnclosureItem = async (itemId) => {
-    const result = await ShopService.placeEnclosureItem(itemId);
-    if (result.success) {
-      setPlacedEnclosureItems(prev =>
-        prev.includes(itemId) ? prev : [...prev, itemId]
-      );
-      await loadInventory();
-    }
-    return result;
-  };
+  // Get equipped item details (either outfit or accessory)
+  const getEquippedItemDetails = useCallback(() => {
+    if (equippedOutfit) return getItemById(equippedOutfit);
+    if (equippedAccessory) return getItemById(equippedAccessory);
+    return null;
+  }, [equippedOutfit, equippedAccessory, getItemById]);
 
-  // Remove an enclosure item
-  const removeEnclosureItem = async (itemId) => {
-    const result = await ShopService.removeEnclosureItem(itemId);
-    if (result.success) {
-      setPlacedEnclosureItems(prev => prev.filter(id => id !== itemId));
-      await loadInventory();
-    }
-    return result;
-  };
-
-  // Get equipped outfit details
+  // Get equipped outfit details (for compatibility)
   const getEquippedOutfitDetails = useCallback(() => {
     if (!equippedOutfit) return null;
     return getItemById(equippedOutfit);
   }, [equippedOutfit, getItemById]);
 
-  // Get equipped accessory details
+  // Get equipped accessory details (for compatibility)
   const getEquippedAccessoryDetails = useCallback(() => {
     if (!equippedAccessory) return null;
     return getItemById(equippedAccessory);
   }, [equippedAccessory, getItemById]);
-
-  // Get placed enclosure item details
-  const getPlacedEnclosureItemDetails = useCallback(() => {
-    return placedEnclosureItems.map(id => getItemById(id)).filter(Boolean);
-  }, [placedEnclosureItems, getItemById]);
 
   const value = {
     inventory,
@@ -159,20 +127,20 @@ export function InventoryProvider({ children }) {
     allItems,
     equippedOutfit,
     equippedAccessory,
-    placedEnclosureItems,
     loadInventory,
     getItemById,
     ownsItem,
     getOwnedItems,
+    equipItem,
+    unequipAll,
+    // Legacy methods
     equipOutfit,
     unequipOutfit,
     equipAccessory,
     unequipAccessory,
-    placeEnclosureItem,
-    removeEnclosureItem,
+    getEquippedItemDetails,
     getEquippedOutfitDetails,
     getEquippedAccessoryDetails,
-    getPlacedEnclosureItemDetails,
   };
 
   return (
