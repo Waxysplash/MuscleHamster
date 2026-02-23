@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  ImageBackground,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -17,7 +18,7 @@ import LoadingView from '../../components/LoadingView';
 import NotificationContextBanner from '../../components/NotificationContextBanner';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { useInventory } from '../../context/InventoryContext';
-import { LinearGradient } from 'expo-linear-gradient';
+import { EnclosureBackground } from '../../config/AssetImages';
 import { createNotificationContext, NotificationType } from '../../models/Notification';
 import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
@@ -145,9 +146,10 @@ export default function HomeScreen({ navigation }) {
 
         {/* Hamster Portrait Section */}
         <View style={styles.portraitSection}>
-          <LinearGradient
-            colors={['#87CEEB', '#4ECDC4']}
+          <ImageBackground
+            source={EnclosureBackground}
             style={styles.portraitBackground}
+            resizeMode="cover"
           >
             {/* Status Badge */}
             <View style={styles.statusOverlay}>
@@ -162,13 +164,13 @@ export default function HomeScreen({ navigation }) {
             {/* Hamster Portrait - Large and Prominent */}
             <View style={styles.hamsterPortraitWrapper}>
               <HamsterPortrait
-                state={hamsterState}
+                state={displayState}
                 size={280}
-                showHeadband={!equippedAccessory}
+                equippedOutfit={equippedOutfit}
                 equippedAccessory={equippedAccessory}
               />
             </View>
-          </LinearGradient>
+          </ImageBackground>
 
           {/* Hamster Info Below Portrait */}
           <View style={styles.hamsterInfoSection}>

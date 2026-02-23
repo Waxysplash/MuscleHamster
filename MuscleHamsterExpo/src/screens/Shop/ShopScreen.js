@@ -16,6 +16,7 @@ import {
   RefreshControl,
   Modal,
   Alert,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,6 +27,7 @@ import {
   ShopItemCategoryInfo,
   ShopItemRarityInfo,
 } from '../../models/ShopItem';
+import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
 
@@ -264,8 +266,8 @@ export default function ShopScreen({ navigation }) {
 
 // Featured Item Card
 function FeaturedItemCard({ item, isOwned, onPress }) {
-  const rarityInfo = ShopItemRarityInfo[item.rarity];
   const categoryInfo = ShopItemCategoryInfo[item.category];
+  const itemImage = getShopItemImage(item.id);
 
   return (
     <TouchableOpacity style={styles.featuredCard} onPress={onPress}>
@@ -275,15 +277,13 @@ function FeaturedItemCard({ item, isOwned, onPress }) {
         </View>
       )}
       <View style={[styles.featuredIcon, { backgroundColor: categoryInfo.color + '20' }]}>
-        <Ionicons name={categoryInfo.icon} size={32} color={categoryInfo.color} />
+        {itemImage ? (
+          <Image source={itemImage} style={styles.featuredImage} resizeMode="contain" />
+        ) : (
+          <Ionicons name={categoryInfo.icon} size={32} color={categoryInfo.color} />
+        )}
       </View>
       <Text style={styles.featuredName} numberOfLines={1}>{item.name}</Text>
-      <View style={styles.rarityRow}>
-        <View style={[styles.rarityDot, { backgroundColor: rarityInfo.color }]} />
-        <Text style={[styles.rarityText, { color: rarityInfo.color }]}>
-          {rarityInfo.displayName}
-        </Text>
-      </View>
       {isOwned ? (
         <View style={styles.ownedBadge}>
           <Ionicons name="checkmark-circle" size={14} color="#34C759" />
@@ -301,8 +301,8 @@ function FeaturedItemCard({ item, isOwned, onPress }) {
 
 // Regular Item Card
 function ItemCard({ item, isOwned, onPress }) {
-  const rarityInfo = ShopItemRarityInfo[item.rarity];
   const categoryInfo = ShopItemCategoryInfo[item.category];
+  const itemImage = getShopItemImage(item.id);
 
   return (
     <TouchableOpacity style={styles.itemCard} onPress={onPress}>
@@ -312,7 +312,11 @@ function ItemCard({ item, isOwned, onPress }) {
         </View>
       )}
       <View style={[styles.itemIcon, { backgroundColor: categoryInfo.color + '20' }]}>
-        <Ionicons name={categoryInfo.icon} size={24} color={categoryInfo.color} />
+        {itemImage ? (
+          <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
+        ) : (
+          <Ionicons name={categoryInfo.icon} size={24} color={categoryInfo.color} />
+        )}
       </View>
       <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
       {isOwned ? (
@@ -333,9 +337,9 @@ function ItemCard({ item, isOwned, onPress }) {
 function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, onClose }) {
   if (!item) return null;
 
-  const rarityInfo = ShopItemRarityInfo[item.rarity];
   const categoryInfo = ShopItemCategoryInfo[item.category];
   const canAfford = userPoints >= item.price;
+  const itemImage = getShopItemImage(item.id);
 
   return (
     <Modal
@@ -356,21 +360,19 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
         <ScrollView contentContainerStyle={styles.modalContent}>
           {/* Item Preview */}
           <View style={[styles.previewContainer, { backgroundColor: categoryInfo.color + '15' }]}>
-            <View style={[styles.previewIcon, { backgroundColor: categoryInfo.color + '30' }]}>
-              <Ionicons name={categoryInfo.icon} size={60} color={categoryInfo.color} />
-            </View>
+            {itemImage ? (
+              <Image source={itemImage} style={styles.previewImage} resizeMode="contain" />
+            ) : (
+              <View style={[styles.previewIcon, { backgroundColor: categoryInfo.color + '30' }]}>
+                <Ionicons name={categoryInfo.icon} size={60} color={categoryInfo.color} />
+              </View>
+            )}
           </View>
 
           {/* Item Info */}
           <Text style={styles.itemDetailName}>{item.name}</Text>
 
           <View style={styles.badgesRow}>
-            <View style={[styles.rarityBadge, { backgroundColor: rarityInfo.color + '20' }]}>
-              <Ionicons name={rarityInfo.icon} size={14} color={rarityInfo.color} />
-              <Text style={[styles.rarityBadgeText, { color: rarityInfo.color }]}>
-                {rarityInfo.displayName}
-              </Text>
-            </View>
             <View style={[styles.categoryBadge, { backgroundColor: categoryInfo.color + '20' }]}>
               <Ionicons name={categoryInfo.icon} size={14} color={categoryInfo.color} />
               <Text style={[styles.categoryBadgeText, { color: categoryInfo.color }]}>
@@ -572,12 +574,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   featuredIcon: {
-    width: 64,
-    height: 64,
+    width: 80,
+    height: 80,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  featuredImage: {
+    width: 70,
+    height: 70,
   },
   featuredName: {
     fontSize: 15,
@@ -644,12 +650,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemIcon: {
-    width: 48,
-    height: 48,
+    width: 60,
+    height: 60,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
+  },
+  itemImage: {
+    width: 50,
+    height: 50,
   },
   itemName: {
     fontSize: 13,
@@ -716,6 +726,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  previewImage: {
+    width: 150,
+    height: 150,
   },
   itemDetailName: {
     fontSize: 28,

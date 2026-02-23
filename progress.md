@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** SIMPLIFIED MVP — Implementation
-**Active Phase:** App Simplification (Session 38)
-**Last Updated:** Feb 21, 2026 (Session 38)
+**Status:** SIMPLIFIED MVP — Art Integration Complete
+**Active Phase:** UI Polish & Bug Fixes (Session 40)
+**Last Updated:** Feb 23, 2026 (Session 40)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -59,9 +59,24 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - ✅ 35 daily check-in exercises (KEEPING — this is the core)
 
 ### Still Needed (After Simplification)
-- 🔄 **Hamster artwork** — 2 states × 1 stage = **2 assets only** (happy + hungry)
-- [ ] **8-12 shop items** — Simplified item set
-- [ ] **Exercise illustrations** — For the 35 daily exercises
+- ✅ **Hamster artwork** — COMPLETE (Session 40) — 6 hamster images with transparent backgrounds
+- ✅ **Shop items** — COMPLETE (Session 40) — 9 items with transparent backgrounds
+- ✅ **Enclosure background** — COMPLETE (Session 40)
+- [ ] **Exercise illustrations** — For the 35 daily exercises (can defer to post-launch)
+
+---
+
+## 🎯 NEXT SESSION PRIORITIES
+
+### Priority 1: Fix Bugs
+- [ ] **Repetitive onboarding** — Users seeing onboarding multiple times
+- [ ] Investigate onboarding completion flag persistence
+
+### Priority 2: Home Screen UI Polish
+- [ ] Make home page visually appealing to "common eye"
+- [ ] Review layout, spacing, typography
+- [ ] Ensure hamster is prominently displayed with enclosure
+- [ ] Polish status badges and action buttons
 
 ---
 
@@ -1782,4 +1797,25 @@ Decision made (Session 38): The app has grown too complex for its core promise o
     2. End-to-end testing on real device
     3. App Store prep (icons, screenshots, description)
   - **Session 39 complete. Ready for art generation.**
+
+- Feb 23, 2026 (Session 40): **Art Asset Integration Complete**
+  - **Art prompts refined** for Google Gemini based on reference hamster image
+  - Updated `Assets/simplified-mvp-art-prompts.md` with new style (clean vector, black outlines, athletic headband)
+  - **Generated all 12 art assets** via Gemini + remove.bg for transparent backgrounds:
+    - 2 hamster states: happy, hungry
+    - 4 "hamster wearing" composites: sweater, jersey, bathrobe, sunglasses
+    - 3 outfits, 3 accessories, 3 enclosure items
+    - 1 enclosure background
+  - **Code updates:**
+    - Created `src/config/AssetImages.js` — Central image mapping
+    - Updated `HamsterView.js` and `HamsterPortrait.js` — Use composite "wearing" images
+    - Updated `EnclosureView.js` — Real background image
+    - Updated `HomeScreen.js` — Enclosure background instead of gradient
+    - Updated `ShopScreen.js` and `InventoryScreen.js` — Display actual item images
+    - Updated `ShopService.js` — Added previewImageName to items
+  - **Bugs identified for next session:**
+    - Repetitive onboarding (users see onboarding multiple times)
+  - **UI polish needed:**
+    - Home screen layout needs visual refinement
+  - **Session 40 complete. Art integration done. Ready for UI polish.**
 

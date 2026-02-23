@@ -47,6 +47,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.OUTFITS,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'outfit-1',
     isFeatured: true,
   }));
 
@@ -57,6 +58,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.OUTFITS,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'outfit-2',
   }));
 
   items.push(createShopItem({
@@ -66,6 +68,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.OUTFITS,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'outfit-3',
     isNew: true,
   }));
 
@@ -77,6 +80,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ACCESSORIES,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'acc-1',
     isFeatured: true,
   }));
 
@@ -87,6 +91,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ACCESSORIES,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'acc-3',
   }));
 
   items.push(createShopItem({
@@ -96,6 +101,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ACCESSORIES,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'acc-5',
     isNew: true,
   }));
 
@@ -107,6 +113,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ENCLOSURE,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'enc-1',
     isFeatured: true,
   }));
 
@@ -117,6 +124,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ENCLOSURE,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'enc-2',
   }));
 
   items.push(createShopItem({
@@ -126,6 +134,7 @@ const createSeedShopItems = () => {
     category: ShopItemCategory.ENCLOSURE,
     rarity: ShopItemRarity.COMMON,
     price: 50,
+    previewImageName: 'enc-8',
     isNew: true,
   }));
 
@@ -277,6 +286,19 @@ export const ShopService = {
     return { success: true };
   },
 
+  async unequipOutfit() {
+    await delay(200);
+    const inventory = await loadInventory();
+
+    const updatedInventory = {
+      ...inventory,
+      equippedOutfit: null,
+    };
+
+    await saveInventory(updatedInventory);
+    return { success: true };
+  },
+
   async equipAccessory(itemId) {
     await delay(200);
     const inventory = await loadInventory();
@@ -288,6 +310,19 @@ export const ShopService = {
     const updatedInventory = {
       ...inventory,
       equippedAccessory: itemId,
+    };
+
+    await saveInventory(updatedInventory);
+    return { success: true };
+  },
+
+  async unequipAccessory() {
+    await delay(200);
+    const inventory = await loadInventory();
+
+    const updatedInventory = {
+      ...inventory,
+      equippedAccessory: null,
     };
 
     await saveInventory(updatedInventory);

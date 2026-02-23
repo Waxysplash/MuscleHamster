@@ -1,29 +1,16 @@
 /**
  * HamsterView.js
  * Image-based hamster character with emotion states
- * Uses actual artwork instead of SVG rendering
+ * Uses composite "wearing" images when items are equipped
  */
 
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Image, StyleSheet, Animated, AccessibilityInfo } from 'react-native';
-
-// Import hamster state images
-const hamsterImages = {
-  happy: require('../../assets/hamster/states/Neutral.png'),
-  chillin: require('../../assets/hamster/states/Relaxed.png'),
-  hungry: require('../../assets/hamster/states/hungry.png'),
-  sad: require('../../assets/hamster/states/sad.png'),
-};
-
-// Fallback to happy/neutral if state not found
-const getHamsterImage = (state) => {
-  return hamsterImages[state] || hamsterImages.happy;
-};
+import { getHamsterWithEquipment } from '../config/AssetImages';
 
 export default function HamsterView({
   state = 'happy',
   size = 150,
-  showHeadband = true,
   equippedOutfit = null,
   equippedAccessory = null,
 }) {
@@ -100,7 +87,8 @@ export default function HamsterView({
     return () => bounce.stop();
   }, [reduceMotion, state, bounceAnim]);
 
-  const hamsterImage = getHamsterImage(state);
+  // Get the right hamster image (with outfit/accessory if equipped)
+  const hamsterImage = getHamsterWithEquipment(state, equippedOutfit, equippedAccessory);
 
   return (
     <Animated.View
@@ -122,19 +110,6 @@ export default function HamsterView({
         style={[styles.hamsterImage, { width: size, height: size }]}
         resizeMode="contain"
       />
-
-      {/* Overlay for equipped items - can be expanded later */}
-      {equippedAccessory && (
-        <View style={styles.accessoryOverlay}>
-          {/* Accessory images can be overlaid here */}
-        </View>
-      )}
-
-      {equippedOutfit && (
-        <View style={styles.outfitOverlay}>
-          {/* Outfit images can be overlaid here */}
-        </View>
-      )}
     </Animated.View>
   );
 }
@@ -146,19 +121,5 @@ const styles = StyleSheet.create({
   },
   hamsterImage: {
     // Image fills the container
-  },
-  accessoryOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  outfitOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
 });

@@ -9,11 +9,14 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { ShopService } from '../../services/ShopService';
 import { ShopItemCategory, ShopItemCategoryInfo } from '../../models/ShopItem';
+import { getShopItemImage } from '../../config/AssetImages';
+import HamsterView from '../../components/HamsterView';
 import LoadingView from '../../components/LoadingView';
 import EmptyStateView from '../../components/EmptyStateView';
 import ErrorView from '../../components/ErrorView';
@@ -153,11 +156,14 @@ export default function InventoryScreen({ navigation }) {
         <Text style={styles.sectionTitle}>Current Look</Text>
 
         <View style={styles.previewContainer}>
-          {/* Hamster placeholder */}
+          {/* Hamster with equipped items */}
           <View style={styles.hamsterPreview}>
-            <View style={styles.hamsterAvatar}>
-              <Ionicons name="paw" size={50} color="#FF9500" />
-            </View>
+            <HamsterView
+              state="happy"
+              size={120}
+              equippedOutfit={inventory?.equippedOutfit}
+              equippedAccessory={inventory?.equippedAccessory}
+            />
           </View>
 
           {/* Equipped items badges */}
@@ -165,7 +171,15 @@ export default function InventoryScreen({ navigation }) {
             <View style={styles.equippedBadges}>
               {equippedItems.outfit && (
                 <View style={[styles.equippedBadge, { backgroundColor: 'rgba(175,82,222,0.15)' }]}>
-                  <Ionicons name="shirt" size={12} color="#AF52DE" />
+                  {getShopItemImage(equippedItems.outfit.id) ? (
+                    <Image
+                      source={getShopItemImage(equippedItems.outfit.id)}
+                      style={styles.badgeImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Ionicons name="shirt" size={12} color="#AF52DE" />
+                  )}
                   <Text style={[styles.equippedBadgeText, { color: '#AF52DE' }]}>
                     {equippedItems.outfit.name}
                   </Text>
@@ -173,7 +187,15 @@ export default function InventoryScreen({ navigation }) {
               )}
               {equippedItems.accessory && (
                 <View style={[styles.equippedBadge, { backgroundColor: 'rgba(255,45,85,0.15)' }]}>
-                  <Ionicons name="sparkles" size={12} color="#FF2D55" />
+                  {getShopItemImage(equippedItems.accessory.id) ? (
+                    <Image
+                      source={getShopItemImage(equippedItems.accessory.id)}
+                      style={styles.badgeImage}
+                      resizeMode="contain"
+                    />
+                  ) : (
+                    <Ionicons name="sparkles" size={12} color="#FF2D55" />
+                  )}
                   <Text style={[styles.equippedBadgeText, { color: '#FF2D55' }]}>
                     {equippedItems.accessory.name}
                   </Text>
@@ -292,6 +314,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 12,
     fontWeight: '600',
+  },
+  badgeImage: {
+    width: 20,
+    height: 20,
   },
   categoryRow: {
     flexDirection: 'row',

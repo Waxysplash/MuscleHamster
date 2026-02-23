@@ -2,24 +2,26 @@
 
 **Total assets needed: 12**
 **Format: PNG, transparent background (except background)**
-**Tool: ChatGPT with DALL-E or Midjourney**
+**Tool: Google Gemini (Imagen)**
+**Reference character: ChatGPT Image Feb 21, 2026 — orange hamster with red/white headband**
 
 ---
 
 ## How To Use
 
-1. Open ChatGPT (with DALL-E) or Midjourney
+1. Open Google Gemini
 2. Paste the **Base Style** prompt first
-3. Generate **Asset #1** (happy hamster) — refine until you love it
-4. Upload Asset #1 as reference for all other assets: "Match this exact style"
-5. Save each file with the **exact filename** listed
-6. All images need **transparent backgrounds** except the enclosure background
+3. Upload the reference hamster image and say "Match this exact style"
+4. Generate **Asset #1** (happy hamster) — refine until it matches
+5. Use Asset #1 as reference for all other assets
+6. Save each file with the **exact filename** listed
+7. All images need **transparent backgrounds** except the enclosure background
 
 ---
 
 ## Base Style (paste this first)
 
-> You are creating assets for a mobile fitness app called Muscle Hamster. The art style is cute kawaii/chibi cartoon with soft rounded shapes, NO sharp edges. All outlines are slightly darker than the fill color — NEVER use black outlines. Every image must have a fully transparent background (no floor, no shadow, no backdrop). Export as PNG.
+> You are creating assets for a mobile fitness app called Muscle Hamster. The art style is clean vector cartoon with defined black outlines, simple shapes, and flat colors with minimal shading. The character is a cute chubby hamster with bright orange fur, cream/white belly and face markings, pink inner ears, big round black eyes with white highlights, a small pink nose, and a friendly expression. He wears a red and white athletic headband. Match this exact style consistently across all assets.
 
 ---
 
@@ -27,37 +29,37 @@
 
 ### Asset #1 — `hamster_happy.png` (900x900px)
 
-> A cute cartoon hamster standing upright with a big open smile, sparkling eyes with white highlights, and arms slightly raised in a welcoming celebratory pose. Warm orange fur (#F5A623), cream-colored belly and inner cheeks (#FFE4B5), soft pink nose (#FFB6C1), large expressive dark brown eyes (#4A3728). Head-to-body ratio about 1:1.2 (slightly larger head). Stubby mitten-style paws, small rounded perky ears, prominent puffy hamster cheek pouches. Outlines slightly darker than fill color, NOT black. Energetic and joyful — like a supportive gym buddy celebrating after a workout. Optional: small sparkle/star effects around the character. Transparent background. 900x900 pixels.
+> A cute cartoon hamster standing upright, front-facing. Bright orange fur with cream/white belly extending up to the face and cheeks. Round chubby body. Small pink inner ears, big round black eyes with white highlight dots, tiny pink nose, open smiling mouth showing happiness. Wearing a red and white striped athletic headband. Short stubby arms relaxed at sides, short stubby legs. Clean black outlines, flat colors, minimal shading. Simple clean vector cartoon style. Transparent background. 900x900 pixels.
 
-**This is your reference character. Refine until perfect before continuing.**
+**This is your reference character. Refine until it matches the original perfectly.**
 
 ---
 
 ### Asset #2 — `hamster_hungry.png` (900x900px)
 
-> Same hamster character as the reference image, exact same art style. Sitting and looking upward with big hopeful pleading eyes. Eyebrows angled up, ears slightly droopy. Paws held near belly or mouth. Mouth in a small gentle pout. Body posture slightly hunched and small — waiting patiently, NOT angry or demanding. The feeling is "I'm hungry and hoping you'll feed me" — gentle longing, like a puppy waiting by its bowl. CRITICAL: must look hopeful and inviting, never guilty or accusatory. Transparent background. 900x900 pixels.
+> Same cartoon hamster character with orange fur, cream belly, red and white athletic headband. Sitting down or slightly hunched posture. Big pleading puppy-dog eyes looking upward hopefully. Eyebrows angled up in a hopeful/pleading expression. Small pout or closed mouth. Paws held together near chest or belly. Ears slightly drooped. The expression is gentle longing — "please feed me" — NOT sad or guilt-inducing. Same clean black outline vector style. Transparent background. 900x900 pixels.
 
 ---
 
 ## OUTFIT ASSETS (3 images)
 
-For each outfit, upload your hamster_happy.png as reference and say "Match this exact art style."
+For each outfit, upload your hamster reference and say "Match this exact art style."
 
 ### Asset #3 — `outfit_cozy_sweater.png` (900x900px)
 
-> A tiny cute cozy sweater for a cartoon hamster. An oversized soft knit sweater (warm pastel color — cream or soft orange to match the hamster's fur). Kawaii cartoon style — extra soft and fluffy looking, with visible knit texture lines. Slightly oversized sleeves. Just the sweater on transparent background, no hamster. 900x900 pixels.
+> A tiny oversized knit sweater for the cartoon hamster. Warm cream or soft orange color. Visible knit texture lines. Slightly baggy sleeves. Clean black outline vector style matching the hamster art. Just the sweater floating, sized to fit the hamster, no hamster visible. Transparent background. 900x900 pixels.
 
 ---
 
 ### Asset #4 — `outfit_athlete_jersey.png` (900x900px)
 
-> A tiny cute athletic jersey/tank top for a cartoon hamster. A sporty sleeveless jersey (bright coral red #FF6B6B) with a small number "1" on the front. Includes small wristbands. Kawaii cartoon style — soft rounded edges. Just the outfit pieces on transparent background, no hamster. 900x900 pixels.
+> A tiny athletic tank top/jersey for the cartoon hamster. Bright coral red (#FF6B6B) with a white number "1" on the front. Optional: matching wristbands. Clean black outline vector style. Just the jersey floating, sized to fit the hamster. Transparent background. 900x900 pixels.
 
 ---
 
 ### Asset #5 — `outfit_bathrobe.png` (900x900px)
 
-> A tiny cute fluffy bathrobe for a cartoon hamster. A soft plush bathrobe (light blue or white) with a small belt/tie. Extra fluffy and cozy looking, slightly oversized. Kawaii cartoon style — maximum coziness. Just the bathrobe on transparent background, no hamster. 900x900 pixels.
+> A tiny fluffy bathrobe for the cartoon hamster. Light blue or white, soft and cozy looking. Small belt/tie around the waist. Clean black outline vector style matching the hamster. Just the bathrobe floating, sized to fit the hamster. Transparent background. 900x900 pixels.
 
 ---
 
@@ -67,19 +69,19 @@ Smaller items that attach to the hamster's head/face area.
 
 ### Asset #6 — `accessory_sunglasses.png` (360x360px)
 
-> A pair of tiny cute cartoon sunglasses sized for a small cartoon hamster. Round or slightly oval frames, dark lenses with a subtle shine/reflection highlight. Kawaii cartoon style — soft rounded edges, cool but adorable. Transparent background. 360x360 pixels.
+> Tiny cartoon sunglasses sized to fit on the hamster's face. Round or oval dark lenses with a white shine/reflection. Clean black outline vector style. Cool but cute. Transparent background. 360x360 pixels.
 
 ---
 
 ### Asset #7 — `accessory_crown.png` (360x360px)
 
-> A tiny cute cartoon golden crown sized for a small cartoon hamster. Simple 3-point or 5-point crown with a small gem (red or blue) in the center. Kawaii cartoon style — soft rounded points, not sharp. Gold color (#FFD700) with subtle shine. Transparent background. 360x360 pixels.
+> A small cartoon golden crown to sit on the hamster's head (above the headband). Simple 3 or 5 points, soft rounded tips. Gold color with a small red or blue gem in center. Clean black outline vector style. Transparent background. 360x360 pixels.
 
 ---
 
 ### Asset #8 — `accessory_flower_crown.png` (360x360px)
 
-> A small cute cartoon flower crown/headband for a cartoon hamster. A delicate ring of small flowers (pink, white, and yellow daisies or cherry blossoms) connected by tiny green leaves/vines. Kawaii cartoon style — soft, sweet, spring vibes. Transparent background. 360x360 pixels.
+> A small flower crown/headband for the hamster. Ring of simple cartoon flowers (pink, white, yellow) with small green leaves. Delicate and sweet. Clean black outline vector style. Transparent background. 360x360 pixels.
 
 ---
 
@@ -89,19 +91,19 @@ Items that go inside the hamster's living space.
 
 ### Asset #9 — `enclosure_rainbow_wheel.png` (540x540px)
 
-> A cute cartoon hamster exercise wheel with rainbow colors. Classic hamster wheel design but stylized with rainbow gradient on the running surface (red, orange, yellow, green, blue, purple blending smoothly). Simple stand in warm brown or gray. Kawaii cartoon style matching the hamster art. Viewed from a slight angle so you can see the colorful running surface. Transparent background. 540x540 pixels.
+> A cartoon hamster exercise wheel. Rainbow gradient on the running surface (red, orange, yellow, green, blue, purple). Simple brown or gray stand. Viewed from slight angle. Clean black outline vector style matching the hamster art. Transparent background. 540x540 pixels.
 
 ---
 
 ### Asset #10 — `enclosure_hammock.png` (540x540px)
 
-> A cute cartoon small hammock for a hamster enclosure. A tiny cozy fabric hammock (soft pastel purple or mint green) hanging from two small clips/hooks. Slightly curved/sagging in the middle invitingly, looks incredibly soft and cozy. Kawaii cartoon style. Transparent background. 540x540 pixels.
+> A small cozy cartoon hammock for a hamster cage. Soft pastel purple or mint green fabric. Hanging from two small clips. Curved/sagging in the middle invitingly. Clean black outline vector style. Transparent background. 540x540 pixels.
 
 ---
 
 ### Asset #11 — `enclosure_fairy_lights.png` (540x540px)
 
-> A cute cartoon string of fairy lights for a hamster enclosure. A gentle curved string/wire with small glowing round bulbs in soft warm colors (warm white, soft yellow, pale pink). The bulbs have a subtle glow effect around them. Kawaii cartoon style — magical and cozy ambiance. Transparent background. 540x540 pixels.
+> A cartoon string of fairy lights. Gentle curved wire with small round glowing bulbs in warm white, soft yellow, and pale pink. Subtle glow effect. Clean black outline vector style. Transparent background. 540x540 pixels.
 
 ---
 
@@ -111,7 +113,7 @@ This is the only asset that is NOT transparent.
 
 ### Asset #12 — `enclosure_bg_default.png` (1125x840px)
 
-> A cute cartoon hamster enclosure/cage interior background. The view is from the front looking into the enclosure. The upper 2/3 is a warm cream (#FFFAF5) to light peach (#FFF0E0) gradient wall. The bottom 1/3 is ground/bedding made of warm brown wood shavings (#C08050). Clean and simple — no items or decorations (those are layered on top separately). Kawaii cartoon style — warm, cozy, inviting. The enclosure should feel like a happy safe home. This is a FULL background — NOT transparent. 1125x840 pixels.
+> A cartoon hamster enclosure interior background. Front view looking into the cage. Upper 2/3 is warm cream to light peach gradient wall. Bottom 1/3 is brown wood shavings/bedding. Clean, simple, no decorations (items layered separately). Warm and cozy feeling. Clean cartoon style with subtle outlines. NOT transparent — full background image. 1125x840 pixels.
 
 ---
 
@@ -143,14 +145,51 @@ enclosure_bg_default.png
 
 ---
 
-## Tips for Best Results
+## Character Style Reference
 
-1. **Generate Asset #1 first** and regenerate until you love it — this sets the style
-2. **Upload Asset #1 as reference** for every other prompt
-3. **One asset at a time** — don't rush, quality matters
-4. **Check transparent backgrounds** — if ChatGPT adds a floor/shadow, ask to remove it
-5. **Save at high res** — you can always scale down later
-6. **Consistent lighting** — all assets should have soft lighting from upper-left
+**Key visual traits to maintain:**
+- Clean black outlines (defined, not sketchy)
+- Flat colors with minimal shading
+- Vector cartoon style (not soft/fuzzy kawaii)
+- Red and white striped athletic headband (signature look)
+- Bright orange fur
+- Cream/white belly extending to face
+- Big round black eyes with white highlights
+- Small pink nose
+- Pink inner ears
+- Chubby round body
+- Stubby mitten-style paws
+
+---
+
+## Color Palette Reference
+
+| Element | Color | Hex |
+|---------|-------|-----|
+| Hamster fur | Bright orange | #F5A623 |
+| Belly/face | Cream/white | #FFF8E7 |
+| Nose | Pink | #FFB6C1 |
+| Eyes | Black | #000000 |
+| Eye highlights | White | #FFFFFF |
+| Inner ears | Pink | #FFACAC |
+| Headband red | Red | #E53935 |
+| Headband white | White | #FFFFFF |
+| Outlines | Black | #000000 |
+| Background wall | Cream to peach | #FFFAF5 → #FFF0E0 |
+| Bedding | Warm brown | #C08050 |
+| Accent (coral) | Coral red | #FF6B6B |
+| Gold | Gold | #FFD700 |
+
+---
+
+## Tips for Google Gemini
+
+1. **Upload the reference image** with every prompt
+2. **Keep prompts concise** — Gemini sometimes ignores long instructions
+3. **Be explicit about "transparent background"** — check each output
+4. **One asset at a time** — don't batch generate
+5. **If style drifts**, re-upload reference and emphasize "match this exact style"
+6. **Check black outlines** — Gemini sometimes makes them too thin or removes them
 
 ---
 
@@ -159,19 +198,3 @@ enclosure_bg_default.png
 After generating, place files in:
 - **Expo**: `MuscleHamsterExpo/assets/images/`
 - **iOS**: `MuscleHamster/Assets.xcassets/` (create imagesets)
-
----
-
-## Color Palette Reference
-
-| Element | Color | Hex |
-|---------|-------|-----|
-| Hamster fur | Warm orange | #F5A623 |
-| Belly/cheeks | Cream | #FFE4B5 |
-| Nose | Soft pink | #FFB6C1 |
-| Eyes | Dark brown | #4A3728 |
-| Background wall | Cream to peach | #FFFAF5 → #FFF0E0 |
-| Bedding | Warm brown | #C08050 |
-| Accent (coral) | Coral red | #FF6B6B |
-| Accent (teal) | Teal | #4ECDC4 |
-| Gold | Gold | #FFD700 |

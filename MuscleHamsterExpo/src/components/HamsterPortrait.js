@@ -1,29 +1,17 @@
 /**
  * HamsterPortrait.js
  * Image-based hamster portrait for home screen
- * Uses actual artwork with emotion states
+ * Uses composite "wearing" images when items are equipped
  */
 
 import React, { useRef, useEffect, useState } from 'react';
 import { View, Image, StyleSheet, Animated, AccessibilityInfo } from 'react-native';
-
-// Import hamster state images
-const hamsterImages = {
-  happy: require('../../assets/hamster/states/Neutral.png'),
-  chillin: require('../../assets/hamster/states/Relaxed.png'),
-  hungry: require('../../assets/hamster/states/hungry.png'),
-  sad: require('../../assets/hamster/states/sad.png'),
-};
-
-// Fallback to happy/neutral if state not found
-const getHamsterImage = (state) => {
-  return hamsterImages[state] || hamsterImages.happy;
-};
+import { getHamsterWithEquipment } from '../config/AssetImages';
 
 export default function HamsterPortrait({
   state = 'happy',
   size = 200,
-  showHeadband = true,
+  equippedOutfit = null,
   equippedAccessory = null,
 }) {
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -99,7 +87,8 @@ export default function HamsterPortrait({
     return () => bounce.stop();
   }, [reduceMotion, state, bounceAnim]);
 
-  const hamsterImage = getHamsterImage(state);
+  // Get the right hamster image (with outfit/accessory if equipped)
+  const hamsterImage = getHamsterWithEquipment(state, equippedOutfit, equippedAccessory);
 
   return (
     <Animated.View
