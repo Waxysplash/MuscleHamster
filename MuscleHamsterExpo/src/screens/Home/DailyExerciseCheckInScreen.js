@@ -8,7 +8,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Image,
 } from 'react-native';
+
+const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { getExerciseDisplayPrompt } from '../../models/DailyExercise';
@@ -92,14 +95,13 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.successScroll}>
-          {/* Celebration */}
-          <Ionicons name="sparkles" size={60} color="#FFCC00" />
+          {/* Celebration Image */}
+          <Image
+            source={CompletedWorkoutImage}
+            style={styles.completedImage}
+            resizeMode="contain"
+          />
           <Text style={styles.successTitle}>Exercise Complete!</Text>
-
-          {/* Hamster reaction */}
-          <View style={styles.hamsterCircle}>
-            <Ionicons name="happy" size={50} color="#34C759" />
-          </View>
           <View style={styles.speechBubble}>
             <Text style={styles.encouragementText}>
               {exercise.encouragement}
@@ -276,14 +278,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#000',
   },
-  hamsterCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(52,199,89,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+  completedImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 8,
   },
   speechBubble: {
     backgroundColor: 'rgba(52,199,89,0.1)',
