@@ -17,39 +17,64 @@ import LoadingView from '../../components/LoadingView';
 // Sample gym workouts by body part
 const GYM_WORKOUTS = {
   legs: [
-    { id: 'gym-legs-1', name: 'Leg Press Power', duration: 'medium', difficulty: 'intermediate', description: 'Build strong quads and glutes' },
-    { id: 'gym-legs-2', name: 'Squat Fundamentals', duration: 'short', difficulty: 'beginner', description: 'Master the king of exercises' },
-    { id: 'gym-legs-3', name: 'Hamstring Focus', duration: 'medium', difficulty: 'intermediate', description: 'Target your posterior chain' },
-    { id: 'gym-legs-4', name: 'Calf Builder', duration: 'quick', difficulty: 'beginner', description: 'Develop defined calves' },
-    { id: 'gym-legs-5', name: 'Leg Day Destroyer', duration: 'long', difficulty: 'advanced', description: 'Complete lower body workout' },
+    { id: 'gym-legs-1', name: 'Back Squat', duration: 'medium', difficulty: 'intermediate', target: 'Quads/Glutes', description: 'The "King of Exercises" for total leg development.' },
+    { id: 'gym-legs-2', name: 'Romanian Deadlift', duration: 'medium', difficulty: 'intermediate', target: 'Hamstrings/Glutes', description: 'Focuses on the "hinge" and stretching the hamstrings.' },
+    { id: 'gym-legs-3', name: 'Leg Press', duration: 'medium', difficulty: 'beginner', target: 'Quads', description: 'Allows for heavy volume without taxing the lower back.' },
+    { id: 'gym-legs-4', name: 'Bulgarian Split Squat', duration: 'short', difficulty: 'advanced', target: 'Quads/Glutes', description: 'A brutal unilateral move that fixes muscle imbalances.' },
+    { id: 'gym-legs-5', name: 'Leg Extensions', duration: 'short', difficulty: 'beginner', target: 'Quads Isolation', description: 'Specifically targets the "teardrop" muscle above the knee.' },
+    { id: 'gym-legs-6', name: 'Lying Leg Curls', duration: 'short', difficulty: 'beginner', target: 'Hamstrings', description: 'Isolates the hamstrings through knee flexion.' },
+    { id: 'gym-legs-7', name: 'Walking Lunges', duration: 'medium', difficulty: 'intermediate', target: 'Glutes/Quads', description: 'Great for functional strength and glute activation.' },
+    { id: 'gym-legs-8', name: 'Standing Calf Raises', duration: 'short', difficulty: 'beginner', target: 'Gastrocnemius', description: 'Focuses on the large, visible diamond of the calf.' },
+    { id: 'gym-legs-9', name: 'Seated Calf Raises', duration: 'short', difficulty: 'beginner', target: 'Soleus', description: 'Targets the deeper muscle underneath the main calf.' },
+    { id: 'gym-legs-10', name: 'Goblet Squats', duration: 'short', difficulty: 'beginner', target: 'Quads/Core', description: 'A front-loaded squat that encourages upright posture.' },
   ],
   arms: [
-    { id: 'gym-arms-1', name: 'Bicep Blaster', duration: 'short', difficulty: 'intermediate', description: 'Pump up your biceps' },
-    { id: 'gym-arms-2', name: 'Tricep Sculptor', duration: 'short', difficulty: 'intermediate', description: 'Build horseshoe triceps' },
-    { id: 'gym-arms-3', name: 'Arm Day Complete', duration: 'medium', difficulty: 'intermediate', description: 'Full arm workout' },
-    { id: 'gym-arms-4', name: 'Forearm Finisher', duration: 'quick', difficulty: 'beginner', description: 'Grip strength and definition' },
-    { id: 'gym-arms-5', name: 'Gun Show', duration: 'long', difficulty: 'advanced', description: 'Intense arm hypertrophy' },
+    { id: 'gym-arms-1', name: 'EZ-Bar Bicep Curl', duration: 'short', difficulty: 'beginner', target: 'Bicep Short Head', description: 'Comfortable grip for heavy loading and bicep thickness.' },
+    { id: 'gym-arms-2', name: 'Incline Dumbbell Curl', duration: 'short', difficulty: 'intermediate', target: 'Bicep Long Head', description: 'Places the bicep in a deep stretch for better "peak" height.' },
+    { id: 'gym-arms-3', name: 'Hammer Curls', duration: 'short', difficulty: 'beginner', target: 'Brachialis/Forearm', description: 'Targets the side of the arm to make it look wider from the front.' },
+    { id: 'gym-arms-4', name: 'Preacher Curls', duration: 'short', difficulty: 'intermediate', target: 'Lower Bicep', description: 'Eliminates momentum to isolate the bottom of the bicep.' },
+    { id: 'gym-arms-5', name: 'Concentration Curls', duration: 'short', difficulty: 'beginner', target: 'Bicep Peak', description: 'A classic "finisher" for mind-muscle connection.' },
+    { id: 'gym-arms-6', name: 'Skull Crushers', duration: 'short', difficulty: 'intermediate', target: 'Tricep Long Head', description: 'The king of tricep mass, focusing on the back of the arm.' },
+    { id: 'gym-arms-7', name: 'Tricep Cable Pushdown', duration: 'short', difficulty: 'beginner', target: 'Tricep Lateral Head', description: 'Shapes the "horseshoe" look on the side of the arm.' },
+    { id: 'gym-arms-8', name: 'Overhead Extension', duration: 'short', difficulty: 'intermediate', target: 'Tricep Long Head', description: 'Stretches the tricep under load for maximum growth.' },
+    { id: 'gym-arms-9', name: 'Close-Grip Bench Press', duration: 'medium', difficulty: 'intermediate', target: 'Overall Tricep', description: 'A heavy compound movement for tricep power.' },
+    { id: 'gym-arms-10', name: 'Dips (Bench or Bar)', duration: 'short', difficulty: 'intermediate', target: 'Lower Tricep', description: 'A versatile movement focusing on the elbow lockout.' },
   ],
   back: [
-    { id: 'gym-back-1', name: 'Lat Pulldown Focus', duration: 'medium', difficulty: 'beginner', description: 'Build a wider back' },
-    { id: 'gym-back-2', name: 'Row to Grow', duration: 'medium', difficulty: 'intermediate', description: 'Thicken your back' },
-    { id: 'gym-back-3', name: 'Pull-Up Progression', duration: 'short', difficulty: 'intermediate', description: 'Master the pull-up' },
-    { id: 'gym-back-4', name: 'Lower Back Strength', duration: 'short', difficulty: 'beginner', description: 'Support your spine' },
-    { id: 'gym-back-5', name: 'Back Attack', duration: 'long', difficulty: 'advanced', description: 'Complete back development' },
+    { id: 'gym-back-1', name: 'Wide Grip Lat Pulldown', duration: 'medium', difficulty: 'beginner', target: 'Outer Lats', description: 'The primary move for building V-taper width.' },
+    { id: 'gym-back-2', name: 'Bent Over Barbell Row', duration: 'medium', difficulty: 'intermediate', target: 'Mid-Back Thickness', description: 'A heavy hitter for the rhomboids and traps.' },
+    { id: 'gym-back-3', name: 'Single Arm DB Row', duration: 'short', difficulty: 'intermediate', target: 'Lower Lats', description: 'Allows for a deeper stretch and more focused contraction.' },
+    { id: 'gym-back-4', name: 'Pull-Ups (Overhand)', duration: 'short', difficulty: 'advanced', target: 'Lat Width', description: 'The ultimate bodyweight test for a wide back.' },
+    { id: 'gym-back-5', name: 'Seated Cable Row', duration: 'medium', difficulty: 'beginner', target: 'Mid-Back/Rhomboids', description: 'Uses a neutral grip to pull the shoulder blades together.' },
+    { id: 'gym-back-6', name: 'Straight Arm Pulldown', duration: 'short', difficulty: 'intermediate', target: 'Lat Isolation', description: 'Isolates the lats without involving the biceps.' },
+    { id: 'gym-back-7', name: 'Meadows Row', duration: 'short', difficulty: 'advanced', target: 'Lower/Outer Lats', description: 'A staggered-stance landmine row for unique rowing angles.' },
+    { id: 'gym-back-8', name: 'Reverse Fly (Dumbbell)', duration: 'short', difficulty: 'beginner', target: 'Rear Delts/Mid-Back', description: 'Targets the small muscles between the shoulder blades.' },
+    { id: 'gym-back-9', name: 'Rack Pulls', duration: 'medium', difficulty: 'advanced', target: 'Lower Back/Traps', description: 'A partial deadlift that builds massive posterior chain density.' },
+    { id: 'gym-back-10', name: 'Close Grip Pulldown', duration: 'short', difficulty: 'intermediate', target: 'Inner Lats', description: 'Emphasizes the vertical pull with a focus on the lower lat insertion.' },
   ],
   chest: [
-    { id: 'gym-chest-1', name: 'Bench Press Basics', duration: 'medium', difficulty: 'beginner', description: 'Build a solid foundation' },
-    { id: 'gym-chest-2', name: 'Incline Focus', duration: 'medium', difficulty: 'intermediate', description: 'Target upper chest' },
-    { id: 'gym-chest-3', name: 'Cable Crossover Sculpt', duration: 'short', difficulty: 'intermediate', description: 'Define your pecs' },
-    { id: 'gym-chest-4', name: 'Push-Up Variations', duration: 'short', difficulty: 'beginner', description: 'Bodyweight chest work' },
-    { id: 'gym-chest-5', name: 'Chest Crusher', duration: 'long', difficulty: 'advanced', description: 'Maximum chest gains' },
+    { id: 'gym-chest-1', name: 'Flat Barbell Bench Press', duration: 'medium', difficulty: 'intermediate', target: 'Mid-Pectorals', description: 'The gold standard for overall chest mass and power.' },
+    { id: 'gym-chest-2', name: 'Incline Dumbbell Press', duration: 'medium', difficulty: 'intermediate', target: 'Upper Chest', description: 'Focuses on the clavicular head to build that "shelf" look.' },
+    { id: 'gym-chest-3', name: 'Decline Hammer Strength', duration: 'medium', difficulty: 'intermediate', target: 'Lower Chest', description: 'Targets the bottom sweep of the pecs with a stable, guided path.' },
+    { id: 'gym-chest-4', name: 'Low-to-High Cable Fly', duration: 'short', difficulty: 'intermediate', target: 'Upper/Inner Chest', description: 'Uses a scooping motion to define the upper-inner cleavage.' },
+    { id: 'gym-chest-5', name: 'High-to-Low Cable Fly', duration: 'short', difficulty: 'intermediate', target: 'Lower/Outer Chest', description: 'Excellent for stretching the fibers and hitting the lower serratus.' },
+    { id: 'gym-chest-6', name: 'Weighted Dips', duration: 'short', difficulty: 'advanced', target: 'Lower Chest', description: 'A powerful bodyweight-plus movement for chest depth.' },
+    { id: 'gym-chest-7', name: 'Dumbbell Pullover', duration: 'short', difficulty: 'intermediate', target: 'Chest/Serratus', description: 'Expands the ribcage and hits the "tie-in" between chest and lats.' },
+    { id: 'gym-chest-8', name: 'Push-Ups (Diamond)', duration: 'short', difficulty: 'beginner', target: 'Inner Chest/Triceps', description: 'A close-grip variation to emphasize the inner chest line.' },
+    { id: 'gym-chest-9', name: 'Machine Chest Press', duration: 'medium', difficulty: 'beginner', target: 'Overall Mass', description: 'Allows for maximum mechanical tension without needing a spotter.' },
+    { id: 'gym-chest-10', name: 'Plate Press (Svend Press)', duration: 'quick', difficulty: 'beginner', target: 'Inner Chest', description: 'A constant-tension isometric squeeze using a weight plate.' },
   ],
   shoulders: [
-    { id: 'gym-shoulders-1', name: 'Overhead Press Power', duration: 'medium', difficulty: 'intermediate', description: 'Build boulder shoulders' },
-    { id: 'gym-shoulders-2', name: 'Lateral Raise Focus', duration: 'short', difficulty: 'beginner', description: 'Widen your frame' },
-    { id: 'gym-shoulders-3', name: 'Rear Delt Developer', duration: 'short', difficulty: 'intermediate', description: 'Complete shoulder development' },
-    { id: 'gym-shoulders-4', name: 'Front Raise Finisher', duration: 'quick', difficulty: 'beginner', description: 'Define front delts' },
-    { id: 'gym-shoulders-5', name: 'Shoulder Shredder', duration: 'long', difficulty: 'advanced', description: 'Intense deltoid workout' },
+    { id: 'gym-shoulders-1', name: 'Overhead Barbell Press', duration: 'medium', difficulty: 'intermediate', target: 'Front/Side Delts', description: 'A foundational strength move for the entire shoulder girdle.' },
+    { id: 'gym-shoulders-2', name: 'Dumbbell Lateral Raise', duration: 'short', difficulty: 'beginner', target: 'Side Delts', description: 'Critical for building shoulder width and the "capped" look.' },
+    { id: 'gym-shoulders-3', name: 'Face Pulls', duration: 'short', difficulty: 'beginner', target: 'Rear Delts/Traps', description: 'Essential for shoulder health and rear-end thickness.' },
+    { id: 'gym-shoulders-4', name: 'Arnold Press', duration: 'medium', difficulty: 'intermediate', target: 'Front/Side Delts', description: 'A rotating press that increases the range of motion.' },
+    { id: 'gym-shoulders-5', name: 'Front Plate Raise', duration: 'short', difficulty: 'beginner', target: 'Front Delts', description: 'Isolates the anterior head often used in pressing movements.' },
+    { id: 'gym-shoulders-6', name: 'Upright Rows', duration: 'short', difficulty: 'intermediate', target: 'Side Delts/Traps', description: 'A vertical pull focusing on the traps and lateral deltoids.' },
+    { id: 'gym-shoulders-7', name: 'Rear Delt Pec Deck', duration: 'short', difficulty: 'beginner', target: 'Rear Delts', description: 'Machine-based isolation to prevent swinging.' },
+    { id: 'gym-shoulders-8', name: 'Single Arm Cable Lateral', duration: 'short', difficulty: 'intermediate', target: 'Side Delts', description: 'Provides constant tension throughout the entire lift.' },
+    { id: 'gym-shoulders-9', name: 'Push Press', duration: 'medium', difficulty: 'advanced', target: 'Power/Shoulders', description: 'Uses leg drive to move heavy weight overhead explosively.' },
+    { id: 'gym-shoulders-10', name: 'Dumbbell Shrugs', duration: 'short', difficulty: 'beginner', target: 'Upper Traps', description: 'Builds the "yoke" connecting the neck and shoulders.' },
   ],
 };
 
@@ -133,6 +158,9 @@ export default function GymBodyPartScreen({ route, navigation }) {
                 </View>
                 <View style={styles.workoutInfo}>
                   <Text style={styles.workoutName}>{workout.name}</Text>
+                  {workout.target && (
+                    <Text style={styles.workoutTarget}>{workout.target}</Text>
+                  )}
                   <Text style={styles.workoutDescription}>{workout.description}</Text>
                   <View style={styles.workoutMeta}>
                     <Ionicons name="time-outline" size={14} color="#6B5D52" />
@@ -229,6 +257,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: '#4A3728',
+    marginBottom: 2,
+  },
+  workoutTarget: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#FF9500',
     marginBottom: 4,
   },
   workoutDescription: {
