@@ -29,6 +29,16 @@ const GymBodyPartImages = {
   back: require('../../../assets/images/gym_back.png'),
   chest: require('../../../assets/images/gym_chest.png'),
   shoulders: require('../../../assets/images/gym_shoulders.png'),
+  core: require('../../../assets/images/gym_core.png'),
+};
+
+// Home category images
+const HomeCategoryImages = {
+  quick_sweats: require('../../../assets/images/home_quick_sweats.png'),
+  lower_body: require('../../../assets/images/home_lower_body.png'),
+  upper_body: require('../../../assets/images/home_upper_body.png'),
+  core: require('../../../assets/images/home_core.png'),
+  desk: require('../../../assets/images/home_desk.png'),
 };
 
 // Body part categories for gym workouts
@@ -38,6 +48,16 @@ const GYM_BODY_PARTS = [
   { id: 'back', name: 'Back', color: '#45B7D1' },
   { id: 'chest', name: 'Chest', color: '#F39C12' },
   { id: 'shoulders', name: 'Shoulders', color: '#9B59B6' },
+  { id: 'core', name: 'Core', color: '#E74C3C' },
+];
+
+// Home workout categories
+const HOME_CATEGORIES = [
+  { id: 'quick_sweats', name: 'Quick Sweats', icon: 'flash-outline', color: '#FF9500' },
+  { id: 'lower_body', name: 'Lower Body', icon: 'footsteps-outline', color: '#FF6B6B' },
+  { id: 'upper_body', name: 'Upper Body', icon: 'body-outline', color: '#4ECDC4' },
+  { id: 'core', name: 'Core', icon: 'ellipse-outline', color: '#E74C3C' },
+  { id: 'desk', name: 'Desk Workouts', icon: 'desktop-outline', color: '#45B7D1' },
 ];
 
 export default function WorkoutsScreen({ navigation }) {
@@ -78,6 +98,10 @@ export default function WorkoutsScreen({ navigation }) {
 
   const navigateToBodyPart = (bodyPart) => {
     navigation.navigate('GymBodyPartWorkouts', { bodyPart });
+  };
+
+  const navigateToHomeCategory = (category) => {
+    navigation.navigate('HomeCategoryWorkouts', { category });
   };
 
   // Filter at-home workouts (no equipment needed)
@@ -151,46 +175,29 @@ export default function WorkoutsScreen({ navigation }) {
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="home" size={20} color="#FF9500" />
-                <Text style={styles.sectionTitle}>No Equipment Needed</Text>
+                <Text style={styles.sectionTitle}>Choose Category</Text>
               </View>
               <Text style={styles.sectionSubtitle}>
-                Quick workouts you can do anywhere
+                No equipment needed - workout anywhere
               </Text>
 
-              {atHomeWorkouts.map((workout) => {
-                const durationInfo = DurationBucketInfo[workout.duration];
-                return (
+              <View style={styles.bodyPartGrid}>
+                {HOME_CATEGORIES.map((category) => (
                   <TouchableOpacity
-                    key={workout.id}
-                    style={styles.workoutRow}
-                    onPress={() => navigateToWorkout(workout)}
-                    accessibilityLabel={`${workout.name}`}
+                    key={category.id}
+                    style={[styles.bodyPartCard, { width: cardWidth }]}
+                    onPress={() => navigateToHomeCategory(category)}
+                    accessibilityLabel={`${category.name} workouts`}
                   >
-                    <View style={styles.workoutRowIcon}>
-                      <Ionicons name="fitness" size={24} color="#8B5A2B" />
-                    </View>
-                    <View style={styles.workoutRowInfo}>
-                      <Text style={styles.workoutRowName}>{workout.name}</Text>
-                      <View style={styles.workoutRowMeta}>
-                        <Ionicons name="time-outline" size={14} color="#6B5D52" />
-                        <Text style={styles.workoutRowDuration}>{durationInfo?.range}</Text>
-                        <View style={[styles.difficultyDot, { backgroundColor: getDifficultyColor(workout.difficulty) }]} />
-                        <Text style={styles.workoutRowDifficulty}>
-                          {FitnessLevelInfo[workout.difficulty]?.displayName}
-                        </Text>
-                      </View>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+                    <Image
+                      source={HomeCategoryImages[category.id]}
+                      style={styles.bodyPartImage}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.bodyPartName}>{category.name}</Text>
                   </TouchableOpacity>
-                );
-              })}
-
-              {atHomeWorkouts.length === 0 && (
-                <View style={styles.emptyState}>
-                  <Ionicons name="fitness-outline" size={48} color="#C4B5A8" />
-                  <Text style={styles.emptyText}>No home workouts available</Text>
-                </View>
-              )}
+                ))}
+              </View>
             </View>
           ) : (
             // AT GYM TAB

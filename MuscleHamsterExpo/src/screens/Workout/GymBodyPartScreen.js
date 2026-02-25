@@ -74,6 +74,18 @@ const GYM_WORKOUTS = {
     { id: 'gym-shoulders-9', name: 'Push Press', duration: 'medium', difficulty: 'advanced', target: 'Power/Shoulders', description: 'Uses leg drive to move heavy weight overhead explosively.' },
     { id: 'gym-shoulders-10', name: 'Dumbbell Shrugs', duration: 'short', difficulty: 'beginner', target: 'Upper Traps', description: 'Builds the "yoke" connecting the neck and shoulders.' },
   ],
+  core: [
+    { id: 'gym-core-1', name: 'Hanging Leg Raises', duration: 'short', difficulty: 'intermediate', target: 'Lower Abs', description: 'Hanging from a pull-up bar, lift your legs to 90 degrees; the ultimate lower-ab builder.' },
+    { id: 'gym-core-2', name: 'Cable Crunches', duration: 'short', difficulty: 'intermediate', target: 'Upper/Mid Abs', description: 'Kneeling at a cable station, use a rope attachment to crunch downward under heavy tension.' },
+    { id: 'gym-core-3', name: "Captain's Chair Knee Raises", duration: 'short', difficulty: 'beginner', target: 'Lower Abs/Hip Flexors', description: 'A more stable version of the hanging raise using elbow pads for support.' },
+    { id: 'gym-core-4', name: 'Ab Wheel Rollouts', duration: 'short', difficulty: 'advanced', target: 'Deep Core/Stability', description: 'A high-intensity move that trains the core to resist extension.' },
+    { id: 'gym-core-5', name: 'Pallof Press', duration: 'short', difficulty: 'intermediate', target: 'Obliques/Anti-Rotation', description: 'Holding a cable at chest height, push it out and resist the weight pulling you sideways.' },
+    { id: 'gym-core-6', name: 'Russian Twists (Weighted)', duration: 'short', difficulty: 'intermediate', target: 'Obliques', description: 'Seated with feet elevated, rotate a medicine ball or plate from side to side.' },
+    { id: 'gym-core-7', name: 'Plank with Weight Plate', duration: 'short', difficulty: 'intermediate', target: 'Total Core', description: 'Increase the difficulty of a standard plank by having a partner place a plate on your back.' },
+    { id: 'gym-core-8', name: 'Woodchoppers (Cable)', duration: 'short', difficulty: 'intermediate', target: 'Obliques/Explosiveness', description: 'A diagonal pulling motion that mimics a swinging axe, great for functional power.' },
+    { id: 'gym-core-9', name: 'Decline Sit-Ups', duration: 'short', difficulty: 'beginner', target: 'Upper Abs', description: 'Performed on a decline bench to increase the range of motion and resistance.' },
+    { id: 'gym-core-10', name: 'Dragon Flags', duration: 'short', difficulty: 'advanced', target: 'Total Core', description: 'Lying on a bench and gripping the top, lift your entire body up in a straight line (advanced).' },
+  ],
 };
 
 
