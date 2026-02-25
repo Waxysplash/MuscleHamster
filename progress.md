@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** SIMPLIFIED MVP — UI Polish Complete
-**Active Phase:** Ready for Testing (Session 41)
-**Last Updated:** Feb 23, 2026 (Session 41)
+**Status:** SIMPLIFIED MVP — Workout Content Added
+**Active Phase:** Ready for Testing (Session 42)
+**Last Updated:** Feb 25, 2026 (Session 42)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -74,6 +74,37 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - [ ] Test daily exercise check-in flow
 - [ ] Test shop purchase and equip flow
 - [ ] App Store prep (icons, screenshots, description)
+
+### ✅ COMPLETED (Session 42)
+
+#### At Gym Tab: Core Workouts Added
+- Added **Core** category with 10 gym exercises:
+  - Hanging Leg Raises, Cable Crunches, Captain's Chair Knee Raises, Ab Wheel Rollouts, Pallof Press, Russian Twists (Weighted), Plank with Weight Plate, Woodchoppers (Cable), Decline Sit-Ups, Dragon Flags
+- Updated shoulders icon image
+- Added `gym_core.png` image
+
+#### At Home Tab: 5 Categories with 19 Exercises
+- **Quick Sweats** (4): Jumping Jacks, High Knees, Invisible Jump Rope, Pacing
+- **Lower Body** (4): Air Squats, Alternating Lunges, Glute Bridges, Side Leg Raises
+- **Upper Body** (4): Wall Push-ups, Floor Push-ups, Chair Dips, Arm Circles
+- **Core** (4): Forearm Plank, Standard Crunches, Bicycle Crunches, Leg Flutters
+- **Desk Workouts** (3): Calf Raises, Chair Swivels, Seated Leg Extensions
+- Added custom images for all 5 categories
+
+#### Daily Workout Completion Image
+- Added custom celebration image (`completed_workout.png`) for the daily workout completion popup
+- Replaces generic icon with custom hamster celebration art
+
+#### Files Changed
+- `WorkoutsScreen.js` — Added home categories with images
+- `HomeCategoryScreen.js` — New screen for home exercise categories
+- `HomeExerciseDetailScreen.js` — New screen for exercise details
+- `GymBodyPartScreen.js` — Added Core exercises
+- `DailyExerciseCheckInScreen.js` — Added completion image
+- `MainTabNavigator.js` — Added navigation routes
+- 7 new images added to assets
+
+---
 
 ### ✅ COMPLETED (Session 41)
 
