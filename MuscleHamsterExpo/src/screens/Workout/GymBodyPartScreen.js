@@ -104,11 +104,9 @@ export default function GymBodyPartScreen({ route, navigation }) {
   };
 
   const handleWorkoutPress = (workout) => {
-    // Navigate to a workout detail or start screen
-    // For now, show an alert or navigate to WorkoutDetail
-    navigation.navigate('WorkoutDetail', {
-      workoutId: workout.id,
-      gymWorkout: workout, // Pass the gym workout data
+    navigation.navigate('GymExerciseDetail', {
+      exercise: workout,
+      bodyPart: bodyPart,
     });
   };
 

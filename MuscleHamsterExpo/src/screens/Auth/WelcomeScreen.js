@@ -8,7 +8,7 @@ export default function WelcomeScreen({ navigation }) {
         {/* Hero Section */}
         <View style={styles.hero}>
           <Image
-            source={require('../../../assets/hamster/hamster-logo.png')}
+            source={require('../../../assets/images/hamster_icon.png')}
             style={styles.hamsterLogo}
             resizeMode="contain"
           />
@@ -50,7 +50,7 @@ export default function WelcomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     flex: 1,
@@ -62,19 +62,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   hamsterLogo: {
-    width: 150,
-    height: 150,
+    width: 180,
+    height: 180,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 24,
-    color: '#000',
+    color: '#4A3728',
   },
   subtitle: {
     fontSize: 17,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
     paddingHorizontal: 32,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   secondaryButtonText: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 15,
   },
 });
