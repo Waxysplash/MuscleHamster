@@ -9,6 +9,7 @@ import {
   Dimensions,
   RefreshControl,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -21,13 +22,22 @@ import ErrorView from '../../components/ErrorView';
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2;
 
+// Gym body part images
+const GymBodyPartImages = {
+  legs: require('../../../assets/images/gym_legs.png'),
+  arms: require('../../../assets/images/gym_arms.png'),
+  back: require('../../../assets/images/gym_back.png'),
+  chest: require('../../../assets/images/gym_chest.png'),
+  shoulders: require('../../../assets/images/gym_shoulders.png'),
+};
+
 // Body part categories for gym workouts
 const GYM_BODY_PARTS = [
-  { id: 'legs', name: 'Legs', icon: 'body-outline', color: '#FF6B6B' },
-  { id: 'arms', name: 'Arms', icon: 'fitness-outline', color: '#4ECDC4' },
-  { id: 'back', name: 'Back', icon: 'arrow-back-outline', color: '#45B7D1' },
-  { id: 'chest', name: 'Chest', icon: 'heart-outline', color: '#F39C12' },
-  { id: 'shoulders', name: 'Shoulders', icon: 'chevron-up-outline', color: '#9B59B6' },
+  { id: 'legs', name: 'Legs', color: '#FF6B6B' },
+  { id: 'arms', name: 'Arms', color: '#4ECDC4' },
+  { id: 'back', name: 'Back', color: '#45B7D1' },
+  { id: 'chest', name: 'Chest', color: '#F39C12' },
+  { id: 'shoulders', name: 'Shoulders', color: '#9B59B6' },
 ];
 
 export default function WorkoutsScreen({ navigation }) {
@@ -201,9 +211,11 @@ export default function WorkoutsScreen({ navigation }) {
                     onPress={() => navigateToBodyPart(part)}
                     accessibilityLabel={`${part.name} workouts`}
                   >
-                    <View style={[styles.bodyPartIcon, { backgroundColor: part.color + '20' }]}>
-                      <Ionicons name={part.icon} size={32} color={part.color} />
-                    </View>
+                    <Image
+                      source={GymBodyPartImages[part.id]}
+                      style={styles.bodyPartImage}
+                      resizeMode="contain"
+                    />
                     <Text style={styles.bodyPartName}>{part.name}</Text>
                   </TouchableOpacity>
                 ))}
@@ -286,7 +298,7 @@ const styles = StyleSheet.create({
   bodyPartCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 24,
+    padding: 16,
     alignItems: 'center',
     marginBottom: 12,
     shadowColor: '#4A3728',
@@ -295,13 +307,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  bodyPartIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
+  bodyPartImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 8,
   },
   bodyPartName: {
     fontSize: 16,
