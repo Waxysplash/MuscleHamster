@@ -10,8 +10,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutService } from '../../services/WorkoutService';
-import { DurationBucketInfo } from '../../models/Workout';
-import { FitnessLevelInfo } from '../../models/UserProfile';
 import LoadingView from '../../components/LoadingView';
 
 // Sample gym workouts by body part
@@ -78,12 +76,6 @@ const GYM_WORKOUTS = {
   ],
 };
 
-const DURATION_MAP = {
-  quick: { range: '5-10 min' },
-  short: { range: '10-20 min' },
-  medium: { range: '20-30 min' },
-  long: { range: '30-45 min' },
-};
 
 export default function GymBodyPartScreen({ route, navigation }) {
   const { bodyPart } = route.params;
@@ -145,9 +137,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
-          {workouts.map((workout) => {
-            const durationInfo = DURATION_MAP[workout.duration];
-            return (
+          {workouts.map((workout) => (
               <TouchableOpacity
                 key={workout.id}
                 style={styles.workoutCard}
@@ -163,8 +153,6 @@ export default function GymBodyPartScreen({ route, navigation }) {
                   )}
                   <Text style={styles.workoutDescription}>{workout.description}</Text>
                   <View style={styles.workoutMeta}>
-                    <Ionicons name="time-outline" size={14} color="#6B5D52" />
-                    <Text style={styles.workoutDuration}>{durationInfo?.range}</Text>
                     <View style={[styles.difficultyDot, { backgroundColor: getDifficultyColor(workout.difficulty) }]} />
                     <Text style={styles.workoutDifficulty}>
                       {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
@@ -173,8 +161,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
               </TouchableOpacity>
-            );
-          })}
+          ))}
 
           {workouts.length === 0 && (
             <View style={styles.emptyState}>
@@ -274,11 +261,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  workoutDuration: {
-    fontSize: 13,
-    color: '#6B5D52',
-    marginLeft: 4,
   },
   difficultyDot: {
     width: 8,
