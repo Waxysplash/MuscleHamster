@@ -309,10 +309,8 @@ export const ActivityService = {
       };
     }
 
-    // Calculate points: base 25 + streak multiplier (max 1.5x)
-    const basePoints = 25;
-    const streakMultiplier = Math.min(1 + (stats.currentStreak * 0.07), 1.5);
-    const points = Math.round(basePoints * streakMultiplier);
+    // Flat 10 points per daily check-in
+    const points = 10;
 
     // Update streak
     const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;

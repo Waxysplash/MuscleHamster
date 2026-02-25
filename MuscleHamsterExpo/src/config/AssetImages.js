@@ -23,7 +23,8 @@ export const HamsterWearingOutfit = {
 // Hamster wearing accessories (complete images)
 export const HamsterWearingAccessory = {
   'acc-1': require('../../assets/images/hamster_wearing_sunglasses.png'),
-  // Note: crown and flower crown don't have "wearing" versions yet
+  'acc-3': require('../../assets/images/hamster_wearing_crown.png'),
+  'acc-5': require('../../assets/images/hamster_wearing_flower_crown.png'),
 };
 
 // Outfit images (standalone items for shop display)
