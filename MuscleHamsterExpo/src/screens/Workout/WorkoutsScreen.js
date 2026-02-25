@@ -213,7 +213,10 @@ export default function WorkoutsScreen({ navigation }) {
                   >
                     <Image
                       source={GymBodyPartImages[part.id]}
-                      style={styles.bodyPartImage}
+                      style={[
+                        styles.bodyPartImage,
+                        part.id === 'shoulders' && styles.bodyPartImageSmaller
+                      ]}
                       resizeMode="contain"
                     />
                     <Text style={styles.bodyPartName}>{part.name}</Text>
@@ -311,6 +314,10 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     marginBottom: 8,
+  },
+  bodyPartImageSmaller: {
+    width: 65,
+    height: 65,
   },
   bodyPartName: {
     fontSize: 16,
