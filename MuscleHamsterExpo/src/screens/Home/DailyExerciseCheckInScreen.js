@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Video, ResizeMode } from 'expo-av';
 
 const CompletionVideo = require('../../../assets/videos/completion_celebration.mov');
+const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { getExerciseDisplayPrompt } from '../../models/DailyExercise';
@@ -30,6 +32,7 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
   const [state, setState] = useState(CheckInState.READY);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [videoError, setVideoError] = useState(false);
 
   const handleCheckIn = async () => {
     setState(CheckInState.CONFIRMING);
@@ -95,16 +98,28 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.successScroll}>
-          {/* Celebration Video */}
+          {/* Celebration Video or Fallback Image */}
           <View style={styles.videoContainer}>
-            <Video
-              source={CompletionVideo}
-              style={styles.completedVideo}
-              resizeMode={ResizeMode.CONTAIN}
-              shouldPlay={true}
-              isLooping={true}
-              isMuted={true}
-            />
+            {videoError ? (
+              <Image
+                source={CompletedWorkoutImage}
+                style={styles.completedImage}
+                resizeMode="contain"
+              />
+            ) : (
+              <Video
+                source={CompletionVideo}
+                style={styles.completedVideo}
+                resizeMode={ResizeMode.CONTAIN}
+                shouldPlay={true}
+                isLooping={true}
+                isMuted={true}
+                onError={(e) => {
+                  console.log('Video error:', e);
+                  setVideoError(true);
+                }}
+              />
+            )}
           </View>
           <Text style={styles.successTitle}>Exercise Complete!</Text>
           <View style={styles.speechBubble}>
@@ -291,6 +306,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   completedVideo: {
+    width: '100%',
+    height: '100%',
+  },
+  completedImage: {
     width: '100%',
     height: '100%',
   },
