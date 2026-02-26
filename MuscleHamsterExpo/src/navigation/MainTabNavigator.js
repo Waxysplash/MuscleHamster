@@ -49,7 +49,19 @@ const SocialStack = createNativeStackNavigator();
 
 function HomeStackScreen() {
   return (
-    <HomeStack.Navigator>
+    <HomeStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFF8F0',
+        },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: {
+          color: '#4A3728',
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <HomeStack.Screen
         name="HomeMain"
         component={HomeScreen}
@@ -173,7 +185,19 @@ function HomeStackScreen() {
 
 function WorkoutsStackScreen() {
   return (
-    <WorkoutsStack.Navigator>
+    <WorkoutsStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFF8F0',
+        },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: {
+          color: '#4A3728',
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <WorkoutsStack.Screen
         name="WorkoutsMain"
         component={WorkoutsScreen}
@@ -222,7 +246,19 @@ function ShopStackScreen() {
   const { totalPoints } = useActivity();
 
   return (
-    <ShopStack.Navigator>
+    <ShopStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFF8F0',
+        },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: {
+          color: '#4A3728',
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <ShopStack.Screen
         name="ShopMain"
         component={ShopScreen}
@@ -276,7 +312,19 @@ function ShopStackScreen() {
 
 function SocialStackScreen() {
   return (
-    <SocialStack.Navigator>
+    <SocialStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFF8F0',
+        },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: {
+          color: '#4A3728',
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <SocialStack.Screen
         name="SocialMain"
         component={SocialScreen}
@@ -335,7 +383,19 @@ const SettingsStack = createNativeStackNavigator();
 
 function SettingsStackScreen() {
   return (
-    <SettingsStack.Navigator>
+    <SettingsStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFF8F0',
+        },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: {
+          color: '#4A3728',
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <SettingsStack.Screen
         name="SettingsMain"
         component={SettingsScreen}
