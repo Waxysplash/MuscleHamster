@@ -45,7 +45,7 @@ export default function PasswordResetScreen({ navigation }) {
     return (
       <View style={styles.successContainer}>
         <View style={styles.successContent}>
-          <Ionicons name="mail-open" size={70} color="#007AFF" />
+          <Ionicons name="mail-open" size={70} color="#FF9500" />
           <Text style={styles.successTitle}>Check your inbox!</Text>
           <Text style={styles.successSubtitle}>
             Your hamster just sent a reset link to:
@@ -89,7 +89,7 @@ export default function PasswordResetScreen({ navigation }) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="refresh" size={60} color="#007AFF" />
+          <Ionicons name="refresh" size={60} color="#FF9500" />
           <Text style={styles.title}>Let's get you back in!</Text>
           <Text style={styles.subtitle}>
             Enter your email and we'll send you a link to reset your password.
@@ -143,7 +143,7 @@ export default function PasswordResetScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 24,
@@ -156,12 +156,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#4A3728',
     marginTop: 16,
   },
   subtitle: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
     paddingHorizontal: 16,
@@ -178,13 +178,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
   },
   submitButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#D4C4B0',
   },
   submitButtonText: {
     color: '#fff',
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   // Success State
   successContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     justifyContent: 'space-between',
   },
   successContent: {
@@ -211,23 +211,23 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#4A3728',
     marginTop: 24,
   },
   successSubtitle: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 12,
   },
   successEmail: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
     marginTop: 4,
   },
   successHint: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 16,
     textAlign: 'center',
   },
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   linkText: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 15,
   },
 });

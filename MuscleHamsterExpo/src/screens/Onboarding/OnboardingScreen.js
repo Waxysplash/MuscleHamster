@@ -273,7 +273,7 @@ export default function OnboardingScreen({ navigation }) {
           onPress={goBack}
           accessibilityLabel="Go back"
         >
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
       )}
 
@@ -392,14 +392,14 @@ function FitnessLevelStep({ profile, updateProfile }) {
           <Ionicons
             name={FitnessLevelInfo[level].icon}
             size={28}
-            color={profile.fitnessLevel === level ? '#007AFF' : '#8E8E93'}
+            color={profile.fitnessLevel === level ? '#FF9500' : '#8B5A2B'}
           />
           <View style={styles.optionTextContainer}>
             <Text style={styles.optionTitle}>{FitnessLevelInfo[level].displayName}</Text>
             <Text style={styles.optionDescription}>{FitnessLevelInfo[level].description}</Text>
           </View>
           {profile.fitnessLevel === level && (
-            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
           )}
         </TouchableOpacity>
       ))}
@@ -435,7 +435,7 @@ function GoalsStep({ profile, updateProfile }) {
             <Ionicons
               name={FitnessGoalInfo[goal].icon}
               size={32}
-              color={profile.fitnessGoals.includes(goal) ? '#007AFF' : '#8E8E93'}
+              color={profile.fitnessGoals.includes(goal) ? '#FF9500' : '#8B5A2B'}
             />
             <Text
               style={[
@@ -516,14 +516,14 @@ function ScheduleStep({ profile, updateProfile }) {
           <Ionicons
             name={SchedulePreferenceInfo[pref].icon}
             size={28}
-            color={profile.schedulePreference === pref ? '#007AFF' : '#8E8E93'}
+            color={profile.schedulePreference === pref ? '#FF9500' : '#8B5A2B'}
           />
           <View style={styles.optionTextContainer}>
             <Text style={styles.optionTitle}>{SchedulePreferenceInfo[pref].displayName}</Text>
             <Text style={styles.optionDescription}>{SchedulePreferenceInfo[pref].description}</Text>
           </View>
           {profile.schedulePreference === pref && (
-            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
           )}
         </TouchableOpacity>
       ))}
@@ -551,14 +551,14 @@ function TimeStep({ profile, updateProfile }) {
           <Ionicons
             name={WorkoutTimeInfo[time].icon}
             size={28}
-            color={profile.preferredWorkoutTime === time ? '#007AFF' : '#8E8E93'}
+            color={profile.preferredWorkoutTime === time ? '#FF9500' : '#8B5A2B'}
           />
           <View style={styles.optionTextContainer}>
             <Text style={styles.optionTitle}>{WorkoutTimeInfo[time].displayName}</Text>
             <Text style={styles.optionDescription}>{WorkoutTimeInfo[time].description}</Text>
           </View>
           {profile.preferredWorkoutTime === time && (
-            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
           )}
         </TouchableOpacity>
       ))}
@@ -586,14 +586,14 @@ function IntentStep({ profile, updateProfile }) {
           <Ionicons
             name={FitnessIntentInfo[intent].icon}
             size={28}
-            color={profile.fitnessIntent === intent ? '#007AFF' : '#8E8E93'}
+            color={profile.fitnessIntent === intent ? '#FF9500' : '#8B5A2B'}
           />
           <View style={styles.optionTextContainer}>
             <Text style={styles.optionTitle}>{FitnessIntentInfo[intent].displayName}</Text>
             <Text style={styles.optionDescription}>{FitnessIntentInfo[intent].description}</Text>
           </View>
           {profile.fitnessIntent === intent && (
-            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
           )}
         </TouchableOpacity>
       ))}
@@ -665,7 +665,7 @@ function MeetHamsterStep({ profile }) {
       <View style={styles.nextStepsContainer}>
         <Text style={styles.nextStepsTitle}>What's next:</Text>
         <View style={styles.nextStep}>
-          <Ionicons name="fitness" size={20} color="#007AFF" />
+          <Ionicons name="fitness" size={20} color="#FF9500" />
           <Text style={styles.nextStepText}>Browse workouts made for you</Text>
         </View>
         <View style={styles.nextStep}>
@@ -684,7 +684,7 @@ function MeetHamsterStep({ profile }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   progressContainer: {
     paddingHorizontal: 20,
@@ -693,20 +693,20 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E8DED4',
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     borderRadius: 3,
   },
   progressText: {
     textAlign: 'center',
     marginTop: 8,
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   backButton: {
     position: 'absolute',
@@ -721,7 +721,7 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 10,
     padding: 8,
-    backgroundColor: '#8E8E93',
+    backgroundColor: '#8B5A2B',
     borderRadius: 8,
   },
   skipText: {
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10,
-    color: '#000',
+    color: '#4A3728',
   },
   content: {
     flex: 1,
@@ -753,37 +753,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   ageGateOptionSelected: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
-    borderColor: '#007AFF',
+    backgroundColor: 'rgba(255,149,0,0.1)',
+    borderColor: '#FF9500',
   },
   checkbox: {
     width: 28,
     height: 28,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#C7C7CC',
+    borderColor: '#D4C4B0',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
   },
   checkboxSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#FF9500',
+    borderColor: '#FF9500',
   },
   ageGateText: {
     fontSize: 18,
     fontWeight: '500',
-    color: '#000',
+    color: '#4A3728',
   },
   stepDescription: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -797,21 +797,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     width: 120,
-    color: '#007AFF',
+    color: '#FF9500',
   },
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   optionCardSelected: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
-    borderColor: '#007AFF',
+    backgroundColor: 'rgba(255,149,0,0.1)',
+    borderColor: '#FF9500',
   },
   optionTextContainer: {
     flex: 1,
@@ -820,11 +820,11 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   optionDescription: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   goalsGrid: {
@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
   goalCard: {
     width: '48%',
     aspectRatio: 1.2,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -844,17 +844,17 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   goalCardSelected: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
-    borderColor: '#007AFF',
+    backgroundColor: 'rgba(255,149,0,0.1)',
+    borderColor: '#FF9500',
   },
   goalText: {
     marginTop: 8,
     fontSize: 14,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   goalTextSelected: {
-    color: '#007AFF',
+    color: '#FF9500',
   },
   frequencyContainer: {
     flexDirection: 'row',
@@ -865,17 +865,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayButtonSelected: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
   },
   dayButtonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   dayButtonTextSelected: {
     color: '#fff',
@@ -890,10 +890,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     padding: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
+    color: '#4A3728',
   },
   nameInputError: {
     borderColor: '#FF3B30',
@@ -902,13 +903,13 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginTop: 8,
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   suggestionsLabel: {
     marginTop: 24,
     marginBottom: 12,
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
   suggestionsContainer: {
@@ -920,13 +921,13 @@ const styles = StyleSheet.create({
   suggestionChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 16,
     margin: 4,
   },
   suggestionText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#8B5A2B',
   },
   errorText: {
     color: '#FF3B30',
@@ -939,13 +940,13 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   continueButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   continueButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#D4C4B0',
   },
   continueButtonText: {
     color: '#fff',
@@ -981,7 +982,7 @@ const styles = StyleSheet.create({
     color: '#FF9500',
   },
   speechBubble: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     padding: 16,
     borderRadius: 16,
     marginTop: 16,
@@ -990,7 +991,7 @@ const styles = StyleSheet.create({
   speechText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
   },
   hamsterStatus: {
     flexDirection: 'row',
@@ -1016,7 +1017,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#000',
+    color: '#4A3728',
   },
   nextStep: {
     flexDirection: 'row',
@@ -1026,6 +1027,6 @@ const styles = StyleSheet.create({
   nextStepText: {
     marginLeft: 12,
     fontSize: 16,
-    color: '#3C3C43',
+    color: '#6B5D52',
   },
 });

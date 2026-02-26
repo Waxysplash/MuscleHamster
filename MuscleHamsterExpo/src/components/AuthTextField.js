@@ -21,8 +21,8 @@ export default function AuthTextField({
 
   const getBorderColor = () => {
     if (error) return '#FF3B30';
-    if (isFocused) return '#007AFF';
-    return '#E5E5EA';
+    if (isFocused) return '#FF9500';
+    return '#E8DED4';
   };
 
   return (
@@ -31,14 +31,14 @@ export default function AuthTextField({
         <Ionicons
           name={icon}
           size={20}
-          color={isFocused ? '#007AFF' : '#8E8E93'}
+          color={isFocused ? '#FF9500' : '#8B5A2B'}
           style={styles.icon}
         />
         <TextInput
           ref={inputRef}
           style={styles.input}
           placeholder={placeholder}
-          placeholderTextColor="#C7C7CC"
+          placeholderTextColor="#B8A99A"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={isSecure && !isPasswordVisible}
@@ -61,7 +61,7 @@ export default function AuthTextField({
             <Ionicons
               name={isPasswordVisible ? 'eye-off' : 'eye'}
               size={20}
-              color="#8E8E93"
+              color="#8B5A2B"
             />
           </TouchableOpacity>
         )}
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF2E5',
     borderRadius: 12,
     borderWidth: 1.5,
     paddingHorizontal: 16,
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   eyeButton: {
     padding: 4,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 6,
     paddingHorizontal: 4,
   },

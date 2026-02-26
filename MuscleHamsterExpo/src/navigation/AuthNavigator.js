@@ -5,11 +5,27 @@ import { WelcomeScreen, SignUpScreen, SignInScreen, PasswordResetScreen } from '
 
 const Stack = createNativeStackNavigator();
 
+// Warm color scheme
+const COLORS = {
+  background: '#FFF8F0',
+  headerText: '#4A3728',
+  tint: '#8B5A2B',
+};
+
 export default function AuthNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        headerStyle: {
+          backgroundColor: COLORS.background,
+        },
+        headerTintColor: COLORS.tint,
+        headerTitleStyle: {
+          color: COLORS.headerText,
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />

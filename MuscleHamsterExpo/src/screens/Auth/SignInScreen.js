@@ -178,7 +178,7 @@ export default function SignInScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 24,
@@ -191,11 +191,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#4A3728',
   },
   subtitle: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
   },
   form: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   forgotText: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 14,
   },
   errorBanner: {
@@ -221,14 +221,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
     marginBottom: 24,
   },
   submitButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#D4C4B0',
   },
   submitButtonText: {
     color: '#fff',
@@ -248,11 +248,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E8DED4',
   },
   dividerText: {
     marginHorizontal: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     fontSize: 14,
   },
   linkButton: {
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   linkText: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 15,
   },
 });
