@@ -4,7 +4,7 @@
 
 export default {
   expo: {
-    name: "MuscleHamsterExpo",
+    name: "Muscle Hamster",
     slug: "MuscleHamsterExpo",
     version: "1.0.0",
     orientation: "portrait",
@@ -12,6 +12,10 @@ export default {
     userInterfaceStyle: "light",
     newArchEnabled: true,
     scheme: "musclehamster",
+    // App Store metadata
+    description: "A friendly fitness app where you care for a virtual hamster by completing workouts. No guilt, just gains!",
+    githubUrl: "https://github.com/Waxysplash/MuscleHamster",
+    primaryColor: "#FF9500",
     splash: {
       image: "./assets/branding/splash-icon.png",
       resizeMode: "contain",

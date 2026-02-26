@@ -1,7 +1,7 @@
 # Muscle Hamster — Progress
 
-**Status:** CODE AUDIT COMPLETE — Hardening Required
-**Active Phase:** Phase 11 - Code Audit & Hardening (Session 44)
+**Status:** APP STORE PREP IN PROGRESS
+**Active Phase:** Phase 12 - App Store Preparation (Session 44)
 **Last Updated:** Feb 25, 2026 (Session 44)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
@@ -68,40 +68,53 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 
 ## 🎯 NEXT SESSION PRIORITIES
 
-### Priority 1: Critical Hardening (Before Production)
-- [ ] Move Firebase config to environment variables
-- [ ] Implement SecureStore for sensitive data
-- [ ] Add error handling to all async operations
-- [ ] Remove/gate console.log statements
-- [ ] Verify Firestore security rules
+### Priority 1: App Store Submission
+- [x] App Store metadata document created
+- [x] App name updated to "Muscle Hamster"
+- [ ] Take screenshots on multiple device sizes
+- [ ] Create privacy policy and host online
+- [ ] Set up Apple Developer account
+- [ ] Run `eas build --platform ios --profile production`
+- [ ] Submit to App Store
 
-### Priority 2: Testing & Launch Prep
+### Priority 2: Testing
 - [ ] End-to-end testing on real device (iOS + Android)
 - [ ] Test onboarding flow (verify bug is fixed)
 - [ ] Test daily exercise check-in flow
 - [ ] Test shop purchase and equip flow
-- [ ] App Store prep (icons, screenshots, description)
 
-**See full audit:** `Development/phase-11-code-audit-hardening/`
+**See App Store prep:** `MuscleHamsterExpo/docs/app-store-preparation.md`
 
 ---
 
 ### ✅ COMPLETED (Session 44)
 
-#### Code Audit & Hardening Plan
-- **Full codebase audit** covering security, performance, and code quality
-- **Phase 11.1** — Detailed findings document with severity ratings
+#### Security Hardening (Critical Fixes)
+- **Firebase config** → Moved to environment variables via `app.config.js`
+  - Created `.env.example` template
+  - Updated `firebase.js` to read from `Constants.expoConfig.extra`
+- **SecureStorageService** → New encrypted storage wrapper using expo-secure-store
+  - `saveSecure()`, `getSecure()`, `removeSecure()`, `clearSecure()`
+  - Falls back to AsyncStorage on web (graceful degradation)
+- **Error handling** → Added ErrorBanner component to data-loading screens
+  - ShopScreen, HomeScreen, InventoryScreen all have error states
+  - Retry and dismiss functionality
+- **LoggerService** → Created dev-only logging with sensitive data sanitization
+  - Sensitive fields (password, token, etc.) are masked
+  - Production builds only log errors
+
+#### Warm Color Scheme
+- Applied to: SignInScreen, SignUpScreen, PasswordResetScreen, OnboardingScreen, LoadingView
+- Updated ALL stack navigator headers (Home, Workouts, Shop, Social, Settings)
+
+#### Code Audit Documents
+- **Phase 11.1** — Detailed findings with severity ratings
 - **Phase 11.2** — Prioritized hardening tasks checklist
-- **Warm color scheme** applied to auth screens, onboarding, and loading screen
 
-#### Critical Findings
-- 🔴 Firebase config exposed in source (needs env vars)
-- 🔴 AsyncStorage unencrypted (needs SecureStore)
-- 🟡 Missing error handling in async operations
-- 🟡 145+ console.log statements (security/performance risk)
-- 🟢 Good architecture and separation of concerns
-
-**Estimated fix time:** 2-3 days for critical issues
+#### App Store Prep Started
+- Updated app name from "MuscleHamsterExpo" to "Muscle Hamster"
+- Created comprehensive App Store preparation document
+- EAS Build already configured for production
 
 ---
 
