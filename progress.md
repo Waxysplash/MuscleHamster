@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** SIMPLIFIED MVP — Exercise Journal Added
-**Active Phase:** Ready for Testing (Session 43)
-**Last Updated:** Feb 25, 2026 (Session 43)
+**Status:** CODE AUDIT COMPLETE — Hardening Required
+**Active Phase:** Phase 11 - Code Audit & Hardening (Session 44)
+**Last Updated:** Feb 25, 2026 (Session 44)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -68,12 +68,42 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 
 ## 🎯 NEXT SESSION PRIORITIES
 
-### Priority 1: Testing & Launch Prep
+### Priority 1: Critical Hardening (Before Production)
+- [ ] Move Firebase config to environment variables
+- [ ] Implement SecureStore for sensitive data
+- [ ] Add error handling to all async operations
+- [ ] Remove/gate console.log statements
+- [ ] Verify Firestore security rules
+
+### Priority 2: Testing & Launch Prep
 - [ ] End-to-end testing on real device (iOS + Android)
 - [ ] Test onboarding flow (verify bug is fixed)
 - [ ] Test daily exercise check-in flow
 - [ ] Test shop purchase and equip flow
 - [ ] App Store prep (icons, screenshots, description)
+
+**See full audit:** `Development/phase-11-code-audit-hardening/`
+
+---
+
+### ✅ COMPLETED (Session 44)
+
+#### Code Audit & Hardening Plan
+- **Full codebase audit** covering security, performance, and code quality
+- **Phase 11.1** — Detailed findings document with severity ratings
+- **Phase 11.2** — Prioritized hardening tasks checklist
+- **Warm color scheme** applied to auth screens, onboarding, and loading screen
+
+#### Critical Findings
+- 🔴 Firebase config exposed in source (needs env vars)
+- 🔴 AsyncStorage unencrypted (needs SecureStore)
+- 🟡 Missing error handling in async operations
+- 🟡 145+ console.log statements (security/performance risk)
+- 🟢 Good architecture and separation of concerns
+
+**Estimated fix time:** 2-3 days for critical issues
+
+---
 
 ### ✅ COMPLETED (Session 43)
 
@@ -263,6 +293,18 @@ Replaced the Tips section in every exercise detail screen with a Progress Journa
     - Added AssetLoader utility for checking asset availability
     - Added AssetStatusView debug tool
   - [ ] phase10.2 — Awaiting artist assets
+
+### Phase 11 — Code Audit & Hardening ⏳
+- `Development/phase-11-code-audit-hardening/`
+  - ✅ phase11.1-code-audit-findings.md (COMPLETE)
+    - Full security audit (OWASP Mobile Top 10)
+    - Performance analysis
+    - Code quality review
+    - Memory leak analysis
+  - ⏳ phase11.2-hardening-tasks.md (READY FOR IMPLEMENTATION)
+    - Priority 1: Critical security fixes (2-3 days)
+    - Priority 2: High-priority improvements
+    - Priority 3: Medium-term enhancements
 
 ### Post-MVP (Parking Lot)
 - Monetization (ads)
