@@ -1,6 +1,6 @@
 // Daily Exercise Check-In Screen
 // One-tap: read, do, tap "I Did It!", celebrate
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
-  Image,
 } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 
-const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
+const CompletionVideo = require('../../../assets/videos/completion_celebration.mov');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { getExerciseDisplayPrompt } from '../../models/DailyExercise';
@@ -95,12 +95,17 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.successScroll}>
-          {/* Celebration Image */}
-          <Image
-            source={CompletedWorkoutImage}
-            style={styles.completedImage}
-            resizeMode="contain"
-          />
+          {/* Celebration Video */}
+          <View style={styles.videoContainer}>
+            <Video
+              source={CompletionVideo}
+              style={styles.completedVideo}
+              resizeMode={ResizeMode.CONTAIN}
+              shouldPlay={true}
+              isLooping={true}
+              isMuted={true}
+            />
+          </View>
           <Text style={styles.successTitle}>Exercise Complete!</Text>
           <View style={styles.speechBubble}>
             <Text style={styles.encouragementText}>
@@ -278,10 +283,16 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#000',
   },
-  completedImage: {
-    width: 200,
-    height: 200,
+  videoContainer: {
+    width: 280,
+    height: 280,
+    borderRadius: 20,
+    overflow: 'hidden',
     marginBottom: 8,
+  },
+  completedVideo: {
+    width: '100%',
+    height: '100%',
   },
   speechBubble: {
     backgroundColor: 'rgba(52,199,89,0.1)',
