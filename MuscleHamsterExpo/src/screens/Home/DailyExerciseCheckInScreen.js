@@ -1,6 +1,6 @@
 // Daily Exercise Check-In Screen
 // One-tap: read, do, tap "I Did It!", celebrate
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
 
-const CompletionVideo = require('../../../assets/videos/completion_celebration.mov');
 const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
@@ -32,7 +30,6 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
   const [state, setState] = useState(CheckInState.READY);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [videoError, setVideoError] = useState(false);
 
   const handleCheckIn = async () => {
     setState(CheckInState.CONFIRMING);
@@ -98,29 +95,12 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.successScroll}>
-          {/* Celebration Video or Fallback Image */}
-          <View style={styles.videoContainer}>
-            {videoError ? (
-              <Image
-                source={CompletedWorkoutImage}
-                style={styles.completedImage}
-                resizeMode="contain"
-              />
-            ) : (
-              <Video
-                source={CompletionVideo}
-                style={styles.completedVideo}
-                resizeMode={ResizeMode.CONTAIN}
-                shouldPlay={true}
-                isLooping={true}
-                isMuted={true}
-                onError={(e) => {
-                  console.log('Video error:', e);
-                  setVideoError(true);
-                }}
-              />
-            )}
-          </View>
+          {/* Celebration Image */}
+          <Image
+            source={CompletedWorkoutImage}
+            style={styles.completedImage}
+            resizeMode="contain"
+          />
           <Text style={styles.successTitle}>Exercise Complete!</Text>
           <View style={styles.speechBubble}>
             <Text style={styles.encouragementText}>
@@ -298,20 +278,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#000',
   },
-  videoContainer: {
-    width: 280,
-    height: 280,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  completedVideo: {
-    width: '100%',
-    height: '100%',
-  },
   completedImage: {
-    width: '100%',
-    height: '100%',
+    width: 220,
+    height: 220,
+    marginBottom: 8,
   },
   speechBubble: {
     backgroundColor: 'rgba(52,199,89,0.1)',
