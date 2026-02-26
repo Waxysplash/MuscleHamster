@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** SIMPLIFIED MVP — Workout Content Added
-**Active Phase:** Ready for Testing (Session 42)
-**Last Updated:** Feb 25, 2026 (Session 42)
+**Status:** SIMPLIFIED MVP — Exercise Journal Added
+**Active Phase:** Ready for Testing (Session 43)
+**Last Updated:** Feb 25, 2026 (Session 43)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -74,6 +74,32 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - [ ] Test daily exercise check-in flow
 - [ ] Test shop purchase and equip flow
 - [ ] App Store prep (icons, screenshots, description)
+
+### ✅ COMPLETED (Session 43)
+
+#### Exercise Progress Journal
+Replaced the Tips section in every exercise detail screen with a Progress Journal feature:
+- **JournalService.js** — New service for saving/loading journal entries per exercise
+  - Stores weight, reps, sets, and notes for each workout
+  - Persists to AsyncStorage locally and syncs to Firestore when logged in
+  - Keeps last 50 entries per exercise
+- **GymExerciseDetailScreen.js** — Updated with journal UI
+- **HomeExerciseDetailScreen.js** — Updated with journal UI
+- **Journal Features:**
+  - Add multiple sets per entry (weight in lbs, reps)
+  - Optional notes field
+  - View history of past entries (last 10 shown)
+  - Delete entries
+  - User ID synced from ActivityContext
+
+#### Files Changed
+- `src/services/JournalService.js` — NEW
+- `src/services/index.js` — Added JournalService export
+- `src/context/ActivityContext.js` — Added setJournalUserId on login
+- `src/screens/Workout/GymExerciseDetailScreen.js` — Replaced Tips with Journal
+- `src/screens/Workout/HomeExerciseDetailScreen.js` — Replaced Tips with Journal
+
+---
 
 ### ✅ COMPLETED (Session 42)
 

@@ -1,6 +1,7 @@
 // Activity Context - Phase 05-06 (with Firestore)
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ActivityService, setActivityUserId } from '../services/ActivityService';
+import { setJournalUserId } from '../services/JournalService';
 import { useAuth } from './AuthContext';
 import { HamsterState, createDefaultUserStats } from '../models/Activity';
 
@@ -47,6 +48,7 @@ export const ActivityProvider = ({ children }) => {
   useEffect(() => {
     const userId = currentUser?.id || null;
     setActivityUserId(userId);
+    setJournalUserId(userId);
 
     if (userId) {
       loadStats();
