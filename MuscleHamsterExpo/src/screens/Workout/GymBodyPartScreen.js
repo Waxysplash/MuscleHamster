@@ -23,6 +23,9 @@ const GymBodyPartImages = {
   core: require('../../../assets/images/gym_core.png'),
 };
 
+// Exercise icon
+const ExerciseIcon = require('../../../assets/images/exercise_icon.png');
+
 // Sample gym workouts by body part
 const GYM_WORKOUTS = {
   legs: [
@@ -180,7 +183,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
                 onPress={() => handleWorkoutPress(workout)}
               >
                 <View style={[styles.workoutIcon, { backgroundColor: bodyPart.color + '15' }]}>
-                  <Ionicons name="barbell" size={24} color={bodyPart.color} />
+                  <Image source={ExerciseIcon} style={styles.workoutIconImage} resizeMode="contain" />
                 </View>
                 <View style={styles.workoutInfo}>
                   <Text style={styles.workoutName}>{workout.name}</Text>
@@ -296,6 +299,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  workoutIconImage: {
+    width: 40,
+    height: 40,
   },
   workoutInfo: {
     flex: 1,

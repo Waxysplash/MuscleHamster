@@ -21,6 +21,9 @@ const HomeCategoryImages = {
   desk: require('../../../assets/images/home_desk.png'),
 };
 
+// Exercise icon
+const ExerciseIcon = require('../../../assets/images/exercise_icon.png');
+
 // Home exercises by category
 const HOME_EXERCISES = {
   quick_sweats: [
@@ -118,7 +121,7 @@ export default function HomeCategoryScreen({ route, navigation }) {
               onPress={() => handleExercisePress(exercise)}
             >
               <View style={[styles.exerciseIcon, { backgroundColor: category.color + '15' }]}>
-                <Ionicons name="fitness" size={24} color={category.color} />
+                <Image source={ExerciseIcon} style={styles.exerciseIconImage} resizeMode="contain" />
               </View>
               <View style={styles.exerciseInfo}>
                 <Text style={styles.exerciseName}>{exercise.name}</Text>
@@ -223,6 +226,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  exerciseIconImage: {
+    width: 40,
+    height: 40,
   },
   exerciseInfo: {
     flex: 1,
