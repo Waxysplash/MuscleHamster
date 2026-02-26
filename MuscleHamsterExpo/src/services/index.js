@@ -8,3 +8,4 @@ export { FriendService } from './FriendService';
 export { AudioService } from './AudioService';
 export { NotificationService } from './NotificationService';
 export { JournalService, setJournalUserId } from './JournalService';
+export * from './SecureStorageService';

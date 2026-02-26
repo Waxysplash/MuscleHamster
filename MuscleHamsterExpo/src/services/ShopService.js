@@ -1,5 +1,5 @@
 // Shop Service - Phase 07
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveSecure, getSecure, deleteSecure } from './SecureStorageService';
 import {
   ShopItemCategory,
   ShopItemRarity,
@@ -119,9 +119,9 @@ const loadInventory = async () => {
 
   try {
     const storageKey = getStorageKey();
-    const stored = await AsyncStorage.getItem(storageKey);
+    const stored = await getSecure(storageKey);
     if (stored) {
-      cachedInventory = JSON.parse(stored);
+      cachedInventory = stored;
     } else {
       cachedInventory = createDefaultInventory();
     }
@@ -138,7 +138,7 @@ const saveInventory = async (inventory) => {
   cachedInventory = inventory;
   try {
     const storageKey = getStorageKey();
-    await AsyncStorage.setItem(storageKey, JSON.stringify(inventory));
+    await saveSecure(storageKey, inventory);
   } catch (e) {
     console.warn('Failed to save inventory:', e);
   }
@@ -291,6 +291,6 @@ export const ShopService = {
   async clearAllData() {
     cachedInventory = null;
     const storageKey = getStorageKey();
-    await AsyncStorage.removeItem(storageKey);
+    await deleteSecure(storageKey);
   },
 };

@@ -1,6 +1,6 @@
-// Activity Service - Phase 05-06 (with Firestore)
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// Activity Service - Phase 05-06 (with Firestore + SecureStorage)
 import { doc, getDoc, setDoc, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { saveSecure, getSecure, deleteSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
 import {
   HamsterState,
@@ -51,7 +51,7 @@ const generateTransactionId = (type, category, entityId, date) => {
   return `${type}-${category}-${entityId || 'none'}-${dateStr}`;
 };
 
-// Load stats from Firestore or AsyncStorage
+// Load stats from Firestore or SecureStorage
 const loadStats = async () => {
   if (cachedStats) return cachedStats;
 
@@ -83,11 +83,11 @@ const loadStats = async () => {
       }
     }
 
-    // Fallback to AsyncStorage
-    const stored = await AsyncStorage.getItem(STORAGE_KEY);
+    // Fallback to SecureStorage
+    const stored = await getSecure(STORAGE_KEY);
     if (stored) {
-      cachedStats = JSON.parse(stored);
-      console.log('Loaded stats from AsyncStorage');
+      cachedStats = stored;
+      console.log('Loaded stats from SecureStorage');
 
       // Migrate to Firestore if user is logged in (don't block on this)
       if (currentUserId && cachedStats) {
@@ -128,14 +128,14 @@ const saveStats = async (stats) => {
       const docRef = doc(db, 'userStats', currentUserId);
       await setDoc(docRef, stats);
     } else {
-      // Fallback to AsyncStorage if not logged in
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      // Fallback to SecureStorage if not logged in
+      await saveSecure(STORAGE_KEY, stats);
     }
   } catch (e) {
     console.warn('Failed to save stats:', e);
-    // Fallback to AsyncStorage
+    // Fallback to SecureStorage
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+      await saveSecure(STORAGE_KEY, stats);
     } catch (localError) {
       console.warn('Local save also failed:', localError);
     }
@@ -634,6 +634,6 @@ export const ActivityService = {
   async clearAllData() {
     cachedStats = null;
     completionKeys.clear();
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    await deleteSecure(STORAGE_KEY);
   },
 };

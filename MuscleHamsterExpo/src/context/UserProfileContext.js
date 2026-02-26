@@ -1,11 +1,11 @@
-// User Profile Context - Phase 03 (with Firestore)
+// User Profile Context - Phase 03 (with Firestore + SecureStorage)
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
 import { createEmptyProfile } from '../models/UserProfile';
+import { saveSecure, getSecure, deleteSecure } from '../services/SecureStorageService';
 
 // DEBUG FLAG - set to true to see alerts about profile loading
 const DEBUG_PROFILE = false;
@@ -98,8 +98,8 @@ export const UserProfileProvider = ({ children }) => {
     // This is a failsafe that survives logout/login cycles
     let hasCompletedOnboarding = false;
     try {
-      const completedFlag = await AsyncStorage.getItem(completeKey);
-      hasCompletedOnboarding = completedFlag === 'true';
+      const completedFlag = await getSecure(completeKey);
+      hasCompletedOnboarding = completedFlag === true;
       console.log('Permanent onboarding flag:', hasCompletedOnboarding);
       if (DEBUG_PROFILE) {
         Alert.alert('Permanent Flag Check', `Key: ${completeKey}\nValue: ${completedFlag}\nCompleted: ${hasCompletedOnboarding}`);
@@ -147,12 +147,12 @@ export const UserProfileProvider = ({ children }) => {
           lastLoadedUserId.current = userId;
           profileCompleteRef.current = true;
 
-          // Cache to user-specific AsyncStorage for offline access
-          AsyncStorage.setItem(profileKey, JSON.stringify(firestoreData)).catch(e =>
+          // Cache to SecureStorage for offline access
+          saveSecure(profileKey, firestoreData).catch(e =>
             console.warn('Failed to cache profile locally:', e)
           );
           // Also ensure permanent flag is set
-          AsyncStorage.setItem(completeKey, 'true').catch(e =>
+          saveSecure(completeKey, true).catch(e =>
             console.warn('Failed to set onboarding flag:', e)
           );
           setIsLoading(false);
@@ -180,41 +180,39 @@ export const UserProfileProvider = ({ children }) => {
       // Continue to check local storage as fallback
     }
 
-    // Step 2: Fall back to user-specific local storage (offline/timeout case)
+    // Step 2: Fall back to user-specific SecureStorage (offline/timeout case)
     try {
-      const storedProfile = await AsyncStorage.getItem(profileKey);
-      const storedProgress = await AsyncStorage.getItem(progressKey);
+      const localProfile = await getSecure(profileKey);
+      const storedProgress = await getSecure(progressKey);
 
       if (DEBUG_PROFILE) {
-        Alert.alert('Checking AsyncStorage', `Key: ${profileKey}\nFound: ${storedProfile ? 'YES' : 'NO'}`);
+        Alert.alert('Checking SecureStorage', `Key: ${profileKey}\nFound: ${localProfile ? 'YES' : 'NO'}`);
       }
 
-      if (storedProfile) {
-        const localProfile = JSON.parse(storedProfile);
+      if (localProfile) {
         console.log('Found local profile, profileComplete:', localProfile.profileComplete);
 
         if (localProfile?.profileComplete) {
           console.log('Using complete local profile as fallback');
           if (DEBUG_PROFILE) {
-            Alert.alert('Found Profile!', `From AsyncStorage: ${localProfile.hamsterName || 'no name'}`);
+            Alert.alert('Found Profile!', `From SecureStorage: ${localProfile.hamsterName || 'no name'}`);
           }
           setProfile(localProfile);
           setOnboardingProgress(null);
           lastLoadedUserId.current = userId;
           profileCompleteRef.current = true;
           // Ensure permanent flag is set
-          AsyncStorage.setItem(completeKey, 'true').catch(() => {});
+          saveSecure(completeKey, true).catch(() => {});
           setIsLoading(false);
           return;
         }
       }
 
       if (storedProgress && !hasCompletedOnboarding) {
-        const localProgress = JSON.parse(storedProgress);
-        setOnboardingProgress(localProgress);
+        setOnboardingProgress(storedProgress);
       }
     } catch (localError) {
-      console.warn('Failed to load from AsyncStorage:', localError);
+      console.warn('Failed to load from SecureStorage:', localError);
     }
 
     // Step 3: If permanent flag says onboarding is complete but we couldn't find the profile,
@@ -238,7 +236,7 @@ export const UserProfileProvider = ({ children }) => {
       profileCompleteRef.current = true;
 
       // Try to save this minimal profile back to storage
-      AsyncStorage.setItem(profileKey, JSON.stringify(minimalProfile)).catch(() => {});
+      saveSecure(profileKey, minimalProfile).catch(() => {});
       setIsLoading(false);
       return;
     }
@@ -294,11 +292,11 @@ export const UserProfileProvider = ({ children }) => {
       updatedAt: Date.now(),
     };
 
-    // Always save to AsyncStorage first for immediate local availability
-    await AsyncStorage.setItem(profileKey, JSON.stringify(profileWithTimestamp));
+    // Always save to SecureStorage first for immediate local availability
+    await saveSecure(profileKey, profileWithTimestamp);
 
     if (DEBUG_PROFILE) {
-      Alert.alert('Saved to AsyncStorage', `Key: ${profileKey}\nName: ${profileWithTimestamp.hamsterName}`);
+      Alert.alert('Saved to SecureStorage', `Key: ${profileKey}\nName: ${profileWithTimestamp.hamsterName}`);
     }
 
     // Prevent loadProfile from running again after this save
@@ -306,17 +304,17 @@ export const UserProfileProvider = ({ children }) => {
     lastLoadedUserId.current = userId; // Mark this user as loaded
     profileCompleteRef.current = !!profileWithTimestamp.profileComplete;
     setProfile(profileWithTimestamp);
-    console.log('Saved to user-specific AsyncStorage, profileComplete:', profileWithTimestamp.profileComplete);
+    console.log('Saved to user-specific SecureStorage, profileComplete:', profileWithTimestamp.profileComplete);
 
     // Set PERMANENT onboarding completion flag when profile is complete
     // This flag survives logout/login and ensures user never has to re-onboard
     if (newProfile.profileComplete) {
-      await AsyncStorage.setItem(completeKey, 'true');
+      await saveSecure(completeKey, true);
       console.log('=== PERMANENT ONBOARDING FLAG SET ===');
       if (DEBUG_PROFILE) {
         Alert.alert('FLAG SET!', `Permanent onboarding flag saved to:\n${completeKey}`);
       }
-      await AsyncStorage.removeItem(progressKey);
+      await deleteSecure(progressKey);
       setOnboardingProgress(null);
     }
 
@@ -358,7 +356,7 @@ export const UserProfileProvider = ({ children }) => {
       const progressKey = getOnboardingProgressKey(userId);
 
       // Save locally for quick access during onboarding
-      await AsyncStorage.setItem(progressKey, JSON.stringify(progress));
+      await saveSecure(progressKey, progress);
       setOnboardingProgress(progress);
 
       // Also save to Firestore (clean undefined values first)
@@ -398,8 +396,8 @@ export const UserProfileProvider = ({ children }) => {
         // This ensures users who completed onboarding never have to do it again
 
         // Clear user-specific local storage (but not the permanent flag)
-        await AsyncStorage.removeItem(profileKey);
-        await AsyncStorage.removeItem(progressKey);
+        await deleteSecure(profileKey);
+        await deleteSecure(progressKey);
         // Don't delete from Firestore - just clear local state
         // User data stays in cloud
       }

@@ -1,6 +1,6 @@
 // Journal Service - Track weight and reps for each exercise
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { saveSecure, getSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
 
 const STORAGE_KEY = '@MuscleHamster:exerciseJournal';
@@ -47,10 +47,10 @@ const loadJournal = async () => {
       }
     }
 
-    // Fallback to AsyncStorage
-    const stored = await AsyncStorage.getItem(STORAGE_KEY);
+    // Fallback to SecureStorage
+    const stored = await getSecure(STORAGE_KEY);
     if (stored) {
-      cachedJournal = JSON.parse(stored);
+      cachedJournal = stored;
 
       // Migrate to Firestore if user is logged in
       if (currentUserId && cachedJournal) {
@@ -76,8 +76,8 @@ const saveJournal = async (journal) => {
   cachedJournal = journal;
 
   try {
-    // Save to AsyncStorage
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(journal));
+    // Save to SecureStorage
+    await saveSecure(STORAGE_KEY, journal);
 
     // Save to Firestore if user is logged in
     if (currentUserId) {

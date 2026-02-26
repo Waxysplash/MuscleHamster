@@ -1,12 +1,14 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
+import Constants from 'expo-constants';
 import { OAuthProvider, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 // =============================================================================
 // GOOGLE OAUTH CLIENT IDS
 // =============================================================================
-// These IDs are created in Google Cloud Console > APIs & Services > Credentials
+// These IDs are loaded from environment variables via app.config.js
+// See .env.example for setup instructions
 //
 // SETUP INSTRUCTIONS:
 // 1. Go to https://console.cloud.google.com/apis/credentials
@@ -17,25 +19,29 @@ import { auth } from '../config/firebase';
 //    a) WEB APPLICATION (for Expo Go development):
 //       - Application type: "Web application"
 //       - Authorized redirect URIs: https://auth.expo.io/@your-expo-username/MuscleHamster
-//       - Copy the client ID below
 //
 //    b) iOS (for production/TestFlight builds):
 //       - Application type: "iOS"
 //       - Bundle ID: com.musclehamster.app (must match app.json)
-//       - Copy the client ID below
 //
 //    c) Android (for production builds):
 //       - Application type: "Android"
 //       - Package name: com.musclehamster.app (must match app.json)
 //       - SHA-1 fingerprint: Run `eas credentials` to get this from EAS Build
-//       - Copy the client ID below
 //
-// 5. Enable "Google Identity" API in your project if not already enabled
+// 5. Add the client IDs to your .env file
 // =============================================================================
 
-const GOOGLE_WEB_CLIENT_ID = '783320940502-o8h2fs9iaal938kmmb860npcjm29h20p.apps.googleusercontent.com';
-const GOOGLE_IOS_CLIENT_ID = ''; // Add your iOS client ID here
-const GOOGLE_ANDROID_CLIENT_ID = ''; // Add your Android client ID here
+const getGoogleClientIds = () => {
+  const extra = Constants.expoConfig?.extra;
+  return {
+    web: extra?.googleWebClientId || '783320940502-o8h2fs9iaal938kmmb860npcjm29h20p.apps.googleusercontent.com',
+    ios: extra?.googleIosClientId || '',
+    android: extra?.googleAndroidClientId || '',
+  };
+};
+
+const GOOGLE_CLIENT_IDS = getGoogleClientIds();
 
 /**
  * Check if Apple Sign-In is available on this device
@@ -116,7 +122,7 @@ export async function signInWithApple() {
  */
 export function getGoogleAuthConfig() {
   return {
-    clientId: GOOGLE_WEB_CLIENT_ID,
+    clientId: GOOGLE_CLIENT_IDS.web,
     scopes: ['profile', 'email'],
   };
 }
@@ -126,7 +132,7 @@ export function getGoogleAuthConfig() {
  * @returns {string}
  */
 export function getGoogleWebClientId() {
-  return GOOGLE_WEB_CLIENT_ID;
+  return GOOGLE_CLIENT_IDS.web;
 }
 
 /**
@@ -134,7 +140,7 @@ export function getGoogleWebClientId() {
  * @returns {string}
  */
 export function getGoogleIosClientId() {
-  return GOOGLE_IOS_CLIENT_ID;
+  return GOOGLE_CLIENT_IDS.ios;
 }
 
 /**
@@ -142,7 +148,7 @@ export function getGoogleIosClientId() {
  * @returns {string}
  */
 export function getGoogleAndroidClientId() {
-  return GOOGLE_ANDROID_CLIENT_ID;
+  return GOOGLE_CLIENT_IDS.android;
 }
 
 /**
