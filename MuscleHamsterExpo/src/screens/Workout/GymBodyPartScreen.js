@@ -7,10 +7,21 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutService } from '../../services/WorkoutService';
 import LoadingView from '../../components/LoadingView';
+
+// Gym body part images
+const GymBodyPartImages = {
+  legs: require('../../../assets/images/gym_legs.png'),
+  arms: require('../../../assets/images/gym_arms.png'),
+  back: require('../../../assets/images/gym_back.png'),
+  chest: require('../../../assets/images/gym_chest.png'),
+  shoulders: require('../../../assets/images/gym_shoulders.png'),
+  core: require('../../../assets/images/gym_core.png'),
+};
 
 // Sample gym workouts by body part
 const GYM_WORKOUTS = {
@@ -137,16 +148,31 @@ export default function GymBodyPartScreen({ route, navigation }) {
           >
             <Ionicons name="arrow-back" size={24} color="#4A3728" />
           </TouchableOpacity>
-          <View style={[styles.headerIcon, { backgroundColor: bodyPart.color + '20' }]}>
-            <Ionicons name={bodyPart.icon} size={28} color={bodyPart.color} />
-          </View>
-          <Text style={styles.headerTitle}>{bodyPart.name} Workouts</Text>
+          <Text style={styles.headerTitle}>{bodyPart.name}</Text>
+          <View style={styles.placeholder} />
         </View>
 
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
+          {/* Body Part Image Hero */}
+          <View style={styles.heroSection}>
+            <View style={[styles.imageContainer, { backgroundColor: bodyPart.color + '15' }]}>
+              <Image
+                source={GymBodyPartImages[bodyPart.id]}
+                style={[
+                  styles.bodyPartImage,
+                  bodyPart.id === 'shoulders' && styles.bodyPartImageSmaller
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.categoryTitle}>{bodyPart.name} Workouts</Text>
+            <Text style={styles.exerciseCount}>{workouts.length} exercises</Text>
+          </View>
+
+          {/* Exercise List */}
           {workouts.map((workout) => (
               <TouchableOpacity
                 key={workout.id}
@@ -197,6 +223,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -204,20 +231,14 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
-    marginRight: 8,
-  },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#4A3728',
+  },
+  placeholder: {
+    width: 40,
   },
   scrollView: {
     flex: 1,
@@ -225,6 +246,36 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  imageContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  bodyPartImage: {
+    width: 100,
+    height: 100,
+  },
+  bodyPartImageSmaller: {
+    width: 80,
+    height: 80,
+  },
+  categoryTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#4A3728',
+    marginBottom: 4,
+  },
+  exerciseCount: {
+    fontSize: 15,
+    color: '#6B5D52',
   },
   workoutCard: {
     flexDirection: 'row',

@@ -7,9 +7,19 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingView from '../../components/LoadingView';
+
+// Home category images
+const HomeCategoryImages = {
+  quick_sweats: require('../../../assets/images/home_quick_sweats.png'),
+  lower_body: require('../../../assets/images/home_lower_body.png'),
+  upper_body: require('../../../assets/images/home_upper_body.png'),
+  core: require('../../../assets/images/home_core.png'),
+  desk: require('../../../assets/images/home_desk.png'),
+};
 
 // Home exercises by category
 const HOME_EXERCISES = {
@@ -79,16 +89,28 @@ export default function HomeCategoryScreen({ route, navigation }) {
           >
             <Ionicons name="arrow-back" size={24} color="#4A3728" />
           </TouchableOpacity>
-          <View style={[styles.headerIcon, { backgroundColor: category.color + '20' }]}>
-            <Ionicons name={category.icon} size={28} color={category.color} />
-          </View>
           <Text style={styles.headerTitle}>{category.name}</Text>
+          <View style={styles.placeholder} />
         </View>
 
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
+          {/* Category Image Hero */}
+          <View style={styles.heroSection}>
+            <View style={[styles.imageContainer, { backgroundColor: category.color + '15' }]}>
+              <Image
+                source={HomeCategoryImages[category.id]}
+                style={styles.categoryImage}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.categoryTitle}>{category.name}</Text>
+            <Text style={styles.exerciseCount}>{exercises.length} exercises</Text>
+          </View>
+
+          {/* Exercise List */}
           {exercises.map((exercise) => (
             <TouchableOpacity
               key={exercise.id}
@@ -132,6 +154,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -139,20 +162,14 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
-    marginRight: 8,
-  },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#4A3728',
+  },
+  placeholder: {
+    width: 40,
   },
   scrollView: {
     flex: 1,
@@ -160,6 +177,32 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  imageContainer: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  categoryImage: {
+    width: 100,
+    height: 100,
+  },
+  categoryTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#4A3728',
+    marginBottom: 4,
+  },
+  exerciseCount: {
+    fontSize: 15,
+    color: '#6B5D52',
   },
   exerciseCard: {
     flexDirection: 'row',
