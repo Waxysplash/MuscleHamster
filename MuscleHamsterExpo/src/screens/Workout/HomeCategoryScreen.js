@@ -109,7 +109,6 @@ export default function HomeCategoryScreen({ route, navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.categoryTitle}>{category.name}</Text>
             <Text style={styles.exerciseCount}>{exercises.length} exercises</Text>
           </View>
 
@@ -196,12 +195,6 @@ const styles = StyleSheet.create({
   categoryImage: {
     width: 100,
     height: 100,
-  },
-  categoryTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4A3728',
-    marginBottom: 4,
   },
   exerciseCount: {
     fontSize: 15,

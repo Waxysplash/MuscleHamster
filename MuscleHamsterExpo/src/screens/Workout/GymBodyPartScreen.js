@@ -171,7 +171,6 @@ export default function GymBodyPartScreen({ route, navigation }) {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.categoryTitle}>{bodyPart.name} Workouts</Text>
             <Text style={styles.exerciseCount}>{workouts.length} exercises</Text>
           </View>
 
@@ -269,12 +268,6 @@ const styles = StyleSheet.create({
   bodyPartImageSmaller: {
     width: 80,
     height: 80,
-  },
-  categoryTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4A3728',
-    marginBottom: 4,
   },
   exerciseCount: {
     fontSize: 15,
