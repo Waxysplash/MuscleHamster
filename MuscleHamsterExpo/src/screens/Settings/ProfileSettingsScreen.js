@@ -178,7 +178,7 @@ export default function ProfileSettingsScreen({ navigation }) {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Info Banner */}
         <View style={styles.infoBanner}>
-          <Ionicons name="information-circle" size={20} color="#007AFF" />
+          <Ionicons name="information-circle" size={20} color="#FF9500" />
           <Text style={styles.infoBannerText}>
             Changes to your profile will update your workout recommendations and reminders.
           </Text>
@@ -190,7 +190,7 @@ export default function ProfileSettingsScreen({ navigation }) {
           <View style={styles.card}>
             <View style={styles.hamsterRow}>
               <View style={styles.hamsterIcon}>
-                <Ionicons name="paw" size={24} color="#007AFF" />
+                <Ionicons name="paw" size={24} color="#FF9500" />
               </View>
               <View style={styles.hamsterInputContainer}>
                 <Text style={styles.inputLabel}>Your Hamster</Text>
@@ -199,6 +199,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                   value={hamsterName}
                   onChangeText={handleNameChange}
                   placeholder="Hamster name"
+                  placeholderTextColor="#A0968E"
                   maxLength={HAMSTER_NAME_MAX_LENGTH}
                   autoCapitalize="words"
                   autoCorrect={false}
@@ -231,7 +232,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                     <Text style={styles.optionDescription}>{FitnessLevelInfo[level].description}</Text>
                   </View>
                   {fitnessLevel === level && (
-                    <Ionicons name="checkmark" size={22} color="#007AFF" />
+                    <Ionicons name="checkmark" size={22} color="#FF9500" />
                   )}
                 </TouchableOpacity>
               </React.Fragment>
@@ -256,7 +257,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                   <Ionicons
                     name={FitnessGoalInfo[goal].icon}
                     size={22}
-                    color="#007AFF"
+                    color="#FF9500"
                     style={styles.optionIcon}
                   />
                   <Text style={styles.optionLabel}>{FitnessGoalInfo[goal].displayName}</Text>
@@ -264,7 +265,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                     <Ionicons
                       name={fitnessGoals.includes(goal) ? 'checkmark-circle' : 'ellipse-outline'}
                       size={24}
-                      color={fitnessGoals.includes(goal) ? '#007AFF' : '#C7C7CC'}
+                      color={fitnessGoals.includes(goal) ? '#FF9500' : '#C4B8AE'}
                     />
                   </View>
                 </TouchableOpacity>
@@ -330,7 +331,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                     <Text style={styles.optionDescription}>{SchedulePreferenceInfo[pref].description}</Text>
                   </View>
                   {schedulePreference === pref && (
-                    <Ionicons name="checkmark" size={22} color="#007AFF" />
+                    <Ionicons name="checkmark" size={22} color="#FF9500" />
                   )}
                 </TouchableOpacity>
               </React.Fragment>
@@ -354,7 +355,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                     <Ionicons
                       name={WorkoutTimeInfo[time].icon}
                       size={22}
-                      color="#007AFF"
+                      color="#FF9500"
                       style={styles.optionIcon}
                     />
                     <View style={styles.optionInfo}>
@@ -362,7 +363,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                       <Text style={styles.optionDescription}>{WorkoutTimeInfo[time].description}</Text>
                     </View>
                     {preferredWorkoutTime === time && (
-                      <Ionicons name="checkmark" size={22} color="#007AFF" />
+                      <Ionicons name="checkmark" size={22} color="#FF9500" />
                     )}
                   </TouchableOpacity>
                 </React.Fragment>
@@ -393,7 +394,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                     <Text style={styles.optionDescription}>{FitnessIntentInfo[intent].description}</Text>
                   </View>
                   {fitnessIntent === intent && (
-                    <Ionicons name="checkmark" size={22} color="#007AFF" />
+                    <Ionicons name="checkmark" size={22} color="#FF9500" />
                   )}
                 </TouchableOpacity>
               </React.Fragment>
@@ -427,7 +428,7 @@ export default function ProfileSettingsScreen({ navigation }) {
       <Modal visible={isSaving} transparent animationType="fade">
         <View style={styles.savingOverlay}>
           <View style={styles.savingModal}>
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color="#FF9500" />
             <Text style={styles.savingText}>Saving...</Text>
           </View>
         </View>
@@ -439,7 +440,7 @@ export default function ProfileSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   scrollView: {
     flex: 1,
@@ -450,7 +451,7 @@ const styles = StyleSheet.create({
   },
   infoBanner: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    backgroundColor: 'rgba(255,149,0,0.1)',
     borderRadius: 14,
     padding: 14,
     marginBottom: 24,
@@ -458,7 +459,7 @@ const styles = StyleSheet.create({
   },
   infoBannerText: {
     fontSize: 14,
-    color: '#333',
+    color: '#4A3728',
     marginLeft: 10,
     flex: 1,
     lineHeight: 20,
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -481,7 +482,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#E5DDD5',
     marginLeft: 16,
   },
   hamsterRow: {
@@ -493,7 +494,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    backgroundColor: 'rgba(255,149,0,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -503,13 +504,14 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 4,
   },
   hamsterInput: {
     fontSize: 20,
     fontWeight: '600',
     paddingVertical: 4,
+    color: '#4A3728',
   },
   errorText: {
     fontSize: 13,
@@ -518,7 +520,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 4,
   },
   optionRow: {
@@ -535,10 +537,11 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   optionDescription: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   checkboxContainer: {
@@ -551,6 +554,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     marginBottom: 12,
+    color: '#4A3728',
   },
   dayButtons: {
     flexDirection: 'row',
@@ -561,23 +565,24 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#F5EDE5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   dayButtonSelected: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
   },
   dayButtonText: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   dayButtonTextSelected: {
     color: '#fff',
   },
   weeklyGoalSubtext: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   subSection: {
     paddingTop: 8,
@@ -587,6 +592,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     paddingHorizontal: 14,
     paddingBottom: 8,
+    color: '#4A3728',
   },
   timeRow: {
     flexDirection: 'row',
@@ -595,7 +601,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
     lineHeight: 18,
@@ -606,18 +612,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#C7C7CC',
+    borderTopColor: '#E5DDD5',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',
   },
   saveButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#C4B8AE',
   },
   saveButtonText: {
     fontSize: 17,
@@ -638,7 +644,7 @@ const styles = StyleSheet.create({
   },
   savingText: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 16,
   },
 });

@@ -268,7 +268,7 @@ export default function NotificationSettingsScreen({ navigation }) {
           </View>
           <TouchableOpacity style={styles.openSettingsButton} onPress={openSystemSettings}>
             <Text style={styles.openSettingsText}>Open Settings</Text>
-            <Ionicons name="open-outline" size={16} color="#007AFF" />
+            <Ionicons name="open-outline" size={16} color="#8B5A2B" />
           </TouchableOpacity>
         </View>
       )}
@@ -280,7 +280,7 @@ export default function NotificationSettingsScreen({ navigation }) {
             <Ionicons
               name={userEnabled ? 'notifications' : 'notifications-off'}
               size={28}
-              color={userEnabled ? '#007AFF' : '#8E8E93'}
+              color={userEnabled ? '#FF9500' : '#6B5D52'}
             />
             <View style={styles.masterToggleInfo}>
               <Text style={styles.masterToggleLabel}>Notifications</Text>
@@ -289,7 +289,7 @@ export default function NotificationSettingsScreen({ navigation }) {
             <Switch
               value={userEnabled}
               onValueChange={handleUserEnabledChange}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#FF9500' }}
               disabled={permissionState === PermissionState.DENIED}
               accessibilityLabel="Notifications toggle"
             />
@@ -318,14 +318,14 @@ export default function NotificationSettingsScreen({ navigation }) {
                   <Ionicons
                     name={PERIOD_INFO[period].icon}
                     size={22}
-                    color="#007AFF"
+                    color="#FF9500"
                   />
                   <View style={styles.periodInfo}>
                     <Text style={styles.periodLabel}>{PERIOD_INFO[period].displayName}</Text>
                     <Text style={styles.periodDescription}>{PERIOD_INFO[period].description}</Text>
                   </View>
                   {reminderPeriod === period && (
-                    <Ionicons name="checkmark" size={22} color="#007AFF" />
+                    <Ionicons name="checkmark" size={22} color="#FF9500" />
                   )}
                 </TouchableOpacity>
               </React.Fragment>
@@ -339,7 +339,7 @@ export default function NotificationSettingsScreen({ navigation }) {
               onPress={handleCustomTimePress}
               accessibilityLabel={`Custom time: ${formatTime(reminderHour, reminderMinute)}`}
             >
-              <Ionicons name="time-outline" size={22} color="#007AFF" />
+              <Ionicons name="time-outline" size={22} color="#FF9500" />
               <View style={styles.periodInfo}>
                 <Text style={styles.periodLabel}>Custom Time</Text>
                 {reminderPeriod === ReminderTimePeriod.CUSTOM && (
@@ -349,9 +349,9 @@ export default function NotificationSettingsScreen({ navigation }) {
                 )}
               </View>
               {reminderPeriod === ReminderTimePeriod.CUSTOM && (
-                <Ionicons name="checkmark" size={22} color="#007AFF" />
+                <Ionicons name="checkmark" size={22} color="#FF9500" />
               )}
-              <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={18} color="#C4B8AE" />
             </TouchableOpacity>
           </View>
           <Text style={styles.footerText}>
@@ -367,7 +367,7 @@ export default function NotificationSettingsScreen({ navigation }) {
           <View style={styles.card}>
             {/* Daily Reminder */}
             <View style={styles.reminderTypeRow}>
-              <Ionicons name="notifications" size={22} color="#007AFF" />
+              <Ionicons name="notifications" size={22} color="#FF9500" />
               <View style={styles.reminderTypeInfo}>
                 <Text style={styles.reminderTypeLabel}>Daily Workout Reminder</Text>
                 <Text style={styles.reminderTypeDescription}>
@@ -377,7 +377,7 @@ export default function NotificationSettingsScreen({ navigation }) {
               <Switch
                 value={dailyReminderEnabled}
                 onValueChange={handleDailyReminderChange}
-                trackColor={{ true: '#007AFF' }}
+                trackColor={{ true: '#FF9500' }}
                 accessibilityLabel="Daily Workout Reminder toggle"
               />
             </View>
@@ -386,7 +386,7 @@ export default function NotificationSettingsScreen({ navigation }) {
 
             {/* Streak at Risk */}
             <View style={styles.reminderTypeRow}>
-              <Ionicons name="flame" size={22} color="#FF9500" />
+              <Ionicons name="flame" size={22} color="#FF3B30" />
               <View style={styles.reminderTypeInfo}>
                 <Text style={styles.reminderTypeLabel}>Streak at Risk</Text>
                 <Text style={styles.reminderTypeDescription}>
@@ -396,7 +396,7 @@ export default function NotificationSettingsScreen({ navigation }) {
               <Switch
                 value={streakReminderEnabled}
                 onValueChange={handleStreakReminderChange}
-                trackColor={{ true: '#007AFF' }}
+                trackColor={{ true: '#FF9500' }}
                 accessibilityLabel="Streak at Risk Reminder toggle"
               />
             </View>
@@ -405,7 +405,7 @@ export default function NotificationSettingsScreen({ navigation }) {
 
             {/* Friend Nudges */}
             <View style={styles.reminderTypeRow}>
-              <Ionicons name="hand-left" size={22} color="#AF52DE" />
+              <Ionicons name="hand-left" size={22} color="#8B5A2B" />
               <View style={styles.reminderTypeInfo}>
                 <Text style={styles.reminderTypeLabel}>Friend Nudges</Text>
                 <Text style={styles.reminderTypeDescription}>
@@ -415,7 +415,7 @@ export default function NotificationSettingsScreen({ navigation }) {
               <Switch
                 value={friendNudgesEnabled}
                 onValueChange={handleFriendNudgesChange}
-                trackColor={{ true: '#007AFF' }}
+                trackColor={{ true: '#FF9500' }}
                 accessibilityLabel="Friend Nudges toggle"
               />
             </View>
@@ -514,7 +514,7 @@ export default function NotificationSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 16,
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -538,18 +538,18 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#E5DDD5',
     marginLeft: 48,
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
     lineHeight: 18,
   },
   deniedBanner: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: 'rgba(255,149,0,0.1)',
     borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
@@ -562,14 +562,15 @@ const styles = StyleSheet.create({
   deniedTitle: {
     fontSize: 15,
     fontWeight: '600',
+    color: '#4A3728',
   },
   deniedSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   openSettingsButton: {
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    backgroundColor: 'rgba(139,90,43,0.1)',
     borderRadius: 10,
     padding: 12,
     flexDirection: 'row',
@@ -580,7 +581,7 @@ const styles = StyleSheet.create({
   openSettingsText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#8B5A2B',
     marginRight: 6,
   },
   masterToggleRow: {
@@ -596,10 +597,11 @@ const styles = StyleSheet.create({
   masterToggleLabel: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   masterToggleSubLabel: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   periodRow: {
@@ -615,10 +617,11 @@ const styles = StyleSheet.create({
   periodLabel: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   periodDescription: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   reminderTypeRow: {
@@ -634,10 +637,11 @@ const styles = StyleSheet.create({
   reminderTypeLabel: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   reminderTypeDescription: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   modalOverlay: {
@@ -646,7 +650,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 40,
@@ -657,20 +661,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#E5DDD5',
   },
   modalTitle: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   modalCancel: {
     fontSize: 17,
-    color: '#007AFF',
+    color: '#6B5D52',
   },
   modalSave: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#FF9500',
   },
   timePickerContainer: {
     flexDirection: 'row',
@@ -683,7 +688,7 @@ const styles = StyleSheet.create({
   },
   timePickerLabel: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 8,
   },
   timePickerScroll: {
@@ -697,12 +702,12 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   timePickerItemSelected: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
   },
   timePickerItemText: {
     fontSize: 24,
     fontWeight: '500',
-    color: '#333',
+    color: '#4A3728',
   },
   timePickerItemTextSelected: {
     color: '#fff',
@@ -712,10 +717,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginHorizontal: 16,
     marginTop: 24,
+    color: '#4A3728',
   },
   modalFooter: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
   },

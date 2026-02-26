@@ -39,7 +39,7 @@ export default function AccountSettingsScreen({ navigation }) {
         <Ionicons
           name="person-circle-outline"
           size={64}
-          color="#8E8E93"
+          color="#6B5D52"
         />
         <Text style={styles.signedOutTitle}>Not Signed In</Text>
         <Text style={styles.signedOutMessage}>
@@ -58,7 +58,7 @@ export default function AccountSettingsScreen({ navigation }) {
           <Ionicons
             name="person-circle"
             size={56}
-            color="#007AFF"
+            color="#FF9500"
           />
           <View style={styles.accountInfo}>
             <Text style={styles.emailText}>{currentUser.email}</Text>
@@ -73,7 +73,7 @@ export default function AccountSettingsScreen({ navigation }) {
         <View style={styles.card}>
           <View style={styles.statusRow}>
             <View style={styles.statusLabel}>
-              <Ionicons name="person-outline" size={22} color="#007AFF" />
+              <Ionicons name="person-outline" size={22} color="#FF9500" />
               <Text style={styles.statusText}>Profile Setup</Text>
             </View>
             {isProfileComplete ? (
@@ -100,13 +100,13 @@ export default function AccountSettingsScreen({ navigation }) {
             accessibilityRole="button"
           >
             <View style={styles.dangerLabel}>
-              <Ionicons name="trash-outline" size={22} color="#8E8E93" />
+              <Ionicons name="trash-outline" size={22} color="#A0968E" />
               <View style={styles.dangerTextContainer}>
                 <Text style={styles.dangerText}>Delete Account</Text>
                 <Text style={styles.dangerSubText}>Coming Soon</Text>
               </View>
             </View>
-            <Ionicons name="information-circle-outline" size={22} color="#8E8E93" />
+            <Ionicons name="information-circle-outline" size={22} color="#A0968E" />
           </TouchableOpacity>
         </View>
         <Text style={styles.footerText}>
@@ -120,7 +120,7 @@ export default function AccountSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 16,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -156,10 +156,11 @@ const styles = StyleSheet.create({
   emailText: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   emailSubText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   statusRow: {
@@ -176,6 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginLeft: 12,
+    color: '#4A3728',
   },
   completeBadge: {
     flexDirection: 'row',
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
   },
   incompleteText: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   dangerRow: {
     flexDirection: 'row',
@@ -207,16 +209,16 @@ const styles = StyleSheet.create({
   dangerText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#8E8E93',
+    color: '#A0968E',
   },
   dangerSubText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#A0968E',
     marginTop: 1,
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
     lineHeight: 18,
@@ -226,16 +228,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   signedOutTitle: {
     fontSize: 20,
     fontWeight: '600',
     marginTop: 16,
+    color: '#4A3728',
   },
   signedOutMessage: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,
