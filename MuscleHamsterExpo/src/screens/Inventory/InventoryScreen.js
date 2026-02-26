@@ -19,10 +19,12 @@ import { ShopService } from '../../services/ShopService';
 import { getShopItemImage } from '../../config/AssetImages';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import LoadingView from '../../components/LoadingView';
+import ErrorBanner from '../../components/ErrorBanner';
 
 export default function InventoryScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
   const [ownedItems, setOwnedItems] = useState([]);
   const [equippedItemId, setEquippedItemId] = useState(null);
 
@@ -33,6 +35,7 @@ export default function InventoryScreen({ navigation }) {
   );
 
   const loadInventory = async () => {
+    setError(null);
     try {
       const [inventory, allItems] = await Promise.all([
         ShopService.getInventory(),
@@ -51,6 +54,7 @@ export default function InventoryScreen({ navigation }) {
       setEquippedItemId(equipped);
     } catch (e) {
       console.error('Failed to load inventory:', e);
+      setError('Could not load your items. Pull down to try again.');
     } finally {
       setIsLoading(false);
     }
@@ -58,8 +62,14 @@ export default function InventoryScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadInventory();
-    setRefreshing(false);
+    setError(null);
+    try {
+      await loadInventory();
+    } catch (e) {
+      setError('Could not refresh. Pull down to try again.');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const handleEquip = async (itemId) => {
@@ -90,6 +100,14 @@ export default function InventoryScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Items</Text>
       </View>
+
+      {error && (
+        <ErrorBanner
+          message={error}
+          onRetry={loadInventory}
+          onDismiss={() => setError(null)}
+        />
+      )}
 
       <ScrollView
         contentContainerStyle={styles.content}

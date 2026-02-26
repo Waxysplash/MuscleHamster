@@ -23,6 +23,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { EnclosureBackground } from '../../config/AssetImages';
 import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
+import ErrorBanner from '../../components/ErrorBanner';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const ENCLOSURE_HEIGHT = SCREEN_HEIGHT * 0.42; // 42% of screen for enclosure
@@ -50,6 +51,7 @@ export default function HomeScreen({ navigation }) {
 
   const [refreshing, setRefreshing] = useState(false);
   const [hasShownStreakFreeze, setHasShownStreakFreeze] = useState(false);
+  const [error, setError] = useState(null);
 
   // Get today's exercise (deterministic per user per day)
   const todaysExercise = getTodaysExercise(currentUser?.uid || 'guest');
@@ -57,8 +59,16 @@ export default function HomeScreen({ navigation }) {
   // Reload stats and inventory when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      loadStats();
-      loadInventory();
+      const load = async () => {
+        try {
+          await Promise.all([loadStats(), loadInventory()]);
+          setError(null);
+        } catch (e) {
+          console.error('Failed to load home data:', e);
+          setError('Could not refresh data');
+        }
+      };
+      load();
     }, [loadStats, loadInventory])
   );
 
@@ -76,9 +86,15 @@ export default function HomeScreen({ navigation }) {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadStats();
-    await loadInventory();
-    setRefreshing(false);
+    setError(null);
+    try {
+      await Promise.all([loadStats(), loadInventory()]);
+    } catch (e) {
+      console.error('Failed to refresh:', e);
+      setError('Could not refresh. Pull down to try again.');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   // Use simplified state (happy/hungry) when feature flag is on
@@ -154,6 +170,16 @@ export default function HomeScreen({ navigation }) {
           </SafeAreaView>
         </ImageBackground>
       </View>
+
+      {/* Error Banner */}
+      {error && (
+        <ErrorBanner
+          message={error}
+          onRetry={onRefresh}
+          onDismiss={() => setError(null)}
+          style={{ marginTop: 8 }}
+        />
+      )}
 
       {/* SCROLLABLE BOTTOM SECTION */}
       <View style={styles.contentSection}>

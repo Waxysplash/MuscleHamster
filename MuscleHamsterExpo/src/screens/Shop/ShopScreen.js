@@ -21,12 +21,14 @@ import { ShopService } from '../../services/ShopService';
 import { useActivity } from '../../context/ActivityContext';
 import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
+import ErrorBanner from '../../components/ErrorBanner';
 
 export default function ShopScreen({ navigation }) {
   const { totalPoints, recordShopPurchase } = useActivity();
 
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
   const [items, setItems] = useState([]);
   const [ownedItemIds, setOwnedItemIds] = useState(new Set());
   const [isPurchasing, setIsPurchasing] = useState(null); // Track which item is being purchased
@@ -39,6 +41,7 @@ export default function ShopScreen({ navigation }) {
 
   const loadShopData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const [allItems, inventory] = await Promise.all([
         ShopService.getAllItems(),
@@ -49,6 +52,7 @@ export default function ShopScreen({ navigation }) {
       setOwnedItemIds(new Set(inventory.ownedItems.map((o) => o.itemId)));
     } catch (e) {
       console.error('Failed to load shop:', e);
+      setError('Could not load the shop. Pull down to try again.');
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +113,14 @@ export default function ShopScreen({ navigation }) {
           <Text style={styles.pointsText}>{totalPoints}</Text>
         </View>
       </View>
+
+      {error && (
+        <ErrorBanner
+          message={error}
+          onRetry={loadShopData}
+          onDismiss={() => setError(null)}
+        />
+      )}
 
       <ScrollView
         contentContainerStyle={styles.content}
