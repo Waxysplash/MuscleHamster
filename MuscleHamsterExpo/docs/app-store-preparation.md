@@ -123,44 +123,41 @@ Get fit with your adorable hamster buddy! Complete workouts, earn points, and cu
 
 ---
 
-## Privacy Policy (Required)
+## Privacy Policy (Required) ✅
 
-### Privacy Policy URL
-**TODO**: Host at `https://musclehamster.app/privacy` or GitHub Pages
+### Privacy Policy Files
+- **HTML version:** `docs/privacy-policy.html` (for web hosting)
+- **Markdown version:** `docs/PRIVACY_POLICY.md` (for GitHub/editing)
 
-### Sample Privacy Policy Content
+### Hosting Options (Choose One)
+
+**Option 1: GitHub Pages (Free, Recommended)**
+1. Enable GitHub Pages on your repo (Settings → Pages → Source: main branch)
+2. Privacy Policy URL: `https://waxysplash.github.io/MuscleHamster/MuscleHamsterExpo/docs/privacy-policy.html`
+
+**Option 2: Custom Domain**
+1. Host `privacy-policy.html` at `https://musclehamster.app/privacy`
+
+**Option 3: Notion/Google Sites (Quick)**
+1. Copy content from `PRIVACY_POLICY.md` to a public Notion page or Google Site
+2. Use that URL for App Store submission
+
+### Privacy Policy URL (Update After Hosting)
 ```
-Privacy Policy for Muscle Hamster
-
-Last updated: [DATE]
-
-Muscle Hamster ("we", "our", or "us") respects your privacy. This policy explains how we handle your information.
-
-INFORMATION WE COLLECT
-- Account information (email, display name) if you create an account
-- Workout data (exercises completed, points earned)
-- Device information for app functionality
-
-HOW WE USE YOUR INFORMATION
-- To provide the app's features
-- To sync your data across devices (if logged in)
-- To improve the app experience
-
-DATA STORAGE
-- Your data is stored securely using Firebase
-- Local data is encrypted using secure storage
-- We do not sell your data to third parties
-
-YOUR RIGHTS
-- You can delete your account and data at any time
-- Contact us at [email] for data requests
-
-CHILDREN'S PRIVACY
-This app is suitable for all ages. We do not knowingly collect data from children under 13 without parental consent.
-
-CONTACT US
-[Your contact email]
+https://waxysplash.github.io/MuscleHamster/MuscleHamsterExpo/docs/privacy-policy.html
 ```
+
+### Policy Covers
+- ✅ Data collection (account, profile, activity, technical)
+- ✅ Data usage purposes
+- ✅ Third-party services (Firebase, Apple Sign In, Google Sign In)
+- ✅ Security measures
+- ✅ User rights (access, update, delete, portability)
+- ✅ Children's privacy (13+ age gate, COPPA compliance)
+- ✅ GDPR compliance (EU users)
+- ✅ CCPA compliance (California users)
+- ✅ Data retention policy
+- ✅ Contact information
 
 ---
 

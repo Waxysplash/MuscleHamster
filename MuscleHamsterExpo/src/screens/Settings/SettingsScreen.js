@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import FeatureFlags from '../../config/FeatureFlags';
+import { setupScreenshotData, clearAllTestData } from '../../services/TestDataService';
 
 export default function SettingsScreen({ navigation }) {
   const { currentUser, signOut } = useAuth();
@@ -13,6 +14,7 @@ export default function SettingsScreen({ navigation }) {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEffects, setSoundEffects] = useState(true);
   const [music, setMusic] = useState(true);
+  const [isSettingUpData, setIsSettingUpData] = useState(false);
 
   // Format points for display
   const formattedPoints = totalPoints.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -32,6 +34,62 @@ export default function SettingsScreen({ navigation }) {
         ]
       );
     }
+  };
+
+  // Debug: Set up screenshot test data
+  const handleSetupTestData = async () => {
+    if (!currentUser?.id) {
+      Alert.alert('Error', 'Please sign in first');
+      return;
+    }
+
+    setIsSettingUpData(true);
+    try {
+      const result = await setupScreenshotData(currentUser.id);
+      if (result.success) {
+        Alert.alert(
+          'Test Data Created!',
+          `Points: ${result.data.points}\nStreak: ${result.data.streak} days\nWorkouts: ${result.data.workouts}\nItems: ${result.data.itemsOwned}\nEquipped: ${result.data.equipped}\n\nRestart the app to see changes.`
+        );
+      } else {
+        Alert.alert('Error', result.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setIsSettingUpData(false);
+    }
+  };
+
+  // Debug: Clear all test data
+  const handleClearTestData = async () => {
+    if (!currentUser?.id) {
+      Alert.alert('Error', 'Please sign in first');
+      return;
+    }
+
+    Alert.alert(
+      'Clear All Data?',
+      'This will reset points, streaks, inventory, and journal to zero. Cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear All',
+          style: 'destructive',
+          onPress: async () => {
+            setIsSettingUpData(true);
+            try {
+              const result = await clearAllTestData(currentUser.id);
+              Alert.alert(result.success ? 'Cleared!' : 'Error', result.message);
+            } catch (error) {
+              Alert.alert('Error', error.message);
+            } finally {
+              setIsSettingUpData(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -232,6 +290,53 @@ export default function SettingsScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
+
+      {/* Debug Section - REMOVE BEFORE PRODUCTION */}
+      {__DEV__ && (
+        <View style={styles.section}>
+          <View style={[styles.row, { backgroundColor: '#FFF3E0' }]}>
+            <View style={[styles.iconBox, { backgroundColor: '#FF9500' }]}>
+              <Ionicons name="construct" size={22} color="#fff" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={[styles.rowLabel, { color: '#E65100' }]}>Screenshot Test Data</Text>
+              <Text style={styles.rowSub}>Set up realistic data for App Store screenshots</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={[styles.row, { marginTop: 1 }]}
+            onPress={handleSetupTestData}
+            disabled={isSettingUpData}
+          >
+            <View style={styles.iconBox}>
+              <Ionicons name="sparkles" size={22} color="#34C759" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Create Test Data</Text>
+              <Text style={styles.rowSub}>185 pts, 7-day streak, 3 items</Text>
+            </View>
+            {isSettingUpData ? (
+              <ActivityIndicator color="#FF9500" />
+            ) : (
+              <Ionicons name="add-circle" size={24} color="#34C759" />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.row, { marginTop: 1 }]}
+            onPress={handleClearTestData}
+            disabled={isSettingUpData}
+          >
+            <View style={styles.iconBox}>
+              <Ionicons name="trash" size={22} color="#FF3B30" />
+            </View>
+            <View style={styles.rowInfo}>
+              <Text style={styles.rowLabel}>Clear All Data</Text>
+              <Text style={styles.rowSub}>Reset to fresh state</Text>
+            </View>
+            <Ionicons name="close-circle" size={24} color="#FF3B30" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Sign Out */}
       <TouchableOpacity

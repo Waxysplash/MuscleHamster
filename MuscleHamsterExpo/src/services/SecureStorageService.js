@@ -2,21 +2,15 @@
  * SecureStorageService - Encrypted storage for sensitive data
  *
  * Uses expo-secure-store for encrypted storage on iOS (Keychain) and Android (Keystore).
- * Falls back to AsyncStorage for non-sensitive data or when SecureStore is unavailable.
+ * Falls back to AsyncStorage when SecureStore is unavailable (web, Expo Go, etc.).
  *
  * Use this for:
  * - User profiles
  * - Authentication tokens
  * - Stats and activity data
  * - Any PII (personally identifiable information)
- *
- * Do NOT use this for:
- * - Large data (>2KB per key on some platforms)
- * - Cache data that can be regenerated
- * - Non-sensitive app state
  */
 
-import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Keys for secure storage
@@ -28,11 +22,27 @@ export const SECURE_KEYS = {
   ONBOARDING: 'secure_onboarding',
 };
 
-// Check if SecureStore is available (not available on web)
-const isSecureStoreAvailable = async () => {
+// Dynamically load SecureStore to avoid crash when not available
+let SecureStore = null;
+let secureStoreChecked = false;
+let secureStoreAvailable = false;
+
+const loadSecureStore = async () => {
+  if (secureStoreChecked) {
+    return secureStoreAvailable;
+  }
+
   try {
-    return await SecureStore.isAvailableAsync();
-  } catch {
+    // Dynamic import to avoid crash in Expo Go / web
+    SecureStore = await import('expo-secure-store');
+    secureStoreAvailable = await SecureStore.isAvailableAsync();
+    secureStoreChecked = true;
+    console.log('SecureStore available:', secureStoreAvailable);
+    return secureStoreAvailable;
+  } catch (error) {
+    console.log('SecureStore not available, using AsyncStorage fallback');
+    secureStoreChecked = true;
+    secureStoreAvailable = false;
     return false;
   }
 };
@@ -46,21 +56,25 @@ const isSecureStoreAvailable = async () => {
 export const saveSecure = async (key, value) => {
   try {
     const jsonValue = JSON.stringify(value);
+    const available = await loadSecureStore();
 
-    // Check if SecureStore is available
-    const available = await isSecureStoreAvailable();
-
-    if (available) {
+    if (available && SecureStore) {
       await SecureStore.setItemAsync(key, jsonValue);
     } else {
-      // Fallback to AsyncStorage (web or unsupported platforms)
+      // Fallback to AsyncStorage
       await AsyncStorage.setItem(key, jsonValue);
     }
 
     return true;
   } catch (error) {
     console.error(`SecureStorage save error for key ${key}:`, error);
-    return false;
+    // Try AsyncStorage as last resort
+    try {
+      await AsyncStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch {
+      return false;
+    }
   }
 };
 
@@ -71,10 +85,10 @@ export const saveSecure = async (key, value) => {
  */
 export const getSecure = async (key) => {
   try {
-    const available = await isSecureStoreAvailable();
+    const available = await loadSecureStore();
 
     let jsonValue;
-    if (available) {
+    if (available && SecureStore) {
       jsonValue = await SecureStore.getItemAsync(key);
     } else {
       jsonValue = await AsyncStorage.getItem(key);
@@ -83,7 +97,13 @@ export const getSecure = async (key) => {
     return jsonValue ? JSON.parse(jsonValue) : null;
   } catch (error) {
     console.error(`SecureStorage get error for key ${key}:`, error);
-    return null;
+    // Try AsyncStorage as fallback
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      return jsonValue ? JSON.parse(jsonValue) : null;
+    } catch {
+      return null;
+    }
   }
 };
 
@@ -94,9 +114,9 @@ export const getSecure = async (key) => {
  */
 export const deleteSecure = async (key) => {
   try {
-    const available = await isSecureStoreAvailable();
+    const available = await loadSecureStore();
 
-    if (available) {
+    if (available && SecureStore) {
       await SecureStore.deleteItemAsync(key);
     } else {
       await AsyncStorage.removeItem(key);
@@ -171,7 +191,7 @@ export const clearUserSecureData = async (userId) => {
  */
 export const migrateToSecureStorage = async (userId) => {
   try {
-    const available = await isSecureStoreAvailable();
+    const available = await loadSecureStore();
     if (!available) {
       return false; // Can't migrate if SecureStore not available
     }

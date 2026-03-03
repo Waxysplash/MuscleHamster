@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
 **Status:** APP STORE PREP IN PROGRESS
-**Active Phase:** Phase 12 - App Store Preparation (Session 44)
-**Last Updated:** Feb 25, 2026 (Session 44)
+**Active Phase:** Phase 12 - App Store Preparation (Session 45)
+**Last Updated:** Mar 3, 2026 (Session 45)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -71,8 +71,9 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 ### Priority 1: App Store Submission
 - [x] App Store metadata document created
 - [x] App name updated to "Muscle Hamster"
+- [x] Create privacy policy (HTML + Markdown) — Session 45
+- [ ] Host privacy policy online (GitHub Pages recommended)
 - [ ] Take screenshots on multiple device sizes
-- [ ] Create privacy policy and host online
 - [ ] Set up Apple Developer account
 - [ ] Run `eas build --platform ios --profile production`
 - [ ] Submit to App Store
@@ -84,6 +85,30 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - [ ] Test shop purchase and equip flow
 
 **See App Store prep:** `MuscleHamsterExpo/docs/app-store-preparation.md`
+
+---
+
+### ✅ COMPLETED (Session 45)
+
+#### Privacy Policy Created
+- **privacy-policy.html** — Full HTML privacy policy with Muscle Hamster styling
+- **PRIVACY_POLICY.md** — Markdown version for easy editing
+- **Compliance coverage:**
+  - GDPR (EU users) — all required rights documented
+  - CCPA (California) — disclosure and opt-out rights
+  - COPPA — age gate at 13+, no child data collection
+  - Apple App Store requirements — all sections covered
+- **Third-party disclosures:** Firebase, Apple Sign In, Google Sign In
+- **User rights:** Access, update, delete, data portability
+- Updated app-store-preparation.md with hosting instructions
+
+#### Screenshot Test Data Setup
+- **TestDataService.js** — New service for creating screenshot-ready test data
+- **SettingsScreen.js** — Added debug section (dev mode only) with:
+  - "Create Test Data" button (185 pts, 7-day streak, 3 items owned, sunglasses equipped)
+  - "Clear All Data" button to reset
+- Test data includes: workout history, transactions, journal entries, equipped items
+- Only visible in development mode (`__DEV__`)
 
 ---
 
