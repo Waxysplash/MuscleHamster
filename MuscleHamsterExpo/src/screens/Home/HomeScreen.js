@@ -139,11 +139,13 @@ export default function HomeScreen({ navigation }) {
             {/* Top Bar - State badge left, Name center, Points badge right */}
             <View style={styles.topBar}>
               {/* State Badge - Left */}
-              <View style={[styles.stateBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
-                <Ionicons name={hamsterInfo.icon} size={14} color={hamsterInfo.color} />
-                <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
-                  {hamsterInfo.displayName}
-                </Text>
+              <View style={styles.topBarLeft}>
+                <View style={[styles.stateBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
+                  <Ionicons name={hamsterInfo.icon} size={14} color={hamsterInfo.color} />
+                  <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
+                    {hamsterInfo.displayName}
+                  </Text>
+                </View>
               </View>
 
               {/* Hamster Name - Center */}
@@ -152,9 +154,11 @@ export default function HomeScreen({ navigation }) {
               </View>
 
               {/* Points Badge - Right */}
-              <View style={styles.pointsBadge}>
-                <Ionicons name="star" size={16} color="#FF9500" />
-                <Text style={styles.pointsText}>{totalPoints}</Text>
+              <View style={styles.topBarRight}>
+                <View style={styles.pointsBadge}>
+                  <Ionicons name="star" size={16} color="#FF9500" />
+                  <Text style={styles.pointsText}>{totalPoints}</Text>
+                </View>
               </View>
             </View>
 
@@ -314,6 +318,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingTop: 8,
+  },
+  topBarLeft: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  topBarRight: {
+    flex: 1,
+    alignItems: 'flex-end',
   },
   pointsBadge: {
     flexDirection: 'row',

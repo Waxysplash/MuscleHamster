@@ -256,6 +256,7 @@ export default function OnboardingScreen({ navigation }) {
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {renderStepContent()}
       </ScrollView>
@@ -577,8 +578,12 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
         value={profile.hamsterName || ''}
         onChangeText={handleNameChange}
         placeholder="Enter a name"
+        placeholderTextColor="#A89585"
         maxLength={HAMSTER_NAME_MAX_LENGTH}
         autoFocus
+        autoCapitalize="words"
+        autoCorrect={false}
+        returnKeyType="done"
         accessibilityLabel="Hamster name"
       />
       <Text style={styles.characterCount}>
@@ -835,10 +840,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: 'center',
     padding: 16,
-    backgroundColor: '#FFF2E5',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: '#D4C4B0',
     color: '#4A3728',
   },
   nameInputError: {
