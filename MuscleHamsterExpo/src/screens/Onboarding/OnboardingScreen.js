@@ -71,9 +71,6 @@ const STEP_TITLES = {
   meetHamster: 'Meet your hamster!',
 };
 
-// Enable skip button for development/testing
-const DEV_SKIP_ENABLED = __DEV__;
-
 export default function OnboardingScreen({ navigation }) {
   const { saveOnboardingProgress, onboardingProgress, completeOnboarding } = useUserProfile();
 
@@ -174,32 +171,6 @@ export default function OnboardingScreen({ navigation }) {
     }
   };
 
-  // Skip onboarding with default values (dev/testing only)
-  const handleSkipOnboarding = async () => {
-    if (!DEV_SKIP_ENABLED) return;
-
-    setIsSaving(true);
-    try {
-      const defaultProfile = {
-        ...createEmptyProfile(),
-        age: 25,
-        fitnessLevel: FitnessLevel.BEGINNER,
-        fitnessGoals: [FitnessGoal.GENERAL],
-        weeklyWorkoutGoal: 3,
-        schedulePreference: SchedulePreference.FLEXIBLE,
-        preferredWorkoutTime: WorkoutTime.MORNING,
-        fitnessIntent: FitnessIntent.MAINTAIN,
-        hamsterName: 'Hammy',
-      };
-      await completeOnboarding(defaultProfile);
-      // Navigation is handled automatically by RootNavigator when isProfileComplete becomes true
-    } catch (e) {
-      Alert.alert('Oops!', 'Something went wrong. Please try again.');
-      setIsSaving(false);
-    }
-    // Don't set isSaving to false on success - we're transitioning away
-  };
-
   const renderStepContent = () => {
     const step = activeSteps[currentStep];
 
@@ -274,18 +245,6 @@ export default function OnboardingScreen({ navigation }) {
           accessibilityLabel="Go back"
         >
           <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
-        </TouchableOpacity>
-      )}
-
-      {/* Skip Button (Dev/Testing only) */}
-      {DEV_SKIP_ENABLED && (
-        <TouchableOpacity
-          style={styles.skipButton}
-          onPress={handleSkipOnboarding}
-          disabled={isSaving}
-          accessibilityLabel="Skip onboarding"
-        >
-          <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
       )}
 
@@ -714,20 +673,6 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 10,
     padding: 8,
-  },
-  skipButton: {
-    position: 'absolute',
-    top: 60,
-    right: 16,
-    zIndex: 10,
-    padding: 8,
-    backgroundColor: '#8B5A2B',
-    borderRadius: 8,
-  },
-  skipText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
   },
   title: {
     fontSize: 28,
