@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { HomeScreen } from '../screens/Home';
 import { DailyExerciseCheckInScreen } from '../screens/Home';
-import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen, GymBodyPartScreen, GymExerciseDetailScreen, HomeCategoryScreen, HomeExerciseDetailScreen } from '../screens/Workout';
+import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen, GymBodyPartScreen, GymExerciseDetailScreen, HomeCategoryScreen, HomeExerciseDetailScreen, AddWorkoutScreen, CustomWorkoutDetailScreen, LogProgressScreen } from '../screens/Workout';
 import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
 import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
 import { useActivity } from '../context/ActivityContext';
@@ -236,6 +236,27 @@ function WorkoutsStackScreen() {
           headerShown: false,
           presentation: 'fullScreenModal',
           gestureEnabled: false,
+        }}
+      />
+      <WorkoutsStack.Screen
+        name="AddWorkout"
+        component={AddWorkoutScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <WorkoutsStack.Screen
+        name="CustomWorkoutDetail"
+        component={CustomWorkoutDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <WorkoutsStack.Screen
+        name="LogProgress"
+        component={LogProgressScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
         }}
       />
     </WorkoutsStack.Navigator>

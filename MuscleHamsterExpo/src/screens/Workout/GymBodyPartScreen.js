@@ -1,5 +1,5 @@
 // Gym Body Part Workouts Screen
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutService } from '../../services/WorkoutService';
 import LoadingView from '../../components/LoadingView';
+import FavoriteButton from '../../components/FavoriteButton';
+import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
 // Gym body part images
 const GymBodyPartImages = {
@@ -137,6 +139,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
   const { bodyPart } = route.params;
   const [isLoading, setIsLoading] = useState(true);
   const [workouts, setWorkouts] = useState([]);
+  const { favorites, isFavorite } = useCustomWorkouts();
 
   useEffect(() => {
     // Simulate loading
@@ -145,6 +148,17 @@ export default function GymBodyPartScreen({ route, navigation }) {
       setIsLoading(false);
     }, 300);
   }, [bodyPart]);
+
+  // Sort workouts with favorites at the top
+  const sortedWorkouts = useMemo(() => {
+    return [...workouts].sort((a, b) => {
+      const aFav = isFavorite(a.id);
+      const bFav = isFavorite(b.id);
+      if (aFav && !bFav) return -1;
+      if (!aFav && bFav) return 1;
+      return 0;
+    });
+  }, [workouts, favorites, isFavorite]);
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -205,7 +219,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
           </View>
 
           {/* Exercise List */}
-          {workouts.map((workout) => (
+          {sortedWorkouts.map((workout) => (
               <TouchableOpacity
                 key={workout.id}
                 style={styles.workoutCard}
@@ -227,7 +241,8 @@ export default function GymBodyPartScreen({ route, navigation }) {
                     </Text>
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+                <FavoriteButton workoutId={workout.id} size={22} />
+                <Ionicons name="chevron-forward" size={20} color="#8B5A2B" style={{ marginLeft: 4 }} />
               </TouchableOpacity>
           ))}
 

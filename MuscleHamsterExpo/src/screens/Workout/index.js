@@ -5,3 +5,6 @@ export { default as GymBodyPartScreen } from './GymBodyPartScreen';
 export { default as GymExerciseDetailScreen } from './GymExerciseDetailScreen';
 export { default as HomeCategoryScreen } from './HomeCategoryScreen';
 export { default as HomeExerciseDetailScreen } from './HomeExerciseDetailScreen';
+export { default as AddWorkoutScreen } from './AddWorkoutScreen';
+export { default as CustomWorkoutDetailScreen } from './CustomWorkoutDetailScreen';
+export { default as LogProgressScreen } from './LogProgressScreen';

@@ -8,6 +8,7 @@ import { ActivityProvider } from './src/context/ActivityContext';
 import { FriendProvider } from './src/context/FriendContext';
 import { NotificationProvider } from './src/context/NotificationContext';
 import { InventoryProvider } from './src/context/InventoryContext';
+import { CustomWorkoutProvider } from './src/context/CustomWorkoutContext';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import OnboardingScreen from './src/screens/Onboarding/OnboardingScreen';
@@ -50,14 +51,16 @@ export default function App() {
       <UserProfileProvider>
         <ActivityProvider>
           <InventoryProvider>
-            <FriendProvider>
-              <NotificationProvider>
-                <NavigationContainer>
-                  <StatusBar style="auto" />
-                  <RootNavigator />
-                </NavigationContainer>
-              </NotificationProvider>
-            </FriendProvider>
+            <CustomWorkoutProvider>
+              <FriendProvider>
+                <NotificationProvider>
+                  <NavigationContainer>
+                    <StatusBar style="auto" />
+                    <RootNavigator />
+                  </NavigationContainer>
+                </NotificationProvider>
+              </FriendProvider>
+            </CustomWorkoutProvider>
           </InventoryProvider>
         </ActivityProvider>
       </UserProfileProvider>

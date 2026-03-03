@@ -1,5 +1,5 @@
 // Home Category Workouts Screen
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingView from '../../components/LoadingView';
+import FavoriteButton from '../../components/FavoriteButton';
+import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
 // Home category images
 const HomeCategoryImages = {
@@ -61,6 +63,7 @@ export default function HomeCategoryScreen({ route, navigation }) {
   const { category } = route.params;
   const [isLoading, setIsLoading] = useState(true);
   const [exercises, setExercises] = useState([]);
+  const { favorites, isFavorite } = useCustomWorkouts();
 
   useEffect(() => {
     // Simulate loading
@@ -69,6 +72,17 @@ export default function HomeCategoryScreen({ route, navigation }) {
       setIsLoading(false);
     }, 300);
   }, [category]);
+
+  // Sort exercises with favorites at the top
+  const sortedExercises = useMemo(() => {
+    return [...exercises].sort((a, b) => {
+      const aFav = isFavorite(a.id);
+      const bFav = isFavorite(b.id);
+      if (aFav && !bFav) return -1;
+      if (!aFav && bFav) return 1;
+      return 0;
+    });
+  }, [exercises, favorites, isFavorite]);
 
   const handleExercisePress = (exercise) => {
     navigation.navigate('HomeExerciseDetail', {
@@ -113,7 +127,7 @@ export default function HomeCategoryScreen({ route, navigation }) {
           </View>
 
           {/* Exercise List */}
-          {exercises.map((exercise) => (
+          {sortedExercises.map((exercise) => (
             <TouchableOpacity
               key={exercise.id}
               style={styles.exerciseCard}
@@ -128,7 +142,8 @@ export default function HomeCategoryScreen({ route, navigation }) {
                   {exercise.description}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+              <FavoriteButton workoutId={exercise.id} size={22} />
+              <Ionicons name="chevron-forward" size={20} color="#8B5A2B" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
           ))}
 

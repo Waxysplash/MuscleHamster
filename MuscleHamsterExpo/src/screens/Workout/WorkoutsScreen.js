@@ -1,4 +1,4 @@
-// Workouts Screen - At Home / At Gym Tabs
+// Workouts Screen - At Home / At Gym / My Workouts Tabs
 import React, { useState, useCallback } from 'react';
 import {
   View,
@@ -14,10 +14,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { WorkoutService } from '../../services/WorkoutService';
-import { DurationBucketInfo } from '../../models/Workout';
-import { FitnessLevelInfo } from '../../models/UserProfile';
+import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
+import FavoriteButton from '../../components/FavoriteButton';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth - 48) / 2;
@@ -60,12 +60,22 @@ const HOME_CATEGORIES = [
   { id: 'desk', name: 'Desk Workouts', icon: 'desktop-outline', color: '#45B7D1' },
 ];
 
+// Workout type info
+const TYPE_INFO = {
+  strength: { icon: 'barbell-outline', label: 'Strength', color: '#4ECDC4' },
+  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#FF6B6B' },
+  class: { icon: 'people-outline', label: 'Class', color: '#9B59B6' },
+  other: { icon: 'fitness-outline', label: 'Other', color: '#FF9500' },
+};
+
 export default function WorkoutsScreen({ navigation }) {
-  const [activeTab, setActiveTab] = useState('home'); // 'home' or 'gym'
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'gym', or 'my'
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [allWorkouts, setAllWorkouts] = useState([]);
+
+  const { customWorkouts, isLoading: customLoading, refreshData } = useCustomWorkouts();
 
   const loadWorkouts = useCallback(async () => {
     setIsLoading(true);
@@ -83,12 +93,13 @@ export default function WorkoutsScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       loadWorkouts();
-    }, [loadWorkouts])
+      refreshData();
+    }, [loadWorkouts, refreshData])
   );
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadWorkouts();
+    await Promise.all([loadWorkouts(), refreshData()]);
     setRefreshing(false);
   };
 
@@ -104,22 +115,24 @@ export default function WorkoutsScreen({ navigation }) {
     navigation.navigate('HomeCategoryWorkouts', { category });
   };
 
-  // Filter at-home workouts (no equipment needed)
-  const atHomeWorkouts = allWorkouts.filter((w) =>
-    w.equipment.includes('none') || w.equipment.length === 0
-  );
+  const navigateToCustomWorkout = (workout) => {
+    navigation.navigate('CustomWorkoutDetail', { workoutId: workout.id });
+  };
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case 'beginner':
-        return '#34C759';
-      case 'intermediate':
-        return '#FF9500';
-      case 'advanced':
-        return '#FF3B30';
-      default:
-        return '#6B5D52';
-    }
+  const navigateToAddWorkout = () => {
+    navigation.navigate('AddWorkout');
+  };
+
+  const formatLastCompleted = (dateString) => {
+    if (!dateString) return 'Never completed';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   if (isLoading) {
@@ -133,7 +146,7 @@ export default function WorkoutsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Tab Selector */}
+        {/* Tab Selector - 3 tabs */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'home' && styles.tabActive]}
@@ -141,7 +154,7 @@ export default function WorkoutsScreen({ navigation }) {
           >
             <Ionicons
               name="home-outline"
-              size={20}
+              size={18}
               color={activeTab === 'home' ? '#FFF8F0' : '#6B5D52'}
             />
             <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>
@@ -154,11 +167,24 @@ export default function WorkoutsScreen({ navigation }) {
           >
             <Ionicons
               name="barbell-outline"
-              size={20}
+              size={18}
               color={activeTab === 'gym' ? '#FFF8F0' : '#6B5D52'}
             />
             <Text style={[styles.tabText, activeTab === 'gym' && styles.tabTextActive]}>
               At Gym
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'my' && styles.tabActive]}
+            onPress={() => setActiveTab('my')}
+          >
+            <Ionicons
+              name="person-outline"
+              size={18}
+              color={activeTab === 'my' ? '#FFF8F0' : '#6B5D52'}
+            />
+            <Text style={[styles.tabText, activeTab === 'my' && styles.tabTextActive]}>
+              My Workouts
             </Text>
           </TouchableOpacity>
         </View>
@@ -199,7 +225,7 @@ export default function WorkoutsScreen({ navigation }) {
                 ))}
               </View>
             </View>
-          ) : (
+          ) : activeTab === 'gym' ? (
             // AT GYM TAB
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -231,6 +257,69 @@ export default function WorkoutsScreen({ navigation }) {
                 ))}
               </View>
             </View>
+          ) : (
+            // MY WORKOUTS TAB
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="person" size={20} color="#FF9500" />
+                <Text style={styles.sectionTitle}>My Workouts</Text>
+              </View>
+              <Text style={styles.sectionSubtitle}>
+                Track your own exercises and classes
+              </Text>
+
+              {/* Add Workout Button */}
+              <TouchableOpacity
+                style={styles.addWorkoutButton}
+                onPress={navigateToAddWorkout}
+              >
+                <Ionicons name="add-circle-outline" size={24} color="#FFF8F0" />
+                <Text style={styles.addWorkoutButtonText}>Add Workout</Text>
+              </TouchableOpacity>
+
+              {/* Custom Workouts List */}
+              {customWorkouts.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Ionicons name="fitness-outline" size={56} color="#C4B5A8" />
+                  <Text style={styles.emptyTitle}>No custom workouts yet</Text>
+                  <Text style={styles.emptyText}>
+                    Add workouts like Spin Class, Morning Run, or Weight Training to track your progress over time!
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.workoutsList}>
+                  {customWorkouts.map((workout) => {
+                    const typeInfo = TYPE_INFO[workout.type] || TYPE_INFO.other;
+                    return (
+                      <TouchableOpacity
+                        key={workout.id}
+                        style={styles.workoutCard}
+                        onPress={() => navigateToCustomWorkout(workout)}
+                        accessibilityLabel={`${workout.name} workout`}
+                      >
+                        <View style={[styles.workoutIcon, { backgroundColor: typeInfo.color + '20' }]}>
+                          <Ionicons name={typeInfo.icon} size={24} color={typeInfo.color} />
+                        </View>
+                        <View style={styles.workoutInfo}>
+                          <Text style={styles.workoutName}>{workout.name}</Text>
+                          <View style={styles.workoutMeta}>
+                            <Text style={styles.workoutMetaText}>
+                              {workout.completionCount} {workout.completionCount === 1 ? 'time' : 'times'}
+                            </Text>
+                            <Text style={styles.workoutMetaDot}>•</Text>
+                            <Text style={styles.workoutMetaText}>
+                              {formatLastCompleted(workout.lastCompletedAt)}
+                            </Text>
+                          </View>
+                        </View>
+                        <FavoriteButton workoutId={workout.id} size={22} />
+                        <Ionicons name="chevron-forward" size={20} color="#8B5A2B" style={{ marginLeft: 4 }} />
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
           )}
         </ScrollView>
       </View>
@@ -251,23 +340,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 12,
+    gap: 8,
   },
   tab: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 12,
     backgroundColor: '#FFF8F0',
-    gap: 8,
+    gap: 6,
   },
   tabActive: {
     backgroundColor: '#8B5A2B',
   },
   tabText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: '#6B5D52',
   },
@@ -331,64 +420,82 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A3728',
   },
-  workoutRow: {
+  addWorkoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#8B5A2B',
+    borderRadius: 16,
+    paddingVertical: 16,
+    gap: 8,
+    marginBottom: 20,
+  },
+  addWorkoutButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#FFF8F0',
+  },
+  workoutsList: {
+    gap: 12,
+  },
+  workoutCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
-    marginBottom: 10,
     shadowColor: '#4A3728',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  workoutRowIcon: {
+  workoutIcon: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: '#FFF0E0',
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  workoutRowInfo: {
+  workoutInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 14,
   },
-  workoutRowName: {
+  workoutName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#4A3728',
+    marginBottom: 4,
   },
-  workoutRowMeta: {
+  workoutMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
-    gap: 6,
   },
-  workoutRowDuration: {
+  workoutMetaText: {
     fontSize: 13,
     color: '#6B5D52',
-    marginLeft: 4,
   },
-  difficultyDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginLeft: 4,
-  },
-  workoutRowDifficulty: {
+  workoutMetaDot: {
     fontSize: 13,
-    color: '#6B5D52',
+    color: '#A89B8C',
+    marginHorizontal: 6,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 48,
+    paddingHorizontal: 24,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A3728',
+    marginTop: 16,
+    marginBottom: 8,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#6B5D52',
-    marginTop: 12,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
