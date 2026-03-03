@@ -169,7 +169,7 @@ export default function InventoryScreen({ navigation }) {
                     {itemImage ? (
                       <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
                     ) : (
-                      <Ionicons name="shirt" size={32} color="#8E8E93" />
+                      <Ionicons name="shirt" size={32} color="#6B5D52" />
                     )}
                   </View>
 

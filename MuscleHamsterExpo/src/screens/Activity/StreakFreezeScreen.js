@@ -169,13 +169,13 @@ export default function StreakFreezeScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleDone} style={styles.closeButton}>
-          <Ionicons name="close" size={28} color="#8E8E93" />
+          <Ionicons name="close" size={28} color="#6B5D52" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.promptContent}>
         <View style={styles.brokenStreakIcon}>
-          <Ionicons name="flame" size={60} color="#8E8E93" />
+          <Ionicons name="flame" size={60} color="#6B5D52" />
           <View style={styles.breakMark}>
             <Ionicons name="close-circle" size={24} color="#FF3B30" />
           </View>
@@ -242,7 +242,7 @@ export default function StreakFreezeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -267,23 +267,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -4,
     right: -4,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderRadius: 12,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   streakInfo: {
     fontSize: 18,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 16,
   },
   message: {
     fontSize: 16,
-    color: '#3C3C43',
+    color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   costLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   costBadge: {
     flexDirection: 'row',
@@ -341,16 +341,16 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   balanceValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   afterPurchase: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 24,
   },
   restoreButton: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   cantAffordCard: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     borderRadius: 16,
     padding: 20,
     width: '100%',
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   },
   cantAffordText: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   cantAffordBalance: {
     fontSize: 18,
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
   },
   cantAffordHint: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
   },
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   },
   declineButtonText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: '#FF9500',
   },
   centerContent: {
     flex: 1,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     borderRadius: 12,
   },
   retryButtonText: {
@@ -454,15 +454,15 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   successSubtitle: {
     fontSize: 18,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 24,
   },
   speechBubble: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     padding: 16,
     borderRadius: 16,
     marginBottom: 24,
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
-    color: '#3C3C43',
+    color: '#6B5D52',
   },
   reminderBox: {
     flexDirection: 'row',

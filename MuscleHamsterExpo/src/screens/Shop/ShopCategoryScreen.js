@@ -177,7 +177,7 @@ export default function ShopCategoryScreen({ route, navigation }) {
           style={styles.sortButton}
           onPress={() => setShowSortModal(true)}
         >
-          <Ionicons name="swap-vertical" size={18} color="#007AFF" />
+          <Ionicons name="swap-vertical" size={18} color="#FF9500" />
           <Text style={styles.sortButtonText}>Sort</Text>
         </TouchableOpacity>
       </View>
@@ -231,7 +231,7 @@ export default function ShopCategoryScreen({ route, navigation }) {
                   {SortOptionLabels[option]}
                 </Text>
                 {sortBy === option && (
-                  <Ionicons name="checkmark" size={20} color="#007AFF" />
+                  <Ionicons name="checkmark" size={20} color="#FF9500" />
                 )}
               </TouchableOpacity>
             ))}
@@ -307,7 +307,7 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
       <View style={styles.modalContainer}>
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color="#000" />
+            <Ionicons name="close" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.modalTitle}>Item Details</Text>
           <View style={{ width: 40 }} />
@@ -388,16 +388,16 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: 'rgba(139,90,43,0.1)',
   },
   headerInfo: {
     flexDirection: 'row',
@@ -414,10 +414,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#4A3728',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   sortButton: {
@@ -425,14 +426,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: 'rgba(0,122,255,0.1)',
+    backgroundColor: 'rgba(255,149,0,0.1)',
     borderRadius: 8,
   },
   sortButtonText: {
     marginLeft: 4,
     fontSize: 14,
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#FF9500',
   },
   itemsGrid: {
     flexDirection: 'row',
@@ -461,6 +462,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 6,
     height: 40,
+    color: '#4A3728',
   },
   rarityRow: {
     flexDirection: 'row',
@@ -536,6 +538,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 16,
     textAlign: 'center',
+    color: '#4A3728',
   },
   sortOption: {
     flexDirection: 'row',
@@ -543,20 +546,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: 'rgba(139,90,43,0.1)',
   },
   sortOptionText: {
     fontSize: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   sortOptionTextActive: {
     fontWeight: '600',
-    color: '#007AFF',
+    color: '#FF9500',
   },
   // Modal
   modalContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -566,7 +569,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: 'rgba(139,90,43,0.1)',
   },
   closeButton: {
     width: 40,
@@ -577,6 +580,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   modalContent: {
     padding: 20,
@@ -600,6 +604,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 12,
+    color: '#4A3728',
   },
   badgesRow: {
     flexDirection: 'row',
@@ -633,7 +638,7 @@ const styles = StyleSheet.create({
   },
   itemDescription: {
     fontSize: 16,
-    color: '#3C3C43',
+    color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
@@ -642,7 +647,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: 'rgba(139,90,43,0.1)',
   },
   priceLarge: {
     flexDirection: 'row',
@@ -657,19 +662,19 @@ const styles = StyleSheet.create({
   balanceText: {
     marginTop: 8,
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   modalFooter: {
     padding: 20,
     paddingBottom: 34,
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: 'rgba(139,90,43,0.1)',
   },
   purchaseButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 14,
     gap: 8,

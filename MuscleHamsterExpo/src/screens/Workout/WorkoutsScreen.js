@@ -118,7 +118,7 @@ export default function WorkoutsScreen({ navigation }) {
       case 'advanced':
         return '#FF3B30';
       default:
-        return '#8E8E93';
+        return '#6B5D52';
     }
   };
 
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 14,
     borderRadius: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     gap: 8,
   },
   tabActive: {

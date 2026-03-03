@@ -129,7 +129,7 @@ export default function RestDayCheckInScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeButton}>
-          <Ionicons name="close" size={28} color="#8E8E93" />
+          <Ionicons name="close" size={28} color="#6B5D52" />
         </TouchableOpacity>
       </View>
 
@@ -174,8 +174,8 @@ export default function RestDayCheckInScreen({ navigation }) {
               onPress={() => handleSelectActivity(activity)}
               accessibilityLabel={info.displayName}
             >
-              <View style={[styles.activityRowIcon, { backgroundColor: '#E0F0FF' }]}>
-                <Ionicons name={info.icon} size={24} color="#007AFF" />
+              <View style={[styles.activityRowIcon, { backgroundColor: 'rgba(255,149,0,0.15)' }]}>
+                <Ionicons name={info.icon} size={24} color="#FF9500" />
               </View>
               <View style={styles.activityRowInfo}>
                 <Text style={styles.activityRowName}>{info.displayName}</Text>
@@ -196,7 +196,7 @@ export default function RestDayCheckInScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   subtitle: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 24,
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#000',
+    color: '#4A3728',
   },
   activitiesRow: {
     flexDirection: 'row',
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   },
   activityCard: {
     width: '45%',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
@@ -255,11 +255,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
   },
   activityDescription: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 4,
   },
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   activityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
   activityRowName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   activityRowDescription: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   activityRowPoints: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
   },
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     borderRadius: 12,
   },
   retryButtonText: {
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   rewardBadge: {
     flexDirection: 'row',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     color: '#FF9500',
   },
   speechBubble: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     padding: 16,
     borderRadius: 16,
     marginBottom: 24,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
-    color: '#3C3C43',
+    color: '#6B5D52',
   },
   streakInfo: {
     flexDirection: 'row',

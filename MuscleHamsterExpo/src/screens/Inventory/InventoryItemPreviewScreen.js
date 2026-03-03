@@ -377,7 +377,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   scrollView: {
     flex: 1,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#4A3728',
   },
   categoryLabel: {
     flexDirection: 'row',
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 12,
     lineHeight: 24,
   },
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   successOverlay: {
     flex: 1,
@@ -543,11 +543,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
     marginBottom: 20,
   },
   reactionContainer: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -566,11 +566,11 @@ const styles = StyleSheet.create({
   reactionText: {
     fontSize: 15,
     fontStyle: 'italic',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
   doneButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 12,

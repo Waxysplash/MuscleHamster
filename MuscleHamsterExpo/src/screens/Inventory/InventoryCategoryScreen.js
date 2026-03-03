@@ -272,7 +272,7 @@ function InventoryItemCard({ item, isInUse, gradientColors, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   contentContainer: {
     paddingVertical: 16,
@@ -299,11 +299,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   headerStatus: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   grid: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   inUseLabel: {
     flexDirection: 'row',
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   itemHint: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 4,
   },
 });

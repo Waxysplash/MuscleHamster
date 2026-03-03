@@ -142,7 +142,7 @@ export default function ShopScreen({ navigation }) {
                 {itemImage ? (
                   <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
                 ) : (
-                  <Ionicons name="shirt" size={40} color="#8E8E93" />
+                  <Ionicons name="shirt" size={40} color="#6B5D52" />
                 )}
               </View>
 
@@ -188,9 +188,9 @@ export default function ShopScreen({ navigation }) {
           style={styles.inventoryLink}
           onPress={() => navigation.navigate('Inventory')}
         >
-          <Ionicons name="grid" size={20} color="#007AFF" />
+          <Ionicons name="grid" size={20} color="#FF9500" />
           <Text style={styles.inventoryLinkText}>View My Items</Text>
-          <Ionicons name="chevron-forward" size={16} color="#007AFF" />
+          <Ionicons name="chevron-forward" size={16} color="#FF9500" />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

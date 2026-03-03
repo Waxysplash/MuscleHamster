@@ -125,7 +125,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
       case 'advanced':
         return '#FF3B30';
       default:
-        return '#8E8E93';
+        return '#6B5D52';
     }
   };
 

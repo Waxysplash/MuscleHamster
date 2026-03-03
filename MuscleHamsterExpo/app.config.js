@@ -42,8 +42,7 @@ export default {
     },
     plugins: [
       "expo-web-browser",
-      "expo-apple-authentication",
-      "expo-secure-store"
+      "expo-apple-authentication"
     ],
     extra: {
       eas: {
