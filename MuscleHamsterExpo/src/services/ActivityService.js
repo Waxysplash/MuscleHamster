@@ -15,7 +15,15 @@ import {
   RestDayActivityInfo,
 } from '../models/Activity';
 
-const STORAGE_KEY = '@MuscleHamster:userStats';
+const STORAGE_KEY_PREFIX = '@MuscleHamster:userStats';
+
+// Get user-specific storage key
+const getStorageKey = () => {
+  if (currentUserId) {
+    return `${STORAGE_KEY_PREFIX}:${currentUserId}`;
+  }
+  return STORAGE_KEY_PREFIX;
+};
 
 // Current user ID (set by context)
 let currentUserId = null;
@@ -23,12 +31,28 @@ let currentUserId = null;
 // In-memory cache
 let cachedStats = null;
 let completionKeys = new Set();
+let hasCleanedOldData = false;
+
+// Clean up old shared storage key (one-time migration)
+const cleanupOldSharedData = async () => {
+  if (hasCleanedOldData) return;
+  hasCleanedOldData = true;
+  try {
+    // Delete old shared key that had test data
+    await deleteSecure(STORAGE_KEY_PREFIX);
+    console.log('Cleaned up old shared storage');
+  } catch (e) {
+    // Ignore errors
+  }
+};
 
 // Set the current user ID
 export const setActivityUserId = (userId) => {
   if (currentUserId !== userId) {
     currentUserId = userId;
     cachedStats = null;
+    // Clean up old shared data on first user set
+    cleanupOldSharedData();
     completionKeys.clear();
   }
 };
@@ -84,7 +108,7 @@ const loadStats = async () => {
     }
 
     // Fallback to SecureStorage
-    const stored = await getSecure(STORAGE_KEY);
+    const stored = await getSecure(getStorageKey());
     if (stored) {
       cachedStats = stored;
       console.log('Loaded stats from SecureStorage');
@@ -129,13 +153,13 @@ const saveStats = async (stats) => {
       await setDoc(docRef, stats);
     } else {
       // Fallback to SecureStorage if not logged in
-      await saveSecure(STORAGE_KEY, stats);
+      await saveSecure(getStorageKey(), stats);
     }
   } catch (e) {
     console.warn('Failed to save stats:', e);
     // Fallback to SecureStorage
     try {
-      await saveSecure(STORAGE_KEY, stats);
+      await saveSecure(getStorageKey(), stats);
     } catch (localError) {
       console.warn('Local save also failed:', localError);
     }
@@ -634,6 +658,6 @@ export const ActivityService = {
   async clearAllData() {
     cachedStats = null;
     completionKeys.clear();
-    await deleteSecure(STORAGE_KEY);
+    await deleteSecure(getStorageKey());
   },
 };
