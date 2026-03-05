@@ -8,6 +8,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform, AppState } from 'react-native';
+import Logger from './LoggerService';
 import {
   loadNotificationPreferences,
   saveNotificationPreferences,
@@ -82,11 +83,11 @@ export const initializeNotificationService = async () => {
     _preferences = await loadNotificationPreferences();
     await refreshPermissionState();
     setupNotificationListeners();
-    console.log('NotificationService: Initialized');
+    Logger.debug('NotificationService: Initialized');
     notifyListeners();
     return _preferences;
   } catch (error) {
-    console.error('NotificationService: Failed to initialize:', error);
+    Logger.error('NotificationService: Failed to initialize:', error);
     _preferences = createDefaultNotificationPreferences();
     return _preferences;
   }
@@ -110,7 +111,7 @@ const setupNotificationListeners = () => {
   // Listen for notifications received while app is foregrounded
   _receivedListener = Notifications.addNotificationReceivedListener(
     (notification) => {
-      console.log('NotificationService: Received notification in foreground:', notification);
+      Logger.debug('NotificationService: Received notification in foreground:', notification);
     }
   );
 };
@@ -118,12 +119,12 @@ const setupNotificationListeners = () => {
 // Handle notification response (tap)
 const handleNotificationResponse = async (response) => {
   const identifier = response.notification.request.identifier;
-  console.log('NotificationService: Handling notification tap - identifier:', identifier);
+  Logger.debug('NotificationService: Handling notification tap - identifier:', identifier);
 
   // Parse the notification type
   const notificationType = parseNotificationType(identifier);
   if (!notificationType) {
-    console.log('NotificationService: Unknown notification identifier:', identifier);
+    Logger.debug('NotificationService: Unknown notification identifier:', identifier);
     return;
   }
 
@@ -164,7 +165,7 @@ export const refreshPermissionState = async () => {
     notifyListeners();
     return _permissionState;
   } catch (error) {
-    console.error('NotificationService: Failed to get permission status:', error);
+    Logger.error('NotificationService: Failed to get permission status:', error);
     return _permissionState;
   }
 };
@@ -174,7 +175,7 @@ export const requestPermission = async () => {
   try {
     // Check if this is a physical device (required for push notifications)
     if (!Device.isDevice) {
-      console.log('NotificationService: Must use physical device for push notifications');
+      Logger.debug('NotificationService: Must use physical device for push notifications');
       return false;
     }
 
@@ -204,7 +205,7 @@ export const requestPermission = async () => {
     notifyListeners();
     return status === 'granted';
   } catch (error) {
-    console.error('NotificationService: Failed to request permission:', error);
+    Logger.error('NotificationService: Failed to request permission:', error);
     await refreshPermissionState();
     return false;
   }
@@ -251,7 +252,7 @@ export const updateNotificationPreferences = async (newPreferences) => {
 
     notifyListeners();
   } catch (error) {
-    console.error('NotificationService: Failed to update preferences:', error);
+    Logger.error('NotificationService: Failed to update preferences:', error);
   }
 };
 
@@ -301,9 +302,9 @@ const scheduleDailyReminder = async (prefs) => {
       identifier: `${NotificationTypeInfo[NotificationType.DAILY_REMINDER].identifierPrefix}_daily`,
     });
 
-    console.log(`NotificationService: Scheduled daily reminder for ${prefs.reminderHour}:${String(prefs.reminderMinute).padStart(2, '0')}`);
+    Logger.debug(`NotificationService: Scheduled daily reminder for ${prefs.reminderHour}:${String(prefs.reminderMinute).padStart(2, '0')}`);
   } catch (error) {
-    console.error('NotificationService: Failed to schedule daily reminder:', error);
+    Logger.error('NotificationService: Failed to schedule daily reminder:', error);
   }
 };
 
@@ -329,9 +330,9 @@ const scheduleStreakAtRiskReminder = async (prefs, streakReminderHour) => {
       identifier: `${NotificationTypeInfo[NotificationType.STREAK_AT_RISK].identifierPrefix}_daily`,
     });
 
-    console.log(`NotificationService: Scheduled streak at risk reminder for ${streakReminderHour}:00`);
+    Logger.debug(`NotificationService: Scheduled streak at risk reminder for ${streakReminderHour}:00`);
   } catch (error) {
-    console.error('NotificationService: Failed to schedule streak at risk reminder:', error);
+    Logger.error('NotificationService: Failed to schedule streak at risk reminder:', error);
   }
 };
 
@@ -341,9 +342,9 @@ export const cancelAllNotifications = async () => {
     await Notifications.cancelAllScheduledNotificationsAsync();
     await Notifications.dismissAllNotificationsAsync();
     await clearBadge();
-    console.log('NotificationService: Cancelled all notifications');
+    Logger.debug('NotificationService: Cancelled all notifications');
   } catch (error) {
-    console.error('NotificationService: Failed to cancel notifications:', error);
+    Logger.error('NotificationService: Failed to cancel notifications:', error);
   }
 };
 
@@ -353,7 +354,7 @@ export const cancelNotification = async (type) => {
   try {
     await Notifications.cancelScheduledNotificationAsync(identifier);
   } catch (error) {
-    console.error(`NotificationService: Failed to cancel notification ${type}:`, error);
+    Logger.error(`NotificationService: Failed to cancel notification ${type}:`, error);
   }
 };
 
@@ -362,7 +363,7 @@ export const clearBadge = async () => {
   try {
     await Notifications.setBadgeCountAsync(0);
   } catch (error) {
-    console.error('NotificationService: Failed to clear badge:', error);
+    Logger.error('NotificationService: Failed to clear badge:', error);
   }
 };
 
@@ -425,7 +426,7 @@ export const handleCheckIn = async () => {
     await Notifications.dismissAllNotificationsAsync();
     await clearBadge();
   } catch (error) {
-    console.error('NotificationService: Failed to handle check-in:', error);
+    Logger.error('NotificationService: Failed to handle check-in:', error);
   }
 };
 

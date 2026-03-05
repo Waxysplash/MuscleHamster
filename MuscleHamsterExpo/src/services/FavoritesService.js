@@ -2,6 +2,7 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { saveSecure, getSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
+import Logger from './LoggerService';
 
 const STORAGE_KEY_PREFIX = '@MuscleHamster:favorites';
 
@@ -36,7 +37,7 @@ const createDefaultData = () => ({
 const loadFavorites = async () => {
   if (cachedFavorites) return cachedFavorites;
 
-  console.log('Loading favorites, userId:', currentUserId);
+  Logger.debug('Loading favorites, userId:', currentUserId);
 
   try {
     // Try Firestore first if user is logged in
@@ -50,10 +51,10 @@ const loadFavorites = async () => {
 
       if (docSnap.exists()) {
         cachedFavorites = docSnap.data();
-        console.log('Loaded favorites from Firestore');
+        Logger.debug('Loaded favorites from Firestore');
         return cachedFavorites;
       } else {
-        console.log('No favorites in Firestore');
+        Logger.debug('No favorites in Firestore');
       }
     }
 
@@ -61,23 +62,23 @@ const loadFavorites = async () => {
     const stored = await getSecure(getStorageKey());
     if (stored) {
       cachedFavorites = stored;
-      console.log('Loaded favorites from SecureStorage');
+      Logger.debug('Loaded favorites from SecureStorage');
 
       // Migrate to Firestore if user is logged in
       if (currentUserId && cachedFavorites) {
         const docRef = doc(db, 'userFavorites', currentUserId);
-        setDoc(docRef, cachedFavorites).catch(e => console.warn('Favorites migration failed:', e));
+        setDoc(docRef, cachedFavorites).catch(e => Logger.warn('Favorites migration failed:', e));
       }
     } else {
-      console.log('No stored favorites, using defaults');
+      Logger.debug('No stored favorites, using defaults');
       cachedFavorites = createDefaultData();
     }
   } catch (e) {
     const isTimeout = e.message === 'Firestore timeout';
     if (isTimeout) {
-      console.warn('Firestore request timed out, using default favorites');
+      Logger.warn('Firestore request timed out, using default favorites');
     } else {
-      console.warn('Failed to load favorites:', e.message);
+      Logger.warn('Failed to load favorites:', e.message);
     }
     cachedFavorites = createDefaultData();
   }
@@ -98,12 +99,12 @@ const saveFavorites = async (data) => {
       await saveSecure(getStorageKey(), data);
     }
   } catch (e) {
-    console.warn('Failed to save favorites:', e);
+    Logger.warn('Failed to save favorites:', e);
     // Fallback to SecureStorage
     try {
       await saveSecure(getStorageKey(), data);
     } catch (localError) {
-      console.warn('Local save also failed:', localError);
+      Logger.warn('Local save also failed:', localError);
     }
   }
 };

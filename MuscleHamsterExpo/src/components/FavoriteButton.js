@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCustomWorkouts } from '../context/CustomWorkoutContext';
+import Logger from '../services/LoggerService';
 
 export default function FavoriteButton({ workoutId, size = 24, style }) {
   const { isFavorite, toggleFavorite } = useCustomWorkouts();
@@ -35,7 +36,7 @@ export default function FavoriteButton({ workoutId, size = 24, style }) {
     try {
       await toggleFavorite(workoutId);
     } catch (e) {
-      console.warn('Failed to toggle favorite:', e);
+      Logger.warn('Failed to toggle favorite:', e);
     } finally {
       setIsAnimating(false);
     }

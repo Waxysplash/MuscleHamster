@@ -9,6 +9,7 @@ import {
   createNotificationContext,
   NotificationPreferencesDefaults,
 } from '../models/Notification';
+import Logger from '../services/LoggerService';
 
 const NotificationContext = createContext(null);
 
@@ -43,7 +44,7 @@ export function NotificationProvider({ children }) {
         setPreferences({ ...NotificationPreferencesDefaults, ...JSON.parse(stored) });
       }
     } catch (error) {
-      console.warn('Error loading notification preferences:', error);
+      Logger.warn('Error loading notification preferences:', error);
     }
   }, []);
 
@@ -51,7 +52,7 @@ export function NotificationProvider({ children }) {
     try {
       await AsyncStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(prefs));
     } catch (error) {
-      console.warn('Error saving notification preferences:', error);
+      Logger.warn('Error saving notification preferences:', error);
     }
   }, []);
 
@@ -85,7 +86,7 @@ export function NotificationProvider({ children }) {
         handleNotificationResponse
       );
     } catch (error) {
-      console.warn('Failed to add notification listener:', error);
+      Logger.warn('Failed to add notification listener:', error);
     }
 
     return () => {
@@ -93,7 +94,7 @@ export function NotificationProvider({ children }) {
         try {
           subscription.remove();
         } catch (error) {
-          console.warn('Failed to remove notification listener:', error);
+          Logger.warn('Failed to remove notification listener:', error);
         }
       }
     };
@@ -133,7 +134,7 @@ export function NotificationProvider({ children }) {
     trigger,
   }) => {
     if (permissionStatus !== 'granted') {
-      console.warn('Cannot schedule notification - permission not granted');
+      Logger.warn('Cannot schedule notification - permission not granted');
       return null;
     }
 
@@ -149,7 +150,7 @@ export function NotificationProvider({ children }) {
       });
       return id;
     } catch (error) {
-      console.warn('Error scheduling notification:', error);
+      Logger.warn('Error scheduling notification:', error);
       return null;
     }
   }, [permissionStatus]);
@@ -159,7 +160,7 @@ export function NotificationProvider({ children }) {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
     } catch (error) {
-      console.warn('Error canceling notification:', error);
+      Logger.warn('Error canceling notification:', error);
     }
   }, []);
 
@@ -168,7 +169,7 @@ export function NotificationProvider({ children }) {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch (error) {
-      console.warn('Error canceling all notifications:', error);
+      Logger.warn('Error canceling all notifications:', error);
     }
   }, []);
 

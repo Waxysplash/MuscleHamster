@@ -3,6 +3,7 @@
 // Phase 08.1: Audio Experience and Settings
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from '../services/LoggerService';
 
 // Storage Keys
 const AUDIO_STORAGE_KEYS = {
@@ -144,7 +145,7 @@ export const loadAudioPreferences = async () => {
       mixWithOthers: stored.mixWithOthers ?? AUDIO_DEFAULTS.mixWithOthers,
     };
   } catch (error) {
-    console.error('AudioPreferences: Failed to load preferences:', error);
+    Logger.error('AudioPreferences: Failed to load preferences:', error);
     return createDefaultAudioPreferences();
   }
 };
@@ -163,7 +164,7 @@ export const saveAudioPreferences = async (preferences) => {
 
     await AsyncStorage.multiSet(pairs);
   } catch (error) {
-    console.error('AudioPreferences: Failed to save preferences:', error);
+    Logger.error('AudioPreferences: Failed to save preferences:', error);
   }
 };
 

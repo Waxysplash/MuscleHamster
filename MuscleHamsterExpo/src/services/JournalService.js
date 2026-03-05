@@ -2,6 +2,7 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { saveSecure, getSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
+import Logger from './LoggerService';
 
 const STORAGE_KEY = '@MuscleHamster:exerciseJournal';
 
@@ -55,7 +56,7 @@ const loadJournal = async () => {
       // Migrate to Firestore if user is logged in
       if (currentUserId && cachedJournal) {
         const docRef = doc(db, 'exerciseJournals', currentUserId);
-        setDoc(docRef, cachedJournal).catch(e => console.warn('Journal migration failed:', e));
+        setDoc(docRef, cachedJournal).catch(e => Logger.warn('Journal migration failed:', e));
       }
 
       return cachedJournal;
@@ -65,7 +66,7 @@ const loadJournal = async () => {
     cachedJournal = { exercises: {} };
     return cachedJournal;
   } catch (e) {
-    console.warn('Failed to load journal:', e);
+    Logger.warn('Failed to load journal:', e);
     cachedJournal = { exercises: {} };
     return cachedJournal;
   }
@@ -82,10 +83,10 @@ const saveJournal = async (journal) => {
     // Save to Firestore if user is logged in
     if (currentUserId) {
       const docRef = doc(db, 'exerciseJournals', currentUserId);
-      setDoc(docRef, journal).catch(e => console.warn('Journal Firestore save failed:', e));
+      setDoc(docRef, journal).catch(e => Logger.warn('Journal Firestore save failed:', e));
     }
   } catch (e) {
-    console.warn('Failed to save journal:', e);
+    Logger.warn('Failed to save journal:', e);
   }
 };
 

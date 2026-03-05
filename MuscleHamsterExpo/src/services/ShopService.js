@@ -1,5 +1,6 @@
 // Shop Service - Phase 07
 import { saveSecure, getSecure, deleteSecure } from './SecureStorageService';
+import Logger from './LoggerService';
 import {
   ShopItemCategory,
   ShopItemRarity,
@@ -126,7 +127,7 @@ const loadInventory = async () => {
       cachedInventory = createDefaultInventory();
     }
   } catch (e) {
-    console.warn('Failed to load inventory:', e);
+    Logger.warn('Failed to load inventory:', e);
     cachedInventory = createDefaultInventory();
   }
 
@@ -140,7 +141,7 @@ const saveInventory = async (inventory) => {
     const storageKey = getStorageKey();
     await saveSecure(storageKey, inventory);
   } catch (e) {
-    console.warn('Failed to save inventory:', e);
+    Logger.warn('Failed to save inventory:', e);
   }
 };
 

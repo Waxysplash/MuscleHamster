@@ -6,6 +6,7 @@ import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
 import { createEmptyProfile } from '../models/UserProfile';
 import { saveSecure, getSecure, deleteSecure } from '../services/SecureStorageService';
+import Logger from '../services/LoggerService';
 
 // DEBUG FLAG - set to true to see alerts about profile loading
 const DEBUG_PROFILE = false;
@@ -59,14 +60,14 @@ export const UserProfileProvider = ({ children }) => {
 
   const loadProfile = useCallback(async () => {
     if (!currentUser?.id) {
-      console.log('No currentUser, skipping profile load');
+      Logger.debug('No currentUser, skipping profile load');
       setIsLoading(false);
       return;
     }
 
     // Skip reload if we just saved the profile (prevents onboarding loop)
     if (justSavedProfile.current) {
-      console.log('Skipping profile load - just saved');
+      Logger.debug('Skipping profile load - just saved');
       justSavedProfile.current = false;
       setIsLoading(false);
       return;
@@ -76,14 +77,14 @@ export const UserProfileProvider = ({ children }) => {
 
     // Only skip if we've already loaded for this exact user AND have a complete profile
     if (lastLoadedUserId.current === userId && profileCompleteRef.current) {
-      console.log('Profile already loaded for user:', userId);
+      Logger.debug('Profile already loaded for user:', userId);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-    console.log('=== LOADING PROFILE ===');
-    console.log('User ID:', userId);
+    Logger.debug('=== LOADING PROFILE ===');
+    Logger.debug('User ID:', userId);
 
     if (DEBUG_PROFILE) {
       Alert.alert('Loading Profile', `User ID: ${userId.substring(0, 8)}...`);
@@ -100,12 +101,12 @@ export const UserProfileProvider = ({ children }) => {
     try {
       const completedFlag = await getSecure(completeKey);
       hasCompletedOnboarding = completedFlag === true;
-      console.log('Permanent onboarding flag:', hasCompletedOnboarding);
+      Logger.debug('Permanent onboarding flag:', hasCompletedOnboarding);
       if (DEBUG_PROFILE) {
         Alert.alert('Permanent Flag Check', `Key: ${completeKey}\nValue: ${completedFlag}\nCompleted: ${hasCompletedOnboarding}`);
       }
     } catch (e) {
-      console.warn('Failed to check onboarding flag:', e);
+      Logger.warn('Failed to check onboarding flag:', e);
       if (DEBUG_PROFILE) {
         Alert.alert('Flag Check Error', e.message);
       }
@@ -119,10 +120,10 @@ export const UserProfileProvider = ({ children }) => {
       );
 
       const docRef = doc(db, 'users', userId);
-      console.log('Fetching from Firestore path: users/' + userId);
+      Logger.debug('Fetching from Firestore path: users/' + userId);
 
       const docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
-      console.log('Firestore response - exists:', docSnap.exists());
+      Logger.debug('Firestore response - exists:', docSnap.exists());
 
       if (DEBUG_PROFILE) {
         Alert.alert('Firestore Response', `Exists: ${docSnap.exists()}`);
@@ -130,7 +131,7 @@ export const UserProfileProvider = ({ children }) => {
 
       if (docSnap.exists()) {
         const firestoreData = docSnap.data();
-        console.log('Firestore profileComplete:', firestoreData.profileComplete);
+        Logger.debug('Firestore profileComplete:', firestoreData.profileComplete);
 
         if (DEBUG_PROFILE) {
           Alert.alert('Firestore Data', `profileComplete: ${firestoreData.profileComplete}\nhamsterName: ${firestoreData.hamsterName || 'none'}`);
@@ -138,7 +139,7 @@ export const UserProfileProvider = ({ children }) => {
 
         if (firestoreData.profileComplete) {
           // Full profile exists in Firestore - use it
-          console.log('=== FOUND COMPLETE PROFILE IN FIRESTORE ===');
+          Logger.debug('=== FOUND COMPLETE PROFILE IN FIRESTORE ===');
           if (DEBUG_PROFILE) {
             Alert.alert('Found Profile!', `From Firestore: ${firestoreData.hamsterName || 'no name'}`);
           }
@@ -149,16 +150,16 @@ export const UserProfileProvider = ({ children }) => {
 
           // Cache to SecureStorage for offline access
           saveSecure(profileKey, firestoreData).catch(e =>
-            console.warn('Failed to cache profile locally:', e)
+            Logger.warn('Failed to cache profile locally:', e)
           );
           // Also ensure permanent flag is set
           saveSecure(completeKey, true).catch(e =>
-            console.warn('Failed to set onboarding flag:', e)
+            Logger.warn('Failed to set onboarding flag:', e)
           );
           setIsLoading(false);
           return;
         } else if (firestoreData.onboardingProgress && !hasCompletedOnboarding) {
-          console.log('Profile not complete, restoring onboarding progress');
+          Logger.debug('Profile not complete, restoring onboarding progress');
           if (DEBUG_PROFILE) {
             Alert.alert('Restoring Onboarding', 'Found partial onboarding progress in Firestore');
           }
@@ -170,10 +171,10 @@ export const UserProfileProvider = ({ children }) => {
         }
       }
 
-      console.log('No complete profile in Firestore, checking local cache...');
+      Logger.debug('No complete profile in Firestore, checking local cache...');
     } catch (e) {
       const isTimeout = e.message === 'Firestore timeout';
-      console.warn(isTimeout ? 'Firestore timed out' : 'Firestore failed:', e.message);
+      Logger.warn(isTimeout ? 'Firestore timed out' : 'Firestore failed:', e.message);
       if (DEBUG_PROFILE) {
         Alert.alert('Firestore Error', isTimeout ? 'Timed out, checking local...' : e.message);
       }
@@ -190,10 +191,10 @@ export const UserProfileProvider = ({ children }) => {
       }
 
       if (localProfile) {
-        console.log('Found local profile, profileComplete:', localProfile.profileComplete);
+        Logger.debug('Found local profile, profileComplete:', localProfile.profileComplete);
 
         if (localProfile?.profileComplete) {
-          console.log('Using complete local profile as fallback');
+          Logger.debug('Using complete local profile as fallback');
           if (DEBUG_PROFILE) {
             Alert.alert('Found Profile!', `From SecureStorage: ${localProfile.hamsterName || 'no name'}`);
           }
@@ -212,13 +213,13 @@ export const UserProfileProvider = ({ children }) => {
         setOnboardingProgress(storedProgress);
       }
     } catch (localError) {
-      console.warn('Failed to load from SecureStorage:', localError);
+      Logger.warn('Failed to load from SecureStorage:', localError);
     }
 
     // Step 3: If permanent flag says onboarding is complete but we couldn't find the profile,
     // create a minimal profile to prevent re-onboarding
     if (hasCompletedOnboarding) {
-      console.log('=== PERMANENT FLAG SET - Creating minimal profile ===');
+      Logger.debug('=== PERMANENT FLAG SET - Creating minimal profile ===');
       if (DEBUG_PROFILE) {
         Alert.alert('Restoring from flag', 'Onboarding was completed before, creating minimal profile');
       }
@@ -242,7 +243,7 @@ export const UserProfileProvider = ({ children }) => {
     }
 
     // No profile found anywhere - user needs onboarding
-    console.log('No profile found - user needs onboarding');
+    Logger.debug('No profile found - user needs onboarding');
     if (DEBUG_PROFILE) {
       Alert.alert('No Profile Found', 'User needs to complete onboarding');
     }
@@ -255,7 +256,7 @@ export const UserProfileProvider = ({ children }) => {
     if (currentUser?.id) {
       // Reset state when user changes
       if (lastLoadedUserId.current && lastLoadedUserId.current !== currentUser.id) {
-        console.log('User changed, resetting profile state');
+        Logger.debug('User changed, resetting profile state');
         setProfile(null);
         setOnboardingProgress(null);
         lastLoadedUserId.current = null;
@@ -272,11 +273,11 @@ export const UserProfileProvider = ({ children }) => {
   }, [currentUser?.id, loadProfile]);
 
   const saveProfile = async (newProfile) => {
-    console.log('=== SAVING PROFILE ===');
-    console.log('currentUser:', currentUser?.id);
+    Logger.debug('=== SAVING PROFILE ===');
+    Logger.debug('currentUser:', currentUser?.id);
 
     if (!currentUser?.id) {
-      console.error('No user logged in, cannot save profile');
+      Logger.error('No user logged in, cannot save profile');
       throw new Error('No user logged in');
     }
 
@@ -304,13 +305,13 @@ export const UserProfileProvider = ({ children }) => {
     lastLoadedUserId.current = userId; // Mark this user as loaded
     profileCompleteRef.current = !!profileWithTimestamp.profileComplete;
     setProfile(profileWithTimestamp);
-    console.log('Saved to user-specific SecureStorage, profileComplete:', profileWithTimestamp.profileComplete);
+    Logger.debug('Saved to user-specific SecureStorage, profileComplete:', profileWithTimestamp.profileComplete);
 
     // Set PERMANENT onboarding completion flag when profile is complete
     // This flag survives logout/login and ensures user never has to re-onboard
     if (newProfile.profileComplete) {
       await saveSecure(completeKey, true);
-      console.log('=== PERMANENT ONBOARDING FLAG SET ===');
+      Logger.debug('=== PERMANENT ONBOARDING FLAG SET ===');
       if (DEBUG_PROFILE) {
         Alert.alert('FLAG SET!', `Permanent onboarding flag saved to:\n${completeKey}`);
       }
@@ -324,9 +325,9 @@ export const UserProfileProvider = ({ children }) => {
 
       // Then save to Firestore for cloud sync
       const docRef = doc(db, 'users', userId);
-      console.log('Writing to Firestore path: users/' + userId);
+      Logger.debug('Writing to Firestore path: users/' + userId);
       await setDoc(docRef, cleanedProfile, { merge: true });
-      console.log('=== PROFILE SAVED TO FIRESTORE ===');
+      Logger.debug('=== PROFILE SAVED TO FIRESTORE ===');
       if (DEBUG_PROFILE) {
         Alert.alert('Profile Saved!', `Saved to Firestore: ${cleanedProfile.hamsterName}`);
       }
@@ -334,10 +335,10 @@ export const UserProfileProvider = ({ children }) => {
       // Clear onboarding progress in Firestore when profile is complete
       if (cleanedProfile.profileComplete) {
         await setDoc(docRef, { onboardingProgress: null }, { merge: true });
-        console.log('Onboarding progress cleared in Firestore');
+        Logger.debug('Onboarding progress cleared in Firestore');
       }
     } catch (e) {
-      console.warn('Failed to save profile to Firestore (local save succeeded):', e);
+      Logger.warn('Failed to save profile to Firestore (local save succeeded):', e);
       if (DEBUG_PROFILE) {
         Alert.alert('Firestore Save Failed', `Local save OK. Error: ${e.message}`);
       }
@@ -348,7 +349,7 @@ export const UserProfileProvider = ({ children }) => {
   const saveOnboardingProgress = async (progress) => {
     try {
       if (!currentUser?.id) {
-        console.warn('No user logged in, cannot save onboarding progress');
+        Logger.warn('No user logged in, cannot save onboarding progress');
         return;
       }
 
@@ -364,7 +365,7 @@ export const UserProfileProvider = ({ children }) => {
       const docRef = doc(db, 'users', userId);
       await setDoc(docRef, { onboardingProgress: cleanedProgress }, { merge: true });
     } catch (e) {
-      console.warn('Failed to save onboarding progress:', e);
+      Logger.warn('Failed to save onboarding progress:', e);
     }
   };
 
@@ -375,14 +376,14 @@ export const UserProfileProvider = ({ children }) => {
   };
 
   const completeOnboarding = async (profileData) => {
-    console.log('completeOnboarding called with:', profileData);
+    Logger.debug('completeOnboarding called with:', profileData);
     const completeProfile = {
       ...profileData,
       profileComplete: true,
     };
-    console.log('Saving complete profile:', completeProfile);
+    Logger.debug('Saving complete profile:', completeProfile);
     await saveProfile(completeProfile);
-    console.log('Onboarding complete!');
+    Logger.debug('Onboarding complete!');
     return completeProfile;
   };
 
@@ -406,13 +407,13 @@ export const UserProfileProvider = ({ children }) => {
       lastLoadedUserId.current = null;
       profileCompleteRef.current = false;
     } catch (e) {
-      console.warn('Failed to clear profile:', e);
+      Logger.warn('Failed to clear profile:', e);
     }
   };
 
   // Debug: Log profile state
   useEffect(() => {
-    console.log('Profile state changed:', {
+    Logger.debug('Profile state changed:', {
       hasProfile: !!profile,
       profileComplete: profile?.profileComplete,
       hamsterName: profile?.hamsterName,

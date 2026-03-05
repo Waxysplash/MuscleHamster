@@ -3,6 +3,7 @@
 // Phase 08.2: Push Permission UX and Scheduling Rules
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from '../services/LoggerService';
 
 // Storage Keys
 const NOTIFICATION_STORAGE_KEYS = {
@@ -289,7 +290,7 @@ export const loadNotificationPreferences = async () => {
       quietHoursEnd: stored.quietHoursEnd ?? NOTIFICATION_DEFAULTS.quietHoursEnd,
     };
   } catch (error) {
-    console.error('NotificationPreferences: Failed to load preferences:', error);
+    Logger.error('NotificationPreferences: Failed to load preferences:', error);
     return createDefaultNotificationPreferences();
   }
 };
@@ -311,7 +312,7 @@ export const saveNotificationPreferences = async (preferences) => {
 
     await AsyncStorage.multiSet(pairs);
   } catch (error) {
-    console.error('NotificationPreferences: Failed to save preferences:', error);
+    Logger.error('NotificationPreferences: Failed to save preferences:', error);
   }
 };
 
@@ -329,7 +330,7 @@ export const setHasShownPermissionPrompt = async (value) => {
   try {
     await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEYS.hasShownPermissionPrompt, String(value));
   } catch (error) {
-    console.error('Failed to save hasShownPermissionPrompt:', error);
+    Logger.error('Failed to save hasShownPermissionPrompt:', error);
   }
 };
 
@@ -346,7 +347,7 @@ export const setPermissionPromptDate = async (date) => {
   try {
     await AsyncStorage.setItem(NOTIFICATION_STORAGE_KEYS.permissionPromptDate, date.toISOString());
   } catch (error) {
-    console.error('Failed to save permissionPromptDate:', error);
+    Logger.error('Failed to save permissionPromptDate:', error);
   }
 };
 

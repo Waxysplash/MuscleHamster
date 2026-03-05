@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ShopService } from '../../services/ShopService';
+import Logger from '../../services/LoggerService';
 import { ShopItemCategory, ShopItemCategoryInfo, ShopItemRarityInfo } from '../../models/ShopItem';
 import LoadingView from '../../components/LoadingView';
 import EmptyStateView from '../../components/EmptyStateView';
@@ -57,7 +58,7 @@ export default function InventoryCategoryScreen({ route, navigation }) {
         setViewState('content');
       }
     } catch (error) {
-      console.warn('Error loading category items:', error);
+      Logger.warn('Error loading category items:', error);
       setViewState('error');
     }
   };

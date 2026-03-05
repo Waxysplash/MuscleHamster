@@ -7,6 +7,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from './LoggerService';
 import {
   createFriendRelationship,
   createFriendRequest,
@@ -126,7 +127,7 @@ class FriendService {
 
       this.initialized = true;
     } catch (error) {
-      console.error('Error initializing FriendService:', error);
+      Logger.error('Error initializing FriendService:', error);
       // Initialize with mock data on error
       this.relationships = this._createMockRelationships();
       this.requests = this._createMockRequests();
@@ -146,7 +147,7 @@ class FriendService {
         AsyncStorage.setItem(STORAGE_KEYS.PRIVACY_SETTINGS, JSON.stringify(this.privacySettings)),
       ]);
     } catch (error) {
-      console.error('Error persisting FriendService data:', error);
+      Logger.error('Error persisting FriendService data:', error);
     }
   }
 

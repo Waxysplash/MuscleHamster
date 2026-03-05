@@ -11,6 +11,7 @@ import {
   isAppleSignInAvailable,
   signInWithApple as socialSignInWithApple,
 } from '../services/SocialAuthService';
+import Logger from '../services/LoggerService';
 
 // Auth state enum equivalent
 export const AuthState = {
@@ -78,7 +79,7 @@ export function AuthProvider({ children }) {
       // Auth state listener will handle setting currentUser
       return true;
     } catch (err) {
-      console.log('Sign up error:', err.code, err.message);
+      Logger.debug('Sign up error:', err.code, err.message);
       setError(getErrorMessage(err.code));
       return false;
     }
@@ -92,7 +93,7 @@ export function AuthProvider({ children }) {
       // Auth state listener will handle setting currentUser
       return true;
     } catch (err) {
-      console.log('Sign in error:', err.code, err.message);
+      Logger.debug('Sign in error:', err.code, err.message);
       setError(getErrorMessage(err.code));
       return false;
     }
@@ -103,7 +104,7 @@ export function AuthProvider({ children }) {
       await firebaseSignOut(auth);
       // Auth state listener will handle clearing currentUser
     } catch (err) {
-      console.error('Sign out error:', err);
+      Logger.error('Sign out error:', err);
     }
   }, []);
 

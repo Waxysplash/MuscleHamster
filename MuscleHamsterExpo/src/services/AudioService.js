@@ -5,6 +5,7 @@
 // Uses expo-av for audio playback on React Native/Expo
 
 import { Audio } from 'expo-av';
+import Logger from './LoggerService';
 import {
   loadAudioPreferences,
   saveAudioPreferences,
@@ -74,11 +75,11 @@ export const initializeAudioService = async () => {
   try {
     _preferences = await loadAudioPreferences();
     await configureAudioSession();
-    console.log('AudioService: Initialized');
+    Logger.debug('AudioService: Initialized');
     notifyListeners();
     return _preferences;
   } catch (error) {
-    console.error('AudioService: Failed to initialize:', error);
+    Logger.error('AudioService: Failed to initialize:', error);
     _preferences = createDefaultAudioPreferences();
     return _preferences;
   }
@@ -106,7 +107,7 @@ const configureAudioSession = async () => {
 
     _isAudioSessionConfigured = true;
   } catch (error) {
-    console.error('AudioService: Failed to configure audio session:', error);
+    Logger.error('AudioService: Failed to configure audio session:', error);
   }
 };
 
@@ -137,7 +138,7 @@ export const updateAudioPreferences = async (newPreferences) => {
 
     notifyListeners();
   } catch (error) {
-    console.error('AudioService: Failed to update preferences:', error);
+    Logger.error('AudioService: Failed to update preferences:', error);
   }
 };
 
@@ -153,7 +154,7 @@ export const playSFX = async (soundEffect) => {
   // Check if we have the sound file
   const soundFile = SOUND_EFFECT_FILES[soundEffect];
   if (!soundFile) {
-    console.log(`AudioService: Sound effect '${soundEffect}' file not found (asset not bundled)`);
+    Logger.debug(`AudioService: Sound effect '${soundEffect}' file not found (asset not bundled)`);
     return;
   }
 
@@ -187,7 +188,7 @@ export const playSFX = async (soundEffect) => {
       }
     });
   } catch (error) {
-    console.error(`AudioService: Failed to play SFX '${soundEffect}':`, error);
+    Logger.error(`AudioService: Failed to play SFX '${soundEffect}':`, error);
   }
 };
 
@@ -206,7 +207,7 @@ export const playMusic = async (track, loop = true) => {
   // Check if we have the music file
   const musicFile = MUSIC_TRACK_FILES[track];
   if (!musicFile) {
-    console.log(`AudioService: Music track '${track}' file not found (asset not bundled)`);
+    Logger.debug(`AudioService: Music track '${track}' file not found (asset not bundled)`);
     return;
   }
 
@@ -235,7 +236,7 @@ export const playMusic = async (track, loop = true) => {
 
     notifyListeners();
   } catch (error) {
-    console.error(`AudioService: Failed to play music '${track}':`, error);
+    Logger.error(`AudioService: Failed to play music '${track}':`, error);
   }
 };
 
@@ -246,7 +247,7 @@ export const stopMusic = async () => {
       await _musicPlayer.stopAsync();
       await _musicPlayer.unloadAsync();
     } catch (error) {
-      console.error('AudioService: Error stopping music:', error);
+      Logger.error('AudioService: Error stopping music:', error);
     }
     _musicPlayer = null;
   }
@@ -266,7 +267,7 @@ export const pauseMusic = async () => {
     _isMusicPlaying = false;
     notifyListeners();
   } catch (error) {
-    console.error('AudioService: Failed to pause music:', error);
+    Logger.error('AudioService: Failed to pause music:', error);
   }
 };
 
@@ -284,7 +285,7 @@ export const resumeMusic = async () => {
     _isMusicPlaying = true;
     notifyListeners();
   } catch (error) {
-    console.error('AudioService: Failed to resume music:', error);
+    Logger.error('AudioService: Failed to resume music:', error);
   }
 };
 
@@ -296,7 +297,7 @@ export const stopAllAudio = async () => {
       await _sfxPlayers[key].stopAsync();
       await _sfxPlayers[key].unloadAsync();
     } catch (error) {
-      console.error(`AudioService: Error stopping SFX ${key}:`, error);
+      Logger.error(`AudioService: Error stopping SFX ${key}:`, error);
     }
   }
   _sfxPlayers = {};
@@ -324,7 +325,7 @@ const updateVolumes = async () => {
     try {
       await _musicPlayer.setVolumeAsync(computed.effectiveMusicVolume);
     } catch (error) {
-      console.error('AudioService: Failed to update music volume:', error);
+      Logger.error('AudioService: Failed to update music volume:', error);
     }
   }
 };

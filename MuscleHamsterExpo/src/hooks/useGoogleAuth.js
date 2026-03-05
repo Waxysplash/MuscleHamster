@@ -9,6 +9,7 @@ import {
   getGoogleAndroidClientId,
   signInWithGoogleToken,
 } from '../services/SocialAuthService';
+import Logger from '../services/LoggerService';
 
 // Required for web browser redirect
 WebBrowser.maybeCompleteAuthSession();
@@ -19,9 +20,6 @@ const redirectUri = makeRedirectUri({
   // For web, use the current origin
   ...(Platform.OS === 'web' && { path: '' }),
 });
-
-// Log the redirect URI so developers can add it to Google Cloud Console
-console.log('Google OAuth Redirect URI:', redirectUri);
 
 /**
  * Custom hook for Google OAuth authentication
@@ -90,7 +88,7 @@ export function useGoogleAuth() {
       await promptAsync();
       // Response will be handled by useEffect above
     } catch (err) {
-      console.error('Google OAuth error:', err);
+      Logger.error('Google OAuth error:', err);
       setError('Google Sign-In failed. Please try again.');
       setLoading(false);
     }

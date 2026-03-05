@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
+import Logger from '../../services/LoggerService';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
 
@@ -165,7 +166,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       });
       setCompletionResult(result);
     } catch (e) {
-      console.error('Failed to record completion:', e);
+      Logger.error('Failed to record completion:', e);
       setCompletionResult({
         success: true,
         pointsEarned: 50,
@@ -181,7 +182,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       await recordFeedback(workout.id, feedback);
       setFeedbackSubmitted(true);
     } catch (e) {
-      console.warn('Failed to submit feedback:', e);
+      Logger.warn('Failed to submit feedback:', e);
       setFeedbackSubmitted(true); // Don't block user
     } finally {
       setIsSubmittingFeedback(false);

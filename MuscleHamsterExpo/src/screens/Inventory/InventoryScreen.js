@@ -16,6 +16,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { ShopService } from '../../services/ShopService';
+import Logger from '../../services/LoggerService';
 import { getShopItemImage } from '../../config/AssetImages';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import LoadingView from '../../components/LoadingView';
@@ -53,7 +54,7 @@ export default function InventoryScreen({ navigation }) {
       const equipped = inventory.equippedOutfit || inventory.equippedAccessory || null;
       setEquippedItemId(equipped);
     } catch (e) {
-      console.error('Failed to load inventory:', e);
+      Logger.error('Failed to load inventory:', e);
       setError('Could not load your items. Pull down to try again.');
     } finally {
       setIsLoading(false);

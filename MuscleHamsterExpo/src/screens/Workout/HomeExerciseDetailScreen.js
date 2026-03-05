@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { JournalService } from '../../services/JournalService';
+import Logger from '../../services/LoggerService';
 
 export default function HomeExerciseDetailScreen({ route, navigation }) {
   const { exercise, category } = route.params;
@@ -35,7 +36,7 @@ export default function HomeExerciseDetailScreen({ route, navigation }) {
       );
       setEntries(exerciseEntries);
     } catch (e) {
-      console.warn('Failed to load journal entries:', e);
+      Logger.warn('Failed to load journal entries:', e);
     } finally {
       setIsLoading(false);
     }

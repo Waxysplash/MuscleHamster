@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 import Constants from 'expo-constants';
 import { OAuthProvider, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import Logger from './LoggerService';
 
 // =============================================================================
 // GOOGLE OAUTH CLIENT IDS
@@ -108,7 +109,7 @@ export async function signInWithApple() {
       return { success: false, cancelled: true };
     }
 
-    console.error('Apple Sign-In error:', error);
+    Logger.error('Apple Sign-In error:', error);
     return {
       success: false,
       error: 'Apple Sign-In failed. Please try again.',
@@ -166,7 +167,7 @@ export async function signInWithGoogleToken(idToken) {
 
     return { success: true };
   } catch (error) {
-    console.error('Google Sign-In Firebase error:', error);
+    Logger.error('Google Sign-In Firebase error:', error);
     return {
       success: false,
       error: 'Google Sign-In failed. Please try again.',

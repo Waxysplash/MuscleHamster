@@ -3,6 +3,8 @@
 // Phase 08.3: Notification Tap Routing and Today Context
 
 import { NotificationType } from './NotificationPreferences';
+import * as Crypto from 'expo-crypto';
+import Logger from '../services/LoggerService';
 
 // Deep Link Destinations
 export const DeepLinkDestination = {
@@ -47,7 +49,7 @@ export const createNotificationContext = ({
   hasCheckedInToday = false,
   currentStreak = 0,
 }) => {
-  const id = `ctx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const id = `ctx_${Date.now()}_${Crypto.randomUUID().substring(0, 8)}`;
 
   // Determine banner type based on context
   let bannerType;
@@ -118,7 +120,7 @@ export const handleNotificationTap = ({
     currentStreak,
   });
 
-  console.log(`AppRoutingState: Handling notification tap - type: ${notificationType}, checkedIn: ${hasCheckedInToday}`);
+  Logger.debug(`AppRoutingState: Handling notification tap - type: ${notificationType}, checkedIn: ${hasCheckedInToday}`);
 
   return {
     pendingDestination: {

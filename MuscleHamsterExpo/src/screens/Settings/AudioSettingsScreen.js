@@ -19,6 +19,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Logger from '../../services/LoggerService';
 
 // Note: For a full implementation, install @react-native-community/slider
 // For now, we'll use TouchableOpacity buttons for volume control
@@ -78,7 +79,7 @@ export default function AudioSettingsScreen({ navigation }) {
       if (musicVol !== null) setMusicVolume(parseFloat(musicVol));
       if (mix !== null) setMixWithOthers(JSON.parse(mix));
     } catch (e) {
-      console.warn('Failed to load audio preferences:', e);
+      Logger.warn('Failed to load audio preferences:', e);
     }
   };
 
@@ -86,7 +87,7 @@ export default function AudioSettingsScreen({ navigation }) {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      console.warn('Failed to save audio preference:', e);
+      Logger.warn('Failed to save audio preference:', e);
     }
   };
 

@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import friendService from '../../services/FriendService';
+import Logger from '../../services/LoggerService';
 import {
   ProfileVisibilityLevel,
   getVisibilityDisplayName,
@@ -64,7 +65,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       setSelectedLevel(settings.profileVisibility);
       setOriginalLevel(settings.profileVisibility);
     } catch (e) {
-      console.warn('Failed to load privacy settings:', e);
+      Logger.warn('Failed to load privacy settings:', e);
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +90,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       setOriginalLevel(selectedLevel);
       navigation.goBack();
     } catch (e) {
-      console.warn('Failed to save privacy settings:', e);
+      Logger.warn('Failed to save privacy settings:', e);
       Alert.alert(
         "Couldn't Save",
         'Something went wrong. Please try again.',

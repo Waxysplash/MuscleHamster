@@ -4,6 +4,7 @@ import { ActivityService, setActivityUserId } from '../services/ActivityService'
 import { setJournalUserId } from '../services/JournalService';
 import { useAuth } from './AuthContext';
 import { HamsterState, createDefaultUserStats } from '../models/Activity';
+import Logger from '../services/LoggerService';
 
 const ActivityContext = createContext(null);
 
@@ -23,11 +24,11 @@ export const ActivityProvider = ({ children }) => {
 
   const loadStats = useCallback(async () => {
     setIsLoading(true);
-    console.log('Loading activity stats...');
+    Logger.debug('Loading activity stats...');
     try {
       const userStats = await ActivityService.getUserStats();
       setStats(userStats);
-      console.log('Stats loaded, validating streak...');
+      Logger.debug('Stats loaded, validating streak...');
 
       // Also validate streak
       const streakResult = await ActivityService.validateStreak();
@@ -36,9 +37,9 @@ export const ActivityProvider = ({ children }) => {
       if (streakResult.stats) {
         setStats(streakResult.stats);
       }
-      console.log('Activity loading complete');
+      Logger.debug('Activity loading complete');
     } catch (e) {
-      console.warn('Failed to load stats:', e);
+      Logger.warn('Failed to load stats:', e);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ export const ActivityProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to record completion:', e);
+      Logger.warn('Failed to record completion:', e);
       throw e;
     }
   }, []);
@@ -80,7 +81,7 @@ export const ActivityProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to record daily check-in:', e);
+      Logger.warn('Failed to record daily check-in:', e);
       throw e;
     }
   }, []);
@@ -93,7 +94,7 @@ export const ActivityProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to record rest day:', e);
+      Logger.warn('Failed to record rest day:', e);
       throw e;
     }
   }, []);
@@ -103,7 +104,7 @@ export const ActivityProvider = ({ children }) => {
       const result = await ActivityService.recordFeedback(workoutId, feedback);
       return result;
     } catch (e) {
-      console.warn('Failed to record feedback:', e);
+      Logger.warn('Failed to record feedback:', e);
       throw e;
     }
   }, []);
@@ -117,7 +118,7 @@ export const ActivityProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to restore streak:', e);
+      Logger.warn('Failed to restore streak:', e);
       throw e;
     }
   }, []);
@@ -128,7 +129,7 @@ export const ActivityProvider = ({ children }) => {
       setStreakStatus({ status: 'none', days: 0 });
       setStats((prev) => ({ ...prev, previousBrokenStreak: null }));
     } catch (e) {
-      console.warn('Failed to acknowledge reset:', e);
+      Logger.warn('Failed to acknowledge reset:', e);
     }
   }, []);
 
@@ -140,7 +141,7 @@ export const ActivityProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to record purchase:', e);
+      Logger.warn('Failed to record purchase:', e);
       throw e;
     }
   }, []);

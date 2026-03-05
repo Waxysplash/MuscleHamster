@@ -5,6 +5,7 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from './LoggerService';
 
 // Keys for storage
 export const SECURE_KEYS = {
@@ -27,7 +28,7 @@ export const saveSecure = async (key, value) => {
     await AsyncStorage.setItem(key, jsonValue);
     return true;
   } catch (error) {
-    console.error(`Storage save error for key ${key}:`, error);
+    Logger.error(`Storage save error for key ${key}:`, error);
     return false;
   }
 };
@@ -42,7 +43,7 @@ export const getSecure = async (key) => {
     const jsonValue = await AsyncStorage.getItem(key);
     return jsonValue ? JSON.parse(jsonValue) : null;
   } catch (error) {
-    console.error(`Storage get error for key ${key}:`, error);
+    Logger.error(`Storage get error for key ${key}:`, error);
     return null;
   }
 };
@@ -57,7 +58,7 @@ export const deleteSecure = async (key) => {
     await AsyncStorage.removeItem(key);
     return true;
   } catch (error) {
-    console.error(`Storage delete error for key ${key}:`, error);
+    Logger.error(`Storage delete error for key ${key}:`, error);
     return false;
   }
 };
@@ -109,7 +110,7 @@ export const clearUserSecureData = async (userId) => {
     );
     return true;
   } catch (error) {
-    console.error('Error clearing user data:', error);
+    Logger.error('Error clearing user data:', error);
     return false;
   }
 };

@@ -21,6 +21,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUserProfile } from '../../context/UserProfileContext';
+import Logger from '../../services/LoggerService';
 import {
   FitnessLevel,
   FitnessLevelInfo,
@@ -159,7 +160,7 @@ export default function ProfileSettingsScreen({ navigation }) {
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (e) {
-      console.warn('Failed to save profile:', e);
+      Logger.warn('Failed to save profile:', e);
       Alert.alert('Error', 'Failed to save your profile. Please try again.');
     } finally {
       setIsSaving(false);

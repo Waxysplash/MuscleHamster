@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import Logger from '../../services/LoggerService';
 import { useActivity } from '../../context/ActivityContext';
 import ErrorView from '../../components/ErrorView';
 import {
@@ -73,7 +74,7 @@ export default function PointsHistoryScreen({ navigation }) {
         setViewState(ViewState.CONTENT);
       }
     } catch (e) {
-      console.warn('Failed to load points history:', e);
+      Logger.warn('Failed to load points history:', e);
       setError('Failed to load your points history. Please try again.');
       setViewState(ViewState.ERROR);
     }

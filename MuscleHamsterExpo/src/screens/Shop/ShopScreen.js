@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { ShopService } from '../../services/ShopService';
+import Logger from '../../services/LoggerService';
 import { useActivity } from '../../context/ActivityContext';
 import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
@@ -51,7 +52,7 @@ export default function ShopScreen({ navigation }) {
       setItems(allItems);
       setOwnedItemIds(new Set(inventory.ownedItems.map((o) => o.itemId)));
     } catch (e) {
-      console.error('Failed to load shop:', e);
+      Logger.error('Failed to load shop:', e);
       setError('Could not load the shop. Pull down to try again.');
     } finally {
       setIsLoading(false);

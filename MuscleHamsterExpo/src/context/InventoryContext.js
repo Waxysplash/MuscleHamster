@@ -6,6 +6,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ShopService, setShopUserId } from '../services/ShopService';
 import { useAuth } from './AuthContext';
+import Logger from '../services/LoggerService';
 
 const InventoryContext = createContext(null);
 
@@ -49,7 +50,7 @@ export function InventoryProvider({ children }) {
       setEquippedOutfit(inv.equippedOutfit);
       setEquippedAccessory(inv.equippedAccessory);
     } catch (e) {
-      console.warn('Failed to load inventory:', e);
+      Logger.warn('Failed to load inventory:', e);
       setError(e.message || 'Failed to load inventory');
     } finally {
       setIsLoading(false);

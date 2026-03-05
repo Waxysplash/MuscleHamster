@@ -8,18 +8,12 @@ import Constants from 'expo-constants';
 const getFirebaseConfig = () => {
   const config = Constants.expoConfig?.extra?.firebase;
 
-  // Fallback for development if env vars not set
+  // Require environment variables - no hardcoded fallback for security
   if (!config?.apiKey) {
-    console.warn('Firebase config not found in environment. Using fallback.');
-    return {
-      apiKey: "AIzaSyD1_pzaBmy3DBNoAGNdVmE_hzJ4wjgMu_o",
-      authDomain: "muscle-hamster.firebaseapp.com",
-      projectId: "muscle-hamster",
-      storageBucket: "muscle-hamster.firebasestorage.app",
-      messagingSenderId: "783320940502",
-      appId: "1:783320940502:web:900c6516e29c492e3aee77",
-      measurementId: "G-V1E9ZR33VF"
-    };
+    throw new Error(
+      'Firebase configuration not found. Please ensure your .env file is set up correctly. ' +
+      'See .env.example for required variables.'
+    );
   }
 
   return config;

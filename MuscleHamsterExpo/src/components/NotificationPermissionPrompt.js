@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Notifications from 'expo-notifications';
+import Logger from '../services/LoggerService';
 
 export default function NotificationPermissionPrompt({
   visible,
@@ -36,7 +37,7 @@ export default function NotificationPermissionPrompt({
       setShowResult(true);
       setIsRequesting(false);
     } catch (error) {
-      console.warn('Error requesting notification permission:', error);
+      Logger.warn('Error requesting notification permission:', error);
       setPermissionGranted(false);
       setShowResult(true);
       setIsRequesting(false);

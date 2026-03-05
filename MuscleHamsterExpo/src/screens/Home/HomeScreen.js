@@ -24,6 +24,7 @@ import { EnclosureBackground } from '../../config/AssetImages';
 import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
+import Logger from '../../services/LoggerService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const ENCLOSURE_HEIGHT = SCREEN_HEIGHT * 0.42; // 42% of screen for enclosure
@@ -64,7 +65,7 @@ export default function HomeScreen({ navigation }) {
           await Promise.all([loadStats(), loadInventory()]);
           setError(null);
         } catch (e) {
-          console.error('Failed to load home data:', e);
+          Logger.error('Failed to load home data:', e);
           setError('Could not refresh data');
         }
       };
@@ -90,7 +91,7 @@ export default function HomeScreen({ navigation }) {
     try {
       await Promise.all([loadStats(), loadInventory()]);
     } catch (e) {
-      console.error('Failed to refresh:', e);
+      Logger.error('Failed to refresh:', e);
       setError('Could not refresh. Pull down to try again.');
     } finally {
       setRefreshing(false);

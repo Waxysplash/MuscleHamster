@@ -2,6 +2,7 @@
 import { doc, getDoc, setDoc, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { saveSecure, getSecure, deleteSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
+import Logger from './LoggerService';
 import {
   HamsterState,
   PointsConfig,
@@ -40,7 +41,7 @@ const cleanupOldSharedData = async () => {
   try {
     // Delete old shared key that had test data
     await deleteSecure(STORAGE_KEY_PREFIX);
-    console.log('Cleaned up old shared storage');
+    Logger.debug('Cleaned up old shared storage');
   } catch (e) {
     // Ignore errors
   }
@@ -79,7 +80,7 @@ const generateTransactionId = (type, category, entityId, date) => {
 const loadStats = async () => {
   if (cachedStats) return cachedStats;
 
-  console.log('Loading stats, userId:', currentUserId);
+  Logger.debug('Loading stats, userId:', currentUserId);
 
   try {
     // Try Firestore first if user is logged in
@@ -93,7 +94,7 @@ const loadStats = async () => {
 
       if (docSnap.exists()) {
         cachedStats = docSnap.data();
-        console.log('Loaded stats from Firestore');
+        Logger.debug('Loaded stats from Firestore');
         // Rebuild completion keys
         cachedStats.workoutHistory?.forEach((c) => {
           completionKeys.add(`${c.workoutId}-${new Date(c.completedAt).toDateString()}`);
@@ -103,7 +104,7 @@ const loadStats = async () => {
         });
         return cachedStats;
       } else {
-        console.log('No stats in Firestore');
+        Logger.debug('No stats in Firestore');
       }
     }
 
@@ -111,12 +112,12 @@ const loadStats = async () => {
     const stored = await getSecure(getStorageKey());
     if (stored) {
       cachedStats = stored;
-      console.log('Loaded stats from SecureStorage');
+      Logger.debug('Loaded stats from SecureStorage');
 
       // Migrate to Firestore if user is logged in (don't block on this)
       if (currentUserId && cachedStats) {
         const docRef = doc(db, 'userStats', currentUserId);
-        setDoc(docRef, cachedStats).catch(e => console.warn('Stats migration failed:', e));
+        setDoc(docRef, cachedStats).catch(e => Logger.warn('Stats migration failed:', e));
       }
 
       // Rebuild completion keys
@@ -127,15 +128,15 @@ const loadStats = async () => {
         completionKeys.add(`restday-${new Date(c.completedAt).toDateString()}`);
       });
     } else {
-      console.log('No stored stats, using defaults');
+      Logger.debug('No stored stats, using defaults');
       cachedStats = createDefaultUserStats();
     }
   } catch (e) {
     const isTimeout = e.message === 'Firestore timeout';
     if (isTimeout) {
-      console.warn('Firestore request timed out, using default stats');
+      Logger.warn('Firestore request timed out, using default stats');
     } else {
-      console.warn('Failed to load stats:', e.message);
+      Logger.warn('Failed to load stats:', e.message);
     }
     cachedStats = createDefaultUserStats();
   }
@@ -156,12 +157,12 @@ const saveStats = async (stats) => {
       await saveSecure(getStorageKey(), stats);
     }
   } catch (e) {
-    console.warn('Failed to save stats:', e);
+    Logger.warn('Failed to save stats:', e);
     // Fallback to SecureStorage
     try {
       await saveSecure(getStorageKey(), stats);
     } catch (localError) {
-      console.warn('Local save also failed:', localError);
+      Logger.warn('Local save also failed:', localError);
     }
   }
 };

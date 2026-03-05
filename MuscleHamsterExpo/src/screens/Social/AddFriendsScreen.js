@@ -21,6 +21,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
+import Logger from '../../services/LoggerService';
 import { getHamsterStateColor } from '../../models/Friend';
 
 export default function AddFriendsScreen() {
@@ -69,7 +70,7 @@ export default function AddFriendsScreen() {
         title: 'Invite to Muscle Hamster',
       });
     } catch (error) {
-      console.error('Share error:', error);
+      Logger.error('Share error:', error);
     }
   };
 

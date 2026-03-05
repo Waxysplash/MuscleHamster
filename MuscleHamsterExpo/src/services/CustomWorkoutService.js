@@ -2,6 +2,8 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { saveSecure, getSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
+import * as Crypto from 'expo-crypto';
+import Logger from './LoggerService';
 
 const STORAGE_KEY_PREFIX = '@MuscleHamster:customWorkouts';
 
@@ -27,9 +29,9 @@ export const setCustomWorkoutUserId = (userId) => {
   }
 };
 
-// Generate unique ID
+// Generate unique ID using cryptographic randomness
 const generateId = () => {
-  return `cw-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `cw-${Date.now()}-${Crypto.randomUUID().substring(0, 8)}`;
 };
 
 // Default data structure
@@ -42,7 +44,7 @@ const createDefaultData = () => ({
 const loadData = async () => {
   if (cachedData) return cachedData;
 
-  console.log('Loading custom workouts, userId:', currentUserId);
+  Logger.debug('Loading custom workouts, userId:', currentUserId);
 
   try {
     // Try Firestore first if user is logged in
@@ -56,10 +58,10 @@ const loadData = async () => {
 
       if (docSnap.exists()) {
         cachedData = docSnap.data();
-        console.log('Loaded custom workouts from Firestore');
+        Logger.debug('Loaded custom workouts from Firestore');
         return cachedData;
       } else {
-        console.log('No custom workouts in Firestore');
+        Logger.debug('No custom workouts in Firestore');
       }
     }
 
@@ -67,23 +69,23 @@ const loadData = async () => {
     const stored = await getSecure(getStorageKey());
     if (stored) {
       cachedData = stored;
-      console.log('Loaded custom workouts from SecureStorage');
+      Logger.debug('Loaded custom workouts from SecureStorage');
 
       // Migrate to Firestore if user is logged in
       if (currentUserId && cachedData) {
         const docRef = doc(db, 'customWorkouts', currentUserId);
-        setDoc(docRef, cachedData).catch(e => console.warn('Custom workout migration failed:', e));
+        setDoc(docRef, cachedData).catch(e => Logger.warn('Custom workout migration failed:', e));
       }
     } else {
-      console.log('No stored custom workouts, using defaults');
+      Logger.debug('No stored custom workouts, using defaults');
       cachedData = createDefaultData();
     }
   } catch (e) {
     const isTimeout = e.message === 'Firestore timeout';
     if (isTimeout) {
-      console.warn('Firestore request timed out, using default data');
+      Logger.warn('Firestore request timed out, using default data');
     } else {
-      console.warn('Failed to load custom workouts:', e.message);
+      Logger.warn('Failed to load custom workouts:', e.message);
     }
     cachedData = createDefaultData();
   }
@@ -104,12 +106,12 @@ const saveData = async (data) => {
       await saveSecure(getStorageKey(), data);
     }
   } catch (e) {
-    console.warn('Failed to save custom workouts:', e);
+    Logger.warn('Failed to save custom workouts:', e);
     // Fallback to SecureStorage
     try {
       await saveSecure(getStorageKey(), data);
     } catch (localError) {
-      console.warn('Local save also failed:', localError);
+      Logger.warn('Local save also failed:', localError);
     }
   }
 };
@@ -225,7 +227,7 @@ export const CustomWorkoutService = {
 
     // Create completion record
     const completionRecord = {
-      id: `cc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `cc-${Date.now()}-${Crypto.randomUUID().substring(0, 8)}`,
       workoutId,
       completedAt: now,
       metrics: {

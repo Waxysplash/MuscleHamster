@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { JournalService } from '../../services/JournalService';
+import Logger from '../../services/LoggerService';
 
 export default function GymExerciseDetailScreen({ route, navigation }) {
   const { exercise, bodyPart } = route.params;
@@ -35,7 +36,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
       );
       setEntries(exerciseEntries);
     } catch (e) {
-      console.warn('Failed to load journal entries:', e);
+      Logger.warn('Failed to load journal entries:', e);
     } finally {
       setIsLoading(false);
     }

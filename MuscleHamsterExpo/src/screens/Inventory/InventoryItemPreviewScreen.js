@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ShopService } from '../../services/ShopService';
+import Logger from '../../services/LoggerService';
 import { ShopItemCategory, ShopItemCategoryInfo, ShopItemRarityInfo } from '../../models/ShopItem';
 import LoadingView from '../../components/LoadingView';
 
@@ -64,7 +65,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
           break;
       }
     } catch (error) {
-      console.warn('Error checking item status:', error);
+      Logger.warn('Error checking item status:', error);
     }
   };
 
@@ -124,7 +125,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
         }
       }
     } catch (error) {
-      console.warn('Error performing action:', error);
+      Logger.warn('Error performing action:', error);
     } finally {
       setIsLoading(false);
     }

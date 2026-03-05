@@ -9,6 +9,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import friendService from '../services/FriendService';
 import { useAuth } from './AuthContext';
+import Logger from '../services/LoggerService';
 
 const FriendContext = createContext(null);
 
@@ -63,7 +64,7 @@ export const FriendProvider = ({ children }) => {
       setBlockedUsers(blockedData);
       setReceivedNudges(nudgesData);
     } catch (err) {
-      console.error('Error loading friend data:', err);
+      Logger.error('Error loading friend data:', err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -176,7 +177,7 @@ export const FriendProvider = ({ children }) => {
     try {
       return await friendService.searchUsers(query, currentUserId);
     } catch (err) {
-      console.error('Error searching users:', err);
+      Logger.error('Error searching users:', err);
       return [];
     }
   };
@@ -186,7 +187,7 @@ export const FriendProvider = ({ children }) => {
     try {
       return await friendService.getFriendsLeaderboard(currentUserId);
     } catch (err) {
-      console.error('Error getting leaderboard:', err);
+      Logger.error('Error getting leaderboard:', err);
       return [];
     }
   };

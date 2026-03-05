@@ -4,6 +4,7 @@ import { CustomWorkoutService, setCustomWorkoutUserId } from '../services/Custom
 import { FavoritesService, setFavoritesUserId } from '../services/FavoritesService';
 import { useAuth } from './AuthContext';
 import { useActivity } from './ActivityContext';
+import Logger from '../services/LoggerService';
 
 const CustomWorkoutContext = createContext(null);
 
@@ -24,7 +25,7 @@ export const CustomWorkoutProvider = ({ children }) => {
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
-    console.log('Loading custom workouts and favorites...');
+    Logger.debug('Loading custom workouts and favorites...');
     try {
       const [workouts, favs] = await Promise.all([
         CustomWorkoutService.getCustomWorkouts(),
@@ -32,9 +33,9 @@ export const CustomWorkoutProvider = ({ children }) => {
       ]);
       setCustomWorkouts(workouts);
       setFavorites(favs);
-      console.log('Custom workouts and favorites loaded');
+      Logger.debug('Custom workouts and favorites loaded');
     } catch (e) {
-      console.warn('Failed to load custom workouts:', e);
+      Logger.warn('Failed to load custom workouts:', e);
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +64,7 @@ export const CustomWorkoutProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to add custom workout:', e);
+      Logger.warn('Failed to add custom workout:', e);
       throw e;
     }
   }, []);
@@ -78,7 +79,7 @@ export const CustomWorkoutProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to update custom workout:', e);
+      Logger.warn('Failed to update custom workout:', e);
       throw e;
     }
   }, []);
@@ -91,7 +92,7 @@ export const CustomWorkoutProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to delete custom workout:', e);
+      Logger.warn('Failed to delete custom workout:', e);
       throw e;
     }
   }, []);
@@ -116,13 +117,13 @@ export const CustomWorkoutProvider = ({ children }) => {
             durationSeconds: (metrics.duration || 0) * 60,
           });
         } catch (activityError) {
-          console.warn('Failed to record in activity:', activityError);
+          Logger.warn('Failed to record in activity:', activityError);
           // Don't fail the whole operation if activity recording fails
         }
       }
       return result;
     } catch (e) {
-      console.warn('Failed to record progress:', e);
+      Logger.warn('Failed to record progress:', e);
       throw e;
     }
   }, [customWorkouts, recordWorkoutCompletion]);
@@ -131,7 +132,7 @@ export const CustomWorkoutProvider = ({ children }) => {
     try {
       return await CustomWorkoutService.getCompletionHistory(workoutId);
     } catch (e) {
-      console.warn('Failed to get completion history:', e);
+      Logger.warn('Failed to get completion history:', e);
       return [];
     }
   }, []);
@@ -149,7 +150,7 @@ export const CustomWorkoutProvider = ({ children }) => {
       }
       return result;
     } catch (e) {
-      console.warn('Failed to toggle favorite:', e);
+      Logger.warn('Failed to toggle favorite:', e);
       throw e;
     }
   }, [favorites]);

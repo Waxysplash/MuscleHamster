@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Logger from '../../services/LoggerService';
 import { useFocusEffect } from '@react-navigation/native';
 
 // Storage keys
@@ -137,7 +138,7 @@ export default function NotificationSettingsScreen({ navigation }) {
       date.setHours(h, m, 0, 0);
       setSelectedTime(date);
     } catch (e) {
-      console.warn('Failed to load notification preferences:', e);
+      Logger.warn('Failed to load notification preferences:', e);
     }
   };
 
@@ -145,7 +146,7 @@ export default function NotificationSettingsScreen({ navigation }) {
     try {
       await AsyncStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
     } catch (e) {
-      console.warn('Failed to save notification preference:', e);
+      Logger.warn('Failed to save notification preference:', e);
     }
   };
 
