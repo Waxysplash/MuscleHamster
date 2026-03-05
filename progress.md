@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** APP STORE PREP IN PROGRESS
-**Active Phase:** Phase 12 - App Store Preparation (Session 45)
-**Last Updated:** Mar 3, 2026 (Session 45)
+**Status:** 🚀 SUBMITTED TO APP STORE — AWAITING REVIEW
+**Active Phase:** Phase 12 - App Store Submission Complete (Session 48)
+**Last Updated:** Mar 4, 2026 (Session 48)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -66,25 +66,64 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 
 ---
 
-## 🎯 NEXT SESSION PRIORITIES
+## 🎯 APP STORE SUBMISSION COMPLETE
 
-### Priority 1: App Store Submission
+### All Milestones Achieved ✅
 - [x] App Store metadata document created
 - [x] App name updated to "Muscle Hamster"
 - [x] Create privacy policy (HTML + Markdown) — Session 45
-- [ ] Host privacy policy online (GitHub Pages recommended)
-- [ ] Take screenshots on multiple device sizes
-- [ ] Set up Apple Developer account
-- [ ] Run `eas build --platform ios --profile production`
-- [ ] Submit to App Store
+- [x] Host privacy policy on GitHub Pages — Session 48
+- [x] Take screenshots on multiple device sizes — Session 48
+- [x] Apple Developer account ready
+- [x] Run `eas build --platform ios --profile production` — Session 48
+- [x] Submit to App Store — Session 48
 
-### Priority 2: Testing
-- [ ] End-to-end testing on real device (iOS + Android)
-- [ ] Test onboarding flow (verify bug is fixed)
-- [ ] Test daily exercise check-in flow
-- [ ] Test shop purchase and equip flow
+### App Store Details
+- **App ID**: 6759973700
+- **Bundle ID**: com.musclehamster.app
+- **Version**: 1.0.0 (Build 5)
+- **Status**: Waiting for Review
+- **Privacy Policy**: https://waxysplash.github.io/MuscleHamster/privacy-policy.html
+- **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
+
+### What's Next (Post-Approval)
+- [ ] App approved and live on App Store
+- [ ] Monitor user feedback and reviews
+- [ ] Plan v1.1 features (Social, Workouts library, etc.)
+- [ ] Android release via Google Play
 
 **See App Store prep:** `MuscleHamsterExpo/docs/app-store-preparation.md`
+
+---
+
+### ✅ COMPLETED (Session 48)
+
+#### App Store Submission 🚀
+- **Privacy Policy hosted** on GitHub Pages at https://waxysplash.github.io/MuscleHamster/privacy-policy.html
+- **Settings screen updated** — Privacy Policy button now links to hosted URL
+- **Pre-launch security audit** — Full codebase scan completed
+- **Security fixes applied**:
+  - Removed hardcoded Firebase credentials (now throws error if env missing)
+  - Replaced weak Math.random() UUID generation with expo-crypto (4 files)
+  - Removed debug console.log from useGoogleAuth
+- **Code quality improvements**:
+  - Replaced 194 console.log/warn/error statements with Logger service (38 files)
+  - Deleted unused PlaceholderSettingsScreen.js
+- **UX fix**: Privacy Settings "Coming Soon" replaced with actionable email links for data export & account deletion
+- **Production build** completed via EAS Build
+- **App submitted** to App Store Connect for review
+- **41 files changed** in pre-launch hardening commit
+
+---
+
+### ✅ COMPLETED (Session 47)
+
+#### Workout Tab Enhancement
+- Added **third tab "My Workouts"** to workout screen (At Home / At Gym / My Workouts)
+- **Custom Workout Creation**: Users can add custom workouts (Spin Class, Running, Weight Training, etc.)
+- **Progress Tracking**: Log sets, reps, weight, duration, distance, notes per session
+- **Favorites System**: Star any exercise, favorites sort to top of lists
+- New files: CustomWorkoutService.js, FavoritesService.js, CustomWorkoutContext.js, FavoriteButton.js, AddWorkoutScreen.js, CustomWorkoutDetailScreen.js, LogProgressScreen.js
 
 ---
 
