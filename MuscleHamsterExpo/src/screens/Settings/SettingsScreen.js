@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
@@ -214,7 +214,10 @@ export default function SettingsScreen({ navigation }) {
           </View>
           <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.row, { marginTop: 1 }]}>
+        <TouchableOpacity
+          style={[styles.row, { marginTop: 1 }]}
+          onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/privacy-policy.html')}
+        >
           <View style={styles.iconBox}>
             <Ionicons name="document-text" size={22} color="#6B5D52" />
           </View>
