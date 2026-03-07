@@ -42,9 +42,11 @@ export default {
     },
     plugins: [
       "expo-web-browser",
-      "expo-apple-authentication",
-      "@react-native-firebase/app",
-      "@react-native-firebase/crashlytics"
+      "expo-apple-authentication"
+      // Firebase Crashlytics temporarily disabled - requires GoogleService-Info.plist
+      // TODO: Re-enable after downloading config files from Firebase Console
+      // "@react-native-firebase/app",
+      // "@react-native-firebase/crashlytics"
     ],
     extra: {
       eas: {

@@ -13,9 +13,13 @@
  * - Consistent log formatting with timestamps
  * - Separates debug/info (dev only) from warn/error (always shown)
  * - Never logs sensitive user data
- * - Sends errors to Firebase Crashlytics in production
+ * - Sends errors to Firebase Crashlytics in production (when enabled)
  */
-import crashlytics from '@react-native-firebase/crashlytics';
+
+// Firebase Crashlytics - temporarily disabled until config files are added
+// TODO: Re-enable after adding GoogleService-Info.plist and google-services.json
+// import crashlytics from '@react-native-firebase/crashlytics';
+const crashlytics = () => null; // Stub until Firebase is configured
 
 // Check if we're in development mode
 const isDev = __DEV__;
@@ -85,8 +89,8 @@ const Logger = {
 
     console.error(`[${getTimestamp()}] [ERROR]`, message, errorInfo);
 
-    // Send to Firebase Crashlytics in production
-    if (!isDev) {
+    // Send to Firebase Crashlytics in production (when enabled)
+    if (!isDev && crashlytics()) {
       try {
         // Log the error message as a custom log
         crashlytics().log(message);
@@ -97,7 +101,6 @@ const Logger = {
         }
       } catch (crashlyticsError) {
         // Silently fail if Crashlytics isn't available
-        console.warn('Crashlytics unavailable:', crashlyticsError.message);
       }
     }
   },
@@ -131,7 +134,7 @@ const Logger = {
    * Call this after user logs in
    */
   setUserId: (userId) => {
-    if (!isDev && userId) {
+    if (!isDev && userId && crashlytics()) {
       try {
         crashlytics().setUserId(userId);
       } catch (e) {
@@ -145,7 +148,7 @@ const Logger = {
    * Useful for debugging context (e.g., current screen, feature flags)
    */
   setAttribute: (key, value) => {
-    if (!isDev) {
+    if (!isDev && crashlytics()) {
       try {
         crashlytics().setAttribute(key, String(value));
       } catch (e) {
@@ -159,7 +162,7 @@ const Logger = {
    * Use to track user flow leading up to a crash
    */
   breadcrumb: (message) => {
-    if (!isDev) {
+    if (!isDev && crashlytics()) {
       try {
         crashlytics().log(message);
       } catch (e) {
