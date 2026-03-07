@@ -14,6 +14,7 @@ import { useActivity } from '../../context/ActivityContext';
 import Logger from '../../services/LoggerService';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
+import { useResponsive, getTimerSize, getActionButtonSize } from '../../utils/responsive';
 
 const PlayerState = {
   LOADING: 'loading',
@@ -26,6 +27,11 @@ const PlayerState = {
 export default function WorkoutPlayerScreen({ route, navigation }) {
   const { workout } = route.params;
   const { recordWorkoutCompletion, recordFeedback } = useActivity();
+
+  // Responsive sizing
+  const { isTablet, contentMaxWidth } = useResponsive();
+  const timerSize = getTimerSize();
+  const buttonSizes = getActionButtonSize();
 
   const [playerState, setPlayerState] = useState(PlayerState.LOADING);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
@@ -357,9 +363,12 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 
         {/* Timer Circle */}
         <View style={styles.timerContainer}>
-          <View style={[styles.timerCircle, { borderColor: exerciseColor }]}>
-            <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
-            <Text style={styles.timerLabel}>remaining</Text>
+          <View style={[
+            styles.timerCircle,
+            { borderColor: exerciseColor, width: timerSize, height: timerSize, borderRadius: timerSize / 2 }
+          ]}>
+            <Text style={[styles.timerText, isTablet && { fontSize: 56 }]}>{formatTime(timeRemaining)}</Text>
+            <Text style={[styles.timerLabel, isTablet && { fontSize: 18 }]}>remaining</Text>
           </View>
         </View>
 
@@ -383,13 +392,16 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.mainControlButton, { backgroundColor: exerciseColor }]}
+          style={[
+            styles.mainControlButton,
+            { backgroundColor: exerciseColor, width: buttonSizes.primary, height: buttonSizes.primary, borderRadius: buttonSizes.primary / 2 }
+          ]}
           onPress={isPaused ? resumeWorkout : pauseWorkout}
           accessibilityLabel={isPaused ? 'Resume' : 'Pause'}
         >
           <Ionicons
             name={isPaused ? 'play' : 'pause'}
-            size={40}
+            size={isTablet ? 48 : 40}
             color="#fff"
           />
         </TouchableOpacity>
@@ -486,6 +498,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 600,
   },
   typeBadge: {
     flexDirection: 'row',
@@ -517,9 +532,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   timerCircle: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    // width, height, borderRadius set dynamically
     borderWidth: 6,
     alignItems: 'center',
     justifyContent: 'center',
@@ -568,9 +581,7 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
   },
   mainControlButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    // width, height, borderRadius set dynamically
     alignItems: 'center',
     justifyContent: 'center',
   },

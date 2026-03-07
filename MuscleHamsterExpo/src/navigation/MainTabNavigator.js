@@ -377,21 +377,16 @@ function SocialStackScreen() {
 
 // Social tab with badge for pending requests
 function SocialTabIcon({ color, size }) {
-  let pendingCount = 0;
-  try {
-    const { pendingRequestCount } = useFriends();
-    pendingCount = pendingRequestCount;
-  } catch (e) {
-    // Context not available
-  }
+  // Hook must be called unconditionally (React rules of hooks)
+  const { pendingRequestCount = 0 } = useFriends();
 
   return (
     <View>
       <Ionicons name="people" size={size} color={color} />
-      {pendingCount > 0 && (
+      {pendingRequestCount > 0 && (
         <View style={styles.tabBadge}>
           <Text style={styles.tabBadgeText}>
-            {pendingCount > 9 ? '9+' : pendingCount}
+            {pendingRequestCount > 9 ? '9+' : pendingRequestCount}
           </Text>
         </View>
       )}

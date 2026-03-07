@@ -13,6 +13,7 @@ import MainTabNavigator from './src/navigation/MainTabNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import OnboardingScreen from './src/screens/Onboarding/OnboardingScreen';
 import LoadingView from './src/components/LoadingView';
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 const RootStack = createNativeStackNavigator();
 
@@ -47,23 +48,25 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <UserProfileProvider>
-        <ActivityProvider>
-          <InventoryProvider>
-            <CustomWorkoutProvider>
-              <FriendProvider>
-                <NotificationProvider>
-                  <NavigationContainer>
-                    <StatusBar style="auto" />
-                    <RootNavigator />
-                  </NavigationContainer>
-                </NotificationProvider>
-              </FriendProvider>
-            </CustomWorkoutProvider>
-          </InventoryProvider>
-        </ActivityProvider>
-      </UserProfileProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <UserProfileProvider>
+          <ActivityProvider>
+            <InventoryProvider>
+              <CustomWorkoutProvider>
+                <FriendProvider>
+                  <NotificationProvider>
+                    <NavigationContainer>
+                      <StatusBar style="auto" />
+                      <RootNavigator />
+                    </NavigationContainer>
+                  </NotificationProvider>
+                </FriendProvider>
+              </CustomWorkoutProvider>
+            </InventoryProvider>
+          </ActivityProvider>
+        </UserProfileProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

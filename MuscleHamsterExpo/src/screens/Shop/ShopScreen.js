@@ -23,9 +23,11 @@ import { useActivity } from '../../context/ActivityContext';
 import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
 import ErrorBanner from '../../components/ErrorBanner';
+import { useResponsive } from '../../utils/responsive';
 
 export default function ShopScreen({ navigation }) {
   const { totalPoints, recordShopPurchase } = useActivity();
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -124,12 +126,19 @@ export default function ShopScreen({ navigation }) {
       )}
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          isTablet && { alignItems: 'center' }
+        ]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
       >
+        <View style={[
+          styles.contentWrapper,
+          isTablet && { maxWidth: contentMaxWidth, width: '100%' }
+        ]}>
         {/* Items List */}
         {items.map((item) => {
           const isOwned = ownedItemIds.has(item.id);
@@ -193,6 +202,7 @@ export default function ShopScreen({ navigation }) {
           <Text style={styles.inventoryLinkText}>View My Items</Text>
           <Ionicons name="chevron-forward" size={16} color="#FF9500" />
         </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -235,6 +245,9 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   itemCard: {
     flexDirection: 'row',

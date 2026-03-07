@@ -10,7 +10,6 @@ import {
   ImageBackground,
   SafeAreaView,
   Platform,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,9 +24,7 @@ import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import Logger from '../../services/LoggerService';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const ENCLOSURE_HEIGHT = SCREEN_HEIGHT * 0.42; // 42% of screen for enclosure
+import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
 
 export default function HomeScreen({ navigation }) {
   const { currentUser } = useAuth();
@@ -49,6 +46,11 @@ export default function HomeScreen({ navigation }) {
     equippedAccessory,
     loadInventory,
   } = useInventory();
+
+  // Responsive layout
+  const { isTablet, spacing, contentMaxWidth } = useResponsive();
+  const enclosureHeight = getEnclosureHeight();
+  const hamsterSize = getHamsterSize();
 
   const [refreshing, setRefreshing] = useState(false);
   const [hasShownStreakFreeze, setHasShownStreakFreeze] = useState(false);
@@ -130,7 +132,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* FIXED TOP SECTION - Enclosure with Hamster */}
-      <View style={styles.enclosureSection}>
+      <View style={[styles.enclosureSection, { height: enclosureHeight }]}>
         <ImageBackground
           source={EnclosureBackground}
           style={styles.enclosureBackground}
@@ -138,12 +140,12 @@ export default function HomeScreen({ navigation }) {
         >
           <SafeAreaView style={styles.enclosureSafeArea}>
             {/* Top Bar - State badge left, Name center, Points badge right */}
-            <View style={styles.topBar}>
+            <View style={[styles.topBar, isTablet && { paddingHorizontal: 24 }]}>
               {/* State Badge - Left */}
               <View style={styles.topBarLeft}>
                 <View style={[styles.stateBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
-                  <Ionicons name={hamsterInfo.icon} size={14} color={hamsterInfo.color} />
-                  <Text style={[styles.stateText, { color: hamsterInfo.color }]}>
+                  <Ionicons name={hamsterInfo.icon} size={isTablet ? 16 : 14} color={hamsterInfo.color} />
+                  <Text style={[styles.stateText, { color: hamsterInfo.color }, isTablet && { fontSize: 14 }]}>
                     {hamsterInfo.displayName}
                   </Text>
                 </View>
@@ -151,23 +153,23 @@ export default function HomeScreen({ navigation }) {
 
               {/* Hamster Name - Center */}
               <View style={styles.nameBadge}>
-                <Text style={styles.hamsterName}>{hamsterName}</Text>
+                <Text style={[styles.hamsterName, isTablet && { fontSize: 18 }]}>{hamsterName}</Text>
               </View>
 
               {/* Points Badge - Right */}
               <View style={styles.topBarRight}>
                 <View style={styles.pointsBadge}>
-                  <Ionicons name="star" size={16} color="#FF9500" />
-                  <Text style={styles.pointsText}>{totalPoints}</Text>
+                  <Ionicons name="star" size={isTablet ? 18 : 16} color="#FF9500" />
+                  <Text style={[styles.pointsText, isTablet && { fontSize: 17 }]}>{totalPoints}</Text>
                 </View>
               </View>
             </View>
 
-            {/* Hamster Portrait - Lowered 25% */}
-            <View style={styles.hamsterContainer}>
+            {/* Hamster Portrait */}
+            <View style={[styles.hamsterContainer, isTablet && { marginTop: 30 }]}>
               <HamsterPortrait
                 state={displayState}
-                size={200}
+                size={hamsterSize}
                 equippedOutfit={equippedOutfit}
                 equippedAccessory={equippedAccessory}
               />
@@ -190,12 +192,20 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.contentSection}>
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            isTablet && { alignItems: 'center' }
+          ]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF9500" />
           }
           showsVerticalScrollIndicator={false}
         >
+          {/* Content wrapper for max-width on tablets */}
+          <View style={[
+            styles.contentWrapper,
+            isTablet && { maxWidth: contentMaxWidth, width: '100%' }
+          ]}>
           {/* Today's Action Card */}
           {!hasCheckedInToday ? (
             <TouchableOpacity
@@ -288,6 +298,7 @@ export default function HomeScreen({ navigation }) {
               Personal best: {stats.longestStreak} day streak
             </Text>
           )}
+          </View>
         </ScrollView>
       </View>
     </View>
@@ -299,9 +310,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF8F0',
   },
-  // ENCLOSURE SECTION (Fixed at top)
+  // ENCLOSURE SECTION (Fixed at top - height set dynamically)
   enclosureSection: {
-    height: ENCLOSURE_HEIGHT,
     width: '100%',
   },
   enclosureBackground: {
@@ -430,6 +440,9 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 24,
     paddingBottom: 32,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   // Action Card
   actionCard: {

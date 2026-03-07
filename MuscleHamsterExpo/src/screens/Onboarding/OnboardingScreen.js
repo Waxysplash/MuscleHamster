@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useResponsive, getHamsterSize } from '../../utils/responsive';
 import {
   FitnessLevel,
   FitnessLevelInfo,
@@ -73,6 +74,10 @@ const STEP_TITLES = {
 
 export default function OnboardingScreen({ navigation }) {
   const { saveOnboardingProgress, onboardingProgress, completeOnboarding } = useUserProfile();
+
+  // Responsive design
+  const { isTablet, contentMaxWidth, spacing } = useResponsive();
+  const hamsterSize = getHamsterSize();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState(createEmptyProfile());
@@ -254,15 +259,26 @@ export default function OnboardingScreen({ navigation }) {
       {/* Content */}
       <ScrollView
         style={styles.content}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          isTablet && { alignItems: 'center' }
+        ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {renderStepContent()}
+        <View style={[
+          styles.stepContentWrapper,
+          isTablet && { maxWidth: contentMaxWidth, width: '100%' }
+        ]}>
+          {renderStepContent()}
+        </View>
       </ScrollView>
 
       {/* Continue Button */}
-      <View style={styles.footer}>
+      <View style={[
+        styles.footer,
+        isTablet && { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }
+      ]}>
         <TouchableOpacity
           style={[styles.continueButton, !canProceed() && styles.continueButtonDisabled]}
           onPress={goNext}
@@ -694,6 +710,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 20,
     paddingBottom: 20,
+  },
+  stepContentWrapper: {
+    width: '100%',
   },
   stepContent: {
     paddingTop: 10,

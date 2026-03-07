@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   RefreshControl,
   SafeAreaView,
   Image,
@@ -18,9 +17,7 @@ import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
 import FavoriteButton from '../../components/FavoriteButton';
-
-const screenWidth = Dimensions.get('window').width;
-const cardWidth = (screenWidth - 48) / 2;
+import { useResponsive } from '../../utils/responsive';
 
 // Gym body part images
 const GymBodyPartImages = {
@@ -69,6 +66,12 @@ const TYPE_INFO = {
 };
 
 export default function WorkoutsScreen({ navigation }) {
+  // Responsive design
+  const { isTablet, width, contentMaxWidth, spacing, getGridColumns } = useResponsive();
+  const numColumns = isTablet ? 3 : 2;
+  const effectiveWidth = Math.min(width, contentMaxWidth + 48);
+  const cardWidth = (effectiveWidth - (spacing.horizontal * 2) - (12 * (numColumns - 1))) / numColumns;
+
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'gym', or 'my'
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -191,11 +194,18 @@ export default function WorkoutsScreen({ navigation }) {
 
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[
+            styles.content,
+            isTablet && { alignItems: 'center' }
+          ]}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
+          <View style={[
+            styles.contentWrapper,
+            isTablet && { maxWidth: contentMaxWidth + 48, width: '100%' }
+          ]}>
           {activeTab === 'home' ? (
             // AT HOME TAB
             <View style={styles.section}>
@@ -321,6 +331,7 @@ export default function WorkoutsScreen({ navigation }) {
               )}
             </View>
           )}
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -368,6 +379,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 32,
+  },
+  contentWrapper: {
+    width: '100%',
   },
   section: {
     paddingHorizontal: 16,

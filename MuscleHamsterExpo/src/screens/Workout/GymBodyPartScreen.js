@@ -136,10 +136,40 @@ const GYM_WORKOUTS = {
 
 
 export default function GymBodyPartScreen({ route, navigation }) {
-  const { bodyPart } = route.params;
+  // Defensive check for missing route params
+  const bodyPart = route.params?.bodyPart;
   const [isLoading, setIsLoading] = useState(true);
   const [workouts, setWorkouts] = useState([]);
   const { favorites, isFavorite } = useCustomWorkouts();
+
+  // Handle missing params - show error and allow going back
+  if (!bodyPart?.id) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="arrow-back" size={24} color="#4A3728" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Error</Text>
+            <View style={styles.placeholder} />
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <Ionicons name="alert-circle-outline" size={48} color="#FF9500" />
+            <Text style={{ fontSize: 18, color: '#4A3728', marginTop: 16, textAlign: 'center' }}>
+              Oops! Something went wrong.
+            </Text>
+            <Text style={{ fontSize: 14, color: '#6B5D52', marginTop: 8, textAlign: 'center' }}>
+              Please go back and try again.
+            </Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   useEffect(() => {
     // Simulate loading
