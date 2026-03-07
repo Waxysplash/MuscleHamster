@@ -57,7 +57,7 @@ export default function HomeScreen({ navigation }) {
   const [error, setError] = useState(null);
 
   // Get today's exercise (deterministic per user per day)
-  const todaysExercise = getTodaysExercise(currentUser?.uid || 'guest');
+  const todaysExercise = getTodaysExercise(currentUser?.id || 'guest');
 
   // Reload stats and inventory when screen comes into focus
   useFocusEffect(
