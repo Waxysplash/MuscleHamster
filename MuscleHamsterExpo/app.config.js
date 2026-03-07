@@ -42,7 +42,9 @@ export default {
     },
     plugins: [
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "@react-native-firebase/app",
+      "@react-native-firebase/crashlytics"
     ],
     extra: {
       eas: {

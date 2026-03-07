@@ -58,6 +58,8 @@ export function AuthProvider({ children }) {
           profileComplete: false, // Will be updated by UserProfileContext
         });
         setAuthState(AuthState.AUTHENTICATED);
+        // Set user ID for Crashlytics (helps identify crashes per user)
+        Logger.setUserId(firebaseUser.uid);
       } else {
         setCurrentUser(null);
         setAuthState(AuthState.UNAUTHENTICATED);

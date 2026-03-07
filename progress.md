@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
 **Status:** 🚀 SUBMITTED TO APP STORE — AWAITING REVIEW
-**Active Phase:** Phase 12 - App Store Submission Complete (Session 48)
-**Last Updated:** Mar 4, 2026 (Session 48)
+**Active Phase:** Phase 13 - Post-Launch Setup (Session 49)
+**Last Updated:** Mar 6, 2026 (Session 49)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -93,6 +93,23 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - [ ] Android release via Google Play
 
 **See App Store prep:** `MuscleHamsterExpo/docs/app-store-preparation.md`
+
+---
+
+### 🔄 IN PROGRESS (Session 49)
+
+#### Firebase Crashlytics Setup
+- [x] Installed `@react-native-firebase/app` and `@react-native-firebase/crashlytics`
+- [x] Updated `app.config.js` with Firebase plugins
+- [x] Updated `LoggerService.js` to send errors to Crashlytics in production
+- [x] Added `Logger.setUserId()` call in `AuthContext.js` on login
+- [x] Added new Logger methods: `setUserId()`, `setAttribute()`, `breadcrumb()`
+- [x] Updated `.gitignore` to exclude Firebase config files
+- [ ] **NEEDS USER ACTION**: Download `GoogleService-Info.plist` (iOS) and `google-services.json` (Android) from Firebase Console
+- [ ] **NEEDS USER ACTION**: Place config files in `MuscleHamsterExpo/` root
+- [ ] **NEEDS USER ACTION**: Run `eas build --platform ios --profile production` to create new build with Crashlytics
+
+**Firebase Console**: https://console.firebase.google.com/ → muscle-hamster → Project settings → Your apps
 
 ---
 

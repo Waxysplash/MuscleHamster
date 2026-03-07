@@ -13,7 +13,9 @@
  * - Consistent log formatting with timestamps
  * - Separates debug/info (dev only) from warn/error (always shown)
  * - Never logs sensitive user data
+ * - Sends errors to Firebase Crashlytics in production
  */
+import crashlytics from '@react-native-firebase/crashlytics';
 
 // Check if we're in development mode
 const isDev = __DEV__;
@@ -72,6 +74,7 @@ const Logger = {
   /**
    * Error level - Always shown
    * Use for failures and exceptions
+   * Sends to Firebase Crashlytics in production
    */
   error: (message, error) => {
     const errorInfo = error ? {
@@ -82,10 +85,21 @@ const Logger = {
 
     console.error(`[${getTimestamp()}] [ERROR]`, message, errorInfo);
 
-    // TODO: In production, send to crash reporting service (Sentry, etc.)
-    // if (!isDev && error) {
-    //   Sentry.captureException(error);
-    // }
+    // Send to Firebase Crashlytics in production
+    if (!isDev) {
+      try {
+        // Log the error message as a custom log
+        crashlytics().log(message);
+
+        if (error) {
+          // Record the actual error/exception
+          crashlytics().recordError(error);
+        }
+      } catch (crashlyticsError) {
+        // Silently fail if Crashlytics isn't available
+        console.warn('Crashlytics unavailable:', crashlyticsError.message);
+      }
+    }
   },
 
   /**
@@ -109,6 +123,48 @@ const Logger = {
   tag: (tag, ...args) => {
     if (isDev) {
       console.log(`[${getTimestamp()}] [${tag.toUpperCase()}]`, ...args.map(sanitize));
+    }
+  },
+
+  /**
+   * Set user ID for crash reports (helps identify which user experienced a crash)
+   * Call this after user logs in
+   */
+  setUserId: (userId) => {
+    if (!isDev && userId) {
+      try {
+        crashlytics().setUserId(userId);
+      } catch (e) {
+        // Silently fail
+      }
+    }
+  },
+
+  /**
+   * Set custom attributes for crash reports
+   * Useful for debugging context (e.g., current screen, feature flags)
+   */
+  setAttribute: (key, value) => {
+    if (!isDev) {
+      try {
+        crashlytics().setAttribute(key, String(value));
+      } catch (e) {
+        // Silently fail
+      }
+    }
+  },
+
+  /**
+   * Log a breadcrumb message (appears in crash reports)
+   * Use to track user flow leading up to a crash
+   */
+  breadcrumb: (message) => {
+    if (!isDev) {
+      try {
+        crashlytics().log(message);
+      } catch (e) {
+        // Silently fail
+      }
     }
   },
 };
