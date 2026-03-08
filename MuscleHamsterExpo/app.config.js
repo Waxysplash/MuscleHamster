@@ -25,6 +25,7 @@ export default {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
       usesAppleSignIn: true,
+      googleServicesFile: "./GoogleService-Info.plist",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false
       }
@@ -43,8 +44,24 @@ export default {
     plugins: [
       "expo-web-browser",
       "expo-apple-authentication",
+      "expo-secure-store",
+      // Build properties for Firebase compatibility with New Architecture
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            useFrameworks: "static",
+            // Build React Native from source to fix Firebase modular header errors
+            // This makes builds slower but ensures Firebase works with New Architecture
+            buildReactNativeFromSource: true
+          }
+        }
+      ],
+      // Firebase plugins
       "@react-native-firebase/app",
-      "@react-native-firebase/crashlytics"
+      "@react-native-firebase/crashlytics",
+      // Custom plugin to fix Firebase + New Architecture build issue
+      "./plugins/withFirebaseFix"
     ],
     extra: {
       eas: {
