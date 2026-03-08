@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** 🚀 SUBMITTED TO APP STORE — AWAITING REVIEW
-**Active Phase:** Phase 13 - Post-Launch Setup (Session 49)
-**Last Updated:** Mar 6, 2026 (Session 49)
+**Status:** 🚀 BUILD 6 RESUBMITTED — AWAITING REVIEW
+**Active Phase:** Phase 13 - Post-Launch Setup (Session 51)
+**Last Updated:** Mar 8, 2026 (Session 51)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
