@@ -205,7 +205,10 @@ export default function SettingsScreen({ navigation }) {
 
       {/* Support */}
       <View style={styles.section}>
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => Linking.openURL('mailto:support@musclehamster.app?subject=Help%20Request')}
+        >
           <View style={styles.iconBox}>
             <Ionicons name="help-circle" size={22} color="#8B5A2B" />
           </View>
@@ -226,7 +229,10 @@ export default function SettingsScreen({ navigation }) {
           </View>
           <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.row, { marginTop: 1 }]}>
+        <TouchableOpacity
+          style={[styles.row, { marginTop: 1 }]}
+          onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/privacy-policy.html')}
+        >
           <View style={styles.iconBox}>
             <Ionicons name="document-text" size={22} color="#6B5D52" />
           </View>
