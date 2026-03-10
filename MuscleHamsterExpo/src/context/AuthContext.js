@@ -5,8 +5,11 @@ import {
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   onAuthStateChanged,
+  deleteUser,
 } from 'firebase/auth';
-import { auth, isFirebaseInitialized, getFirebaseError } from '../config/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth, db, isFirebaseInitialized, getFirebaseError } from '../config/firebase';
 import {
   isAppleSignInAvailable,
   signInWithApple as socialSignInWithApple,
@@ -171,6 +174,67 @@ export function AuthProvider({ children }) {
     return { success: true };
   }, []);
 
+  // Delete account and all associated data
+  const deleteAccount = useCallback(async () => {
+    setError(null);
+
+    if (!isFirebaseInitialized() || !auth || !auth.currentUser) {
+      setError('Unable to delete account. Please try again.');
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    const userId = auth.currentUser.uid;
+
+    try {
+      // Delete all user data from Firestore collections
+      const collectionsToDelete = [
+        'users',
+        'userStats',
+        'inventory',
+        'exerciseJournals',
+        'userFavorites',
+        'customWorkouts',
+      ];
+
+      for (const collectionName of collectionsToDelete) {
+        try {
+          const docRef = doc(db, collectionName, userId);
+          await deleteDoc(docRef);
+          Logger.debug(`Deleted ${collectionName} for user ${userId}`);
+        } catch (err) {
+          // Document might not exist, that's okay
+          Logger.debug(`No ${collectionName} document to delete for user ${userId}`);
+        }
+      }
+
+      // Clear all local AsyncStorage data
+      try {
+        await AsyncStorage.clear();
+        Logger.debug('Cleared AsyncStorage');
+      } catch (err) {
+        Logger.debug('Error clearing AsyncStorage:', err);
+      }
+
+      // Delete the Firebase Auth account
+      await deleteUser(auth.currentUser);
+      Logger.info('Account deleted successfully');
+
+      // Auth state listener will handle clearing currentUser
+      return { success: true };
+    } catch (err) {
+      Logger.error('Account deletion error:', err);
+
+      // Handle specific error codes
+      if (err.code === 'auth/requires-recent-login') {
+        setError('For security, please sign out and sign back in, then try deleting again.');
+        return { success: false, error: 'requires-recent-login' };
+      }
+
+      setError('Something went wrong while deleting your account. Please try again.');
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   const value = {
     authState,
     currentUser,
@@ -181,6 +245,7 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     signInWithApple,
+    deleteAccount,
     clearError,
   };
 

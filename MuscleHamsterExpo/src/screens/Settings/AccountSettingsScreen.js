@@ -14,22 +14,81 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 
 export default function AccountSettingsScreen({ navigation }) {
-  const { currentUser } = useAuth();
+  const { currentUser, deleteAccount } = useAuth();
   const { isProfileComplete } = useUserProfile();
-  const [showDeleteAccountInfo, setShowDeleteAccountInfo] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteAccountPress = () => {
-    Alert.alert(
-      'Account Deletion',
-      'Account deletion will be available soon. When ready, you\'ll be able to permanently delete your account and all associated data. Your hamster understands!',
-      [{ text: 'Got It', style: 'cancel' }]
-    );
+    // First confirmation
+    if (Platform.OS === 'web') {
+      if (window.confirm('Delete your Muscle Hamster account?\n\nThis will permanently delete:\n• Your workout history\n• Your points and streaks\n• Your inventory and customizations\n• Your hamster\n\nThis action cannot be undone.')) {
+        // Second confirmation for web
+        if (window.confirm('Are you absolutely sure? This is permanent and cannot be undone.')) {
+          performAccountDeletion();
+        }
+      }
+    } else {
+      Alert.alert(
+        'Delete Your Account?',
+        'This will permanently delete:\n\n• Your workout history\n• Your points and streaks\n• Your inventory and customizations\n• Your hamster\n\nThis action cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete Account',
+            style: 'destructive',
+            onPress: () => {
+              // Second confirmation
+              Alert.alert(
+                'Are You Sure?',
+                'This is permanent. Your hamster and all your progress will be gone forever.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Yes, Delete Everything',
+                    style: 'destructive',
+                    onPress: performAccountDeletion,
+                  },
+                ]
+              );
+            },
+          },
+        ]
+      );
+    }
+  };
+
+  const performAccountDeletion = async () => {
+    setIsDeleting(true);
+
+    const result = await deleteAccount();
+
+    if (result.success) {
+      // Account deleted - auth state listener will redirect to sign in
+      // No need to show alert since the screen will change
+    } else {
+      setIsDeleting(false);
+      if (result.error === 'requires-recent-login') {
+        Alert.alert(
+          'Security Check Required',
+          'For your security, please sign out and sign back in, then try deleting your account again.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Something Went Wrong',
+          'We couldn\'t delete your account right now. Please try again later.',
+          [{ text: 'OK' }]
+        );
+      }
+    }
   };
 
   // Signed out content
@@ -51,6 +110,7 @@ export default function AccountSettingsScreen({ navigation }) {
 
   // Signed in content
   return (
+    <View style={styles.wrapper}>
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Account Info Section */}
       <View style={styles.section}>
@@ -95,29 +155,46 @@ export default function AccountSettingsScreen({ navigation }) {
           <TouchableOpacity
             style={styles.dangerRow}
             onPress={handleDeleteAccountPress}
+            disabled={isDeleting}
             accessibilityLabel="Delete Account"
-            accessibilityHint="This feature is coming soon. Tap for more information."
+            accessibilityHint="Permanently delete your account and all data"
             accessibilityRole="button"
           >
             <View style={styles.dangerLabel}>
-              <Ionicons name="trash-outline" size={22} color="#A0968E" />
+              <Ionicons name="trash-outline" size={22} color="#FF3B30" />
               <View style={styles.dangerTextContainer}>
-                <Text style={styles.dangerText}>Delete Account</Text>
-                <Text style={styles.dangerSubText}>Coming Soon</Text>
+                <Text style={styles.dangerTextActive}>Delete Account</Text>
+                <Text style={styles.dangerSubTextActive}>Permanently remove all data</Text>
               </View>
             </View>
-            <Ionicons name="information-circle-outline" size={22} color="#A0968E" />
+            <Ionicons name="chevron-forward" size={22} color="#FF3B30" />
           </TouchableOpacity>
         </View>
         <Text style={styles.footerText}>
-          Account deletion permanently removes all your data including workout history, points, and customizations.
+          Account deletion permanently removes all your data including workout history, points, and customizations. This action cannot be undone.
         </Text>
       </View>
+
     </ScrollView>
+
+      {/* Deleting Overlay */}
+      {isDeleting && (
+        <View style={styles.deletingOverlay}>
+          <View style={styles.deletingBox}>
+            <ActivityIndicator size="large" color="#FF3B30" />
+            <Text style={styles.deletingText}>Deleting your account...</Text>
+            <Text style={styles.deletingSubText}>This may take a moment</Text>
+          </View>
+        </View>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF8F0',
@@ -215,6 +292,44 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#A0968E',
     marginTop: 1,
+  },
+  dangerTextActive: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#FF3B30',
+  },
+  dangerSubTextActive: {
+    fontSize: 13,
+    color: '#FF3B30',
+    marginTop: 1,
+  },
+  deletingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deletingBox: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 32,
+    alignItems: 'center',
+    marginHorizontal: 40,
+  },
+  deletingText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#4A3728',
+    marginTop: 16,
+  },
+  deletingSubText: {
+    fontSize: 14,
+    color: '#6B5D52',
+    marginTop: 4,
   },
   footerText: {
     fontSize: 13,

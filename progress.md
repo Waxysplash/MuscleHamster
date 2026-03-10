@@ -90,6 +90,20 @@ eas submit --platform ios                         # Submit to App Store
 
 ## Session Log
 
+### Session 54 (Mar 10, 2026)
+- **Build 20 rejected** - Two issues:
+  1. Account deletion was "Coming Soon" - Apple requires working deletion
+  2. Age Rating metadata had "In-App Controls" marked but not implemented
+- **Fixed account deletion**:
+  - Added `deleteAccount()` function to AuthContext.js
+  - Deletes all Firestore data (users, userStats, inventory, exerciseJournals, userFavorites, customWorkouts)
+  - Deletes Firebase Auth account
+  - Clears AsyncStorage
+  - Two-step confirmation dialog
+  - Loading overlay during deletion
+- **TODO**: Update Age Rating in App Store Connect (set Parental Controls and Age Assurance to "None")
+- Ready for Build 21
+
 ### Session 53 (Mar 10, 2026)
 - Organized project files
 - Archived historical planning docs to `_archive/`
