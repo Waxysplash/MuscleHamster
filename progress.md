@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** 🚀 BUILD 6 RESUBMITTED — AWAITING REVIEW
-**Active Phase:** Phase 13 - Post-Launch Setup (Session 51)
-**Last Updated:** Mar 8, 2026 (Session 51)
+**Status:** 🚀 BUILD 7 (Build 19) SUBMITTED — AWAITING REVIEW
+**Active Phase:** Phase 13 - Post-Launch Setup (Session 52)
+**Last Updated:** Mar 9, 2026 (Session 52)
 
 > **Read-first session context:** `A1-new-session-instructions.md`
 > **Source requirements:** `muscle-hamster-prd.md`
@@ -81,7 +81,7 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 ### App Store Details
 - **App ID**: 6759973700
 - **Bundle ID**: com.musclehamster.app
-- **Version**: 1.0.0 (Build 5)
+- **Version**: 1.0.0 (Build 19)
 - **Status**: Waiting for Review
 - **Privacy Policy**: https://waxysplash.github.io/MuscleHamster/privacy-policy.html
 - **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
@@ -93,6 +93,18 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 - [ ] Android release via Google Play
 
 **See App Store prep:** `MuscleHamsterExpo/docs/app-store-preparation.md`
+
+---
+
+### ✅ COMPLETED (Session 52)
+
+#### Build 6 Rejection Fix — Environment Variables
+- **Root cause**: Firebase credentials missing in production builds (`.env` file not uploaded to EAS cloud)
+- **Fix applied**:
+  1. Created 9 EAS environment variables (secrets) for Firebase config
+  2. Created EAS file environment variable for `GoogleService-Info.plist`
+  3. Updated `app.config.js` to use `process.env.GOOGLE_SERVICES_PLIST`
+- **Build 19 submitted** to App Store Connect
 
 ---
 
