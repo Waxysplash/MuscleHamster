@@ -2,108 +2,92 @@
 
 ## What Is This App?
 
-A self-care fitness app where users complete short workouts to earn points and care for a virtual hamster. The hamster is **hungry, not angry** — no guilt, no shame, just gentle accountability. Users build streaks, customize their hamster, and connect with friends.
+A self-care fitness app where users complete daily exercises to earn points and care for a virtual hamster. The hamster is **hungry, not angry** — no guilt, no shame, just gentle accountability.
 
-## Project Status
+---
 
-**Post-MVP — Content & Asset Production (Session 36+)**
+## Current Status
 
-- Phases 01–09: COMPLETE (all core features implemented)
-- Phase 10 (Hamster Appearance & Enclosure): 10.1 done, waiting on artist assets
-- 24 real workouts written with proper exercises and form cues
-- 75+ unit tests passing
+**🚀 BUILD 20 SUBMITTED — AWAITING APPLE REVIEW**
 
-**What's left before launch:**
-1. Hamster artwork — generating with AI (ChatGPT/DALL-E). Prompts ready at `Assets/ai-image-generation-prompts.md`
-2. Exercise content session — NEEDED BEFORE illustrations. Finalize the full exercise list (review existing 24 workouts + 35 daily check-in exercises, decide what ships)
-3. Exercise illustrations — AI-generate after exercise list is finalized
-4. Audio assets (music + SFX)
-5. Ad integration (post-MVP)
+- **Version**: 1.0.0 (Build 20)
+- **App ID**: 6759973700
+- **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
 
-## Two Codebases
+---
 
-| | Native iOS | Expo (Cross-Platform) |
-|---|---|---|
-| Path | `MuscleHamster/` | `MuscleHamsterExpo/` |
-| Language | Swift / SwiftUI | JavaScript / React Native |
-| Target | iOS 15+ | iOS + Android |
-| State | Primary, fully implemented | Port of native app |
-| Run | Xcode | `cd MuscleHamsterExpo && npm install && npx expo start` |
-
-## Key Files — Read These First
+## Key Files
 
 | File | Purpose |
 |------|---------|
-| `progress.md` | Current status, what's done, what's next, open questions, decisions log |
-| `A1-new-session-instructions.md` | Session rules, product principles, MVP scope, terminology |
-| `muscle-hamster-prd.md` | Full product requirements |
-| `md-file-creation-instructions-for-new-phases.md` | How to write phase docs |
-| `Assets/hamster-character-style-guide.md` | Artist handoff guide for hamster art |
+| `progress.md` | Current status, what's next |
+| `A1-new-session-instructions.md` | Session workflow |
+| `_archive/` | Historical planning docs (PRD, phases, art prompts) |
 
-## Session Protocol
-
-### Start of session
-1. Read `progress.md` for current status
-2. Read `A1-new-session-instructions.md` for rules
-3. Check the relevant phase doc in `Development/` if doing feature work
-
-### End of session
-1. Update `progress.md` (mark completed items, update status, log decisions)
-2. Commit and push:
-   ```
-   git add .
-   git commit -m "Session N: <what you did>"
-   git push
-   ```
+---
 
 ## Project Structure
 
 ```
-MuscleHamster-main/
-├── CLAUDE.md                    ← You are here
-├── progress.md                  ← Current status & decisions
-├── A1-new-session-instructions.md
-├── muscle-hamster-prd.md
-├── Assets/                      ← Art style guides
-├── Development/                 ← Phase docs (phase-00 through phase-10)
-│   ├── phase-00-mvp-overview-execution-guidelines/
-│   ├── phase-01-app-shell-core-navigation/
-│   ├── ...through phase-10...
-├── MuscleHamster/               ← Native iOS app (Swift/SwiftUI)
-│   ├── MuscleHamsterApp.swift   ← App entry point
-│   ├── Models/                  ← Data models (UserProfile, Workout, ShopItem, Friend, etc.)
-│   ├── Services/                ← Business logic (Auth, Workout, Shop, Friend, Audio, Notifications)
-│   ├── Views/                   ← All UI (Auth, Home, Workout, Settings, Shop, Social, Shared)
-│   ├── Utilities/               ← Logger, Persistence helpers
-│   └── Assets.xcassets/         ← Images, colors, app icon
-├── MuscleHamsterExpo/           ← Expo/React Native cross-platform port
-│   ├── src/components/          ← Shared UI components
-│   ├── src/screens/             ← Screen-level views
-│   ├── src/services/            ← Business logic
-│   ├── src/models/              ← Data models
-│   ├── src/context/             ← React context providers (Auth, Activity, Friend, etc.)
-│   └── src/navigation/          ← Tab + stack navigation
-└── MuscleHamsterTests/          ← Unit tests (75+)
+Muscle Hmaster/
+├── CLAUDE.md                        <- You are here
+├── progress.md                      <- Current status
+├── A1-new-session-instructions.md   <- Session workflow
+├── _archive/                        <- Historical planning docs
+└── MuscleHamsterExpo/              <- The app (React Native + Expo)
+    ├── src/
+    │   ├── components/             <- Shared UI components
+    │   ├── screens/                <- All screens
+    │   ├── services/               <- Business logic
+    │   ├── context/                <- React contexts
+    │   └── config/                 <- FeatureFlags, AssetImages
+    ├── assets/images/              <- Hamster art, shop items
+    ├── docs/                       <- Privacy policy, App Store prep
+    └── app.config.js               <- Expo config
 ```
+
+---
 
 ## Non-Negotiable Rules
 
-- **Tone**: Warm, playful, kind. NEVER guilt, shame, or pressure the user.
-- **Hamster states**: fed/happy, chillin', hungry, sad/neglected — hungry means gentle, not angry.
-- **Accessibility**: VoiceOver support, 44x44pt touch targets, sufficient contrast.
-- **No guilt language** in any user-facing copy, notifications, or UI feedback.
+- **Tone**: Warm, playful, kind. NEVER guilt, shame, or pressure.
+- **Hamster states**: happy or hungry (hungry = gentle, not angry)
+- **No guilt language** in any user-facing copy
 
-## Tech Decisions Already Made
+---
 
-- **Auth**: Email/password + Apple/Google social login (MockAuthService for now)
-- **Persistence**: UserDefaults via PersistenceHelper (no backend yet)
-- **Logging**: OSLog-based AppLogger (not print statements)
-- **Offline**: Online-only for MVP; local persistence covers app relaunch state
-- **Workout visuals**: Static illustrations (not hamster demos) — deferred to post-launch
-- **Growth thresholds**: Baby→Juvenile (5 workouts OR 7-day streak), Juvenile→Adult (25 workouts OR 21-day streak), Adult→Mature (75 workouts OR 60-day streak)
+## Quick Commands
 
-## Git
+```bash
+cd "C:\Users\kamal\Downloads\Muscle Hmaster\Muscle Hmaster\MuscleHamsterExpo"
+npx expo start                                    # Run locally
+eas build --platform ios --profile production     # Production build
+eas submit --platform ios                         # Submit to App Store
+```
 
-- **Repo**: https://github.com/Waxysplash/MuscleHamster
-- **Branch**: `main`
-- **Push at end of every session**
+---
+
+## Firebase
+
+- **Project ID**: muscle-hamster
+- **Console**: https://console.firebase.google.com/
+- **EAS Secrets**: 9 environment variables configured
+
+---
+
+## Links
+
+- **GitHub**: https://github.com/Waxysplash/MuscleHamster
+- **Privacy Policy**: https://waxysplash.github.io/MuscleHamster/privacy-policy.html
+
+---
+
+## Session Protocol
+
+1. Read `progress.md` for current status
+2. Do the work
+3. Update `progress.md`
+4. Push to GitHub:
+   ```bash
+   git add . && git commit -m "Session N: <summary>" && git push
+   ```
