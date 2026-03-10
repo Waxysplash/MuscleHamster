@@ -25,7 +25,7 @@ export default {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
       usesAppleSignIn: true,
-      googleServicesFile: "./GoogleService-Info.plist",
+      googleServicesFile: process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false
       }
