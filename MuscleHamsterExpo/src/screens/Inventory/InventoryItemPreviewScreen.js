@@ -19,7 +19,28 @@ import { ShopItemCategory, ShopItemCategoryInfo, ShopItemRarityInfo } from '../.
 import LoadingView from '../../components/LoadingView';
 
 export default function InventoryItemPreviewScreen({ route, navigation }) {
-  const { item, category } = route.params;
+  const item = route.params?.item;
+  const category = route.params?.category;
+
+  // Safety check: If no item was passed, show error and allow going back
+  if (!item || !category) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={60} color="#FF9500" />
+          <Text style={styles.errorTitle}>Item not found</Text>
+          <Text style={styles.errorText}>Let's head back and try again.</Text>
+          <TouchableOpacity
+            style={styles.errorButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.errorButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   const categoryInfo = ShopItemCategoryInfo[category];
   const rarityInfo = ShopItemRarityInfo[item.rarity];
   const categoryColor = categoryInfo?.color || '#8E8E93';
@@ -379,6 +400,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF8F0',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4A3728',
+    marginTop: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#6B5D52',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  errorButton: {
+    marginTop: 24,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    backgroundColor: '#FF9500',
+    borderRadius: 12,
+  },
+  errorButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
   scrollView: {
     flex: 1,

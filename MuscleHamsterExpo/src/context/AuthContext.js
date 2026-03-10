@@ -6,7 +6,7 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth, isFirebaseInitialized, getFirebaseError } from '../config/firebase';
 import {
   isAppleSignInAvailable,
   signInWithApple as socialSignInWithApple,
@@ -50,6 +50,15 @@ export function AuthProvider({ children }) {
 
   // Listen for auth state changes (handles persistence automatically)
   useEffect(() => {
+    // If Firebase failed to initialize, go to unauthenticated state
+    // This allows the app to at least show the sign-in screen
+    if (!isFirebaseInitialized() || !auth) {
+      Logger.error('Firebase not initialized:', getFirebaseError());
+      setAuthState(AuthState.UNAUTHENTICATED);
+      setError('Unable to connect. Please check your internet and try again.');
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setCurrentUser({
@@ -76,6 +85,11 @@ export function AuthProvider({ children }) {
   const signUp = useCallback(async (email, password) => {
     setError(null);
 
+    if (!isFirebaseInitialized() || !auth) {
+      setError('Unable to connect. Please check your internet and try again.');
+      return false;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Auth state listener will handle setting currentUser
@@ -90,6 +104,11 @@ export function AuthProvider({ children }) {
   const signIn = useCallback(async (email, password) => {
     setError(null);
 
+    if (!isFirebaseInitialized() || !auth) {
+      setError('Unable to connect. Please check your internet and try again.');
+      return false;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // Auth state listener will handle setting currentUser
@@ -102,6 +121,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    if (!isFirebaseInitialized() || !auth) {
+      setCurrentUser(null);
+      setAuthState(AuthState.UNAUTHENTICATED);
+      return;
+    }
+
     try {
       await firebaseSignOut(auth);
       // Auth state listener will handle clearing currentUser
@@ -112,6 +137,11 @@ export function AuthProvider({ children }) {
 
   const resetPassword = useCallback(async (email) => {
     setError(null);
+
+    if (!isFirebaseInitialized() || !auth) {
+      setError('Unable to connect. Please check your internet and try again.');
+      return false;
+    }
 
     try {
       await sendPasswordResetEmail(auth, email);

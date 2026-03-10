@@ -10,26 +10,46 @@ const getFirebaseConfig = () => {
 
   // Require environment variables - no hardcoded fallback for security
   if (!config?.apiKey) {
-    throw new Error(
+    console.error(
       'Firebase configuration not found. Please ensure your .env file is set up correctly. ' +
       'See .env.example for required variables.'
     );
+    return null;
   }
 
   return config;
 };
 
-const firebaseConfig = getFirebaseConfig();
+// Initialize Firebase with error handling to prevent white screen crashes
+let app = null;
+let auth = null;
+let db = null;
+let firebaseInitError = null;
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+try {
+  const firebaseConfig = getFirebaseConfig();
 
-// Initialize Auth
-// On web, getAuth() uses browser persistence automatically
-// On native, we'll set up persistence separately if needed
-const auth = getAuth(app);
+  if (firebaseConfig) {
+    // Initialize Firebase
+    app = initializeApp(firebaseConfig);
 
-// Initialize Firestore
-const db = getFirestore(app);
+    // Initialize Auth
+    // On web, getAuth() uses browser persistence automatically
+    // On native, we'll set up persistence separately if needed
+    auth = getAuth(app);
+
+    // Initialize Firestore
+    db = getFirestore(app);
+  } else {
+    firebaseInitError = new Error('Firebase configuration missing');
+  }
+} catch (error) {
+  console.error('Firebase initialization failed:', error);
+  firebaseInitError = error;
+}
+
+// Helper to check if Firebase is available
+export const isFirebaseInitialized = () => app !== null && auth !== null && db !== null;
+export const getFirebaseError = () => firebaseInitError;
 
 export { app, auth, db };

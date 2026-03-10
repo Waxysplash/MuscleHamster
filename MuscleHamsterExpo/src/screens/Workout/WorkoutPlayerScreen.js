@@ -25,8 +25,27 @@ const PlayerState = {
 };
 
 export default function WorkoutPlayerScreen({ route, navigation }) {
-  const { workout } = route.params;
+  const workout = route.params?.workout;
   const { recordWorkoutCompletion, recordFeedback } = useActivity();
+
+  // Safety check: If no workout was passed, show error and allow going back
+  if (!workout || !workout.exercises || workout.exercises.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={60} color="#FF9500" />
+          <Text style={styles.errorTitle}>Workout not found</Text>
+          <Text style={styles.errorText}>Let's head back and try again.</Text>
+          <TouchableOpacity
+            style={styles.errorButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.errorButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   // Responsive sizing
   const { isTablet, contentMaxWidth } = useResponsive();
@@ -450,6 +469,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FF3B30',
     marginTop: 16,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#4A3728',
+    marginTop: 16,
+  },
+  errorButton: {
+    marginTop: 24,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    backgroundColor: '#FF9500',
+    borderRadius: 12,
+  },
+  errorButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
   backButton: {
     marginTop: 24,

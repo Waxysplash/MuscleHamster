@@ -28,6 +28,22 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
   const { recordDailyCheckIn } = useActivity();
 
   const [state, setState] = useState(CheckInState.READY);
+
+  // Safety check: If no exercise was passed, show error and allow going back
+  if (!exercise) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.centerContent}>
+          <Ionicons name="alert-circle" size={60} color="#FF9500" />
+          <Text style={styles.errorTitle}>No exercise found</Text>
+          <Text style={styles.errorText}>Let's head back and try again.</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.retryButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
