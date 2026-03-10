@@ -1,6 +1,6 @@
 # Muscle Hamster — Progress
 
-**Status:** 🚀 BUILD 7 (Build 19) SUBMITTED — AWAITING REVIEW
+**Status:** 🚀 BUILD 8 (Build 20) SUBMITTED — AWAITING REVIEW
 **Active Phase:** Phase 13 - Post-Launch Setup (Session 52)
 **Last Updated:** Mar 9, 2026 (Session 52)
 
@@ -81,7 +81,7 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 ### App Store Details
 - **App ID**: 6759973700
 - **Bundle ID**: com.musclehamster.app
-- **Version**: 1.0.0 (Build 19)
+- **Version**: 1.0.0 (Build 20)
 - **Status**: Waiting for Review
 - **Privacy Policy**: https://waxysplash.github.io/MuscleHamster/privacy-policy.html
 - **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
@@ -98,13 +98,19 @@ Decision made (Session 38): The app has grown too complex for its core promise o
 
 ### ✅ COMPLETED (Session 52)
 
-#### Build 6 Rejection Fix — Environment Variables
+#### Build 6 Rejection Fix — Environment Variables + Defensive Null Checks
 - **Root cause**: Firebase credentials missing in production builds (`.env` file not uploaded to EAS cloud)
-- **Fix applied**:
+- **Fixes applied**:
   1. Created 9 EAS environment variables (secrets) for Firebase config
   2. Created EAS file environment variable for `GoogleService-Info.plist`
   3. Updated `app.config.js` to use `process.env.GOOGLE_SERVICES_PLIST`
-- **Build 19 submitted** to App Store Connect
+  4. **Comprehensive audit** of entire codebase for crash risks
+  5. **firebase.js**: Wrapped initialization in try-catch, prevents white screen if Firebase fails
+  6. **AuthContext.js**: Handles case where Firebase fails to initialize
+  7. **DailyExerciseCheckInScreen.js**: Added validation for exercise param
+  8. **WorkoutPlayerScreen.js**: Added validation for workout param
+  9. **InventoryItemPreviewScreen.js**: Added validation for item/category params
+- **Build 20 submitted** to App Store Connect
 
 ---
 
