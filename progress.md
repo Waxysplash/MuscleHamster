@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** 🚀 BUILD 20 SUBMITTED — AWAITING APPLE REVIEW
-**Version:** 1.0.0 (Build 20)
-**Last Updated:** Mar 10, 2026 (Session 55)
+**Status:** 🚀 BUILD 22 SUBMITTED — AWAITING APPLE REVIEW
+**Version:** 1.0.0 (Build 22)
+**Last Updated:** Mar 10, 2026 (Session 56)
 
 ---
 
@@ -12,7 +12,7 @@
 |-------|-------|
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
-| Version | 1.0.0 (Build 20) |
+| Version | 1.0.0 (Build 22) |
 | Status | Waiting for Review |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
@@ -83,13 +83,29 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| Build 20 | Mar 9, 2026 | Awaiting Review | EAS secrets + defensive null checks |
+| Build 22 | Mar 10, 2026 | Awaiting Review | Fixed react-native-svg version |
+| Build 21 | Mar 10, 2026 | Rejected | - |
+| Build 20 | Mar 10, 2026 | Rejected | Account deletion + age rating fixes |
 | Build 6 | Mar 8, 2026 | Rejected | White screen - Firebase env vars missing |
 | Build 5 | Mar 5, 2026 | Rejected | iPad crash |
 
 ---
 
 ## Session Log
+
+### Session 56 (Mar 10, 2026)
+- **Pre-submission App Store review audit**
+- Researched common App Store rejection reasons (2025-2026)
+- Verified all critical areas pass Apple review:
+  - Account deletion: ✅ Working (two-step confirmation + re-auth)
+  - Privacy Policy: ✅ Live at correct URL
+  - Terms of Service: ✅ Live at correct URL
+  - No "Coming Soon" stubs: ✅ All deferred features hidden via FeatureFlags
+  - Debug logging: ✅ Only in dev mode (`__DEV__`)
+  - iPad support: ✅ Responsive design in `src/utils/responsive.js`
+- Created comprehensive **Review Notes** for App Store Connect
+- Confirmed Age Rating (9+) aligns with onboarding age gate
+- Ready for Apple review
 
 ### Session 55 (Mar 10, 2026)
 - Fixed GitHub Pages 404 error for Privacy Policy and Terms of Service

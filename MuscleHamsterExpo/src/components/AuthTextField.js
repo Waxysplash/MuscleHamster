@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function AuthTextField({
@@ -15,9 +15,40 @@ export default function AuthTextField({
   onSubmitEditing,
   returnKeyType,
   inputRef,
+  textContentType,
+  autoComplete,
 }) {
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  // iOS Strong Password workaround: Start with secureTextEntry disabled,
+  // enable it only after user starts typing to prevent iOS from showing
+  // the Strong Password suggestion which can freeze the input.
+  // See: https://github.com/facebook/react-native/issues/21911
+  const [secureEntryEnabled, setSecureEntryEnabled] = useState(false);
+
+  // Enable secure entry when user types (only for secure fields on iOS)
+  useEffect(() => {
+    if (isSecure && Platform.OS === 'ios' && value && value.length > 0 && !secureEntryEnabled) {
+      setSecureEntryEnabled(true);
+    }
+  }, [value, isSecure, secureEntryEnabled]);
+
+  // Reset secure entry state when value is cleared (e.g., form reset)
+  useEffect(() => {
+    if (isSecure && Platform.OS === 'ios' && (!value || value.length === 0)) {
+      setSecureEntryEnabled(false);
+    }
+  }, [value, isSecure]);
+
+  // Determine actual secure text entry state
+  const shouldBeSecure = isSecure && !isPasswordVisible && (Platform.OS !== 'ios' || secureEntryEnabled);
+
+  // On iOS, don't pass password-related textContentType until secure entry is enabled
+  // This prevents iOS from showing Strong Password suggestion before user starts typing
+  const effectiveTextContentType = Platform.OS === 'ios' && isSecure && !secureEntryEnabled
+    ? 'none'
+    : textContentType;
 
   const getBorderColor = () => {
     if (error) return '#FF3B30';
@@ -41,7 +72,7 @@ export default function AuthTextField({
           placeholderTextColor="#B8A99A"
           value={value}
           onChangeText={onChangeText}
-          secureTextEntry={isSecure && !isPasswordVisible}
+          secureTextEntry={shouldBeSecure}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           autoCorrect={false}
@@ -49,6 +80,8 @@ export default function AuthTextField({
           onBlur={() => setIsFocused(false)}
           onSubmitEditing={onSubmitEditing}
           returnKeyType={returnKeyType}
+          textContentType={effectiveTextContentType}
+          autoComplete={autoComplete}
           accessibilityLabel={placeholder}
           accessibilityHint={hint || error}
         />

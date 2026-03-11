@@ -97,6 +97,8 @@ export default function SignUpScreen({ navigation }) {
             error={emailError}
             returnKeyType="next"
             onSubmitEditing={() => passwordRef.current?.focus()}
+            textContentType="emailAddress"
+            autoComplete="email"
           />
 
           <AuthTextField
@@ -110,6 +112,8 @@ export default function SignUpScreen({ navigation }) {
             returnKeyType="next"
             inputRef={passwordRef}
             onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+            textContentType="newPassword"
+            autoComplete="password-new"
           />
 
           <AuthTextField
@@ -122,6 +126,8 @@ export default function SignUpScreen({ navigation }) {
             returnKeyType="go"
             inputRef={confirmPasswordRef}
             onSubmitEditing={handleSubmit}
+            textContentType="newPassword"
+            autoComplete="password-new"
           />
         </View>
 

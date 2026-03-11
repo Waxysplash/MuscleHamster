@@ -596,10 +596,11 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
         placeholder="Enter a name"
         placeholderTextColor="#A89585"
         maxLength={HAMSTER_NAME_MAX_LENGTH}
-        autoFocus
         autoCapitalize="words"
         autoCorrect={false}
         returnKeyType="done"
+        textContentType="none"
+        autoComplete="off"
         accessibilityLabel="Hamster name"
       />
       <Text style={styles.characterCount}>
