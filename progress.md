@@ -2,7 +2,7 @@
 
 **Status:** 🚀 BUILD 20 SUBMITTED — AWAITING APPLE REVIEW
 **Version:** 1.0.0 (Build 20)
-**Last Updated:** Mar 10, 2026 (Session 53)
+**Last Updated:** Mar 10, 2026 (Session 55)
 
 ---
 
@@ -15,6 +15,7 @@
 | Version | 1.0.0 (Build 20) |
 | Status | Waiting for Review |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
+| Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
 | App Store Connect | https://appstoreconnect.apple.com/apps/6759973700 |
 
 ---
@@ -89,6 +90,15 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 55 (Mar 10, 2026)
+- Fixed GitHub Pages 404 error for Privacy Policy and Terms of Service
+- Created `docs/terms-of-service.html` (matching privacy policy style)
+- Updated SettingsScreen.js to use correct Terms of Service URL
+- Fixed GitHub Pages: copied docs to repo root `/docs/` (was nested in MuscleHamsterExpo)
+- Both pages now live:
+  - https://waxysplash.github.io/MuscleHamster/privacy-policy.html
+  - https://waxysplash.github.io/MuscleHamster/terms-of-service.html
 
 ### Session 54 (Mar 10, 2026)
 - **Build 20 rejected** - Two issues:
