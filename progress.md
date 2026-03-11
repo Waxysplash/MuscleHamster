@@ -99,6 +99,10 @@ eas submit --platform ios                         # Submit to App Store
 - Both pages now live:
   - https://waxysplash.github.io/MuscleHamster/privacy-policy.html
   - https://waxysplash.github.io/MuscleHamster/terms-of-service.html
+- Fixed account deletion `auth/requires-recent-login` error:
+  - Added `reauthenticate()` function to AuthContext
+  - Added password prompt modal in AccountSettingsScreen
+  - User enters password to re-authenticate, then deletion proceeds
 
 ### Session 54 (Mar 10, 2026)
 - **Build 20 rejected** - Two issues:
