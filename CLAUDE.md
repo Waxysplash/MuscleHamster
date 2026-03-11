@@ -8,9 +8,9 @@ A self-care fitness app where users complete daily exercises to earn points and 
 
 ## Current Status
 
-**🚀 BUILD 22 SUBMITTED — AWAITING APPLE REVIEW**
+**🚀 BUILD 26 SUBMITTED — AWAITING APPLE REVIEW**
 
-- **Version**: 1.0.0 (Build 22)
+- **Version**: 1.0.0 (Build 26)
 - **App ID**: 6759973700
 - **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
 
