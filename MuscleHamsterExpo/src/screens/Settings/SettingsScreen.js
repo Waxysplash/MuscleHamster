@@ -231,7 +231,7 @@ export default function SettingsScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.row, { marginTop: 1 }]}
-          onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/privacy-policy.html')}
+          onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/terms-of-service.html')}
         >
           <View style={styles.iconBox}>
             <Ionicons name="document-text" size={22} color="#6B5D52" />
