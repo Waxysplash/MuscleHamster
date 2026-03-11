@@ -113,7 +113,7 @@ export default function OnboardingScreen({ navigation }) {
       case 'ageGate':
         return ageConfirmed;
       case 'age':
-        return profile.age && profile.age >= 13 && profile.age <= 120;
+        return profile.age && profile.age >= 9 && profile.age <= 120;
       case 'fitnessLevel':
         return profile.fitnessLevel !== null;
       case 'goals':
@@ -298,24 +298,24 @@ export default function OnboardingScreen({ navigation }) {
 
 // Step Components
 
-// Simplified age gate (just a checkbox confirming 13+)
+// Simplified age gate (just a checkbox confirming 9+)
 function AgeGateStep({ ageConfirmed, setAgeConfirmed }) {
   return (
     <View style={styles.stepContent}>
       <Text style={styles.stepDescription}>
-        Muscle Hamster is designed for users 13 years and older.
+        Muscle Hamster is designed for users 9 years and older.
       </Text>
       <TouchableOpacity
         style={[styles.ageGateOption, ageConfirmed && styles.ageGateOptionSelected]}
         onPress={() => setAgeConfirmed(!ageConfirmed)}
-        accessibilityLabel="I am 13 years or older"
+        accessibilityLabel="I am 9 years or older"
         accessibilityState={{ checked: ageConfirmed }}
         accessibilityRole="checkbox"
       >
         <View style={[styles.checkbox, ageConfirmed && styles.checkboxSelected]}>
           {ageConfirmed && <Ionicons name="checkmark" size={18} color="#fff" />}
         </View>
-        <Text style={styles.ageGateText}>I am 13 years or older</Text>
+        <Text style={styles.ageGateText}>I am 9 years or older</Text>
       </TouchableOpacity>
     </View>
   );
@@ -341,8 +341,8 @@ function AgeStep({ profile, updateProfile }) {
           accessibilityLabel="Enter your age"
         />
       </View>
-      {profile.age && profile.age < 13 && (
-        <Text style={styles.errorText}>You must be 13 or older to use this app.</Text>
+      {profile.age && profile.age < 9 && (
+        <Text style={styles.errorText}>You must be 9 or older to use this app.</Text>
       )}
     </View>
   );
