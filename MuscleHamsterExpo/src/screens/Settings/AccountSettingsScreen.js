@@ -16,15 +16,20 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 
 export default function AccountSettingsScreen({ navigation }) {
-  const { currentUser, deleteAccount } = useAuth();
+  const { currentUser, deleteAccount, reauthenticate } = useAuth();
   const { isProfileComplete } = useUserProfile();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleDeleteAccountPress = () => {
     // First confirmation
@@ -76,11 +81,10 @@ export default function AccountSettingsScreen({ navigation }) {
     } else {
       setIsDeleting(false);
       if (result.error === 'requires-recent-login') {
-        Alert.alert(
-          'Security Check Required',
-          'For your security, please sign out and sign back in, then try deleting your account again.',
-          [{ text: 'OK' }]
-        );
+        // Show password modal for re-authentication
+        setPassword('');
+        setPasswordError('');
+        setShowPasswordModal(true);
       } else {
         Alert.alert(
           'Something Went Wrong',
@@ -89,6 +93,48 @@ export default function AccountSettingsScreen({ navigation }) {
         );
       }
     }
+  };
+
+  const handleReauthAndDelete = async () => {
+    if (!password.trim()) {
+      setPasswordError('Please enter your password');
+      return;
+    }
+
+    setPasswordError('');
+    setShowPasswordModal(false);
+    setIsDeleting(true);
+
+    // Re-authenticate
+    const reauthResult = await reauthenticate(password);
+
+    if (!reauthResult.success) {
+      setIsDeleting(false);
+      if (reauthResult.error === 'wrong-password') {
+        setPasswordError('Incorrect password. Please try again.');
+        setShowPasswordModal(true);
+      } else {
+        Alert.alert(
+          'Authentication Failed',
+          'We couldn\'t verify your identity. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+      return;
+    }
+
+    // Now delete the account
+    const deleteResult = await deleteAccount();
+
+    if (!deleteResult.success) {
+      setIsDeleting(false);
+      Alert.alert(
+        'Something Went Wrong',
+        'We couldn\'t delete your account right now. Please try again later.',
+        [{ text: 'OK' }]
+      );
+    }
+    // If successful, auth state listener will redirect
   };
 
   // Signed out content
@@ -187,6 +233,60 @@ export default function AccountSettingsScreen({ navigation }) {
           </View>
         </View>
       )}
+
+      {/* Password Re-authentication Modal */}
+      <Modal
+        visible={showPasswordModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPasswordModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Confirm Your Password</Text>
+            <Text style={styles.modalSubtitle}>
+              For security, please enter your password to continue deleting your account.
+            </Text>
+
+            <TextInput
+              style={[styles.passwordInput, passwordError ? styles.passwordInputError : null]}
+              placeholder="Enter your password"
+              placeholderTextColor="#A0968E"
+              secureTextEntry
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError('');
+              }}
+              autoFocus
+            />
+
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowPasswordModal(false);
+                  setPassword('');
+                  setPasswordError('');
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleReauthAndDelete}
+              >
+                <Text style={styles.confirmButtonText}>Delete Account</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -357,5 +457,80 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    marginHorizontal: 32,
+    width: '85%',
+    maxWidth: 340,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A3728',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#6B5D52',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  passwordInput: {
+    backgroundColor: '#FFF8F0',
+    borderRadius: 10,
+    padding: 14,
+    fontSize: 16,
+    color: '#4A3728',
+    borderWidth: 1,
+    borderColor: '#E8DDD4',
+  },
+  passwordInputError: {
+    borderColor: '#FF3B30',
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: '#F5F0EB',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#6B5D52',
+  },
+  confirmButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: '#FF3B30',
+    alignItems: 'center',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

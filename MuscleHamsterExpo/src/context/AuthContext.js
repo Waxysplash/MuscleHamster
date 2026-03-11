@@ -6,6 +6,8 @@ import {
   sendPasswordResetEmail,
   onAuthStateChanged,
   deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -174,6 +176,28 @@ export function AuthProvider({ children }) {
     return { success: true };
   }, []);
 
+  // Re-authenticate user with password (needed for sensitive operations)
+  const reauthenticate = useCallback(async (password) => {
+    if (!isFirebaseInitialized() || !auth || !auth.currentUser) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(
+        auth.currentUser.email,
+        password
+      );
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      return { success: true };
+    } catch (err) {
+      Logger.debug('Reauthentication error:', err.code, err.message);
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        return { success: false, error: 'wrong-password' };
+      }
+      return { success: false, error: err.message };
+    }
+  }, []);
+
   // Delete account and all associated data
   const deleteAccount = useCallback(async () => {
     setError(null);
@@ -245,6 +269,7 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     signInWithApple,
+    reauthenticate,
     deleteAccount,
     clearError,
   };
