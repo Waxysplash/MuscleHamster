@@ -33,6 +33,7 @@ export default {
     },
     android: {
       package: "com.musclehamster.app",
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
       adaptiveIcon: {
         foregroundImage: "./assets/branding/adaptive-icon.png",
         backgroundColor: "#FFF8F0"

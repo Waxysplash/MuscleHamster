@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.1 Submitted - Awaiting Review
+**Status:** v1.0.1 Submitted - Awaiting Review | Android Build Ready
 **Version:** 1.0.2 (Build 32) - Development
-**Last Updated:** Mar 13, 2026 (Session 60)
+**Last Updated:** Mar 13, 2026 (Session 61)
 
 ---
 
@@ -33,7 +33,9 @@
 - [x] App approved and live on App Store (v1.0.0)
 - [ ] Monitor user feedback and reviews
 - [ ] Plan v1.2 features (Social, etc.)
-- [ ] Android release via Google Play
+- [x] Android build completed (AAB ready)
+- [ ] Set up Google Play Developer account
+- [ ] Submit Android to Google Play
 
 ### Implemented in v1.1
 - [x] Social features (friends, nudges, friend streaks, invite codes)
@@ -106,6 +108,16 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 61 (Mar 13, 2026)
+**Android Build Ready**
+
+- Set up Android configuration for EAS builds
+- Added `GOOGLE_ANDROID_CLIENT_ID` to EAS secrets
+- Downloaded and configured `google-services.json` from Firebase
+- Added `googleServicesFile` to android config in `app.config.js`
+- Successfully built Android AAB for Google Play
+- Next: Set up Google Play Developer account and submit
 
 ### Session 60 (Mar 13, 2026)
 **v1.0.1 Submitted - Google Sign-In Hotfix**

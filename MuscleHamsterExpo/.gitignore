@@ -38,6 +38,12 @@ yarn-error.*
 GoogleService-Info.plist
 google-services.json
 
+# Google Play service account (contains private key)
+google-play-service-account.json
+
+# Other credentials
+credentials.json
+
 # typescript
 *.tsbuildinfo
 
