@@ -1,48 +1,30 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
-import Constants from 'expo-constants';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { OAuthProvider, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import Logger from './LoggerService';
 
 // =============================================================================
-// GOOGLE OAUTH CLIENT IDS
+// GOOGLE SIGN-IN CONFIGURATION
 // =============================================================================
-// These IDs are loaded from environment variables via app.config.js
-// See .env.example for setup instructions
+// Uses native Google Sign-In SDK which complies with Google's OAuth 2.0 policies.
+// This replaces expo-auth-session WebView-based auth which Google blocked.
 //
-// SETUP INSTRUCTIONS:
-// 1. Go to https://console.cloud.google.com/apis/credentials
-// 2. Select your project (or create one)
-// 3. Click "Create Credentials" > "OAuth client ID"
-// 4. Create THREE OAuth 2.0 Client IDs:
-//
-//    a) WEB APPLICATION (for Expo Go development):
-//       - Application type: "Web application"
-//       - Authorized redirect URIs: https://auth.expo.io/@your-expo-username/MuscleHamster
-//
-//    b) iOS (for production/TestFlight builds):
-//       - Application type: "iOS"
-//       - Bundle ID: com.musclehamster.app (must match app.json)
-//
-//    c) Android (for production builds):
-//       - Application type: "Android"
-//       - Package name: com.musclehamster.app (must match app.json)
-//       - SHA-1 fingerprint: Run `eas credentials` to get this from EAS Build
-//
-// 5. Add the client IDs to your .env file
+// SETUP:
+// 1. GoogleService-Info.plist must be in the project root
+// 2. The @react-native-google-signin/google-signin config plugin is added to app.config.js
+// 3. The webClientId is required for Firebase authentication
 // =============================================================================
 
-const getGoogleClientIds = () => {
-  const extra = Constants.expoConfig?.extra;
-  return {
-    web: extra?.googleWebClientId || '783320940502-o8h2fs9iaal938kmmb860npcjm29h20p.apps.googleusercontent.com',
-    ios: extra?.googleIosClientId || '',
-    android: extra?.googleAndroidClientId || '',
-  };
-};
-
-const GOOGLE_CLIENT_IDS = getGoogleClientIds();
+// Configure Google Sign-In on module load
+// Use the Web Client ID for Firebase integration
+GoogleSignin.configure({
+  // Web Client ID from Firebase Console > Authentication > Sign-in method > Google
+  webClientId: '783320940502-o8h2fs9iaal938kmmb860npcjm29h20p.apps.googleusercontent.com',
+  // Request offline access to get idToken
+  offlineAccess: true,
+});
 
 /**
  * Check if Apple Sign-In is available on this device
@@ -118,47 +100,34 @@ export async function signInWithApple() {
 }
 
 /**
- * Get Google OAuth configuration for expo-auth-session
- * @returns {Object} OAuth configuration
+ * Sign in with Google using native SDK and authenticate with Firebase
+ * Uses native Google Sign-In which complies with Google's OAuth 2.0 policies.
+ * @returns {Promise<{success: boolean, error?: string, cancelled?: boolean}>}
  */
-export function getGoogleAuthConfig() {
-  return {
-    clientId: GOOGLE_CLIENT_IDS.web,
-    scopes: ['profile', 'email'],
-  };
-}
-
-/**
- * Get the Google Web Client ID
- * @returns {string}
- */
-export function getGoogleWebClientId() {
-  return GOOGLE_CLIENT_IDS.web;
-}
-
-/**
- * Get the Google iOS Client ID
- * @returns {string}
- */
-export function getGoogleIosClientId() {
-  return GOOGLE_CLIENT_IDS.ios;
-}
-
-/**
- * Get the Google Android Client ID
- * @returns {string}
- */
-export function getGoogleAndroidClientId() {
-  return GOOGLE_CLIENT_IDS.android;
-}
-
-/**
- * Sign in to Firebase with Google ID token
- * @param {string} idToken - The Google ID token from OAuth flow
- * @returns {Promise<{success: boolean, error?: string}>}
- */
-export async function signInWithGoogleToken(idToken) {
+export async function signInWithGoogle() {
   try {
+    // Check if Google Play Services are available (Android only, always true on iOS)
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+    // Perform native Google Sign-In
+    const signInResult = await GoogleSignin.signIn();
+
+    // Log the full response for debugging
+    Logger.debug('Google Sign-In result:', JSON.stringify(signInResult, null, 2));
+
+    // Get the ID token - try both possible locations
+    // Newer API: signInResult.data.idToken
+    // Older API: signInResult.idToken
+    const idToken = signInResult?.data?.idToken || signInResult?.idToken;
+
+    if (!idToken) {
+      Logger.error('Google Sign-In: No ID token received. Result:', JSON.stringify(signInResult));
+      return {
+        success: false,
+        error: 'Google Sign-In failed. Please try again.',
+      };
+    }
+
     // Create Firebase Google credential
     const credential = GoogleAuthProvider.credential(idToken);
 
@@ -167,11 +136,55 @@ export async function signInWithGoogleToken(idToken) {
 
     return { success: true };
   } catch (error) {
-    Logger.error('Google Sign-In Firebase error:', error);
+    // Handle user cancellation
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      return { success: false, cancelled: true };
+    }
+
+    // Handle Play Services not available (Android)
+    if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      Logger.error('Google Sign-In: Play Services not available');
+      return {
+        success: false,
+        error: 'Google Play Services is required for Google Sign-In.',
+      };
+    }
+
+    // Handle in-progress sign-in
+    if (error.code === statusCodes.IN_PROGRESS) {
+      return { success: false, cancelled: true };
+    }
+
+    Logger.error('Google Sign-In error:', error);
     return {
       success: false,
       error: 'Google Sign-In failed. Please try again.',
     };
+  }
+}
+
+/**
+ * Sign out from Google (call this when user signs out of app)
+ */
+export async function signOutFromGoogle() {
+  try {
+    await GoogleSignin.signOut();
+  } catch (error) {
+    // Ignore sign out errors
+    Logger.debug('Google Sign-Out error:', error);
+  }
+}
+
+/**
+ * Check if user is currently signed in with Google
+ * @returns {Promise<boolean>}
+ */
+export async function isGoogleSignedIn() {
+  try {
+    const userInfo = await GoogleSignin.getCurrentUser();
+    return !!userInfo;
+  } catch {
+    return false;
   }
 }
 

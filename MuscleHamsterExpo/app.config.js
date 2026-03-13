@@ -6,7 +6,7 @@ export default {
   expo: {
     name: "Muscle Hamster",
     slug: "MuscleHamsterExpo",
-    version: "1.0.0",
+    version: "1.0.1",
     orientation: "portrait",
     icon: "./assets/branding/icon.png",
     userInterfaceStyle: "light",
@@ -24,7 +24,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
-      buildNumber: "23",
+      buildNumber: "28",
       usesAppleSignIn: true,
       googleServicesFile: process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
       infoPlist: {
@@ -61,6 +61,8 @@ export default {
       // Firebase plugins
       "@react-native-firebase/app",
       "@react-native-firebase/crashlytics",
+      // Native Google Sign-In (required - expo-auth-session WebView is blocked by Google OAuth policy)
+      "@react-native-google-signin/google-signin",
       // Custom plugin to fix Firebase + New Architecture build issue
       "./plugins/withFirebaseFix"
     ],

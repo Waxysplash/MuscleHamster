@@ -15,6 +15,7 @@ import { auth, db, isFirebaseInitialized, getFirebaseError } from '../config/fir
 import {
   isAppleSignInAvailable,
   signInWithApple as socialSignInWithApple,
+  signOutFromGoogle,
 } from '../services/SocialAuthService';
 import Logger from '../services/LoggerService';
 
@@ -133,6 +134,8 @@ export function AuthProvider({ children }) {
     }
 
     try {
+      // Sign out from Google if user was signed in with Google
+      await signOutFromGoogle();
       await firebaseSignOut(auth);
       // Auth state listener will handle clearing currentUser
     } catch (err) {

@@ -1,104 +1,61 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Platform } from 'react-native';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
-import {
-  getGoogleWebClientId,
-  getGoogleIosClientId,
-  getGoogleAndroidClientId,
-  signInWithGoogleToken,
-} from '../services/SocialAuthService';
-import Logger from '../services/LoggerService';
-
-// Required for web browser redirect
-WebBrowser.maybeCompleteAuthSession();
-
-// Generate the redirect URI for the current platform
-const redirectUri = makeRedirectUri({
-  scheme: 'musclehamster',
-  // For web, use the current origin
-  ...(Platform.OS === 'web' && { path: '' }),
-});
+import { useState, useCallback } from 'react';
+import { signInWithGoogle } from '../services/SocialAuthService';
 
 /**
- * Custom hook for Google OAuth authentication
- * Handles the OAuth flow and Firebase sign-in
+ * Custom hook for Google authentication using native SDK.
+ * Uses @react-native-google-signin/google-signin which complies with
+ * Google's OAuth 2.0 policies (no embedded WebViews).
  *
  * @returns {{
- *   signIn: () => Promise<void>,
+ *   signIn: () => Promise<{success: boolean, cancelled?: boolean}>,
  *   loading: boolean,
  *   error: string | null,
- *   redirectUri: string
+ *   clearError: () => void
  * }}
  */
 export function useGoogleAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Configure Google OAuth request with platform-specific client IDs
-  // - webClientId is used for Expo Go development
-  // - iosClientId is used for native iOS builds
-  // - androidClientId is used for native Android builds
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: getGoogleWebClientId(),
-    iosClientId: getGoogleIosClientId() || undefined,
-    androidClientId: getGoogleAndroidClientId() || undefined,
-    redirectUri,
-  });
-
-  // Handle OAuth response
-  useEffect(() => {
-    async function handleResponse() {
-      if (response?.type === 'success') {
-        setLoading(true);
-        setError(null);
-
-        const { id_token } = response.params;
-        const result = await signInWithGoogleToken(id_token);
-
-        if (!result.success) {
-          setError(result.error);
-        }
-        // Auth state listener in AuthContext will handle navigation
-
-        setLoading(false);
-      } else if (response?.type === 'error') {
-        setError('Google Sign-In failed. Please try again.');
-        setLoading(false);
-      } else if (response?.type === 'dismiss') {
-        // User cancelled - no error needed
-        setLoading(false);
-      }
-    }
-
-    handleResponse();
-  }, [response]);
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
 
   const signIn = useCallback(async () => {
-    if (!request) {
-      setError('Google Sign-In is not ready. Please try again.');
-      return;
-    }
-
     setError(null);
     setLoading(true);
 
     try {
-      await promptAsync();
-      // Response will be handled by useEffect above
+      const result = await signInWithGoogle();
+
+      if (result.cancelled) {
+        // User cancelled - no error needed
+        setLoading(false);
+        return { success: false, cancelled: true };
+      }
+
+      if (!result.success) {
+        setError(result.error);
+        setLoading(false);
+        return { success: false };
+      }
+
+      // Auth state listener in AuthContext will handle navigation
+      setLoading(false);
+      return { success: true };
     } catch (err) {
-      Logger.error('Google OAuth error:', err);
       setError('Google Sign-In failed. Please try again.');
       setLoading(false);
+      return { success: false };
     }
-  }, [request, promptAsync]);
+  }, []);
 
   return {
     signIn,
     loading,
     error,
-    isReady: !!request,
-    redirectUri,
+    clearError,
+    // Always ready since native SDK is configured on module load
+    isReady: true,
   };
 }
