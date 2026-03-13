@@ -1,7 +1,7 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.1 Building - Google Sign-In Fix
-**Version:** 1.0.1 (Build 28)
+**Status:** v1.0.1 Submitted - Awaiting Review
+**Version:** 1.0.2 (Build 32) - Development
 **Last Updated:** Mar 13, 2026 (Session 60)
 
 ---
@@ -13,7 +13,7 @@
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
 | Live Version | 1.0.0 (Build 26) |
-| Pending Version | 1.0.1 (Build 28) - Building |
+| Pending Version | 1.0.1 - Submitted to App Store |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
 | App Store Connect | https://appstoreconnect.apple.com/apps/6759973700 |
@@ -23,10 +23,11 @@
 ## What's Next
 
 ### Immediate
-- [ ] Build 28 completes (EAS building)
-- [ ] Submit via `eas submit --platform ios`
+- [x] Build v1.0.1 (Google Sign-In fix)
+- [x] Submit via EAS
 - [ ] Create version 1.0.1 in App Store Connect
-- [ ] Submit for review
+- [ ] Add release notes and submit for review
+- [ ] v1.0.1 approved
 
 ### Post v1.0.1
 - [x] App approved and live on App Store (v1.0.0)
@@ -94,8 +95,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| Build 28 | Mar 13, 2026 | Building | v1.0.1 - Google Sign-In fix (native SDK) |
-| Build 26 | Mar 11, 2026 | Live | v1.0.0 - First App Store release |
+| v1.0.1 | Mar 13, 2026 | Submitted | Google Sign-In fix (native SDK) |
+| v1.0.0 (Build 26) | Mar 11, 2026 | Live | First App Store release |
 | Build 22 | Mar 10, 2026 | Superseded | Fixed react-native-svg version |
 | Build 21 | Mar 10, 2026 | Rejected | - |
 | Build 20 | Mar 10, 2026 | Rejected | Account deletion + age rating fixes |
@@ -107,13 +108,14 @@ eas submit --platform ios                         # Submit to App Store
 ## Session Log
 
 ### Session 60 (Mar 13, 2026)
-**v1.0.1 Release - Google Sign-In Hotfix**
+**v1.0.1 Submitted - Google Sign-In Hotfix**
 
 - Build 26 (v1.0.0) is live on the App Store
 - Google Sign-In broken in v1.0.0 (WebView OAuth blocked by Google)
-- Bumped version to 1.0.1 (Build 28)
-- Building via EAS (last build credit this cycle)
-- Next: Submit Build 28 → Create v1.0.1 in App Store Connect → Submit for review
+- Upgraded to EAS Starter plan ($19/month) for build credits
+- Built and submitted v1.0.1 via EAS
+- Bumped development version to 1.0.2 (Build 32)
+- Next: Create v1.0.1 in App Store Connect → Submit for review
 
 ### Session 59 (Mar 12, 2026)
 **CRITICAL FIX: Google Sign-In "OAuth 2.0 policy" error**
