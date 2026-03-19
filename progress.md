@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 38) - Bug fixes
+**Status:** v1.0.3 (Build 38) - Ready for TestFlight
 **Version:** 1.0.3 (Build 38) - Weekly planner + settings cleanup
-**Last Updated:** Mar 19, 2026 (Session 69)
+**Last Updated:** Mar 19, 2026 (Session 70)
 
 ---
 
@@ -108,7 +108,7 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 38) | Mar 19, 2026 | Building | Weekly planner + settings cleanup |
+| v1.0.3 (Build 38) | Mar 19, 2026 | Ready for TestFlight | Weekly planner improvements + rest day popup |
 | v1.0.3 (Build 37) | Mar 19, 2026 | Superseded | Color scheme fixes (60+ files) |
 | v1.0.2 (Build 36) | Mar 18, 2026 | Submitted | UI updates, Cloud Functions |
 | v1.0.1 | Mar 13, 2026 | Submitted | Google Sign-In fix (native SDK) |
@@ -122,6 +122,49 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 70 (Mar 19, 2026)
+**Weekly Planner Improvements + Rest Day Popup**
+
+**Changes Made:**
+
+1. **AddWorkoutModal Complete Rewrite:**
+   - New category options: Arms, Legs, Shoulders, Chest, Back, Core, Cardio, Class
+   - Added GYM_WORKOUTS object with real exercises from Browse tab (not made-up stock workouts)
+   - 2-step flow: Select categories → See matching workouts
+   - Matches both built-in GYM_WORKOUTS and user's custom workouts by tags
+
+2. **AddWorkoutScreen Updated:**
+   - WORKOUT_TYPES now matches AddWorkoutModal categories
+   - Custom workouts save with `tags: [type]` for category matching
+
+3. **Removed Auto-Popup Modal:**
+   - "Set up my week" modal no longer appears automatically
+   - Only shows when user taps "Set Up My Week" button
+
+4. **QuickRestDayScreen "Already Logged" Popup:**
+   - Small bubble popup when user tries to log rest day after already logging activity
+   - Cream background, green checkmark, orange "Got It!" button
+   - Matches warm color scheme
+
+5. **Friend System Firestore Indexes:**
+   - Created `firestore.indexes.json` with 5 composite indexes
+   - Fixes "Sign out" error on friend requests
+
+**Build:** v1.0.3 (Build 38) - EAS build completed successfully
+
+**Files Changed:**
+- `src/components/Schedule/AddWorkoutModal.js` - Complete rewrite
+- `src/screens/Workout/AddWorkoutScreen.js` - Updated WORKOUT_TYPES, added tags
+- `src/screens/Workout/WorkoutsScreen.js` - Removed auto-popup
+- `src/screens/Activity/QuickRestDayScreen.js` - Added bubble popup styles
+- `firestore.indexes.json` - NEW (composite indexes for friends/nudges)
+
+**Next Steps:**
+1. Test Build 38 on TestFlight
+2. Submit to App Store: `eas submit --platform ios --latest`
+
+---
 
 ### Session 69 (Mar 19, 2026)
 **Weekly Planner Bug Fixes + Settings Cleanup**

@@ -90,24 +90,19 @@ export default function QuickRestDayScreen({ navigation }) {
     );
   }
 
-  // Already checked in today
+  // Already checked in today - show cute bubble popup
   if (state === 'already_done') {
     return (
-      <View style={styles.container}>
-        <TouchableOpacity onPress={handleDone} style={styles.closeButton}>
-          <Ionicons name="close" size={28} color="#6B5D52" />
-        </TouchableOpacity>
-
-        <View style={styles.centerContent}>
-          <Image source={HamsterImages.rest} style={styles.hamsterImage} />
-          <Text style={styles.title}>Already Rested Today!</Text>
-          <View style={styles.speechBubble}>
-            <Text style={styles.messageText}>
-              You've already logged your activity for today. See you tomorrow!
-            </Text>
+      <View style={styles.popupOverlay}>
+        <View style={styles.popupBubble}>
+          <View style={styles.popupIconCircle}>
+            <Ionicons name="checkmark-circle" size={32} color="#34C759" />
           </View>
-          <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-            <Text style={styles.doneButtonText}>Thanks!</Text>
+          <Text style={styles.popupText}>
+            You already logged your daily activity.
+          </Text>
+          <TouchableOpacity style={styles.popupButton} onPress={handleDone}>
+            <Text style={styles.popupButtonText}>Got It!</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -354,6 +349,60 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  // Already logged popup styles
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(74, 55, 40, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  popupBubble: {
+    backgroundColor: '#FFF8F0',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 280,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  popupIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(52, 199, 89, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  popupText: {
+    fontSize: 16,
+    color: '#4A3728',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  popupButton: {
+    backgroundColor: '#FF9500',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+  },
+  popupButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',

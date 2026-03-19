@@ -16,10 +16,14 @@ import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
 const WORKOUT_TYPES = [
-  { id: 'strength', name: 'Strength', icon: 'barbell-outline' },
+  { id: 'arms', name: 'Arms', icon: 'hand-left-outline' },
+  { id: 'legs', name: 'Legs', icon: 'walk-outline' },
+  { id: 'shoulders', name: 'Shoulders', icon: 'expand-outline' },
+  { id: 'chest', name: 'Chest', icon: 'shield-outline' },
+  { id: 'back', name: 'Back', icon: 'arrow-back-outline' },
+  { id: 'core', name: 'Core', icon: 'ellipse-outline' },
   { id: 'cardio', name: 'Cardio', icon: 'heart-outline' },
   { id: 'class', name: 'Class', icon: 'people-outline' },
-  { id: 'other', name: 'Other', icon: 'fitness-outline' },
 ];
 
 const TARGET_TYPES = [
@@ -32,7 +36,7 @@ export default function AddWorkoutScreen({ navigation }) {
   const { addWorkout } = useCustomWorkouts();
   const { showAlert } = useAlert();
   const [name, setName] = useState('');
-  const [type, setType] = useState('other');
+  const [type, setType] = useState(null);
   const [description, setDescription] = useState('');
   const [targetType, setTargetType] = useState('custom');
   const [targetValue, setTargetValue] = useState('');
@@ -41,6 +45,10 @@ export default function AddWorkoutScreen({ navigation }) {
   const handleSave = async () => {
     if (!name.trim()) {
       showAlert('Missing Name', 'Please enter a workout name.');
+      return;
+    }
+    if (!type) {
+      showAlert('Missing Type', 'Please select a workout type.');
       return;
     }
 
@@ -52,6 +60,7 @@ export default function AddWorkoutScreen({ navigation }) {
         description: description.trim(),
         targetType,
         targetValue: targetValue.trim(),
+        tags: [type], // Use type as the tag for matching
       });
 
       if (result.success) {

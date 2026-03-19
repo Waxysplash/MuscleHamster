@@ -123,16 +123,8 @@ export default function WorkoutsScreen({ navigation, route }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDayData, setSelectedDayData] = useState(null);
 
-  // Check if we should show setup modal on first visit
-  useFocusEffect(
-    useCallback(() => {
-      if (!hasCompletedSetup && !hasSkippedSetup && !isScheduleLoading && activeTab === 'plan') {
-        // Small delay to let the screen render first
-        const timer = setTimeout(() => setShowSetupModal(true), 500);
-        return () => clearTimeout(timer);
-      }
-    }, [hasCompletedSetup, hasSkippedSetup, isScheduleLoading, activeTab])
-  );
+  // NOTE: Setup modal is now ONLY shown when user taps "Set Up My Week" button
+  // Auto-popup has been removed per user request
 
   // Refresh data on focus
   useFocusEffect(

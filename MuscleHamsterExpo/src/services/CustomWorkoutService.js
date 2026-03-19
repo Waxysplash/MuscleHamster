@@ -130,7 +130,7 @@ export const CustomWorkoutService = {
   },
 
   // Add a new custom workout
-  async addCustomWorkout({ name, type, description, targetType, targetValue }) {
+  async addCustomWorkout({ name, type, description, targetType, targetValue, tags }) {
     const data = await loadData();
     const now = new Date().toISOString();
 
@@ -141,6 +141,7 @@ export const CustomWorkoutService = {
       description: (description || '').trim(),
       targetType: targetType || 'custom',
       targetValue: (targetValue || '').trim(),
+      tags: tags || [],
       createdAt: now,
       completionCount: 0,
       lastCompletedAt: null,
