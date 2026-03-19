@@ -94,6 +94,7 @@ export default function WorkoutsScreen({ navigation, route }) {
   const {
     preferences,
     hasCompletedSetup,
+    hasSkippedSetup,
     currentWeekStart,
     currentWeekSchedule,
     todaySchedule,
@@ -106,6 +107,7 @@ export default function WorkoutsScreen({ navigation, route }) {
     clearDay,
     markTodayCompleted,
     completeSetup,
+    skipSetup,
     refreshData,
   } = useSchedule();
 
@@ -124,12 +126,12 @@ export default function WorkoutsScreen({ navigation, route }) {
   // Check if we should show setup modal on first visit
   useFocusEffect(
     useCallback(() => {
-      if (!hasCompletedSetup && !isScheduleLoading && activeTab === 'plan') {
+      if (!hasCompletedSetup && !hasSkippedSetup && !isScheduleLoading && activeTab === 'plan') {
         // Small delay to let the screen render first
         const timer = setTimeout(() => setShowSetupModal(true), 500);
         return () => clearTimeout(timer);
       }
-    }, [hasCompletedSetup, isScheduleLoading, activeTab])
+    }, [hasCompletedSetup, hasSkippedSetup, isScheduleLoading, activeTab])
   );
 
   // Refresh data on focus
@@ -315,8 +317,8 @@ export default function WorkoutsScreen({ navigation, route }) {
                   </View>
                 )}
 
-                {/* Empty State - No schedule */}
-                {!hasCompletedSetup && (
+                {/* Empty State - No schedule (show if not setup or was skipped) */}
+                {(!hasCompletedSetup || hasSkippedSetup) && (
                   <View style={styles.emptyPlanState}>
                     <Ionicons name="calendar-outline" size={56} color="#C4B5A8" />
                     <Text style={styles.emptyTitle}>Plan your week</Text>
@@ -500,7 +502,10 @@ export default function WorkoutsScreen({ navigation, route }) {
         <ScheduleSetupModal
           visible={showSetupModal}
           onComplete={handleSetupComplete}
-          onSkip={() => setShowSetupModal(false)}
+          onSkip={() => {
+            skipSetup();
+            setShowSetupModal(false);
+          }}
         />
 
         {/* Add Workout Modal */}

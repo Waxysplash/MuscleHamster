@@ -12,8 +12,6 @@ import DayCell from './DayCell';
 import {
   DAYS_OF_WEEK,
   getTodayName,
-  formatDateShort,
-  getDateForDay,
   isCurrentWeek,
 } from '../../services/ScheduleService';
 
@@ -26,18 +24,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
  * @param {string} weekStart - Monday date (YYYY-MM-DD)
  * @param {object} schedule - { days: { monday: {...}, ... } }
  * @param {function} onDayPress - Callback when a day is pressed
- * @param {function} onPreviousWeek - Navigate to previous week
- * @param {function} onNextWeek - Navigate to next week
- * @param {function} onGoToCurrentWeek - Go back to current week
- * @param {boolean} showNavigation - Show week navigation arrows
+ * @param {boolean} showNavigation - Show week header
  */
 export default function WeekCalendar({
   weekStart,
   schedule,
   onDayPress,
-  onPreviousWeek,
-  onNextWeek,
-  onGoToCurrentWeek,
   showNavigation = true,
 }) {
   const todayName = getTodayName();
@@ -51,51 +43,12 @@ export default function WeekCalendar({
   const availableWidth = SCREEN_WIDTH - horizontalPadding - gapWidth;
   const cellWidth = Math.floor(availableWidth / 7);
 
-  // Format week range for header
-  const getWeekRangeText = () => {
-    const monday = new Date(weekStart + 'T00:00:00');
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    const monStr = formatDateShort(monday);
-    const sunStr = formatDateShort(sunday);
-
-    return `${monStr} - ${sunStr}`;
-  };
-
   return (
     <View style={styles.container}>
-      {/* Week Header with Navigation */}
+      {/* Week Header - Simple "This Week" title */}
       {showNavigation && (
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={onPreviousWeek}
-            accessibilityLabel="Previous week"
-          >
-            <Ionicons name="chevron-back" size={24} color="#8B5A2B" />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.weekLabel}
-            onPress={!isThisWeek ? onGoToCurrentWeek : undefined}
-            disabled={isThisWeek}
-          >
-            <Text style={styles.weekText}>
-              {isThisWeek ? 'This Week' : getWeekRangeText()}
-            </Text>
-            {!isThisWeek && (
-              <Text style={styles.returnText}>Tap to return to this week</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navButton}
-            onPress={onNextWeek}
-            accessibilityLabel="Next week"
-          >
-            <Ionicons name="chevron-forward" size={24} color="#8B5A2B" />
-          </TouchableOpacity>
+          <Text style={styles.weekText}>This Week</Text>
         </View>
       )}
 
@@ -177,27 +130,13 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 12,
-  },
-  navButton: {
-    padding: 8,
-  },
-  weekLabel: {
-    flex: 1,
-    alignItems: 'center',
   },
   weekText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#4A3728',
-  },
-  returnText: {
-    fontSize: 11,
-    color: '#FF9500',
-    marginTop: 2,
   },
   daysContainer: {
     flexDirection: 'row',

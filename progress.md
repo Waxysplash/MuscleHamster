@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 37) Ready to Submit
-**Version:** 1.0.3 (Build 37) - Color scheme + bug fixes
-**Last Updated:** Mar 19, 2026 (Session 68)
+**Status:** v1.0.3 (Build 38) - Bug fixes
+**Version:** 1.0.3 (Build 38) - Weekly planner + settings cleanup
+**Last Updated:** Mar 19, 2026 (Session 69)
 
 ---
 
@@ -108,7 +108,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 37) | Mar 19, 2026 | Ready to Submit | Color scheme fixes (60+ files) |
+| v1.0.3 (Build 38) | Mar 19, 2026 | Building | Weekly planner + settings cleanup |
+| v1.0.3 (Build 37) | Mar 19, 2026 | Superseded | Color scheme fixes (60+ files) |
 | v1.0.2 (Build 36) | Mar 18, 2026 | Submitted | UI updates, Cloud Functions |
 | v1.0.1 | Mar 13, 2026 | Submitted | Google Sign-In fix (native SDK) |
 | v1.0.0 (Build 26) | Mar 11, 2026 | Live | First App Store release |
@@ -121,6 +122,41 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 69 (Mar 19, 2026)
+**Weekly Planner Bug Fixes + Settings Cleanup**
+
+Fixed issues found in Build 37 TestFlight testing:
+
+**Weekly Planner Fixes:**
+1. **Setup modal persistence** - "Skip for now" now persists; modal won't reappear after skipping
+2. **Removed week navigation arrows** - Calendar now shows just "This Week" without left/right arrows
+3. **New 2-step workout selection flow:**
+   - Step 1: Select body parts (Chest, Back, Arms, Legs, Core, Cardio, etc.)
+   - Step 2: See matching workouts from library and custom workouts
+
+**Settings Cleanup:**
+4. **Removed notifications toggle** - Deleted unresponsive toggle from main Settings
+5. **Removed duplicate privacy controls** - Deleted "Download my data" and "Delete account" from Privacy (already in Manage Account)
+
+**Files Changed:**
+- `src/context/ScheduleContext.js` - Added skipSetup function and hasSkippedSetup state
+- `src/screens/Workout/WorkoutsScreen.js` - Use skipSetup when modal dismissed
+- `src/components/Schedule/WeekCalendar.js` - Removed navigation arrows
+- `src/components/Schedule/AddWorkoutModal.js` - Complete rewrite for 2-step body part flow
+- `src/screens/Settings/SettingsScreen.js` - Removed notifications toggle
+- `src/screens/Settings/PrivacySettingsScreen.js` - Removed Data & Account section
+- `app.config.js` - Bumped to Build 38
+
+---
+
+### Session 68 (Mar 19, 2026)
+**Prep for Submission**
+
+- Updated docs to reflect Build 37 as latest
+- Pushed all changes to GitHub
+
+---
 
 ### Session 67 (Mar 19, 2026)
 **App-Wide Color Scheme Audit & Fix**

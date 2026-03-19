@@ -12,7 +12,6 @@ export default function SettingsScreen({ navigation }) {
   const { totalPoints } = useActivity();
   const { profile } = useUserProfile();
   const { showAlert } = useAlert();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEffects, setSoundEffects] = useState(true);
   const [music, setMusic] = useState(true);
 
@@ -100,43 +99,6 @@ export default function SettingsScreen({ navigation }) {
         </View>
       )}
 
-      {/* Notifications */}
-      <View style={styles.section}>
-        <View style={styles.row}>
-          <View style={styles.iconBox}>
-            <Ionicons name="notifications" size={22} color="#FF3B30" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Notifications</Text>
-            <Text style={styles.rowSub}>
-              {notificationsEnabled
-                ? 'Your hamster will send you reminders'
-                : 'Enable to get gentle reminders'}
-            </Text>
-          </View>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-            trackColor={{ true: '#FF9500' }}
-            accessibilityLabel="Notifications toggle"
-            accessibilityValue={{ text: notificationsEnabled ? 'On' : 'Off' }}
-          />
-        </View>
-        {notificationsEnabled && (
-          <TouchableOpacity
-            style={[styles.row, { marginTop: 1 }]}
-            onPress={() => navigation.navigate('NotificationSettings')}
-          >
-            <View style={styles.iconBox}>
-              <Ionicons name="time" size={22} color="#FF9500" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Reminder Time</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-          </TouchableOpacity>
-        )}
-      </View>
 
       {/* Audio - only show if feature enabled */}
       {FeatureFlags.audioSystem && (

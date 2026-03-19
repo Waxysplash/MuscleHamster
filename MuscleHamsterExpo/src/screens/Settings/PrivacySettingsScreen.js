@@ -15,7 +15,6 @@ import {
   Switch,
   StyleSheet,
   ActivityIndicator,
-  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -210,59 +209,6 @@ export default function PrivacySettingsScreen({ navigation }) {
         </Text>
       </View>
 
-      {/* Data & Account Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionHeader}>Data & Account</Text>
-        <View style={styles.card}>
-          {/* Download Data */}
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => Linking.openURL('mailto:musclehamsterapp@gmail.com?subject=Data%20Export%20Request&body=Please%20send%20me%20a%20copy%20of%20my%20data.%0A%0AAccount%20email:%20' + (currentUser?.email || ''))}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons name="download" size={22} color="#AF52DE" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Download My Data</Text>
-              <Text style={styles.rowSubLabel}>Request a copy of your data</Text>
-            </View>
-            <Ionicons name="mail-outline" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
-
-          <View style={styles.separator} />
-
-          {/* Delete Account */}
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => {
-              showAlert(
-                'Delete Account',
-                'To delete your account and all data, please email us. This action cannot be undone.',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Send Email',
-                    style: 'destructive',
-                    onPress: () => Linking.openURL('mailto:musclehamsterapp@gmail.com?subject=Account%20Deletion%20Request&body=Please%20delete%20my%20account%20and%20all%20associated%20data.%0A%0AAccount%20email:%20' + (currentUser?.email || '')),
-                  },
-                ]
-              );
-            }}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons name="trash" size={22} color="#FF3B30" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Delete Account</Text>
-              <Text style={styles.rowSubLabel}>Permanently delete your account and data</Text>
-            </View>
-            <Ionicons name="mail-outline" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.footerText}>
-          We'll respond to data requests within 30 days.
-        </Text>
-      </View>
     </ScrollView>
   );
 }

@@ -1,4 +1,4 @@
-// AddWorkoutModal - Pick a workout for a specific day
+// AddWorkoutModal - 2-step flow: Pick body parts → Pick workout
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -8,25 +8,33 @@ import {
   Modal,
   ScrollView,
   SafeAreaView,
-  TextInput,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
 import { WorkoutService } from '../../services/WorkoutService';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
+import { BodyFocus, BodyFocusInfo } from '../../models/Workout';
+
+// Body part options for selection
+const BODY_PART_OPTIONS = [
+  { id: BodyFocus.FULL_BODY, name: 'Full Body', icon: 'body-outline', color: '#FF9500' },
+  { id: BodyFocus.UPPER_BODY, name: 'Upper Body', icon: 'fitness-outline', color: '#4ECDC4' },
+  { id: BodyFocus.LOWER_BODY, name: 'Lower Body', icon: 'footsteps-outline', color: '#FF6B6B' },
+  { id: BodyFocus.CHEST, name: 'Chest', icon: 'shield-outline', color: '#F39C12' },
+  { id: BodyFocus.BACK, name: 'Back', icon: 'arrow-back-outline', color: '#45B7D1' },
+  { id: BodyFocus.ARMS, name: 'Arms', icon: 'hand-left-outline', color: '#9B59B6' },
+  { id: BodyFocus.SHOULDERS, name: 'Shoulders', icon: 'expand-outline', color: '#E67E22' },
+  { id: BodyFocus.LEGS, name: 'Legs', icon: 'walk-outline', color: '#E74C3C' },
+  { id: BodyFocus.CORE, name: 'Core', icon: 'ellipse-outline', color: '#8B5A2B' },
+  { id: 'cardio', name: 'Cardio', icon: 'heart-outline', color: '#FF3B30' },
+];
 
 /**
  * AddWorkoutModal Component
- * Modal for selecting a workout or rest day for a specific day
- *
- * @param {boolean} visible - Whether modal is visible
- * @param {string} dayName - Day being edited ('monday', etc.)
- * @param {object} currentDayData - Current day's schedule data
- * @param {function} onSelectWorkout - Callback when workout selected
- * @param {function} onSelectRest - Callback when rest day selected
- * @param {function} onClear - Callback to clear the day
- * @param {function} onClose - Callback to close modal
+ * 2-step flow for selecting a workout for a specific day
+ * Step 1: Pick body parts
+ * Step 2: Pick workout from matching results
  */
 export default function AddWorkoutModal({
   visible,
@@ -38,50 +46,91 @@ export default function AddWorkoutModal({
   onClose,
 }) {
   // State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [stockWorkouts, setStockWorkouts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [step, setStep] = useState(1); // 1 = body parts, 2 = workouts
+  const [selectedBodyParts, setSelectedBodyParts] = useState([]);
+  const [matchingWorkouts, setMatchingWorkouts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get custom workouts
   const { customWorkouts } = useCustomWorkouts();
 
-  // Load stock workouts
-  const loadWorkouts = useCallback(async () => {
+  // Reset state when modal opens
+  useEffect(() => {
+    if (visible) {
+      setStep(1);
+      setSelectedBodyParts([]);
+      setMatchingWorkouts([]);
+    }
+  }, [visible]);
+
+  // Toggle body part selection
+  const toggleBodyPart = (bodyPartId) => {
+    setSelectedBodyParts((prev) => {
+      if (prev.includes(bodyPartId)) {
+        return prev.filter((id) => id !== bodyPartId);
+      }
+      return [...prev, bodyPartId];
+    });
+  };
+
+  // Load workouts matching selected body parts
+  const loadMatchingWorkouts = useCallback(async () => {
+    if (selectedBodyParts.length === 0) return;
+
     setIsLoading(true);
     try {
-      const workouts = await WorkoutService.getAllWorkouts();
-      setStockWorkouts(workouts);
+      // Get stock workouts matching body focus
+      const stockWorkouts = await WorkoutService.getWorkoutsByBodyFocus(selectedBodyParts);
+
+      // Filter custom workouts by tags/type
+      const matchingCustom = customWorkouts.filter((w) => {
+        // Check if workout type matches cardio selection
+        if (selectedBodyParts.includes('cardio') && w.type === 'cardio') {
+          return true;
+        }
+        // Check tags for body part matches
+        if (w.tags && Array.isArray(w.tags)) {
+          return w.tags.some((tag) =>
+            selectedBodyParts.some((bp) =>
+              tag.toLowerCase().includes(bp.toLowerCase()) ||
+              bp.toLowerCase().includes(tag.toLowerCase())
+            )
+          );
+        }
+        return false;
+      });
+
+      setMatchingWorkouts([
+        ...matchingCustom.map((w) => ({ ...w, isCustom: true })),
+        ...stockWorkouts.map((w) => ({ ...w, isCustom: false })),
+      ]);
     } catch (error) {
       console.error('Error loading workouts:', error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedBodyParts, customWorkouts]);
 
-  useEffect(() => {
-    if (visible) {
-      loadWorkouts();
-      setSearchQuery('');
-    }
-  }, [visible, loadWorkouts]);
+  // Handle "Next" button - go to step 2
+  const handleNext = () => {
+    setStep(2);
+    loadMatchingWorkouts();
+  };
 
-  // Filter workouts by search
-  const filteredStockWorkouts = stockWorkouts.filter((w) =>
-    w.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredCustomWorkouts = customWorkouts.filter((w) =>
-    w.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Check if day has content
-  const hasContent = currentDayData && currentDayData.type !== DAY_TYPES.EMPTY;
+  // Handle going back to step 1
+  const handleBack = () => {
+    setStep(1);
+    setMatchingWorkouts([]);
+  };
 
   // Handle workout selection
-  const handleSelectWorkout = (workout, type) => {
+  const handleSelectWorkout = (workout) => {
+    const type = workout.isCustom ? 'custom' : 'stock';
     onSelectWorkout?.(workout.id, type, workout.name);
   };
 
+  // Check if day has content
+  const hasContent = currentDayData && currentDayData.type !== DAY_TYPES.EMPTY;
   const dayLabel = DAY_LABELS[dayName] || dayName;
 
   return (
@@ -94,15 +143,16 @@ export default function AddWorkoutModal({
       <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Ionicons name="close" size={24} color="#4A3728" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            {dayLabel}
-          </Text>
+          {step === 2 ? (
+            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+              <Ionicons name="arrow-back" size={24} color="#4A3728" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Ionicons name="close" size={24} color="#4A3728" />
+            </TouchableOpacity>
+          )}
+          <Text style={styles.headerTitle}>{dayLabel}</Text>
           <View style={styles.closeButton} />
         </View>
 
@@ -110,145 +160,175 @@ export default function AddWorkoutModal({
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
         >
-          {/* Quick Options */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Quick Options</Text>
+          {step === 1 ? (
+            // STEP 1: Body Part Selection
+            <>
+              {/* Quick Options */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Quick Options</Text>
 
-            {/* Rest Day */}
-            <TouchableOpacity
-              style={styles.quickOption}
-              onPress={onSelectRest}
-            >
-              <View style={[styles.quickOptionIcon, styles.restIcon]}>
-                <Ionicons name="bed" size={24} color="#8B5A2B" />
-              </View>
-              <View style={styles.quickOptionInfo}>
-                <Text style={styles.quickOptionTitle}>Rest Day</Text>
-                <Text style={styles.quickOptionSubtitle}>
-                  Recovery is part of the journey
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-            </TouchableOpacity>
+                {/* Rest Day */}
+                <TouchableOpacity style={styles.quickOption} onPress={onSelectRest}>
+                  <View style={[styles.quickOptionIcon, styles.restIcon]}>
+                    <Ionicons name="bed" size={24} color="#8B5A2B" />
+                  </View>
+                  <View style={styles.quickOptionInfo}>
+                    <Text style={styles.quickOptionTitle}>Rest Day</Text>
+                    <Text style={styles.quickOptionSubtitle}>Recovery is part of the journey</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+                </TouchableOpacity>
 
-            {/* Clear Day (if has content) */}
-            {hasContent && (
-              <TouchableOpacity
-                style={styles.quickOption}
-                onPress={onClear}
-              >
-                <View style={[styles.quickOptionIcon, styles.clearIcon]}>
-                  <Ionicons name="close-circle" size={24} color="#FF3B30" />
+                {/* Clear Day */}
+                {hasContent && (
+                  <TouchableOpacity style={styles.quickOption} onPress={onClear}>
+                    <View style={[styles.quickOptionIcon, styles.clearIcon]}>
+                      <Ionicons name="close-circle" size={24} color="#FF3B30" />
+                    </View>
+                    <View style={styles.quickOptionInfo}>
+                      <Text style={styles.quickOptionTitle}>Clear Day</Text>
+                      <Text style={styles.quickOptionSubtitle}>Remove scheduled activity</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Body Part Selection */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>What do you want to work out?</Text>
+                <Text style={styles.sectionSubtitle}>Select one or more areas</Text>
+
+                <View style={styles.bodyPartGrid}>
+                  {BODY_PART_OPTIONS.map((part) => {
+                    const isSelected = selectedBodyParts.includes(part.id);
+                    return (
+                      <TouchableOpacity
+                        key={part.id}
+                        style={[
+                          styles.bodyPartCard,
+                          isSelected && styles.bodyPartCardSelected,
+                        ]}
+                        onPress={() => toggleBodyPart(part.id)}
+                      >
+                        <View
+                          style={[
+                            styles.bodyPartIcon,
+                            { backgroundColor: isSelected ? part.color : '#F5F0EB' },
+                          ]}
+                        >
+                          <Ionicons
+                            name={part.icon}
+                            size={24}
+                            color={isSelected ? '#fff' : part.color}
+                          />
+                        </View>
+                        <Text
+                          style={[
+                            styles.bodyPartName,
+                            isSelected && styles.bodyPartNameSelected,
+                          ]}
+                        >
+                          {part.name}
+                        </Text>
+                        {isSelected && (
+                          <View style={styles.checkmark}>
+                            <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-                <View style={styles.quickOptionInfo}>
-                  <Text style={styles.quickOptionTitle}>Clear Day</Text>
-                  <Text style={styles.quickOptionSubtitle}>
-                    Remove scheduled activity
+              </View>
+
+              {/* Next Button */}
+              {selectedBodyParts.length > 0 && (
+                <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                  <Text style={styles.nextButtonText}>
+                    Find Workouts ({selectedBodyParts.length} selected)
+                  </Text>
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </>
+          ) : (
+            // STEP 2: Workout Selection
+            <>
+              {/* Selected Body Parts Summary */}
+              <View style={styles.selectedSummary}>
+                <Text style={styles.selectedSummaryLabel}>Targeting:</Text>
+                <View style={styles.selectedTags}>
+                  {selectedBodyParts.map((id) => {
+                    const part = BODY_PART_OPTIONS.find((p) => p.id === id);
+                    return (
+                      <View key={id} style={[styles.selectedTag, { backgroundColor: part?.color + '20' }]}>
+                        <Text style={[styles.selectedTagText, { color: part?.color }]}>
+                          {part?.name}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Loading */}
+              {isLoading && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color="#8B5A2B" />
+                </View>
+              )}
+
+              {/* Workouts List */}
+              {!isLoading && matchingWorkouts.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Choose a Workout</Text>
+
+                  {matchingWorkouts.map((workout) => (
+                    <TouchableOpacity
+                      key={workout.id}
+                      style={styles.workoutItem}
+                      onPress={() => handleSelectWorkout(workout)}
+                    >
+                      <View
+                        style={[
+                          styles.workoutIcon,
+                          workout.isCustom && styles.customWorkoutIcon,
+                        ]}
+                      >
+                        <Ionicons
+                          name={workout.isCustom ? 'person' : 'barbell'}
+                          size={20}
+                          color={workout.isCustom ? '#8B5A2B' : '#fff'}
+                        />
+                      </View>
+                      <View style={styles.workoutInfo}>
+                        <Text style={styles.workoutName}>{workout.name}</Text>
+                        <Text style={styles.workoutMeta}>
+                          {workout.isCustom
+                            ? `${workout.completionCount || 0} times completed`
+                            : workout.description || ''}
+                        </Text>
+                      </View>
+                      <Ionicons name="add-circle" size={24} color="#FF9500" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {/* No Results */}
+              {!isLoading && matchingWorkouts.length === 0 && (
+                <View style={styles.emptyState}>
+                  <Ionicons name="fitness-outline" size={48} color="#C4B5A8" />
+                  <Text style={styles.emptyTitle}>No workouts found</Text>
+                  <Text style={styles.emptyText}>
+                    Try selecting different body parts or create a custom workout
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Search */}
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#6B5D52" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search workouts..."
-              placeholderTextColor="#A89B8C"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color="#A89B8C" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Loading */}
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#8B5A2B" />
-            </View>
-          )}
-
-          {/* My Workouts (Custom) */}
-          {!isLoading && filteredCustomWorkouts.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>My Workouts</Text>
-              {filteredCustomWorkouts.map((workout) => (
-                <TouchableOpacity
-                  key={workout.id}
-                  style={styles.workoutItem}
-                  onPress={() => handleSelectWorkout(workout, 'custom')}
-                >
-                  <View style={[styles.workoutIcon, styles.customWorkoutIcon]}>
-                    <Ionicons name="person" size={20} color="#8B5A2B" />
-                  </View>
-                  <View style={styles.workoutInfo}>
-                    <Text style={styles.workoutName}>{workout.name}</Text>
-                    <Text style={styles.workoutMeta}>
-                      {workout.completionCount || 0} times completed
-                    </Text>
-                  </View>
-                  <Ionicons name="add-circle" size={24} color="#FF9500" />
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {/* Stock Workouts */}
-          {!isLoading && filteredStockWorkouts.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Workouts</Text>
-              {filteredStockWorkouts.slice(0, 15).map((workout) => (
-                <TouchableOpacity
-                  key={workout.id}
-                  style={styles.workoutItem}
-                  onPress={() => handleSelectWorkout(workout, 'stock')}
-                >
-                  <View style={styles.workoutIcon}>
-                    <Ionicons name="barbell" size={20} color="#fff" />
-                  </View>
-                  <View style={styles.workoutInfo}>
-                    <Text style={styles.workoutName}>{workout.name}</Text>
-                    <Text style={styles.workoutMeta}>
-                      {workout.duration ? `${workout.duration}` : ''}
-                      {workout.difficulty ? ` • ${workout.difficulty}` : ''}
-                    </Text>
-                  </View>
-                  <Ionicons name="add-circle" size={24} color="#FF9500" />
-                </TouchableOpacity>
-              ))}
-
-              {filteredStockWorkouts.length > 15 && (
-                <Text style={styles.moreText}>
-                  +{filteredStockWorkouts.length - 15} more workouts
-                </Text>
               )}
-            </View>
+            </>
           )}
-
-          {/* No Results */}
-          {!isLoading &&
-            searchQuery.length > 0 &&
-            filteredStockWorkouts.length === 0 &&
-            filteredCustomWorkouts.length === 0 && (
-              <View style={styles.emptyState}>
-                <Ionicons name="search" size={48} color="#C4B5A8" />
-                <Text style={styles.emptyTitle}>No workouts found</Text>
-                <Text style={styles.emptyText}>
-                  Try a different search term
-                </Text>
-              </View>
-            )}
         </ScrollView>
       </SafeAreaView>
     </Modal>
@@ -275,6 +355,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -291,17 +377,20 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
     color: '#6B5D52',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   quickOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
@@ -333,20 +422,85 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
-  searchContainer: {
+  bodyPartGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF8F0',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 20,
+    flexWrap: 'wrap',
     gap: 10,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
+  bodyPartCard: {
+    width: '31%',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  bodyPartCardSelected: {
+    borderColor: '#8B5A2B',
+    backgroundColor: '#FFF8F0',
+  },
+  bodyPartIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  bodyPartName: {
+    fontSize: 13,
+    fontWeight: '600',
     color: '#4A3728',
+    textAlign: 'center',
+  },
+  bodyPartNameSelected: {
+    color: '#8B5A2B',
+  },
+  checkmark: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#8B5A2B',
+    borderRadius: 14,
+    paddingVertical: 16,
+    gap: 8,
+    marginTop: 8,
+  },
+  nextButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  selectedSummary: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+  },
+  selectedSummaryLabel: {
+    fontSize: 13,
+    color: '#6B5D52',
+    marginBottom: 8,
+  },
+  selectedTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  selectedTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  selectedTagText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   loadingContainer: {
     paddingVertical: 40,
@@ -355,7 +509,7 @@ const styles = StyleSheet.create({
   workoutItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -385,12 +539,6 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
-  moreText: {
-    fontSize: 14,
-    color: '#6B5D52',
-    textAlign: 'center',
-    marginTop: 8,
-  },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 48,
@@ -405,5 +553,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B5D52',
     marginTop: 4,
+    textAlign: 'center',
+    paddingHorizontal: 32,
   },
 });

@@ -26,7 +26,6 @@ import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
-import ProfileUpdatePrompt from '../../components/ProfileUpdatePrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
 import { shouldShowPermissionPrompt, enableNotifications } from '../../services/NotificationService';
@@ -34,7 +33,7 @@ import { DAY_TYPES } from '../../services/ScheduleService';
 
 export default function HomeScreen({ navigation }) {
   const { currentUser } = useAuth();
-  const { profile, needsMigration, dismissMigration } = useUserProfile();
+  const { profile } = useUserProfile();
   const {
     stats,
     isLoading,
@@ -463,15 +462,6 @@ export default function HomeScreen({ navigation }) {
         onDismiss={() => setShowNotificationPrompt(false)}
       />
 
-      {/* Profile Update Prompt (for users with old profile format) */}
-      <ProfileUpdatePrompt
-        visible={needsMigration}
-        onUpdate={() => {
-          dismissMigration();
-          navigation.navigate('Settings', { screen: 'ProfileSettings' });
-        }}
-        onSkip={dismissMigration}
-      />
     </View>
   );
 }

@@ -47,6 +47,7 @@ export function ScheduleProvider({ children }) {
     preferredDays: ['monday', 'wednesday', 'friday'],
     reminderTime: '07:00',
     setupCompleted: false,
+    setupSkipped: false,
   });
 
   // Current week schedule state
@@ -123,6 +124,9 @@ export function ScheduleProvider({ children }) {
 
   // Has completed setup
   const hasCompletedSetup = preferences.setupCompleted === true;
+
+  // Has skipped setup (user dismissed the modal)
+  const hasSkippedSetup = preferences.setupSkipped === true;
 
   // Combined loading state
   const isLoading = isLoadingPreferences || isLoadingSchedule;
@@ -227,6 +231,26 @@ export function ScheduleProvider({ children }) {
   const completeSetup = useCallback(async (setupPrefs) => {
     return savePreferences(setupPrefs, true);
   }, [savePreferences]);
+
+  // Skip setup (user dismissed the modal)
+  const skipSetup = useCallback(async () => {
+    if (!userId) return false;
+
+    try {
+      // Save that user skipped setup
+      const skippedPrefs = {
+        ...preferences,
+        setupSkipped: true,
+      };
+      await ScheduleService.saveWorkoutPreferences(userId, skippedPrefs);
+      setPreferences(skippedPrefs);
+      Logger.info('ScheduleContext: User skipped setup');
+      return true;
+    } catch (err) {
+      Logger.error('ScheduleContext: Error skipping setup', err);
+      return false;
+    }
+  }, [userId, preferences]);
 
   // ----------------------------------------
   // SCHEDULE ACTIONS
@@ -417,6 +441,7 @@ export function ScheduleProvider({ children }) {
         preferredDays: ['monday', 'wednesday', 'friday'],
         reminderTime: '07:00',
         setupCompleted: false,
+        setupSkipped: false,
       });
       setCurrentWeekSchedule(null);
       setIsLoadingPreferences(false);
@@ -472,8 +497,10 @@ export function ScheduleProvider({ children }) {
     // Preferences
     preferences,
     hasCompletedSetup,
+    hasSkippedSetup,
     savePreferences,
     completeSetup,
+    skipSetup,
 
     // Current week schedule
     currentWeekStart,
@@ -522,8 +549,10 @@ export function ScheduleProvider({ children }) {
   }), [
     preferences,
     hasCompletedSetup,
+    hasSkippedSetup,
     savePreferences,
     completeSetup,
+    skipSetup,
     currentWeekStart,
     currentWeekSchedule,
     todaySchedule,
