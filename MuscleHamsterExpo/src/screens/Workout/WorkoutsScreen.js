@@ -13,21 +13,18 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { WorkoutService } from '../../services/WorkoutService';
 import { useSchedule } from '../../context/ScheduleContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import { useActivity } from '../../context/ActivityContext';
 import {
   WeekCalendar,
   TodayWorkoutCard,
-  ScheduleSetupModal,
   AddWorkoutModal,
 } from '../../components/Schedule';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
 import FavoriteButton from '../../components/FavoriteButton';
 import { useResponsive } from '../../utils/responsive';
-import { DAY_TYPES } from '../../services/ScheduleService';
 import { RestDayActivity } from '../../models/Activity';
 
 // Gym body part images
@@ -92,9 +89,6 @@ export default function WorkoutsScreen({ navigation, route }) {
 
   // Schedule context
   const {
-    preferences,
-    hasCompletedSetup,
-    hasSkippedSetup,
     currentWeekStart,
     currentWeekSchedule,
     todaySchedule,
@@ -106,8 +100,6 @@ export default function WorkoutsScreen({ navigation, route }) {
     setRestDay,
     clearDay,
     markTodayCompleted,
-    completeSetup,
-    skipSetup,
     refreshData,
   } = useSchedule();
 
@@ -118,13 +110,9 @@ export default function WorkoutsScreen({ navigation, route }) {
   const { recordRestDayCheckIn } = useActivity();
 
   // Modals
-  const [showSetupModal, setShowSetupModal] = useState(false);
   const [showAddWorkoutModal, setShowAddWorkoutModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDayData, setSelectedDayData] = useState(null);
-
-  // NOTE: Setup modal is now ONLY shown when user taps "Set Up My Week" button
-  // Auto-popup has been removed per user request
 
   // Refresh data on focus
   useFocusEffect(
@@ -190,11 +178,6 @@ export default function WorkoutsScreen({ navigation, route }) {
       setShowAddWorkoutModal(false);
       setSelectedDay(null);
     }
-  };
-
-  const handleSetupComplete = async (prefs) => {
-    await completeSetup(prefs);
-    setShowSetupModal(false);
   };
 
   const handleStartWorkout = (workoutId) => {
@@ -306,24 +289,6 @@ export default function WorkoutsScreen({ navigation, route }) {
                       onPickWorkout={handlePickWorkout}
                       onLogRestDay={handleLogRestDay}
                     />
-                  </View>
-                )}
-
-                {/* Empty State - No schedule (show if not setup or was skipped) */}
-                {(!hasCompletedSetup || hasSkippedSetup) && (
-                  <View style={styles.emptyPlanState}>
-                    <Ionicons name="calendar-outline" size={56} color="#C4B5A8" />
-                    <Text style={styles.emptyTitle}>Plan your week</Text>
-                    <Text style={styles.emptyText}>
-                      Set up your workout days to stay on track
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.setupButton}
-                      onPress={() => setShowSetupModal(true)}
-                    >
-                      <Ionicons name="add" size={20} color="#fff" />
-                      <Text style={styles.setupButtonText}>Set Up My Week</Text>
-                    </TouchableOpacity>
                   </View>
                 )}
 
@@ -490,16 +455,6 @@ export default function WorkoutsScreen({ navigation, route }) {
           </View>
         </ScrollView>
 
-        {/* Setup Modal */}
-        <ScheduleSetupModal
-          visible={showSetupModal}
-          onComplete={handleSetupComplete}
-          onSkip={() => {
-            skipSetup();
-            setShowSetupModal(false);
-          }}
-        />
-
         {/* Add Workout Modal */}
         <AddWorkoutModal
           visible={showAddWorkoutModal}
@@ -574,38 +529,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A3728',
     marginBottom: 12,
-  },
-  emptyPlanState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-    paddingHorizontal: 24,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#4A3728',
-    marginTop: 16,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: '#6B5D52',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  setupButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#8B5A2B',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    marginTop: 20,
-    gap: 8,
-  },
-  setupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
   },
   myWorkoutsSection: {
     marginTop: 28,

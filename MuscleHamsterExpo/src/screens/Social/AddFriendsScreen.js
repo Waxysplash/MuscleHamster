@@ -36,7 +36,7 @@ export default function AddFriendsScreen() {
 
   const [myInviteCode, setMyInviteCode] = useState(null);
   const [isLoadingCode, setIsLoadingCode] = useState(true);
-  const [inputCode, setInputCode] = useState('');
+  const [inputCode, setInputCode] = useState(''); // Just the 6-char part (no MH- prefix)
   const [isLookingUp, setIsLookingUp] = useState(false);
   const [lookupResult, setLookupResult] = useState(null);
   const [isSendingRequest, setIsSendingRequest] = useState(false);
@@ -83,34 +83,19 @@ export default function AddFriendsScreen() {
     }
   };
 
-  const formatInputCode = (text) => {
-    // Remove any non-alphanumeric characters except dash
-    let cleaned = text.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-
-    // Auto-format to MH-XXXXXX
-    if (cleaned.length === 2 && !cleaned.includes('-')) {
-      cleaned = cleaned + '-';
-    } else if (cleaned.length > 3 && !cleaned.includes('-')) {
-      cleaned = cleaned.slice(0, 2) + '-' + cleaned.slice(2);
-    }
-
-    // Limit length
-    if (cleaned.length > 9) {
-      cleaned = cleaned.slice(0, 9);
-    }
-
-    return cleaned;
-  };
-
   const handleInputChange = (text) => {
-    const formatted = formatInputCode(text);
-    setInputCode(formatted);
+    // Only allow alphanumeric, uppercase, max 6 chars (the part after MH-)
+    const cleaned = text.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    setInputCode(cleaned);
     setLookupResult(null);
   };
 
+  // Build full code with MH- prefix for lookups
+  const getFullCode = () => `MH-${inputCode}`;
+
   const handleLookupCode = async () => {
-    if (inputCode.length < 9) {
-      showAlert('Invalid Code', 'Please enter a complete invite code (MH-XXXXXX)');
+    if (inputCode.length < 6) {
+      showAlert('Invalid Code', 'Please enter all 6 characters of the invite code');
       return;
     }
 
@@ -118,7 +103,8 @@ export default function AddFriendsScreen() {
     setIsLookingUp(true);
     setLookupResult(null);
 
-    const result = await lookupInviteCode(inputCode);
+    const fullCode = getFullCode();
+    const result = await lookupInviteCode(fullCode);
     setIsLookingUp(false);
 
     if (!result) {
@@ -133,7 +119,8 @@ export default function AddFriendsScreen() {
     if (!lookupResult) return;
 
     setIsSendingRequest(true);
-    const result = await useInviteCode(inputCode);
+    const fullCode = getFullCode();
+    const result = await useInviteCode(fullCode);
     setIsSendingRequest(false);
 
     if (result.success) {
@@ -232,15 +219,16 @@ export default function AddFriendsScreen() {
 
           <View style={styles.inputCard}>
             <View style={styles.inputContainer}>
+              <Text style={styles.codePrefix}>MH-</Text>
               <TextInput
                 style={styles.codeInput}
-                placeholder="MH-XXXXXX"
+                placeholder="XXXXXX"
                 placeholderTextColor="#C7C7CC"
                 value={inputCode}
                 onChangeText={handleInputChange}
                 autoCapitalize="characters"
                 autoCorrect={false}
-                maxLength={9}
+                maxLength={6}
                 returnKeyType="search"
                 onSubmitEditing={handleLookupCode}
               />
@@ -260,10 +248,10 @@ export default function AddFriendsScreen() {
             <TouchableOpacity
               style={[
                 styles.lookupButton,
-                inputCode.length < 9 && styles.lookupButtonDisabled
+                inputCode.length < 6 && styles.lookupButtonDisabled
               ]}
               onPress={handleLookupCode}
-              disabled={inputCode.length < 9 || isLookingUp}
+              disabled={inputCode.length < 6 || isLookingUp}
             >
               {isLookingUp ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -530,12 +518,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
   },
+  codePrefix: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#8B5A2B',
+    letterSpacing: 1,
+  },
   codeInput: {
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
     paddingVertical: 12,
-    letterSpacing: 1,
+    letterSpacing: 2,
     color: '#4A3728',
   },
   clearButton: {

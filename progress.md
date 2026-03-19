@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 38) - Ready for TestFlight
-**Version:** 1.0.3 (Build 38) - Weekly planner + settings cleanup
-**Last Updated:** Mar 19, 2026 (Session 70)
+**Status:** v1.0.3 (Build 39) - Submitted to TestFlight, issues found
+**Version:** 1.0.3 (Build 39) - Bug fixes + removed weekly setup modal
+**Last Updated:** Mar 19, 2026 (Session 71)
 
 ---
 
@@ -108,7 +108,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 38) | Mar 19, 2026 | Ready for TestFlight | Weekly planner improvements + rest day popup |
+| v1.0.3 (Build 39) | Mar 19, 2026 | Ready for TestFlight | Bug fixes, removed weekly setup modal |
+| v1.0.3 (Build 38) | Mar 19, 2026 | Superseded | Weekly planner improvements + rest day popup |
 | v1.0.3 (Build 37) | Mar 19, 2026 | Superseded | Color scheme fixes (60+ files) |
 | v1.0.2 (Build 36) | Mar 18, 2026 | Submitted | UI updates, Cloud Functions |
 | v1.0.1 | Mar 13, 2026 | Submitted | Google Sign-In fix (native SDK) |
@@ -122,6 +123,54 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 71 (Mar 19, 2026)
+**Bug Fixes + Removed Weekly Setup Modal**
+
+**Changes Made:**
+
+1. **Friend Code Input UX Fix:**
+   - "MH-" now shown as permanent prefix (not editable)
+   - Users only type the 6-character code part
+   - Placeholder shows "XXXXXX" instead of "MH-XXXXXX"
+   - Better validation for 6-character input
+
+2. **Removed Weekly Setup Modal Feature:**
+   - Deleted `ScheduleSetupModal.js` component entirely
+   - Removed "Set Up My Week" button and empty state prompt
+   - Users can still plan workouts by tapping days on the calendar
+   - WeekCalendar and AddWorkoutModal remain for manual planning
+
+**Files Changed:**
+- `src/screens/Social/AddFriendsScreen.js` - Fixed friend code input
+- `src/screens/Workout/WorkoutsScreen.js` - Removed setup modal references
+- `src/components/Schedule/index.js` - Removed ScheduleSetupModal export
+- `src/components/Schedule/ScheduleSetupModal.js` - DELETED
+- `app.config.js` - Bumped to Build 39
+
+3. **Firebase Deployments:**
+   - Deployed Firestore rules
+   - Deployed Firestore indexes (5 composite indexes for friend queries)
+   - Verified Cloud Functions already deployed (push notifications)
+
+4. **Friend System Code Audit:**
+   - Reviewed FriendService.js, FriendContext.js, Friend.js model
+   - Reviewed Firestore rules and indexes
+   - Reviewed Cloud Functions for push notifications
+   - Code is production-ready
+
+**Build:** v1.0.3 (Build 39) - Submitted to TestFlight
+
+**Issues Found During Testing:**
+- TBD (testing on TestFlight)
+
+**Next Steps (Session 72):**
+1. Test Build 39 on TestFlight
+2. Document and fix any issues found
+3. Build 40 if needed
+4. Submit to App Store when ready
+
+---
 
 ### Session 70 (Mar 19, 2026)
 **Weekly Planner Improvements + Rest Day Popup**
