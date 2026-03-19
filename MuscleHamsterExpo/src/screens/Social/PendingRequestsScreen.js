@@ -14,11 +14,11 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
+import { useAlert } from '../../context/AlertContext';
 import { getHamsterStateColor, getRelativeTimeString } from '../../models/Friend';
 import LoadingView from '../../components/LoadingView';
 
@@ -31,6 +31,7 @@ export default function PendingRequestsScreen() {
     declineFriendRequest,
     isLoading,
   } = useFriends();
+  const { showAlert } = useAlert();
 
   const [selectedTab, setSelectedTab] = useState('incoming');
   const [processingIds, setProcessingIds] = useState(new Set());
@@ -45,7 +46,7 @@ export default function PendingRequestsScreen() {
     });
 
     if (!result.success) {
-      Alert.alert('Oops', result.error || 'Could not accept request');
+      showAlert('Oops', result.error || 'Could not accept request');
     }
   };
 
@@ -59,7 +60,7 @@ export default function PendingRequestsScreen() {
     });
 
     if (!result.success) {
-      Alert.alert('Oops', result.error || 'Could not decline request');
+      showAlert('Oops', result.error || 'Could not decline request');
     }
   };
 
@@ -72,7 +73,7 @@ export default function PendingRequestsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
         <Text style={styles.title}>Friend Requests</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.doneButton}>
@@ -149,7 +150,7 @@ export default function PendingRequestsScreen() {
 function EmptyState({ icon, title, message }) {
   return (
     <View style={styles.emptyContainer}>
-      <Ionicons name={icon} size={50} color="#C7C7CC" />
+      <Ionicons name={icon} size={50} color="#8B5A2B" />
       <Text style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.emptyMessage}>{message}</Text>
     </View>
@@ -181,7 +182,7 @@ function IncomingRequestRow({ request, senderProfile, isProcessing, onAccept, on
 
       {/* Actions */}
       {isProcessing ? (
-        <ActivityIndicator size="small" color="#007AFF" />
+        <ActivityIndicator size="small" color="#8B5A2B" />
       ) : (
         <View style={styles.actions}>
           <TouchableOpacity
@@ -189,7 +190,7 @@ function IncomingRequestRow({ request, senderProfile, isProcessing, onAccept, on
             onPress={onDecline}
             accessibilityLabel="Decline request"
           >
-            <Ionicons name="close" size={18} color="#8E8E93" />
+            <Ionicons name="close" size={18} color="#8B5A2B" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.acceptButton}
@@ -209,7 +210,7 @@ function OutgoingRequestRow({ request }) {
     <View style={styles.requestRow}>
       {/* Avatar */}
       <View style={[styles.avatar, { backgroundColor: 'rgba(0, 122, 255, 0.15)' }]}>
-        <Ionicons name="person" size={22} color="#007AFF" />
+        <Ionicons name="person" size={22} color="#8B5A2B" />
       </View>
 
       {/* Info */}
@@ -230,7 +231,7 @@ function OutgoingRequestRow({ request }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   backButton: {
     padding: 8,
@@ -247,20 +248,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   doneButton: {
     padding: 8,
   },
   doneText: {
     fontSize: 17,
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontWeight: '600',
   },
   tabContainer: {
     flexDirection: 'row',
     marginHorizontal: 16,
     marginTop: 16,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: 'rgba(139, 90, 43, 0.12)',
     borderRadius: 8,
     padding: 2,
   },
@@ -280,11 +282,11 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     fontWeight: '500',
   },
   tabTextActive: {
-    color: '#000',
+    color: '#4A3728',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -312,15 +314,16 @@ const styles = StyleSheet.create({
   requestName: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   requestHamster: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   requestTime: {
     fontSize: 11,
-    color: '#C7C7CC',
+    color: '#8B5A2B',
     marginTop: 2,
   },
   actions: {
@@ -331,7 +334,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: 'rgba(139, 90, 43, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -368,10 +371,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 16,
     marginBottom: 8,
+    color: '#4A3728',
   },
   emptyMessage: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
 });

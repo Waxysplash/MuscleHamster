@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-  Alert,
   Image,
   SafeAreaView,
 } from 'react-native';
@@ -20,6 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ShopService } from '../../services/ShopService';
 import Logger from '../../services/LoggerService';
 import { useActivity } from '../../context/ActivityContext';
+import { useAlert } from '../../context/AlertContext';
 import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
 import ErrorBanner from '../../components/ErrorBanner';
@@ -27,6 +27,7 @@ import { useResponsive } from '../../utils/responsive';
 
 export default function ShopScreen({ navigation }) {
   const { totalPoints, recordShopPurchase } = useActivity();
+  const { showAlert } = useAlert();
   const { isTablet, contentMaxWidth } = useResponsive();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +73,7 @@ export default function ShopScreen({ navigation }) {
 
     const canAfford = totalPoints >= item.price;
     if (!canAfford) {
-      Alert.alert(
+      showAlert(
         'Not Enough Points',
         `You need ${item.price - totalPoints} more points to buy this item.`
       );
@@ -87,16 +88,16 @@ export default function ShopScreen({ navigation }) {
         await recordShopPurchase(item.id, item.name, result.pointsSpent);
         setOwnedItemIds((prev) => new Set([...prev, item.id]));
 
-        Alert.alert(
+        showAlert(
           '🎉 Success!',
           `You got the ${item.name}!`,
           [{ text: 'Awesome!' }]
         );
       } else {
-        Alert.alert('Oops!', result.message);
+        showAlert('Oops!', result.message);
       }
     } catch (e) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      showAlert('Error', 'Something went wrong. Please try again.');
     } finally {
       setIsPurchasing(null);
     }

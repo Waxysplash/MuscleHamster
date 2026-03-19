@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Alert,
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import FavoriteButton from '../../components/FavoriteButton';
 
@@ -25,6 +25,7 @@ const TYPE_INFO = {
 export default function CustomWorkoutDetailScreen({ route, navigation }) {
   const { workoutId } = route.params;
   const { customWorkouts, getCompletionHistory, deleteWorkout } = useCustomWorkouts();
+  const { showAlert } = useAlert();
   const [workout, setWorkout] = useState(null);
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +64,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
   };
 
   const handleDelete = () => {
-    Alert.alert(
+    showAlert(
       'Delete Workout',
       `Are you sure you want to delete "${workout.name}"? This will also delete all progress history.`,
       [

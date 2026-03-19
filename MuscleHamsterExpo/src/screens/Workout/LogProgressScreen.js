@@ -10,14 +10,15 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
 export default function LogProgressScreen({ route, navigation }) {
   const { workoutId, workoutName } = route.params;
   const { recordProgress } = useCustomWorkouts();
+  const { showAlert } = useAlert();
 
   const [sets, setSets] = useState('');
   const [reps, setReps] = useState('');
@@ -31,7 +32,7 @@ export default function LogProgressScreen({ route, navigation }) {
     // At least one metric should be filled
     const hasMetric = sets || reps || weight || duration || distance || notes;
     if (!hasMetric) {
-      Alert.alert(
+      showAlert(
         'No Data',
         'Please enter at least one metric or note for this session.',
         [{ text: 'OK' }]
@@ -53,14 +54,14 @@ export default function LogProgressScreen({ route, navigation }) {
       const result = await recordProgress(workoutId, metrics);
 
       if (result.success) {
-        Alert.alert(
+        showAlert(
           'Progress Logged!',
           `Great job! You earned ${result.pointsEarned} points.`,
           [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
       }
     } catch (e) {
-      Alert.alert('Error', 'Failed to save progress. Please try again.');
+      showAlert('Error', 'Failed to save progress. Please try again.');
     } finally {
       setIsSaving(false);
     }

@@ -3,9 +3,29 @@
  * MuscleHamster Expo
  *
  * Service for managing friend relationships, requests, streaks, nudges, and blocking
- * Ported from Phase 09: Social Features (Swift version)
+ * Uses Firebase Firestore for persistence and real-time updates
  */
 
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  Timestamp,
+  writeBatch,
+  arrayUnion,
+  increment,
+} from 'firebase/firestore';
+import { db, isFirebaseInitialized } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from './LoggerService';
 import {
@@ -29,250 +49,359 @@ import {
   isToday,
 } from '../models/Friend';
 
-// Storage keys
-const STORAGE_KEYS = {
-  RELATIONSHIPS: 'friend_relationships',
-  REQUESTS: 'friend_requests',
-  STREAKS: 'friend_streaks',
-  BLOCKED: 'blocked_users',
-  NUDGE_HISTORY: 'nudge_history',
-  PRIVACY_SETTINGS: 'privacy_settings',
+// Firestore collection names
+const COLLECTIONS = {
+  USERS: 'users',
+  FRIENDS: 'friends',
+  NUDGES: 'nudges',
+  INVITES: 'invites',
 };
 
-// Mock user profiles for demo
-const MOCK_PROFILES = [
-  {
-    id: 'friend1',
-    email: 'alex@example.com',
-    hamsterName: 'Nutkin',
-    currentStreak: 12,
-    longestStreak: 24,
-    totalWorkoutsCompleted: 87,
-    hamsterState: HamsterState.HAPPY,
-    growthStage: GrowthStage.ADULT,
-  },
-  {
-    id: 'friend2',
-    email: 'jordan@example.com',
-    hamsterName: 'Whiskers',
-    currentStreak: 5,
-    longestStreak: 18,
-    totalWorkoutsCompleted: 45,
-    hamsterState: HamsterState.EXCITED,
-    growthStage: GrowthStage.TEEN,
-  },
-  {
-    id: 'friend3',
-    email: 'sam@example.com',
-    hamsterName: 'Peanut',
-    currentStreak: 0,
-    longestStreak: 7,
-    totalWorkoutsCompleted: 23,
-    hamsterState: HamsterState.CHILLIN,
-    growthStage: GrowthStage.BABY,
-  },
-  {
-    id: 'friend4',
-    email: 'taylor@example.com',
-    hamsterName: 'Cheeks',
-    currentStreak: 30,
-    longestStreak: 45,
-    totalWorkoutsCompleted: 156,
-    hamsterState: HamsterState.PROUD,
-    growthStage: GrowthStage.BUFF,
-  },
-  {
-    id: 'friend5',
-    email: 'casey@example.com',
-    hamsterName: 'Nibbles',
-    currentStreak: 3,
-    longestStreak: 10,
-    totalWorkoutsCompleted: 34,
-    hamsterState: HamsterState.HUNGRY,
-    growthStage: GrowthStage.TEEN,
-  },
-];
+// Local cache keys for offline support
+const CACHE_KEYS = {
+  FRIENDS: 'friends_cache',
+  NUDGE_HISTORY: 'nudge_history_cache',
+};
+
+/**
+ * Generate a unique invite code (MH-XXXXXX format)
+ */
+export const generateInviteCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars (0, O, 1, I)
+  let code = 'MH-';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
+
+/**
+ * Generate document ID for a friend relationship (sorted alphabetically)
+ */
+const getFriendDocId = (userId1, userId2) => {
+  const sorted = [userId1, userId2].sort();
+  return `${sorted[0]}_${sorted[1]}`;
+};
 
 class FriendService {
   constructor() {
-    this.relationships = [];
-    this.requests = [];
-    this.streaks = [];
-    this.blockedUsers = [];
-    this.nudgeHistory = {};
-    this.privacySettings = {};
+    this.unsubscribers = [];
+    this.friendsCache = [];
+    this.nudgeHistoryCache = {};
     this.initialized = false;
+    this.currentUserId = null;
   }
 
-  async initialize() {
-    if (this.initialized) return;
+  /**
+   * Initialize the service for a user
+   */
+  async initialize(userId) {
+    if (!userId) {
+      this.cleanup();
+      return;
+    }
 
+    if (this.initialized && this.currentUserId === userId) {
+      return;
+    }
+
+    this.currentUserId = userId;
+    this.initialized = true;
+
+    // Load cached data for offline support
+    await this._loadCache();
+  }
+
+  /**
+   * Cleanup subscriptions when user logs out
+   */
+  cleanup() {
+    this.unsubscribers.forEach(unsub => unsub());
+    this.unsubscribers = [];
+    this.friendsCache = [];
+    this.nudgeHistoryCache = {};
+    this.initialized = false;
+    this.currentUserId = null;
+  }
+
+  /**
+   * Load cached data from AsyncStorage
+   */
+  async _loadCache() {
     try {
-      // Load persisted data
-      const [relationships, requests, streaks, blocked, nudgeHistory, privacySettings] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.RELATIONSHIPS),
-        AsyncStorage.getItem(STORAGE_KEYS.REQUESTS),
-        AsyncStorage.getItem(STORAGE_KEYS.STREAKS),
-        AsyncStorage.getItem(STORAGE_KEYS.BLOCKED),
-        AsyncStorage.getItem(STORAGE_KEYS.NUDGE_HISTORY),
-        AsyncStorage.getItem(STORAGE_KEYS.PRIVACY_SETTINGS),
+      const [friendsJson, nudgeJson] = await Promise.all([
+        AsyncStorage.getItem(`${CACHE_KEYS.FRIENDS}_${this.currentUserId}`),
+        AsyncStorage.getItem(`${CACHE_KEYS.NUDGE_HISTORY}_${this.currentUserId}`),
       ]);
-
-      this.relationships = relationships ? JSON.parse(relationships) : this._createMockRelationships();
-      this.requests = requests ? JSON.parse(requests) : this._createMockRequests();
-      this.streaks = streaks ? JSON.parse(streaks) : this._createMockStreaks();
-      this.blockedUsers = blocked ? JSON.parse(blocked) : [];
-      this.nudgeHistory = nudgeHistory ? JSON.parse(nudgeHistory) : {};
-      this.privacySettings = privacySettings ? JSON.parse(privacySettings) : {};
-
-      this.initialized = true;
+      this.friendsCache = friendsJson ? JSON.parse(friendsJson) : [];
+      this.nudgeHistoryCache = nudgeJson ? JSON.parse(nudgeJson) : {};
     } catch (error) {
-      Logger.error('Error initializing FriendService:', error);
-      // Initialize with mock data on error
-      this.relationships = this._createMockRelationships();
-      this.requests = this._createMockRequests();
-      this.streaks = this._createMockStreaks();
-      this.initialized = true;
+      Logger.error('Error loading friends cache:', error);
     }
   }
 
-  async _persist() {
+  /**
+   * Save data to cache
+   */
+  async _saveCache() {
     try {
       await Promise.all([
-        AsyncStorage.setItem(STORAGE_KEYS.RELATIONSHIPS, JSON.stringify(this.relationships)),
-        AsyncStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(this.requests)),
-        AsyncStorage.setItem(STORAGE_KEYS.STREAKS, JSON.stringify(this.streaks)),
-        AsyncStorage.setItem(STORAGE_KEYS.BLOCKED, JSON.stringify(this.blockedUsers)),
-        AsyncStorage.setItem(STORAGE_KEYS.NUDGE_HISTORY, JSON.stringify(this.nudgeHistory)),
-        AsyncStorage.setItem(STORAGE_KEYS.PRIVACY_SETTINGS, JSON.stringify(this.privacySettings)),
+        AsyncStorage.setItem(
+          `${CACHE_KEYS.FRIENDS}_${this.currentUserId}`,
+          JSON.stringify(this.friendsCache)
+        ),
+        AsyncStorage.setItem(
+          `${CACHE_KEYS.NUDGE_HISTORY}_${this.currentUserId}`,
+          JSON.stringify(this.nudgeHistoryCache)
+        ),
       ]);
     } catch (error) {
-      Logger.error('Error persisting FriendService data:', error);
+      Logger.error('Error saving friends cache:', error);
     }
   }
 
-  _createMockRelationships() {
-    return [
-      {
-        id: 'rel1',
-        userId1: 'currentUser',
-        userId2: 'friend1',
-        status: FriendRelationshipStatus.ACCEPTED,
-        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        acceptedAt: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString(),
-        friendStreakId: 'streak1',
-      },
-      {
-        id: 'rel2',
-        userId1: 'currentUser',
-        userId2: 'friend2',
-        status: FriendRelationshipStatus.ACCEPTED,
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-        acceptedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-        friendStreakId: 'streak2',
-      },
-      {
-        id: 'rel3',
-        userId1: 'currentUser',
-        userId2: 'friend4',
-        status: FriendRelationshipStatus.ACCEPTED,
-        createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        acceptedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        friendStreakId: 'streak3',
-      },
-    ];
+  // ============================================
+  // INVITE CODE SYSTEM
+  // ============================================
+
+  /**
+   * Create an invite code for a user
+   */
+  async createInviteCode(userId, hamsterName) {
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
+
+    const inviteCode = generateInviteCode();
+
+    // Store in invites collection
+    const inviteRef = doc(db, COLLECTIONS.INVITES, inviteCode);
+    await setDoc(inviteRef, {
+      ownerId: userId,
+      ownerHamsterName: hamsterName || 'A hamster friend',
+      createdAt: serverTimestamp(),
+      usedBy: [],
+      active: true,
+    });
+
+    // Update user document with invite code
+    const userRef = doc(db, COLLECTIONS.USERS, userId);
+    await updateDoc(userRef, {
+      inviteCode: inviteCode,
+    });
+
+    return inviteCode;
   }
 
-  _createMockRequests() {
-    return [
-      {
-        id: 'req1',
-        senderId: 'friend3',
-        receiverId: 'currentUser',
-        status: FriendRequestStatus.PENDING,
-        sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        respondedAt: null,
-      },
-      {
-        id: 'req2',
-        senderId: 'friend5',
-        receiverId: 'currentUser',
-        status: FriendRequestStatus.PENDING,
-        sentAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        respondedAt: null,
-      },
-    ];
+  /**
+   * Get a user's invite code (create if doesn't exist)
+   */
+  async getOrCreateInviteCode(userId, hamsterName) {
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
+
+    // First check if user already has an invite code
+    const userRef = doc(db, COLLECTIONS.USERS, userId);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists() && userDoc.data().inviteCode) {
+      return userDoc.data().inviteCode;
+    }
+
+    // Create new invite code
+    return this.createInviteCode(userId, hamsterName);
   }
 
-  _createMockStreaks() {
-    return [
-      {
-        id: 'streak1',
-        userId1: 'currentUser',
-        userId2: 'friend1',
-        currentStreak: 7,
-        longestStreak: 14,
-        lastCheckInUser1: new Date().toISOString(),
-        lastCheckInUser2: new Date().toISOString(),
-        status: FriendStreakStatus.ACTIVE,
-        previousBrokenStreak: 0,
-        createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-      },
-      {
-        id: 'streak2',
-        userId1: 'currentUser',
-        userId2: 'friend2',
-        currentStreak: 3,
-        longestStreak: 5,
-        lastCheckInUser1: new Date().toISOString(),
-        lastCheckInUser2: null,
-        status: FriendStreakStatus.WAITING,
-        previousBrokenStreak: 0,
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-      },
-      {
-        id: 'streak3',
-        userId1: 'currentUser',
-        userId2: 'friend4',
-        currentStreak: 21,
-        longestStreak: 21,
-        lastCheckInUser1: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
-        lastCheckInUser2: new Date().toISOString(),
-        status: FriendStreakStatus.AT_RISK,
-        previousBrokenStreak: 0,
-        createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-      },
-    ];
+  /**
+   * Look up an invite code and get the owner's info
+   */
+  async lookupInviteCode(code) {
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
+
+    const normalizedCode = code.toUpperCase().trim();
+    const inviteRef = doc(db, COLLECTIONS.INVITES, normalizedCode);
+    const inviteDoc = await getDoc(inviteRef);
+
+    if (!inviteDoc.exists() || !inviteDoc.data().active) {
+      return null;
+    }
+
+    const inviteData = inviteDoc.data();
+
+    // Get owner's profile
+    const ownerRef = doc(db, COLLECTIONS.USERS, inviteData.ownerId);
+    const ownerDoc = await getDoc(ownerRef);
+
+    if (!ownerDoc.exists()) {
+      return null;
+    }
+
+    const ownerData = ownerDoc.data();
+    return {
+      inviteCode: normalizedCode,
+      ownerId: inviteData.ownerId,
+      ownerHamsterName: ownerData.hamsterName || inviteData.ownerHamsterName,
+      ownerProfile: createFriendProfile({
+        id: inviteData.ownerId,
+        email: ownerData.email || '',
+        hamsterName: ownerData.hamsterName,
+        currentStreak: ownerData.currentStreak || 0,
+        longestStreak: ownerData.longestStreak || 0,
+        hamsterState: ownerData.hamsterState || HamsterState.CHILLIN,
+        growthStage: ownerData.growthStage || GrowthStage.BABY,
+      }),
+    };
   }
 
-  // MARK: - Friends List
+  /**
+   * Use an invite code to send a friend request
+   */
+  async useInviteCode(code, currentUserId) {
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
+    const inviteInfo = await this.lookupInviteCode(code);
+    if (!inviteInfo) {
+      throw new Error('Invalid invite code');
+    }
+
+    if (inviteInfo.ownerId === currentUserId) {
+      throw new Error("You can't add yourself as a friend!");
+    }
+
+    // Check if already friends or has pending request
+    const friendDocId = getFriendDocId(currentUserId, inviteInfo.ownerId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
+
+    try {
+      const friendDoc = await getDoc(friendRef);
+
+      if (friendDoc.exists()) {
+        const data = friendDoc.data();
+        if (data.status === FriendRelationshipStatus.ACCEPTED) {
+          throw new Error('You are already friends!');
+        }
+        if (data.status === FriendRelationshipStatus.PENDING) {
+          throw new Error('Friend request already pending');
+        }
+        if (data.status === FriendRelationshipStatus.BLOCKED) {
+          throw new Error('Cannot send request to this user');
+        }
+      }
+
+      // Record that this code was used
+      const inviteRef = doc(db, COLLECTIONS.INVITES, code.toUpperCase().trim());
+      await updateDoc(inviteRef, {
+        usedBy: arrayUnion(currentUserId),
+      });
+
+      // Send friend request
+      return this.sendFriendRequest(currentUserId, inviteInfo.ownerId);
+    } catch (error) {
+      // Handle Firebase permission errors with a friendly message
+      if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+        Logger.error('Friend request permission error:', error);
+        throw new Error('Unable to send friend request. Please try signing out and back in.');
+      }
+      throw error;
+    }
+  }
+
+  // ============================================
+  // FRIENDS LIST
+  // ============================================
+
+  /**
+   * Get all friends for a user
+   */
   async getFriends(userId) {
-    await this.initialize();
+    await this.initialize(userId);
 
-    const friendRelationships = this.relationships.filter(
-      r => r.status === FriendRelationshipStatus.ACCEPTED &&
-        (r.userId1 === userId || r.userId2 === userId)
-    );
+    if (!isFirebaseInitialized() || !db) {
+      return this.friendsCache;
+    }
 
-    return friendRelationships.map(rel => {
-      const friendId = rel.userId1 === userId ? rel.userId2 : rel.userId1;
-      const profile = MOCK_PROFILES.find(p => p.id === friendId);
-      const streak = this.streaks.find(s =>
-        (s.userId1 === userId && s.userId2 === friendId) ||
-        (s.userId1 === friendId && s.userId2 === userId)
+    try {
+      // Query friends collection where user is in the users array
+      const friendsQuery = query(
+        collection(db, COLLECTIONS.FRIENDS),
+        where('users', 'array-contains', userId),
+        where('status', '==', FriendRelationshipStatus.ACCEPTED)
       );
 
-      return createFriendProfile({
-        ...profile,
-        friendStreak: streak ? createFriendStreak(streak) : null,
-      });
-    });
+      const snapshot = await getDocs(friendsQuery);
+      const friends = [];
+
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        const friendId = data.users.find(id => id !== userId);
+
+        // Get friend's profile
+        const friendProfile = await this._getFriendProfile(friendId);
+        if (friendProfile) {
+          friends.push(createFriendProfile({
+            ...friendProfile,
+            friendStreak: data.friendStreak ? createFriendStreak({
+              id: docSnap.id,
+              userId1: userId,
+              userId2: friendId,
+              currentStreak: data.friendStreak.currentStreak || 0,
+              longestStreak: data.friendStreak.longestStreak || 0,
+              lastCheckInUser1: data.friendStreak.lastCheckInUser1?.toDate?.() || null,
+              lastCheckInUser2: data.friendStreak.lastCheckInUser2?.toDate?.() || null,
+              status: data.friendStreak.status || FriendStreakStatus.NONE,
+            }) : null,
+          }));
+        }
+      }
+
+      // Update cache
+      this.friendsCache = friends;
+      this._saveCache();
+
+      return friends;
+    } catch (error) {
+      Logger.error('Error fetching friends:', error);
+      return this.friendsCache;
+    }
   }
 
+  /**
+   * Get friend profile by ID
+   */
+  async _getFriendProfile(userId) {
+    try {
+      const userRef = doc(db, COLLECTIONS.USERS, userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        return null;
+      }
+
+      const data = userDoc.data();
+      return {
+        id: userId,
+        email: data.email || '',
+        hamsterName: data.hamsterName,
+        currentStreak: data.currentStreak || 0,
+        longestStreak: data.longestStreak || 0,
+        totalWorkoutsCompleted: data.totalWorkoutsCompleted || 0,
+        hamsterState: data.hamsterState || HamsterState.CHILLIN,
+        growthStage: data.growthStage || GrowthStage.BABY,
+      };
+    } catch (error) {
+      Logger.error('Error fetching friend profile:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get friends with their streak data
+   */
   async getFriendsWithStreaks(userId) {
     const friends = await this.getFriends(userId);
     return friends.map(friend => ({
@@ -281,317 +410,488 @@ class FriendService {
     }));
   }
 
-  // MARK: - Friend Requests
+  // ============================================
+  // FRIEND REQUESTS
+  // ============================================
 
+  /**
+   * Get pending friend requests for user
+   */
   async getPendingRequests(userId) {
-    await this.initialize();
+    await this.initialize(userId);
 
-    return this.requests
-      .filter(r => r.receiverId === userId && r.status === FriendRequestStatus.PENDING)
-      .map(r => {
-        const sender = MOCK_PROFILES.find(p => p.id === r.senderId);
-        return {
-          request: createFriendRequest(r),
-          senderProfile: sender ? createFriendProfile(sender) : null,
-        };
-      });
+    if (!isFirebaseInitialized() || !db) {
+      return [];
+    }
+
+    try {
+      // Query friends collection for pending requests where user is the receiver
+      const requestsQuery = query(
+        collection(db, COLLECTIONS.FRIENDS),
+        where('users', 'array-contains', userId),
+        where('status', '==', FriendRelationshipStatus.PENDING),
+        where('initiatedBy', '!=', userId)
+      );
+
+      const snapshot = await getDocs(requestsQuery);
+      const requests = [];
+
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        // Double check this wasn't initiated by user (Firestore limitation)
+        if (data.initiatedBy === userId) continue;
+
+        const senderId = data.initiatedBy;
+        const senderProfile = await this._getFriendProfile(senderId);
+
+        requests.push({
+          request: createFriendRequest({
+            id: docSnap.id,
+            senderId: senderId,
+            receiverId: userId,
+            status: FriendRequestStatus.PENDING,
+            sentAt: data.createdAt?.toDate?.() || new Date(),
+          }),
+          senderProfile: senderProfile ? createFriendProfile(senderProfile) : null,
+        });
+      }
+
+      return requests;
+    } catch (error) {
+      Logger.error('Error fetching pending requests:', error);
+      return [];
+    }
   }
 
+  /**
+   * Get sent friend requests
+   */
   async getSentRequests(userId) {
-    await this.initialize();
+    await this.initialize(userId);
 
-    return this.requests
-      .filter(r => r.senderId === userId && r.status === FriendRequestStatus.PENDING)
-      .map(r => createFriendRequest(r));
+    if (!isFirebaseInitialized() || !db) {
+      return [];
+    }
+
+    try {
+      const requestsQuery = query(
+        collection(db, COLLECTIONS.FRIENDS),
+        where('initiatedBy', '==', userId),
+        where('status', '==', FriendRelationshipStatus.PENDING)
+      );
+
+      const snapshot = await getDocs(requestsQuery);
+      return snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        const receiverId = data.users.find(id => id !== userId);
+        return createFriendRequest({
+          id: docSnap.id,
+          senderId: userId,
+          receiverId: receiverId,
+          status: FriendRequestStatus.PENDING,
+          sentAt: data.createdAt?.toDate?.() || new Date(),
+        });
+      });
+    } catch (error) {
+      Logger.error('Error fetching sent requests:', error);
+      return [];
+    }
   }
 
+  /**
+   * Send a friend request
+   */
   async sendFriendRequest(senderId, receiverId) {
-    await this.initialize();
-
-    // Check if already friends
-    const existingRelationship = this.relationships.find(
-      r => (r.userId1 === senderId && r.userId2 === receiverId) ||
-        (r.userId1 === receiverId && r.userId2 === senderId)
-    );
-
-    if (existingRelationship) {
-      throw new Error('Already friends or request pending');
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
     }
 
-    // Check if blocked
-    const isBlocked = this.blockedUsers.some(
-      b => (b.blockerId === senderId && b.blockedId === receiverId) ||
-        (b.blockerId === receiverId && b.blockedId === senderId)
-    );
+    const friendDocId = getFriendDocId(senderId, receiverId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
-    if (isBlocked) {
-      throw new Error('Cannot send request to this user');
+    try {
+      // Check for existing relationship
+      const existingDoc = await getDoc(friendRef);
+      if (existingDoc.exists()) {
+        const data = existingDoc.data();
+        if (data.status === FriendRelationshipStatus.ACCEPTED) {
+          throw new Error('Already friends');
+        }
+        if (data.status === FriendRelationshipStatus.PENDING) {
+          throw new Error('Request already pending');
+        }
+        if (data.status === FriendRelationshipStatus.BLOCKED) {
+          throw new Error('Cannot send request to this user');
+        }
+      }
+
+      // Create friend request
+      await setDoc(friendRef, {
+        users: [senderId, receiverId].sort(),
+        status: FriendRelationshipStatus.PENDING,
+        initiatedBy: senderId,
+        createdAt: serverTimestamp(),
+        acceptedAt: null,
+        friendStreak: {
+          currentStreak: 0,
+          longestStreak: 0,
+          lastBothActiveDate: null,
+        },
+      });
+
+      return createFriendRequest({
+        id: friendDocId,
+        senderId,
+        receiverId,
+        status: FriendRequestStatus.PENDING,
+        sentAt: new Date(),
+      });
+    } catch (error) {
+      // Handle Firebase permission errors with a friendly message
+      if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+        Logger.error('Send friend request permission error:', error);
+        throw new Error('Unable to send friend request. Please try signing out and back in.');
+      }
+      throw error;
     }
-
-    const request = {
-      id: generateUUID(),
-      senderId,
-      receiverId,
-      status: FriendRequestStatus.PENDING,
-      sentAt: new Date().toISOString(),
-      respondedAt: null,
-    };
-
-    this.requests.push(request);
-    await this._persist();
-
-    return createFriendRequest(request);
   }
 
+  /**
+   * Accept a friend request
+   */
   async acceptFriendRequest(requestId, userId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    const requestIndex = this.requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) {
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, requestId);
+    const friendDoc = await getDoc(friendRef);
+
+    if (!friendDoc.exists()) {
       throw new Error('Request not found');
     }
 
-    const request = this.requests[requestIndex];
-    if (request.receiverId !== userId) {
+    const data = friendDoc.data();
+
+    // Verify user is the receiver (not the initiator)
+    if (data.initiatedBy === userId) {
+      throw new Error('Cannot accept your own request');
+    }
+    if (!data.users.includes(userId)) {
       throw new Error('Not authorized to accept this request');
     }
 
-    // Update request
-    this.requests[requestIndex] = {
-      ...request,
-      status: FriendRequestStatus.ACCEPTED,
-      respondedAt: new Date().toISOString(),
-    };
-
-    // Create relationship
-    const relationship = {
-      id: generateUUID(),
-      userId1: request.senderId,
-      userId2: request.receiverId,
+    // Update to accepted
+    await updateDoc(friendRef, {
       status: FriendRelationshipStatus.ACCEPTED,
-      createdAt: request.sentAt,
-      acceptedAt: new Date().toISOString(),
-      friendStreakId: null,
-    };
+      acceptedAt: serverTimestamp(),
+    });
 
-    this.relationships.push(relationship);
+    // Update friend counts for both users
+    const batch = writeBatch(db);
+    data.users.forEach(uid => {
+      const userRef = doc(db, COLLECTIONS.USERS, uid);
+      batch.update(userRef, {
+        friendCount: increment(1),
+      });
+    });
+    await batch.commit();
 
-    // Create streak
-    const streak = {
-      id: generateUUID(),
-      userId1: request.senderId,
-      userId2: request.receiverId,
-      currentStreak: 0,
-      longestStreak: 0,
-      lastCheckInUser1: null,
-      lastCheckInUser2: null,
-      status: FriendStreakStatus.NONE,
-      previousBrokenStreak: 0,
-      createdAt: new Date().toISOString(),
-      lastUpdatedAt: new Date().toISOString(),
-    };
-
-    this.streaks.push(streak);
-
-    // Update relationship with streak ID
-    const relIndex = this.relationships.length - 1;
-    this.relationships[relIndex].friendStreakId = streak.id;
-
-    await this._persist();
-
-    return createFriendRelationship(relationship);
+    return createFriendRelationship({
+      id: requestId,
+      userId1: data.users[0],
+      userId2: data.users[1],
+      status: FriendRelationshipStatus.ACCEPTED,
+      acceptedAt: new Date(),
+    });
   }
 
+  /**
+   * Decline a friend request
+   */
   async declineFriendRequest(requestId, userId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    const requestIndex = this.requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) {
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, requestId);
+    const friendDoc = await getDoc(friendRef);
+
+    if (!friendDoc.exists()) {
       throw new Error('Request not found');
     }
 
-    const request = this.requests[requestIndex];
-    if (request.receiverId !== userId) {
+    const data = friendDoc.data();
+    if (data.initiatedBy === userId || !data.users.includes(userId)) {
       throw new Error('Not authorized to decline this request');
     }
 
-    this.requests[requestIndex] = {
-      ...request,
-      status: FriendRequestStatus.DECLINED,
-      respondedAt: new Date().toISOString(),
-    };
-
-    await this._persist();
+    // Delete the request
+    await deleteDoc(friendRef);
   }
 
-  // MARK: - Remove Friend
+  // ============================================
+  // REMOVE & BLOCK
+  // ============================================
 
+  /**
+   * Remove a friend
+   */
   async removeFriend(userId, friendId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    // Remove relationship
-    this.relationships = this.relationships.filter(
-      r => !((r.userId1 === userId && r.userId2 === friendId) ||
-        (r.userId1 === friendId && r.userId2 === userId))
-    );
+    const friendDocId = getFriendDocId(userId, friendId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
-    // Remove streak
-    this.streaks = this.streaks.filter(
-      s => !((s.userId1 === userId && s.userId2 === friendId) ||
-        (s.userId1 === friendId && s.userId2 === userId))
-    );
+    await deleteDoc(friendRef);
 
-    await this._persist();
+    // Decrement friend counts
+    const batch = writeBatch(db);
+    [userId, friendId].forEach(uid => {
+      const userRef = doc(db, COLLECTIONS.USERS, uid);
+      batch.update(userRef, {
+        friendCount: increment(-1),
+      });
+    });
+    await batch.commit();
   }
 
-  // MARK: - Blocking
-
+  /**
+   * Block a user
+   */
   async blockUser(blockerId, blockedId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    // Remove any existing friendship
-    await this.removeFriend(blockerId, blockedId);
+    const friendDocId = getFriendDocId(blockerId, blockedId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
-    // Remove any pending requests
-    this.requests = this.requests.filter(
-      r => !((r.senderId === blockerId && r.receiverId === blockedId) ||
-        (r.senderId === blockedId && r.receiverId === blockerId))
-    );
+    // Check for existing relationship
+    const existingDoc = await getDoc(friendRef);
+    const wasFriends = existingDoc.exists() &&
+      existingDoc.data().status === FriendRelationshipStatus.ACCEPTED;
 
-    // Add block
-    const block = {
-      id: generateUUID(),
+    // Set status to blocked
+    await setDoc(friendRef, {
+      users: [blockerId, blockedId].sort(),
+      status: FriendRelationshipStatus.BLOCKED,
+      blockedBy: blockerId,
+      blockedAt: serverTimestamp(),
+    }, { merge: false });
+
+    // If they were friends, decrement counts
+    if (wasFriends) {
+      const batch = writeBatch(db);
+      [blockerId, blockedId].forEach(uid => {
+        const userRef = doc(db, COLLECTIONS.USERS, uid);
+        batch.update(userRef, {
+          friendCount: increment(-1),
+        });
+      });
+      await batch.commit();
+    }
+
+    return createBlockedUser({
+      id: friendDocId,
       blockerId,
       blockedId,
-      blockedAt: new Date().toISOString(),
-    };
-
-    this.blockedUsers.push(block);
-    await this._persist();
-
-    return createBlockedUser(block);
+      blockedAt: new Date(),
+    });
   }
 
+  /**
+   * Unblock a user
+   */
   async unblockUser(blockerId, blockedId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    this.blockedUsers = this.blockedUsers.filter(
-      b => !(b.blockerId === blockerId && b.blockedId === blockedId)
-    );
+    const friendDocId = getFriendDocId(blockerId, blockedId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
-    await this._persist();
+    await deleteDoc(friendRef);
   }
 
+  /**
+   * Get blocked users
+   */
   async getBlockedUsers(userId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      return [];
+    }
 
-    return this.blockedUsers
-      .filter(b => b.blockerId === userId)
-      .map(b => createBlockedUser(b));
+    try {
+      const blockedQuery = query(
+        collection(db, COLLECTIONS.FRIENDS),
+        where('blockedBy', '==', userId),
+        where('status', '==', FriendRelationshipStatus.BLOCKED)
+      );
+
+      const snapshot = await getDocs(blockedQuery);
+      return snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        const blockedId = data.users.find(id => id !== userId);
+        return createBlockedUser({
+          id: docSnap.id,
+          blockerId: userId,
+          blockedId,
+          blockedAt: data.blockedAt?.toDate?.() || new Date(),
+        });
+      });
+    } catch (error) {
+      Logger.error('Error fetching blocked users:', error);
+      return [];
+    }
   }
 
+  /**
+   * Get blocked users with profiles
+   */
   async getBlockedUsersWithProfiles(userId) {
-    await this.initialize();
+    const blocked = await this.getBlockedUsers(userId);
+    const result = [];
 
-    const blocked = this.blockedUsers.filter(b => b.blockerId === userId);
-
-    return blocked.map(b => {
-      const profile = MOCK_PROFILES.find(p => p.id === b.blockedId);
-      return {
-        blockedUser: createBlockedUser(b),
+    for (const block of blocked) {
+      const profile = await this._getFriendProfile(block.blockedId);
+      result.push({
+        blockedUser: block,
         profile: profile ? createFriendProfile(profile) : null,
-      };
-    });
+      });
+    }
+
+    return result;
   }
 
-  // MARK: - Streaks
+  // ============================================
+  // STREAKS
+  // ============================================
 
+  /**
+   * Get streak with a friend
+   */
   async getStreak(userId, friendId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      return null;
+    }
 
-    const streak = this.streaks.find(
-      s => (s.userId1 === userId && s.userId2 === friendId) ||
-        (s.userId1 === friendId && s.userId2 === userId)
-    );
+    const friendDocId = getFriendDocId(userId, friendId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
+    const friendDoc = await getDoc(friendRef);
 
-    return streak ? createFriendStreak(streak) : null;
-  }
+    if (!friendDoc.exists()) {
+      return null;
+    }
 
-  async recordCheckIn(userId) {
-    await this.initialize();
+    const data = friendDoc.data();
+    if (!data.friendStreak) {
+      return null;
+    }
 
-    const now = new Date();
-
-    // Update all streaks involving this user
-    this.streaks = this.streaks.map(streak => {
-      if (streak.userId1 === userId) {
-        const updated = { ...streak, lastCheckInUser1: now.toISOString(), lastUpdatedAt: now.toISOString() };
-        return this._updateStreakStatus(updated);
-      } else if (streak.userId2 === userId) {
-        const updated = { ...streak, lastCheckInUser2: now.toISOString(), lastUpdatedAt: now.toISOString() };
-        return this._updateStreakStatus(updated);
-      }
-      return streak;
+    return createFriendStreak({
+      id: friendDocId,
+      userId1: userId,
+      userId2: friendId,
+      currentStreak: data.friendStreak.currentStreak || 0,
+      longestStreak: data.friendStreak.longestStreak || 0,
+      status: data.friendStreak.status || FriendStreakStatus.NONE,
     });
-
-    await this._persist();
   }
 
-  _updateStreakStatus(streak) {
-    const now = new Date();
-    const check1 = streak.lastCheckInUser1 ? new Date(streak.lastCheckInUser1) : null;
-    const check2 = streak.lastCheckInUser2 ? new Date(streak.lastCheckInUser2) : null;
-
-    const user1Today = check1 && isToday(check1);
-    const user2Today = check2 && isToday(check2);
-
-    if (user1Today && user2Today) {
-      // Both checked in today
-      return {
-        ...streak,
-        currentStreak: streak.currentStreak + 1,
-        longestStreak: Math.max(streak.longestStreak, streak.currentStreak + 1),
-        status: FriendStreakStatus.ACTIVE,
-      };
-    } else if (user1Today || user2Today) {
-      // One checked in, waiting for other
-      return {
-        ...streak,
-        status: FriendStreakStatus.WAITING,
-      };
+  /**
+   * Record a check-in (updates all friend streaks)
+   */
+  async recordCheckIn(userId) {
+    if (!isFirebaseInitialized() || !db) {
+      return;
     }
 
-    return streak;
-  }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  async restoreStreak(userId, friendId, option) {
-    await this.initialize();
-
-    const streakIndex = this.streaks.findIndex(
-      s => (s.userId1 === userId && s.userId2 === friendId) ||
-        (s.userId1 === friendId && s.userId2 === userId)
+    // Get all accepted friends
+    const friendsQuery = query(
+      collection(db, COLLECTIONS.FRIENDS),
+      where('users', 'array-contains', userId),
+      where('status', '==', FriendRelationshipStatus.ACCEPTED)
     );
 
-    if (streakIndex === -1) {
-      throw new Error('Streak not found');
+    const snapshot = await getDocs(friendsQuery);
+
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data();
+      const friendId = data.users.find(id => id !== userId);
+      const friendRef = doc(db, COLLECTIONS.FRIENDS, docSnap.id);
+
+      // Get current friend streak data
+      const streakData = data.friendStreak || {
+        currentStreak: 0,
+        longestStreak: 0,
+        lastBothActiveDate: null,
+      };
+
+      // Determine which user position this user is
+      const isUser1 = data.users[0] === userId;
+      const lastCheckInField = isUser1 ? 'lastCheckInUser1' : 'lastCheckInUser2';
+      const otherCheckInField = isUser1 ? 'lastCheckInUser2' : 'lastCheckInUser1';
+
+      // Check if friend also checked in today
+      const friendLastCheckIn = streakData[otherCheckInField]?.toDate?.();
+      const friendCheckedInToday = friendLastCheckIn && isToday(friendLastCheckIn);
+
+      let newStreak = streakData.currentStreak;
+      let newStatus = FriendStreakStatus.WAITING;
+
+      if (friendCheckedInToday) {
+        // Both checked in today - increment streak
+        newStreak = streakData.currentStreak + 1;
+        newStatus = FriendStreakStatus.ACTIVE;
+      }
+
+      // Update the friend document
+      await updateDoc(friendRef, {
+        [`friendStreak.${lastCheckInField}`]: serverTimestamp(),
+        'friendStreak.currentStreak': newStreak,
+        'friendStreak.longestStreak': Math.max(streakData.longestStreak, newStreak),
+        'friendStreak.status': newStatus,
+        'friendStreak.lastBothActiveDate': friendCheckedInToday ? serverTimestamp() : streakData.lastBothActiveDate,
+      });
+    }
+  }
+
+  /**
+   * Restore a broken streak
+   */
+  async restoreStreak(userId, friendId, option) {
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
     }
 
-    const streak = this.streaks[streakIndex];
+    const friendDocId = getFriendDocId(userId, friendId);
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
+    const friendDoc = await getDoc(friendRef);
+
+    if (!friendDoc.exists()) {
+      throw new Error('Friendship not found');
+    }
+
+    const data = friendDoc.data();
+    const streakData = data.friendStreak || {};
+    const previousStreak = streakData.previousBrokenStreak || 0;
     const cost = option === 'forBoth' ? 300 : 150;
 
-    // Restore the streak
-    this.streaks[streakIndex] = {
-      ...streak,
-      currentStreak: streak.previousBrokenStreak,
-      status: option === 'forBoth' ? FriendStreakStatus.ACTIVE : FriendStreakStatus.WAITING,
-      lastUpdatedAt: new Date().toISOString(),
-    };
-
-    await this._persist();
+    await updateDoc(friendRef, {
+      'friendStreak.currentStreak': previousStreak,
+      'friendStreak.status': option === 'forBoth' ? FriendStreakStatus.ACTIVE : FriendStreakStatus.WAITING,
+      'friendStreak.previousBrokenStreak': 0,
+    });
 
     return {
       success: true,
-      restoredStreak: streak.previousBrokenStreak,
+      restoredStreak: previousStreak,
       option,
       pointsSpent: cost,
       message: 'Streak restored!',
@@ -599,39 +899,38 @@ class FriendService {
     };
   }
 
-  // MARK: - Nudges
+  // ============================================
+  // NUDGES
+  // ============================================
 
+  /**
+   * Check if user can send a nudge
+   */
   async getNudgeEligibility(senderId, recipientId, senderCheckedInToday) {
-    await this.initialize();
-
     // Check if friends
-    const areFriends = this.relationships.some(
-      r => r.status === FriendRelationshipStatus.ACCEPTED &&
-        ((r.userId1 === senderId && r.userId2 === recipientId) ||
-          (r.userId1 === recipientId && r.userId2 === senderId))
-    );
+    const friendDocId = getFriendDocId(senderId, recipientId);
 
-    if (!areFriends) {
+    if (!isFirebaseInitialized() || !db) {
       return { eligibility: NudgeEligibility.NOT_FRIENDS };
     }
 
-    // Check if blocked
-    const isBlocked = this.blockedUsers.some(
-      b => (b.blockerId === senderId && b.blockedId === recipientId) ||
-        (b.blockerId === recipientId && b.blockedId === senderId)
-    );
+    const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
+    const friendDoc = await getDoc(friendRef);
 
-    if (isBlocked) {
+    if (!friendDoc.exists() || friendDoc.data().status !== FriendRelationshipStatus.ACCEPTED) {
+      return { eligibility: NudgeEligibility.NOT_FRIENDS };
+    }
+
+    if (friendDoc.data().status === FriendRelationshipStatus.BLOCKED) {
       return { eligibility: NudgeEligibility.BLOCKED };
     }
 
-    // Check if sender checked in
     if (!senderCheckedInToday) {
       return { eligibility: NudgeEligibility.SENDER_NOT_CHECKED_IN };
     }
 
-    // Check nudge history
-    const history = this.nudgeHistory[senderId] || { sentNudges: [], receivedNudges: [] };
+    // Check nudge history from cache
+    const history = this.nudgeHistoryCache[senderId] || { sentNudges: [], receivedNudges: [] };
     const nudgeHistoryObj = createNudgeHistory(history);
 
     // Check daily limit
@@ -648,114 +947,155 @@ class FriendService {
     return { eligibility: NudgeEligibility.CAN_NUDGE };
   }
 
+  /**
+   * Send a nudge to a friend
+   */
   async sendNudge(senderId, recipientId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
     const nudge = {
-      id: generateUUID(),
-      senderId,
-      recipientId,
-      sentAt: new Date().toISOString(),
-      messageIndex: NudgeMessages.randomIndex(),
+      fromUserId: senderId,
+      toUserId: recipientId,
+      sentAt: serverTimestamp(),
+      message: NudgeMessages.forRecipient[NudgeMessages.randomIndex()],
+      read: false,
     };
 
-    // Update sender's history
-    if (!this.nudgeHistory[senderId]) {
-      this.nudgeHistory[senderId] = { sentNudges: [], receivedNudges: [] };
+    // Add to nudges collection
+    const nudgeRef = doc(collection(db, COLLECTIONS.NUDGES));
+    await setDoc(nudgeRef, nudge);
+
+    // Update local cache
+    const now = new Date().toISOString();
+    if (!this.nudgeHistoryCache[senderId]) {
+      this.nudgeHistoryCache[senderId] = { sentNudges: [], receivedNudges: [] };
     }
-    this.nudgeHistory[senderId].sentNudges.push(nudge);
+    this.nudgeHistoryCache[senderId].sentNudges.push({
+      id: nudgeRef.id,
+      senderId,
+      recipientId,
+      sentAt: now,
+      messageIndex: NudgeMessages.randomIndex(),
+    });
+    this._saveCache();
 
-    // Update recipient's history
-    if (!this.nudgeHistory[recipientId]) {
-      this.nudgeHistory[recipientId] = { sentNudges: [], receivedNudges: [] };
-    }
-    this.nudgeHistory[recipientId].receivedNudges.push(nudge);
-
-    await this._persist();
-
-    return createFriendNudge(nudge);
-  }
-
-  async getReceivedNudges(userId) {
-    await this.initialize();
-
-    const history = this.nudgeHistory[userId] || { sentNudges: [], receivedNudges: [] };
-    const nudgeHistoryObj = createNudgeHistory(history);
-
-    return nudgeHistoryObj.recentReceivedNudges.map(n => {
-      const sender = MOCK_PROFILES.find(p => p.id === n.senderId);
-      return {
-        nudge: createFriendNudge(n),
-        senderName: sender?.hamsterName || 'A friend',
-      };
+    return createFriendNudge({
+      id: nudgeRef.id,
+      senderId,
+      recipientId,
+      sentAt: new Date(),
     });
   }
 
-  // MARK: - Privacy Settings
+  /**
+   * Get received nudges
+   */
+  async getReceivedNudges(userId) {
+    if (!isFirebaseInitialized() || !db) {
+      return [];
+    }
+
+    try {
+      const nudgesQuery = query(
+        collection(db, COLLECTIONS.NUDGES),
+        where('toUserId', '==', userId),
+        where('read', '==', false),
+        orderBy('sentAt', 'desc'),
+        limit(20)
+      );
+
+      const snapshot = await getDocs(nudgesQuery);
+      const nudges = [];
+
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        const senderProfile = await this._getFriendProfile(data.fromUserId);
+
+        nudges.push({
+          nudge: createFriendNudge({
+            id: docSnap.id,
+            senderId: data.fromUserId,
+            recipientId: userId,
+            sentAt: data.sentAt?.toDate?.() || new Date(),
+          }),
+          senderName: senderProfile?.hamsterName || 'A friend',
+        });
+      }
+
+      return nudges;
+    } catch (error) {
+      Logger.error('Error fetching nudges:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Mark nudge as read
+   */
+  async markNudgeRead(nudgeId) {
+    if (!isFirebaseInitialized() || !db) {
+      return;
+    }
+
+    const nudgeRef = doc(db, COLLECTIONS.NUDGES, nudgeId);
+    await updateDoc(nudgeRef, {
+      read: true,
+    });
+  }
+
+  // ============================================
+  // PRIVACY SETTINGS
+  // ============================================
 
   async getPrivacySettings(userId) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      return createPrivacySettings();
+    }
 
-    const settings = this.privacySettings[userId];
-    return settings ? createPrivacySettings(settings) : createPrivacySettings();
+    const userRef = doc(db, COLLECTIONS.USERS, userId);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists() || !userDoc.data().privacySettings) {
+      return createPrivacySettings();
+    }
+
+    return createPrivacySettings(userDoc.data().privacySettings);
   }
 
   async updatePrivacySettings(userId, settings) {
-    await this.initialize();
+    if (!isFirebaseInitialized() || !db) {
+      throw new Error('Firebase not initialized');
+    }
 
-    this.privacySettings[userId] = settings;
-    await this._persist();
+    const userRef = doc(db, COLLECTIONS.USERS, userId);
+    await updateDoc(userRef, {
+      privacySettings: settings,
+    });
 
     return createPrivacySettings(settings);
   }
 
-  // MARK: - Search Users
+  // ============================================
+  // SEARCH (Legacy - now using invite codes)
+  // ============================================
 
+  /**
+   * Search users - kept for backwards compatibility but not primary flow
+   */
   async searchUsers(query, currentUserId) {
-    await this.initialize();
-
-    const lowerQuery = query.toLowerCase();
-
-    // Search mock profiles (excluding current user and blocked users)
-    const blockedIds = this.blockedUsers
-      .filter(b => b.blockerId === currentUserId || b.blockedId === currentUserId)
-      .map(b => b.blockerId === currentUserId ? b.blockedId : b.blockerId);
-
-    const results = MOCK_PROFILES.filter(p => {
-      if (p.id === currentUserId) return false;
-      if (blockedIds.includes(p.id)) return false;
-
-      return p.hamsterName?.toLowerCase().includes(lowerQuery) ||
-        p.email.toLowerCase().includes(lowerQuery);
-    });
-
-    return results.map(p => {
-      const relationship = this.relationships.find(
-        r => (r.userId1 === currentUserId && r.userId2 === p.id) ||
-          (r.userId1 === p.id && r.userId2 === currentUserId)
-      );
-
-      const pendingRequest = this.requests.find(
-        r => r.status === FriendRequestStatus.PENDING &&
-          ((r.senderId === currentUserId && r.receiverId === p.id) ||
-            (r.senderId === p.id && r.receiverId === currentUserId))
-      );
-
-      return {
-        profile: createFriendProfile(p),
-        isFriend: relationship?.status === FriendRelationshipStatus.ACCEPTED,
-        hasPendingRequest: !!pendingRequest,
-        requestSentByMe: pendingRequest?.senderId === currentUserId,
-      };
-    });
+    // With invite code system, search is not the primary way to add friends
+    // This returns empty - users should use invite codes
+    return [];
   }
 
-  // MARK: - Leaderboard
+  // ============================================
+  // LEADERBOARD
+  // ============================================
 
   async getFriendsLeaderboard(userId) {
     const friends = await this.getFriends(userId);
-
-    // Sort by current streak descending
     const sorted = [...friends].sort((a, b) => b.currentStreak - a.currentStreak);
 
     return sorted.map((friend, index) => ({
@@ -763,6 +1103,92 @@ class FriendService {
       friend,
       isCurrentUser: friend.id === userId,
     }));
+  }
+
+  // ============================================
+  // REAL-TIME LISTENERS
+  // ============================================
+
+  /**
+   * Subscribe to friend requests updates
+   */
+  subscribeToRequests(userId, callback) {
+    if (!isFirebaseInitialized() || !db) {
+      return () => {};
+    }
+
+    const requestsQuery = query(
+      collection(db, COLLECTIONS.FRIENDS),
+      where('users', 'array-contains', userId),
+      where('status', '==', FriendRelationshipStatus.PENDING)
+    );
+
+    const unsubscribe = onSnapshot(requestsQuery, async (snapshot) => {
+      const requests = [];
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        // Only show requests where user is the receiver
+        if (data.initiatedBy !== userId) {
+          const senderProfile = await this._getFriendProfile(data.initiatedBy);
+          requests.push({
+            request: createFriendRequest({
+              id: docSnap.id,
+              senderId: data.initiatedBy,
+              receiverId: userId,
+              status: FriendRequestStatus.PENDING,
+              sentAt: data.createdAt?.toDate?.() || new Date(),
+            }),
+            senderProfile: senderProfile ? createFriendProfile(senderProfile) : null,
+          });
+        }
+      }
+      callback(requests);
+    }, (error) => {
+      Logger.error('Error in requests subscription:', error);
+    });
+
+    this.unsubscribers.push(unsubscribe);
+    return unsubscribe;
+  }
+
+  /**
+   * Subscribe to nudges
+   */
+  subscribeToNudges(userId, callback) {
+    if (!isFirebaseInitialized() || !db) {
+      return () => {};
+    }
+
+    const nudgesQuery = query(
+      collection(db, COLLECTIONS.NUDGES),
+      where('toUserId', '==', userId),
+      where('read', '==', false),
+      orderBy('sentAt', 'desc'),
+      limit(10)
+    );
+
+    const unsubscribe = onSnapshot(nudgesQuery, async (snapshot) => {
+      const nudges = [];
+      for (const docSnap of snapshot.docs) {
+        const data = docSnap.data();
+        const senderProfile = await this._getFriendProfile(data.fromUserId);
+        nudges.push({
+          nudge: createFriendNudge({
+            id: docSnap.id,
+            senderId: data.fromUserId,
+            recipientId: userId,
+            sentAt: data.sentAt?.toDate?.() || new Date(),
+          }),
+          senderName: senderProfile?.hamsterName || 'A friend',
+        });
+      }
+      callback(nudges);
+    }, (error) => {
+      Logger.error('Error in nudges subscription:', error);
+    });
+
+    this.unsubscribers.push(unsubscribe);
+    return unsubscribe;
   }
 }
 

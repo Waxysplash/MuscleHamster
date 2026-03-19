@@ -8,15 +8,16 @@ import {
   TouchableOpacity,
   SafeAreaView,
   TextInput,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAlert } from '../../context/AlertContext';
 import { JournalService } from '../../services/JournalService';
 import Logger from '../../services/LoggerService';
 
 export default function GymExerciseDetailScreen({ route, navigation }) {
   const { exercise, bodyPart } = route.params;
+  const { showAlert } = useAlert();
 
   // Journal state
   const [entries, setEntries] = useState([]);
@@ -84,7 +85,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
     // Validate at least one set has data
     const validSets = sets.filter(s => s.weight || s.reps);
     if (validSets.length === 0 && !notes.trim()) {
-      Alert.alert('No Data', 'Please enter at least one set or a note.');
+      showAlert('No Data', 'Please enter at least one set or a note.');
       return;
     }
 
@@ -102,14 +103,14 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
       setShowAddForm(false);
       await loadEntries();
     } catch (e) {
-      Alert.alert('Error', 'Failed to save entry. Please try again.');
+      showAlert('Error', 'Failed to save entry. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const deleteEntry = (entryId) => {
-    Alert.alert(
+    showAlert(
       'Delete Entry',
       'Are you sure you want to delete this entry?',
       [
@@ -126,7 +127,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
               );
               await loadEntries();
             } catch (e) {
-              Alert.alert('Error', 'Failed to delete entry.');
+              showAlert('Error', 'Failed to delete entry.');
             }
           },
         },

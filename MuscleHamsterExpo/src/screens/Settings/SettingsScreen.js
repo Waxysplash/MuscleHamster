@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Alert, Platform, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Platform, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
 import FeatureFlags from '../../config/FeatureFlags';
 
 export default function SettingsScreen({ navigation }) {
   const { currentUser, signOut } = useAuth();
   const { totalPoints } = useActivity();
   const { profile } = useUserProfile();
+  const { showAlert } = useAlert();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEffects, setSoundEffects] = useState(true);
   const [music, setMusic] = useState(true);
@@ -23,7 +25,7 @@ export default function SettingsScreen({ navigation }) {
         signOut();
       }
     } else {
-      Alert.alert(
+      showAlert(
         'Sign out of Muscle Hamster?',
         'Your hamster will miss you, but your progress is safe!',
         [

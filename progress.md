@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.1 Submitted - Awaiting Review | Android Build Ready
-**Version:** 1.0.2 (Build 32) - Development
-**Last Updated:** Mar 13, 2026 (Session 61)
+**Status:** v1.0.2 Submitted | v1.0.3 Ready to Build
+**Version:** 1.0.3 (Build 37) - Bug fixes ready
+**Last Updated:** Mar 18, 2026 (Session 65)
 
 ---
 
@@ -34,8 +34,19 @@
 - [ ] Monitor user feedback and reviews
 - [ ] Plan v1.2 features (Social, etc.)
 - [x] Android build completed (AAB ready)
-- [ ] Set up Google Play Developer account
+- [x] Set up Google Play Developer account
 - [ ] Submit Android to Google Play
+
+### Google Play Submission (In Progress)
+- [x] Created Google Play Developer account
+- [x] Uploaded AAB (v1.0.1, version code 4)
+- [x] Added app icon and feature graphic
+- [x] Fixed privacy policy URL (was missing .html extension)
+- [ ] Set up Closed Testing (required for new accounts)
+- [ ] Recruit 12 testers to opt-in
+- [ ] Wait 14 days of closed testing
+- [ ] Apply for Production access
+- [ ] Submit to Production
 
 ### Implemented in v1.1
 - [x] Social features (friends, nudges, friend streaks, invite codes)
@@ -108,6 +119,151 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 65 (Mar 18, 2026)
+**v1.0.3 Bug Fixes**
+
+Fixed 3 bugs reported in v1.0.2:
+
+**1. Notification Toggle Not Working**
+- Fixed `handleUserEnabledChange()` in `NotificationSettingsScreen.js`
+- Toggle now properly resets to OFF if permission is denied
+- Checks return value of `enableNotifications()` before updating state
+
+**2. PendingRequestsScreen Color Scheme**
+- Updated header background: `#fff` → `#FFF8F0` (cream)
+- Fixed title color: added `#4A3728` (dark brown)
+- Updated tab container: `#E5E5EA` → warm brown tint
+- Fixed tab text colors to match app theme
+- Updated request name, empty state colors
+
+**3. Friend Request Error Handling**
+- Added try-catch with permission error detection in `FriendService.js`
+- `useInviteCode()` and `sendFriendRequest()` now show helpful error messages
+- If permission denied, shows "Please try signing out and back in"
+
+**4. Themed Alerts (App-Wide)**
+- Created `ThemedAlert.js` component with cream/brown color scheme
+- Created `AlertContext.js` for global alert management
+- Replaced native iOS/Android grey alerts with themed alerts across ALL screens
+- 20 files updated to use `showAlert()` instead of `Alert.alert()`
+- Alerts now match app's warm color scheme (#FFF8F0 background, #4A3728 text)
+
+**Files Changed:**
+- `ThemedAlert.js` - New themed alert component
+- `AlertContext.js` - New context for showing alerts
+- `App.js` - Added AlertProvider wrapper
+- `NotificationSettingsScreen.js` - Fixed toggle behavior
+- `PendingRequestsScreen.js` - Fixed color scheme + themed alerts
+- `FriendService.js` - Better error handling for permission issues
+- `app.config.js` - Bumped to v1.0.3 (Build 37)
+- All social screens - Themed alerts
+- All settings screens - Themed alerts
+- All shop screens - Themed alerts
+- All workout screens - Themed alerts
+- `OnboardingScreen.js` - Themed alerts
+
+**IMPORTANT - Before Building:**
+Deploy Firestore rules if not already deployed:
+```bash
+cd "C:\Users\kamal\Downloads\Muscle Hmaster\Muscle Hmaster\MuscleHamsterExpo"
+firebase deploy --only firestore:rules
+```
+
+**Next Steps:**
+1. Deploy Firestore rules (if friend requests still fail)
+2. Test fixes locally: `npx expo start`
+3. Build: `eas build --platform ios --profile production`
+4. Submit to App Store
+
+### Session 64 (Mar 18, 2026)
+**v1.0.2 UI Updates + Cloud Functions Deployed**
+
+**UI Changes:**
+1. Moved Shop from bottom tab to Home screen button
+2. Added Rest Day button on Home screen (awards 2 points, shows rest hamster)
+3. Changed "Today's Action" subtitle to "Complete your daily exercise"
+4. Rest day hamster appears until next day after logging rest day
+5. Shop back button now says "Home"
+6. Enabled Friends tab (social features)
+7. Fixed color scheme on new screens (#FFF8F0 cream, #4A3728 dark brown)
+
+**Files Changed:**
+- `MainTabNavigator.js` - Removed Shop tab, added QuickRestDay route
+- `HomeScreen.js` - Added Shop, Customize, Rest Day buttons row
+- `QuickRestDayScreen.js` - New screen for rest day check-in
+- `Activity.js` - Added QUICK_REST activity type (2 points)
+- `AssetImages.js` - Added rest day hamster image
+- `ActivityContext.js` - Added hasLoggedRestDayToday property
+- `HamsterPortrait.js` - Added isRestDay prop for rest day hamster
+- `FeatureFlags.js` - Enabled socialFeatures
+- `FriendProfileScreen.js`, `SocialScreen.js`, `AddFriendsScreen.js` - Fixed colors
+
+**Firebase Cloud Functions Deployed:**
+- Fixed npm v11.6.2 bug that caused `npm ci` failures
+- Added explicit markdown-it dependencies to functions/package.json
+- Successfully deployed all 4 push notification functions
+
+**Next Steps:**
+- Build preview version for testing
+- Test Rest Day feature
+- Test Friends tab
+- Submit v1.0.2 to App Store
+
+### Session 63 (Mar 16, 2026)
+**Push Notifications Fix**
+
+Diagnosed and fixed critical issues preventing push notifications from working:
+
+**Issues Found:**
+1. `expo-notifications` plugin was missing from app.config.js (no iOS APNs entitlements)
+2. `registerForPushNotifications()` was never called (push tokens not saved to Firestore)
+3. Missing `UIBackgroundModes` configuration for iOS
+
+**Fixes Applied:**
+1. **app.config.js**:
+   - Added `expo-notifications` plugin with icon and color config
+   - Added `UIBackgroundModes: ["remote-notification", "fetch"]` to iOS infoPlist
+
+2. **AuthContext.js**:
+   - Imported `registerForPushNotifications` and `clearPushToken`
+   - Call `registerForPushNotifications(uid)` when user authenticates
+   - Call `clearPushToken(uid)` when user signs out
+
+3. **NotificationService.js**:
+   - Enhanced `registerForPushNotifications()` to request permission first
+   - Added Android notification channel setup for Android 8+
+
+**Files Changed:**
+- `app.config.js`
+- `src/context/AuthContext.js`
+- `src/services/NotificationService.js`
+
+**Next Steps:**
+1. Verify APNs key: `eas credentials` → iOS → Push Notifications
+2. Deploy Cloud Functions: `cd functions && npm install && firebase deploy --only functions`
+3. Build new version: `eas build --platform ios --profile production`
+4. Submit to App Store
+
+### Session 62 (Mar 16, 2026)
+**Google Play Console Setup**
+
+- Created Google Play Developer account ($25)
+- Uploaded Android AAB (v1.0.1, version code 4) to Play Console
+- Wrote short description (76 chars) and full description for Play Store
+- Uploaded app icon and feature graphic
+- Fixed privacy policy URL error (was `privacy-policy.htm`, needed `.html`)
+- Discovered: New Google Play accounts require **14 days of Closed Testing** with **12 opted-in testers** before Production access
+- Next steps:
+  1. Set up Closed Testing track
+  2. Create email list with 12+ testers
+  3. Share test link with testers
+  4. Wait 14 days
+  5. Apply for Production access
+
+**Play Store Descriptions Created:**
+- Short: "Care for your hamster by staying active. Daily exercises, streaks & rewards!"
+- Full: See session notes
 
 ### Session 61 (Mar 13, 2026)
 **Android Build Ready**

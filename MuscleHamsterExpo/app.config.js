@@ -6,7 +6,7 @@ export default {
   expo: {
     name: "Muscle Hamster",
     slug: "MuscleHamsterExpo",
-    version: "1.0.2",
+    version: "1.0.3",
     orientation: "portrait",
     icon: "./assets/branding/icon.png",
     userInterfaceStyle: "light",
@@ -24,15 +24,18 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
-      buildNumber: "32",
+      buildNumber: "37",
       usesAppleSignIn: true,
       googleServicesFile: process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
       infoPlist: {
-        ITSAppUsesNonExemptEncryption: false
+        ITSAppUsesNonExemptEncryption: false,
+        // Required for push notifications to work when app is in background/closed
+        UIBackgroundModes: ["remote-notification", "fetch"]
       }
     },
     android: {
       package: "com.musclehamster.app",
+      versionCode: 1,
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
       adaptiveIcon: {
         foregroundImage: "./assets/branding/adaptive-icon.png",
@@ -47,6 +50,16 @@ export default {
       "expo-web-browser",
       "expo-apple-authentication",
       "expo-secure-store",
+      // Push notifications - REQUIRED for iOS APNs entitlements and Android channels
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/branding/icon.png",
+          "color": "#FF9500",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": true
+        }
+      ],
       // Build properties for Firebase compatibility with New Architecture
       [
         "expo-build-properties",

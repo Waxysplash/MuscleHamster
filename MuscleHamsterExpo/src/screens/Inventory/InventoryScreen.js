@@ -11,11 +11,11 @@ import {
   RefreshControl,
   Image,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { ShopService } from '../../services/ShopService';
+import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import { getShopItemImage } from '../../config/AssetImages';
 import HamsterPortrait from '../../components/HamsterPortrait';
@@ -23,6 +23,7 @@ import LoadingView from '../../components/LoadingView';
 import ErrorBanner from '../../components/ErrorBanner';
 
 export default function InventoryScreen({ navigation }) {
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -85,7 +86,7 @@ export default function InventoryScreen({ navigation }) {
         setEquippedItemId(itemId);
       }
     } catch (e) {
-      Alert.alert('Error', 'Failed to update outfit');
+      showAlert('Error', 'Failed to update outfit');
     }
   };
 

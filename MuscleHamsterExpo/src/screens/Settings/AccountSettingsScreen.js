@@ -13,7 +13,6 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Platform,
   Modal,
@@ -22,10 +21,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
 
 export default function AccountSettingsScreen({ navigation }) {
   const { currentUser, deleteAccount, reauthenticate } = useAuth();
   const { isProfileComplete } = useUserProfile();
+  const { showAlert } = useAlert();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
@@ -41,7 +42,7 @@ export default function AccountSettingsScreen({ navigation }) {
         }
       }
     } else {
-      Alert.alert(
+      showAlert(
         'Delete Your Account?',
         'This will permanently delete:\n\n• Your workout history\n• Your points and streaks\n• Your inventory and customizations\n• Your hamster\n\nThis action cannot be undone.',
         [
@@ -51,7 +52,7 @@ export default function AccountSettingsScreen({ navigation }) {
             style: 'destructive',
             onPress: () => {
               // Second confirmation
-              Alert.alert(
+              showAlert(
                 'Are You Sure?',
                 'This is permanent. Your hamster and all your progress will be gone forever.',
                 [
@@ -86,7 +87,7 @@ export default function AccountSettingsScreen({ navigation }) {
         setPasswordError('');
         setShowPasswordModal(true);
       } else {
-        Alert.alert(
+        showAlert(
           'Something Went Wrong',
           'We couldn\'t delete your account right now. Please try again later.',
           [{ text: 'OK' }]
@@ -114,7 +115,7 @@ export default function AccountSettingsScreen({ navigation }) {
         setPasswordError('Incorrect password. Please try again.');
         setShowPasswordModal(true);
       } else {
-        Alert.alert(
+        showAlert(
           'Authentication Failed',
           'We couldn\'t verify your identity. Please try again.',
           [{ text: 'OK' }]
@@ -128,7 +129,7 @@ export default function AccountSettingsScreen({ navigation }) {
 
     if (!deleteResult.success) {
       setIsDeleting(false);
-      Alert.alert(
+      showAlert(
         'Something Went Wrong',
         'We couldn\'t delete your account right now. Please try again later.',
         [{ text: 'OK' }]

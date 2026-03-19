@@ -13,13 +13,13 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import friendService from '../../services/FriendService';
 import Logger from '../../services/LoggerService';
 import {
@@ -42,6 +42,7 @@ const VISIBILITY_DETAILED_DESCRIPTIONS = {
 
 export default function ProfileVisibilityScreen({ navigation }) {
   const { currentUser } = useAuth();
+  const { showAlert } = useAlert();
   const [selectedLevel, setSelectedLevel] = useState(ProfileVisibilityLevel.EVERYONE);
   const [originalLevel, setOriginalLevel] = useState(ProfileVisibilityLevel.EVERYONE);
   const [isSaving, setIsSaving] = useState(false);
@@ -91,7 +92,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       navigation.goBack();
     } catch (e) {
       Logger.warn('Failed to save privacy settings:', e);
-      Alert.alert(
+      showAlert(
         "Couldn't Save",
         'Something went wrong. Please try again.',
         [
@@ -109,7 +110,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       case ProfileVisibilityLevel.EVERYONE:
         return '#34C759';
       case ProfileVisibilityLevel.FRIENDS_ONLY:
-        return '#007AFF';
+        return '#8B5A2B';
       case ProfileVisibilityLevel.PRIVATE:
         return '#FF9500';
       default:
@@ -126,7 +127,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#8B5A2B" />
       </View>
     );
   }
@@ -136,7 +137,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Info Banner */}
         <View style={styles.infoBanner}>
-          <Ionicons name="eye" size={28} color="#007AFF" />
+          <Ionicons name="eye" size={28} color="#8B5A2B" />
           <View style={styles.infoBannerText}>
             <Text style={styles.infoBannerTitle}>Control Your Visibility</Text>
             <Text style={styles.infoBannerSubtitle}>
@@ -173,7 +174,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
                       </Text>
                     </View>
                     {isSelected && (
-                      <Ionicons name="checkmark-circle" size={26} color="#007AFF" />
+                      <Ionicons name="checkmark-circle" size={26} color="#8B5A2B" />
                     )}
                   </TouchableOpacity>
                 </React.Fragment>
@@ -187,7 +188,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
         {hasChanges && (
           <View style={styles.section}>
             <View style={styles.changePreview}>
-              <Ionicons name="information-circle" size={20} color="#007AFF" />
+              <Ionicons name="information-circle" size={20} color="#8B5A2B" />
               <View style={styles.changePreviewText}>
                 <Text style={styles.changePreviewTitle}>
                   Changing to {getVisibilityDisplayName(selectedLevel)}
@@ -222,7 +223,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
       <Modal visible={isSaving} transparent animationType="fade">
         <View style={styles.savingOverlay}>
           <View style={styles.savingModal}>
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color="#8B5A2B" />
             <Text style={styles.savingText}>Saving...</Text>
           </View>
         </View>
@@ -234,7 +235,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   scrollView: {
     flex: 1,
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   infoBanner: {
     flexDirection: 'row',
@@ -351,12 +352,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#C7C7CC',
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     borderRadius: 14,
     padding: 16,
     alignItems: 'center',

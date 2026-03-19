@@ -10,9 +10,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
 const WORKOUT_TYPES = [
@@ -30,6 +30,7 @@ const TARGET_TYPES = [
 
 export default function AddWorkoutScreen({ navigation }) {
   const { addWorkout } = useCustomWorkouts();
+  const { showAlert } = useAlert();
   const [name, setName] = useState('');
   const [type, setType] = useState('other');
   const [description, setDescription] = useState('');
@@ -39,7 +40,7 @@ export default function AddWorkoutScreen({ navigation }) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Missing Name', 'Please enter a workout name.');
+      showAlert('Missing Name', 'Please enter a workout name.');
       return;
     }
 
@@ -57,7 +58,7 @@ export default function AddWorkoutScreen({ navigation }) {
         navigation.goBack();
       }
     } catch (e) {
-      Alert.alert('Error', 'Failed to save workout. Please try again.');
+      showAlert('Error', 'Failed to save workout. Please try again.');
     } finally {
       setIsSaving(false);
     }

@@ -5,12 +5,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   AppState,
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
+import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
@@ -27,6 +27,7 @@ const PlayerState = {
 export default function WorkoutPlayerScreen({ route, navigation }) {
   const workout = route.params?.workout;
   const { recordWorkoutCompletion, recordFeedback } = useActivity();
+  const { showAlert } = useAlert();
 
   // Safety check: If no workout was passed, show error and allow going back
   if (!workout || !workout.exercises || workout.exercises.length === 0) {
@@ -147,7 +148,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   };
 
   const skipExercise = () => {
-    Alert.alert(
+    showAlert(
       'Skip exercise?',
       "No worries if you need to! Your hamster won't judge.",
       [
@@ -163,7 +164,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   };
 
   const endWorkoutEarly = () => {
-    Alert.alert(
+    showAlert(
       'End workout?',
       "You've made progress! Ending now will save what you've done.",
       [
@@ -235,7 +236,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   }, [timeRemaining, currentExercise, playerState]);
 
   const getExerciseTypeColor = (type) => {
-    return ExerciseTypeInfo[type]?.color || '#007AFF';
+    return ExerciseTypeInfo[type]?.color || '#8B5A2B';
   };
 
   const formatTime = (seconds) => {
@@ -498,7 +499,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     borderRadius: 8,
   },
   backButtonText: {
@@ -667,7 +668,7 @@ const styles = StyleSheet.create({
   rewardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
@@ -695,7 +696,7 @@ const styles = StyleSheet.create({
   feedbackButton: {
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     borderRadius: 12,
     minWidth: 90,
   },
@@ -707,7 +708,7 @@ const styles = StyleSheet.create({
   skipFeedbackText: {
     marginTop: 16,
     fontSize: 14,
-    color: '#007AFF',
+    color: '#8B5A2B',
   },
   hamsterReaction: {
     marginTop: 24,

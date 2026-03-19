@@ -13,13 +13,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
+import { useAlert } from '../../context/AlertContext';
 import {
   getHamsterStateColor,
   getStreakStatusColor,
@@ -39,6 +39,7 @@ export default function FriendProfileScreen() {
     sendNudge,
     getNudgeEligibility,
   } = useFriends();
+  const { showAlert } = useAlert();
 
   const [isRemoving, setIsRemoving] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
@@ -60,13 +61,13 @@ export default function FriendProfileScreen() {
   };
 
   const handleRemoveFriend = () => {
-    Alert.alert(
+    showAlert(
       'Remove Friend',
       `You'll no longer be able to see each other's progress or build friend streaks together.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: `Remove ${profile.displayName}`,
+          text: `Remove`,
           style: 'destructive',
           onPress: async () => {
             setIsRemoving(true);
@@ -75,7 +76,7 @@ export default function FriendProfileScreen() {
             if (result.success) {
               navigation.goBack();
             } else {
-              Alert.alert('Oops', result.error || 'Could not remove friend');
+              showAlert('Oops', result.error || 'Could not remove friend');
             }
           },
         },
@@ -84,7 +85,7 @@ export default function FriendProfileScreen() {
   };
 
   const handleBlockUser = () => {
-    Alert.alert(
+    showAlert(
       `Block ${profile.displayName}?`,
       "They won't be able to see your profile, send requests, or interact with you. You can unblock them later in Privacy settings.",
       [
@@ -99,7 +100,7 @@ export default function FriendProfileScreen() {
             if (result.success) {
               navigation.goBack();
             } else {
-              Alert.alert('Oops', result.error || 'Could not block user');
+              showAlert('Oops', result.error || 'Could not block user');
             }
           },
         },
@@ -119,7 +120,7 @@ export default function FriendProfileScreen() {
       setShowNudgeSent(true);
       checkNudgeEligibility();
     } else {
-      Alert.alert('Oops', result.error || 'Could not send nudge');
+      showAlert('Oops', result.error || 'Could not send nudge');
     }
   };
 
@@ -128,11 +129,11 @@ export default function FriendProfileScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{profile.displayName}'s Hamster</Text>
         <TouchableOpacity onPress={() => setShowMenu(true)} style={styles.menuButton}>
-          <Ionicons name="ellipsis-horizontal-circle" size={24} color="#007AFF" />
+          <Ionicons name="ellipsis-horizontal-circle" size={24} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
 
@@ -221,7 +222,7 @@ export default function FriendProfileScreen() {
       {(isRemoving || isBlocking) && (
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingBox}>
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color="#8B5A2B" />
             <Text style={styles.loadingText}>
               {isRemoving ? 'Removing friend...' : 'Blocking user...'}
             </Text>
@@ -359,9 +360,9 @@ function NudgeCard({ eligibility, friendName, isNudging, onNudge }) {
   };
 
   const getColor = () => {
-    if (!eligibility) return '#007AFF';
+    if (!eligibility) return '#8B5A2B';
     switch (eligibility.eligibility) {
-      case 'canNudge': return '#007AFF';
+      case 'canNudge': return '#8B5A2B';
       case 'recipientAlreadyCheckedIn': return '#34C759';
       case 'senderNotCheckedIn': return '#FF9500';
       case 'cooldownActive': return '#8E8E93';
@@ -425,7 +426,7 @@ function NudgeCard({ eligibility, friendName, isNudging, onNudge }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -639,7 +640,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
@@ -715,7 +716,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   nudgeSentButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 12,

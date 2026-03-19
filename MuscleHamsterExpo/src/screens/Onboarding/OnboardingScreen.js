@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
 import { useResponsive, getHamsterSize } from '../../utils/responsive';
 import {
   FitnessLevel,
@@ -74,6 +74,7 @@ const STEP_TITLES = {
 
 export default function OnboardingScreen({ navigation }) {
   const { saveOnboardingProgress, onboardingProgress, completeOnboarding } = useUserProfile();
+  const { showAlert } = useAlert();
 
   // Responsive design
   const { isTablet, contentMaxWidth, spacing } = useResponsive();
@@ -151,7 +152,7 @@ export default function OnboardingScreen({ navigation }) {
         // Navigation is handled automatically by RootNavigator when isProfileComplete becomes true
         // Do NOT call navigation.replace('Main') here - it causes a race condition
       } catch (e) {
-        Alert.alert('Oops!', 'Something went wrong. Please try again.');
+        showAlert('Oops!', 'Something went wrong. Please try again.');
         setIsSaving(false);
       }
       // Don't set isSaving to false on success - we're transitioning away

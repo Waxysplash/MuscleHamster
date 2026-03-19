@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -6,9 +6,10 @@ import { AuthProvider, useAuth, AuthState } from './src/context/AuthContext';
 import { UserProfileProvider, useUserProfile } from './src/context/UserProfileContext';
 import { ActivityProvider } from './src/context/ActivityContext';
 import { FriendProvider } from './src/context/FriendContext';
-import { NotificationProvider } from './src/context/NotificationContext';
 import { InventoryProvider } from './src/context/InventoryContext';
 import { CustomWorkoutProvider } from './src/context/CustomWorkoutContext';
+import { AlertProvider } from './src/context/AlertContext';
+import { initializeNotificationService } from './src/services/NotificationService';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import OnboardingScreen from './src/screens/Onboarding/OnboardingScreen';
@@ -16,6 +17,15 @@ import LoadingView from './src/components/LoadingView';
 import ErrorBoundary from './src/components/ErrorBoundary';
 
 const RootStack = createNativeStackNavigator();
+
+// Initialize notification service on app start
+function NotificationInitializer({ children }) {
+  useEffect(() => {
+    initializeNotificationService();
+  }, []);
+
+  return children;
+}
 
 function RootNavigator() {
   const { authState } = useAuth();
@@ -49,24 +59,26 @@ function RootNavigator() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <UserProfileProvider>
-          <ActivityProvider>
-            <InventoryProvider>
-              <CustomWorkoutProvider>
-                <FriendProvider>
-                  <NotificationProvider>
-                    <NavigationContainer>
-                      <StatusBar style="auto" />
-                      <RootNavigator />
-                    </NavigationContainer>
-                  </NotificationProvider>
-                </FriendProvider>
-              </CustomWorkoutProvider>
-            </InventoryProvider>
-          </ActivityProvider>
-        </UserProfileProvider>
-      </AuthProvider>
+      <NotificationInitializer>
+        <AuthProvider>
+          <UserProfileProvider>
+            <ActivityProvider>
+              <InventoryProvider>
+                <CustomWorkoutProvider>
+                  <FriendProvider>
+                    <AlertProvider>
+                      <NavigationContainer>
+                        <StatusBar style="auto" />
+                        <RootNavigator />
+                      </NavigationContainer>
+                    </AlertProvider>
+                  </FriendProvider>
+                </CustomWorkoutProvider>
+              </InventoryProvider>
+            </ActivityProvider>
+          </UserProfileProvider>
+        </AuthProvider>
+      </NotificationInitializer>
     </ErrorBoundary>
   );
 }

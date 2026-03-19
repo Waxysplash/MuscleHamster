@@ -21,18 +21,29 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import Logger from '../../services/LoggerService';
 import { useFocusEffect } from '@react-navigation/native';
+import {
+  enableNotifications,
+  disableNotifications,
+  toggleDailyReminder,
+  toggleStreakReminder,
+  toggleFriendNudges,
+  updateReminderTime,
+  refreshPermissionState,
+  rescheduleNotifications,
+} from '../../services/NotificationService';
 
-// Storage keys
+// Storage keys - MUST match NotificationPreferences.js
 const NOTIFICATION_STORAGE_KEYS = {
-  USER_ENABLED: '@MuscleHamster:notifications_userEnabled',
-  REMINDER_HOUR: '@MuscleHamster:notifications_reminderHour',
-  REMINDER_MINUTE: '@MuscleHamster:notifications_reminderMinute',
-  REMINDER_PERIOD: '@MuscleHamster:notifications_reminderPeriod',
-  DAILY_REMINDER: '@MuscleHamster:notifications_dailyReminder',
-  STREAK_REMINDER: '@MuscleHamster:notifications_streakReminder',
-  FRIEND_NUDGES: '@MuscleHamster:notifications_friendNudges',
+  USER_ENABLED: '@notification_userEnabled',
+  REMINDER_HOUR: '@notification_reminderHour',
+  REMINDER_MINUTE: '@notification_reminderMinute',
+  REMINDER_PERIOD: '@notification_reminderPeriod',
+  DAILY_REMINDER: '@notification_dailyReminderEnabled',
+  STREAK_REMINDER: '@notification_streakReminderEnabled',
+  FRIEND_NUDGES: '@notification_friendNudgesEnabled',
 };
 
 // Permission states
@@ -81,9 +92,9 @@ const PERIOD_INFO = {
   },
 };
 
-// Default preferences
+// Default preferences - MUST match NotificationPreferences.js NOTIFICATION_DEFAULTS
 const DEFAULT_PREFERENCES = {
-  userEnabled: true,
+  userEnabled: false,  // Disabled until user grants permission
   reminderHour: 8,
   reminderMinute: 0,
   reminderPeriod: ReminderTimePeriod.MORNING,
@@ -93,7 +104,7 @@ const DEFAULT_PREFERENCES = {
 };
 
 export default function NotificationSettingsScreen({ navigation }) {
-  const [permissionState, setPermissionState] = useState(PermissionState.AUTHORIZED);
+  const [permissionState, setPermissionState] = useState(PermissionState.NOT_DETERMINED);
   const [userEnabled, setUserEnabled] = useState(DEFAULT_PREFERENCES.userEnabled);
   const [reminderHour, setReminderHour] = useState(DEFAULT_PREFERENCES.reminderHour);
   const [reminderMinute, setReminderMinute] = useState(DEFAULT_PREFERENCES.reminderMinute);
@@ -104,12 +115,29 @@ export default function NotificationSettingsScreen({ navigation }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [selectedTime, setSelectedTime] = useState(new Date());
 
-  // Load preferences on mount
+  // Load preferences and check permission on mount
   useFocusEffect(
     useCallback(() => {
       loadPreferences();
+      checkPermissionState();
     }, [])
   );
+
+  // Check actual system permission state
+  const checkPermissionState = async () => {
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status === 'granted') {
+        setPermissionState(PermissionState.AUTHORIZED);
+      } else if (status === 'denied') {
+        setPermissionState(PermissionState.DENIED);
+      } else {
+        setPermissionState(PermissionState.NOT_DETERMINED);
+      }
+    } catch (e) {
+      Logger.warn('Failed to check notification permission:', e);
+    }
+  };
 
   const loadPreferences = async () => {
     try {
@@ -181,13 +209,30 @@ export default function NotificationSettingsScreen({ navigation }) {
   };
 
   // Handle user enabled toggle
-  const handleUserEnabledChange = (value) => {
-    setUserEnabled(value);
-    savePreference(NOTIFICATION_STORAGE_KEYS.USER_ENABLED, value);
+  const handleUserEnabledChange = async (value) => {
+    if (value) {
+      // Trying to enable - check if permission is granted
+      const success = await enableNotifications();
+      if (success) {
+        setUserEnabled(true);
+        savePreference(NOTIFICATION_STORAGE_KEYS.USER_ENABLED, true);
+      } else {
+        // Permission was denied or failed - keep toggle OFF
+        setUserEnabled(false);
+        savePreference(NOTIFICATION_STORAGE_KEYS.USER_ENABLED, false);
+        // Refresh permission state to show correct UI
+        await checkPermissionState();
+      }
+    } else {
+      // Disabling - this always works
+      setUserEnabled(false);
+      savePreference(NOTIFICATION_STORAGE_KEYS.USER_ENABLED, false);
+      await disableNotifications();
+    }
   };
 
   // Handle reminder period selection
-  const handlePeriodSelect = (period) => {
+  const handlePeriodSelect = async (period) => {
     setReminderPeriod(period);
     savePreference(NOTIFICATION_STORAGE_KEYS.REMINDER_PERIOD, period);
 
@@ -197,6 +242,9 @@ export default function NotificationSettingsScreen({ navigation }) {
       setReminderMinute(info.minute);
       savePreference(NOTIFICATION_STORAGE_KEYS.REMINDER_HOUR, info.hour);
       savePreference(NOTIFICATION_STORAGE_KEYS.REMINDER_MINUTE, info.minute);
+
+      // Actually update the scheduled notification time
+      await updateReminderTime(info.hour, info.minute);
     }
   };
 
@@ -219,7 +267,7 @@ export default function NotificationSettingsScreen({ navigation }) {
   };
 
   // Save custom time
-  const handleTimeSave = () => {
+  const handleTimeSave = async () => {
     const hour = selectedTime.getHours();
     const minute = selectedTime.getMinutes();
 
@@ -231,23 +279,35 @@ export default function NotificationSettingsScreen({ navigation }) {
     savePreference(NOTIFICATION_STORAGE_KEYS.REMINDER_MINUTE, minute);
     savePreference(NOTIFICATION_STORAGE_KEYS.REMINDER_PERIOD, ReminderTimePeriod.CUSTOM);
 
+    // Actually update the scheduled notification time
+    await updateReminderTime(hour, minute);
+
     setShowTimePicker(false);
   };
 
   // Handle toggle changes for reminder types
-  const handleDailyReminderChange = (value) => {
+  const handleDailyReminderChange = async (value) => {
     setDailyReminderEnabled(value);
     savePreference(NOTIFICATION_STORAGE_KEYS.DAILY_REMINDER, value);
+
+    // Actually toggle the daily reminder notification
+    await toggleDailyReminder(value);
   };
 
-  const handleStreakReminderChange = (value) => {
+  const handleStreakReminderChange = async (value) => {
     setStreakReminderEnabled(value);
     savePreference(NOTIFICATION_STORAGE_KEYS.STREAK_REMINDER, value);
+
+    // Actually toggle the streak reminder notification
+    await toggleStreakReminder(value);
   };
 
-  const handleFriendNudgesChange = (value) => {
+  const handleFriendNudgesChange = async (value) => {
     setFriendNudgesEnabled(value);
     savePreference(NOTIFICATION_STORAGE_KEYS.FRIEND_NUDGES, value);
+
+    // Actually toggle friend nudges preference
+    await toggleFriendNudges(value);
   };
 
   const isAuthorized = permissionState === PermissionState.AUTHORIZED;

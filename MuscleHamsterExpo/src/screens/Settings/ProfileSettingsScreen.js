@@ -14,13 +14,13 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import {
   FitnessLevel,
@@ -39,6 +39,7 @@ import {
 
 export default function ProfileSettingsScreen({ navigation }) {
   const { profile, updateProfile, isProfileComplete } = useUserProfile();
+  const { showAlert } = useAlert();
 
   // Local editing state
   const [hamsterName, setHamsterName] = useState('');
@@ -154,14 +155,14 @@ export default function ProfileSettingsScreen({ navigation }) {
 
       setHasUnsavedChanges(false);
 
-      Alert.alert(
+      showAlert(
         'Changes Saved!',
         'Your profile has been updated. Your workout recommendations will reflect these changes.',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (e) {
       Logger.warn('Failed to save profile:', e);
-      Alert.alert('Error', 'Failed to save your profile. Please try again.');
+      showAlert('Error', 'Failed to save your profile. Please try again.');
     } finally {
       setIsSaving(false);
     }

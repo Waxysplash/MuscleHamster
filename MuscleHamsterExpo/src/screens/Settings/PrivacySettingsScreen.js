@@ -14,13 +14,13 @@ import {
   TouchableOpacity,
   Switch,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import friendService from '../../services/FriendService';
 import {
@@ -32,6 +32,7 @@ import {
 
 export default function PrivacySettingsScreen({ navigation }) {
   const { currentUser } = useAuth();
+  const { showAlert } = useAlert();
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: ProfileVisibilityLevel.EVERYONE,
     allowFriendRequests: true,
@@ -76,7 +77,7 @@ export default function PrivacySettingsScreen({ navigation }) {
       setPrivacySettings(newSettings);
     } catch (e) {
       Logger.warn('Failed to save privacy settings:', e);
-      Alert.alert("Couldn't Save", "Your changes couldn't be saved. Please try again.");
+      showAlert("Couldn't Save", "Your changes couldn't be saved. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -110,7 +111,7 @@ export default function PrivacySettingsScreen({ navigation }) {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#8B5A2B" />
       </View>
     );
   }
@@ -129,7 +130,7 @@ export default function PrivacySettingsScreen({ navigation }) {
             accessibilityHint="Controls who can find and see your profile. Double tap to change."
           >
             <View style={styles.iconContainer}>
-              <Ionicons name="eye" size={22} color="#007AFF" />
+              <Ionicons name="eye" size={22} color="#8B5A2B" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Profile Visibility</Text>
@@ -167,7 +168,7 @@ export default function PrivacySettingsScreen({ navigation }) {
             <Switch
               value={privacySettings.allowFriendRequests}
               onValueChange={handleFriendRequestsChange}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#8B5A2B' }}
               disabled={isSaving || !canToggleFriendRequests}
               accessibilityLabel="Allow Friend Requests toggle"
             />
@@ -234,7 +235,7 @@ export default function PrivacySettingsScreen({ navigation }) {
           <TouchableOpacity
             style={styles.row}
             onPress={() => {
-              Alert.alert(
+              showAlert(
                 'Delete Account',
                 'To delete your account and all data, please email us. This action cannot be undone.',
                 [
@@ -269,7 +270,7 @@ export default function PrivacySettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 16,
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   section: {
     marginBottom: 24,

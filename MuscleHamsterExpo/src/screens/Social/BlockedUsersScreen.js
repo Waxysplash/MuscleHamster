@@ -13,19 +13,20 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
+import { useAlert } from '../../context/AlertContext';
 import { getHamsterStateColor, getRelativeTimeString } from '../../models/Friend';
 import LoadingView from '../../components/LoadingView';
 
 export default function BlockedUsersScreen() {
   const navigation = useNavigation();
   const { blockedUsers, unblockUser, loadFriendData, isLoading } = useFriends();
+  const { showAlert } = useAlert();
 
   const [unblockingId, setUnblockingId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,7 +39,7 @@ export default function BlockedUsersScreen() {
 
   const handleUnblock = (blockedUser, profile) => {
     const name = profile?.displayName || 'this user';
-    Alert.alert(
+    showAlert(
       `Unblock ${name}?`,
       "They'll be able to find you and send friend requests again.",
       [
@@ -50,7 +51,7 @@ export default function BlockedUsersScreen() {
             const result = await unblockUser(blockedUser.blockedId);
             setUnblockingId(null);
             if (!result.success) {
-              Alert.alert('Oops', result.error || 'Could not unblock user');
+              showAlert('Oops', result.error || 'Could not unblock user');
             }
           },
         },
@@ -67,7 +68,7 @@ export default function BlockedUsersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
         <Text style={styles.title}>Blocked Users</Text>
         <View style={styles.placeholder} />
@@ -137,7 +138,7 @@ function BlockedUserRow({ blockedUser, profile, isUnblocking, onUnblock }) {
 
       {/* Unblock button */}
       {isUnblocking ? (
-        <ActivityIndicator size="small" color="#007AFF" />
+        <ActivityIndicator size="small" color="#8B5A2B" />
       ) : (
         <TouchableOpacity onPress={onUnblock}>
           <Text style={styles.unblockButton}>Unblock</Text>
@@ -150,7 +151,7 @@ function BlockedUserRow({ blockedUser, profile, isUnblocking, onUnblock }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   unblockButton: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 14,
     fontWeight: '600',
   },

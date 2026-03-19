@@ -8,3 +8,4 @@ export { default as LoadingView } from './LoadingView';
 export { default as NotificationContextBanner } from './NotificationContextBanner';
 export { default as NotificationPermissionPrompt } from './NotificationPermissionPrompt';
 export { default as SocialAuthButton } from './SocialAuthButton';
+export { default as ThemedAlert } from './ThemedAlert';

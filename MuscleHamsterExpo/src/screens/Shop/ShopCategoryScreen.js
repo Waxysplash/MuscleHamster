@@ -14,12 +14,12 @@ import {
   StyleSheet,
   RefreshControl,
   Modal,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { ShopService } from '../../services/ShopService';
 import { useActivity } from '../../context/ActivityContext';
+import { useAlert } from '../../context/AlertContext';
 import {
   ShopItemCategory,
   ShopItemCategoryInfo,
@@ -54,6 +54,7 @@ export default function ShopCategoryScreen({ route, navigation }) {
   const { category } = route.params || {};
   const categoryInfo = ShopItemCategoryInfo[category] || {};
   const { totalPoints, recordShopPurchase } = useActivity();
+  const { showAlert } = useAlert();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -135,16 +136,16 @@ export default function ShopCategoryScreen({ route, navigation }) {
         await recordShopPurchase(selectedItem.id, selectedItem.name, result.pointsSpent);
         setOwnedItemIds((prev) => new Set([...prev, selectedItem.id]));
 
-        Alert.alert(
+        showAlert(
           result.message,
           result.hamsterReaction,
           [{ text: 'Yay!', onPress: () => setSelectedItem(null) }]
         );
       } else {
-        Alert.alert('Oops!', result.message);
+        showAlert('Oops!', result.message);
       }
     } catch (e) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      showAlert('Error', 'Something went wrong. Please try again.');
     } finally {
       setIsPurchasing(false);
     }

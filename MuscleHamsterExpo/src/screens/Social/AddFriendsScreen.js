@@ -2,75 +2,148 @@
  * AddFriendsScreen.js
  * MuscleHamster Expo
  *
- * Screen for searching and adding friends
- * Ported from Phase 09: Social Features (Swift version)
+ * Screen for adding friends via invite codes
+ * Users can share their code or enter a friend's code
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
-  FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Share,
+  ScrollView,
+  Keyboard,
+  Platform,
+  Clipboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import { getHamsterStateColor } from '../../models/Friend';
 
 export default function AddFriendsScreen() {
   const navigation = useNavigation();
-  const { searchUsers, sendFriendRequest, pendingRequestCount } = useFriends();
+  const { getInviteCode, useInviteCode, lookupInviteCode, pendingRequestCount } = useFriends();
+  const { userProfile } = useUserProfile();
+  const { showAlert } = useAlert();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [sendingTo, setSendingTo] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [myInviteCode, setMyInviteCode] = useState(null);
+  const [isLoadingCode, setIsLoadingCode] = useState(true);
+  const [inputCode, setInputCode] = useState('');
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [lookupResult, setLookupResult] = useState(null);
+  const [isSendingRequest, setIsSendingRequest] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleSearch = async () => {
-    if (searchQuery.trim().length < 2) return;
+  useEffect(() => {
+    loadMyInviteCode();
+  }, []);
 
-    setIsSearching(true);
-    setHasSearched(true);
-    const results = await searchUsers(searchQuery.trim());
-    setSearchResults(results);
-    setIsSearching(false);
+  const loadMyInviteCode = async () => {
+    setIsLoadingCode(true);
+    const code = await getInviteCode(userProfile?.hamsterName);
+    setMyInviteCode(code);
+    setIsLoadingCode(false);
   };
 
-  const handleSendRequest = async (userId) => {
-    setSendingTo(userId);
-    const result = await sendFriendRequest(userId);
-    setSendingTo(null);
+  const handleCopyCode = async () => {
+    if (!myInviteCode) return;
 
-    if (result.success) {
-      // Update local results
-      setSearchResults(prev =>
-        prev.map(r =>
-          r.profile.id === userId
-            ? { ...r, hasPendingRequest: true, requestSentByMe: true }
-            : r
-        )
-      );
-    } else {
-      Alert.alert('Oops', result.error || 'Could not send request');
+    try {
+      if (Platform.OS === 'web') {
+        await navigator.clipboard.writeText(myInviteCode);
+      } else {
+        Clipboard.setString(myInviteCode);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      Logger.error('Copy error:', error);
     }
   };
 
-  const handleShareInvite = async () => {
+  const handleShareCode = async () => {
+    if (!myInviteCode) return;
+
     try {
+      const hamsterName = userProfile?.hamsterName || 'My hamster';
       await Share.share({
-        message: "Join me on Muscle Hamster! Let's workout together and keep each other motivated. Download the app: [App Store Link]",
+        message: `Join me on Muscle Hamster! Use my invite code: ${myInviteCode}\n\n${hamsterName} wants to work out with you! Download the app and add me as a friend.`,
         title: 'Invite to Muscle Hamster',
       });
     } catch (error) {
       Logger.error('Share error:', error);
+    }
+  };
+
+  const formatInputCode = (text) => {
+    // Remove any non-alphanumeric characters except dash
+    let cleaned = text.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+
+    // Auto-format to MH-XXXXXX
+    if (cleaned.length === 2 && !cleaned.includes('-')) {
+      cleaned = cleaned + '-';
+    } else if (cleaned.length > 3 && !cleaned.includes('-')) {
+      cleaned = cleaned.slice(0, 2) + '-' + cleaned.slice(2);
+    }
+
+    // Limit length
+    if (cleaned.length > 9) {
+      cleaned = cleaned.slice(0, 9);
+    }
+
+    return cleaned;
+  };
+
+  const handleInputChange = (text) => {
+    const formatted = formatInputCode(text);
+    setInputCode(formatted);
+    setLookupResult(null);
+  };
+
+  const handleLookupCode = async () => {
+    if (inputCode.length < 9) {
+      showAlert('Invalid Code', 'Please enter a complete invite code (MH-XXXXXX)');
+      return;
+    }
+
+    Keyboard.dismiss();
+    setIsLookingUp(true);
+    setLookupResult(null);
+
+    const result = await lookupInviteCode(inputCode);
+    setIsLookingUp(false);
+
+    if (!result) {
+      showAlert('Not Found', "We couldn't find anyone with that invite code. Please check and try again.");
+      return;
+    }
+
+    setLookupResult(result);
+  };
+
+  const handleSendRequest = async () => {
+    if (!lookupResult) return;
+
+    setIsSendingRequest(true);
+    const result = await useInviteCode(inputCode);
+    setIsSendingRequest(false);
+
+    if (result.success) {
+      showAlert(
+        'Request Sent!',
+        `Your friend request has been sent to ${lookupResult.ownerHamsterName}. They'll see it soon!`,
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } else {
+      showAlert('Oops', result.error || 'Could not send friend request');
     }
   };
 
@@ -79,155 +152,216 @@ export default function AddFriendsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+          <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
         <Text style={styles.title}>Add Friends</Text>
         <View style={styles.placeholder} />
       </View>
 
-      {/* Pending Requests Link */}
-      {pendingRequestCount > 0 && (
-        <TouchableOpacity
-          style={styles.pendingBanner}
-          onPress={() => navigation.navigate('PendingRequests')}
-        >
-          <View style={styles.pendingIcon}>
-            <Ionicons name="mail" size={20} color="#FF9500" />
-          </View>
-          <View style={styles.pendingInfo}>
-            <Text style={styles.pendingTitle}>Friend Requests</Text>
-            <Text style={styles.pendingSubtitle}>{pendingRequestCount} waiting for you</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
-        </TouchableOpacity>
-      )}
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#8E8E93" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search by name or email"
-            placeholderTextColor="#8E8E93"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color="#C7C7CC" />
-            </TouchableOpacity>
-          )}
-        </View>
-        <TouchableOpacity
-          style={[styles.searchButton, searchQuery.trim().length < 2 && styles.searchButtonDisabled]}
-          onPress={handleSearch}
-          disabled={searchQuery.trim().length < 2}
-        >
-          <Text style={styles.searchButtonText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Results */}
-      {isSearching ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Searching...</Text>
-        </View>
-      ) : searchResults.length > 0 ? (
-        <FlatList
-          data={searchResults}
-          keyExtractor={(item) => item.profile.id}
-          renderItem={({ item }) => (
-            <SearchResultRow
-              result={item}
-              isSending={sendingTo === item.profile.id}
-              onSendRequest={() => handleSendRequest(item.profile.id)}
-            />
-          )}
-          contentContainerStyle={styles.resultsList}
-        />
-      ) : hasSearched ? (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="search" size={50} color="#C7C7CC" />
-          <Text style={styles.emptyTitle}>No results found</Text>
-          <Text style={styles.emptyMessage}>
-            Try a different search or invite your friends to join!
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Ionicons name="people" size={50} color="#C7C7CC" />
-          <Text style={styles.emptyTitle}>Find your friends</Text>
-          <Text style={styles.emptyMessage}>
-            Search by name or email to connect with friends.
-          </Text>
-        </View>
-      )}
-
-      {/* Invite Button */}
-      <View style={styles.inviteContainer}>
-        <TouchableOpacity style={styles.inviteButton} onPress={handleShareInvite}>
-          <Ionicons name="share-outline" size={20} color="#007AFF" />
-          <Text style={styles.inviteButtonText}>Invite Friends</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-function SearchResultRow({ result, isSending, onSendRequest }) {
-  const { profile, isFriend, hasPendingRequest, requestSentByMe } = result;
-  const stateColor = getHamsterStateColor(profile.hamsterState);
-
-  return (
-    <View style={styles.resultRow}>
-      {/* Avatar */}
-      <View style={[styles.avatar, { backgroundColor: `${stateColor}33` }]}>
-        <Ionicons name="paw" size={22} color={stateColor} />
-      </View>
-
-      {/* Info */}
-      <View style={styles.resultInfo}>
-        <Text style={styles.resultName}>{profile.displayName}</Text>
-        {profile.hamsterName && (
-          <Text style={styles.resultHamster}>{profile.hamsterName}</Text>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Pending Requests Link */}
+        {pendingRequestCount > 0 && (
+          <TouchableOpacity
+            style={styles.pendingBanner}
+            onPress={() => navigation.navigate('PendingRequests')}
+          >
+            <View style={styles.pendingIcon}>
+              <Ionicons name="mail" size={20} color="#FF9500" />
+            </View>
+            <View style={styles.pendingInfo}>
+              <Text style={styles.pendingTitle}>Friend Requests</Text>
+              <Text style={styles.pendingSubtitle}>{pendingRequestCount} waiting for you</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+          </TouchableOpacity>
         )}
-      </View>
 
-      {/* Action */}
-      {isFriend ? (
-        <View style={styles.friendBadge}>
-          <Ionicons name="checkmark-circle" size={16} color="#34C759" />
-          <Text style={styles.friendBadgeText}>Friends</Text>
-        </View>
-      ) : hasPendingRequest ? (
-        <View style={styles.pendingBadge}>
-          <Ionicons name="time" size={16} color="#FF9500" />
-          <Text style={styles.pendingBadgeText}>
-            {requestSentByMe ? 'Sent' : 'Pending'}
+        {/* My Invite Code Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Invite Code</Text>
+          <Text style={styles.sectionSubtitle}>
+            Share this code with friends so they can add you
           </Text>
+
+          <View style={styles.inviteCodeCard}>
+            {isLoadingCode ? (
+              <ActivityIndicator size="large" color="#8B5A2B" />
+            ) : myInviteCode ? (
+              <>
+                <View style={styles.codeContainer}>
+                  <Text style={styles.inviteCodeText}>{myInviteCode}</Text>
+                </View>
+
+                <View style={styles.codeActions}>
+                  <TouchableOpacity
+                    style={[styles.codeButton, copied && styles.codeButtonCopied]}
+                    onPress={handleCopyCode}
+                  >
+                    <Ionicons
+                      name={copied ? "checkmark" : "copy-outline"}
+                      size={20}
+                      color={copied ? "#34C759" : "#8B5A2B"}
+                    />
+                    <Text style={[styles.codeButtonText, copied && styles.codeButtonTextCopied]}>
+                      {copied ? 'Copied!' : 'Copy'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.shareButton} onPress={handleShareCode}>
+                    <Ionicons name="share-outline" size={20} color="#fff" />
+                    <Text style={styles.shareButtonText}>Share</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <Text style={styles.errorText}>Could not load invite code</Text>
+            )}
+          </View>
         </View>
-      ) : (
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={onSendRequest}
-          disabled={isSending}
-        >
-          {isSending ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="person-add" size={16} color="#fff" />
-              <Text style={styles.addButtonText}>Add</Text>
-            </>
+
+        {/* Enter Friend's Code Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Add a Friend</Text>
+          <Text style={styles.sectionSubtitle}>
+            Enter your friend's invite code to send them a request
+          </Text>
+
+          <View style={styles.inputCard}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.codeInput}
+                placeholder="MH-XXXXXX"
+                placeholderTextColor="#C7C7CC"
+                value={inputCode}
+                onChangeText={handleInputChange}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={9}
+                returnKeyType="search"
+                onSubmitEditing={handleLookupCode}
+              />
+              {inputCode.length > 0 && (
+                <TouchableOpacity
+                  style={styles.clearButton}
+                  onPress={() => {
+                    setInputCode('');
+                    setLookupResult(null);
+                  }}
+                >
+                  <Ionicons name="close-circle" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.lookupButton,
+                inputCode.length < 9 && styles.lookupButtonDisabled
+              ]}
+              onPress={handleLookupCode}
+              disabled={inputCode.length < 9 || isLookingUp}
+            >
+              {isLookingUp ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.lookupButtonText}>Look Up</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Lookup Result */}
+          {lookupResult && (
+            <View style={styles.resultCard}>
+              <View style={styles.resultHeader}>
+                <View style={[
+                  styles.resultAvatar,
+                  { backgroundColor: `${getHamsterStateColor(lookupResult.ownerProfile?.hamsterState)}33` }
+                ]}>
+                  <Ionicons
+                    name="paw"
+                    size={28}
+                    color={getHamsterStateColor(lookupResult.ownerProfile?.hamsterState)}
+                  />
+                </View>
+                <View style={styles.resultInfo}>
+                  <Text style={styles.resultName}>{lookupResult.ownerHamsterName}</Text>
+                  <Text style={styles.resultSubtitle}>
+                    {lookupResult.ownerProfile?.currentStreak > 0
+                      ? `${lookupResult.ownerProfile.currentStreak} day streak`
+                      : 'Ready to start working out!'}
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.addFriendButton}
+                onPress={handleSendRequest}
+                disabled={isSendingRequest}
+              >
+                {isSendingRequest ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="person-add" size={20} color="#fff" />
+                    <Text style={styles.addFriendButtonText}>Send Friend Request</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           )}
-        </TouchableOpacity>
-      )}
+        </View>
+
+        {/* How It Works */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>How It Works</Text>
+
+          <View style={styles.howItWorksCard}>
+            <View style={styles.howItWorksItem}>
+              <View style={styles.howItWorksIcon}>
+                <Ionicons name="share-social" size={20} color="#8B5A2B" />
+              </View>
+              <View style={styles.howItWorksContent}>
+                <Text style={styles.howItWorksTitle}>Share Your Code</Text>
+                <Text style={styles.howItWorksText}>
+                  Send your invite code to friends via text, social media, or in person
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.howItWorksDivider} />
+
+            <View style={styles.howItWorksItem}>
+              <View style={styles.howItWorksIcon}>
+                <Ionicons name="enter-outline" size={20} color="#34C759" />
+              </View>
+              <View style={styles.howItWorksContent}>
+                <Text style={styles.howItWorksTitle}>Enter Their Code</Text>
+                <Text style={styles.howItWorksText}>
+                  Got a friend's code? Enter it above to send them a request
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.howItWorksDivider} />
+
+            <View style={styles.howItWorksItem}>
+              <View style={styles.howItWorksIcon}>
+                <Ionicons name="flame" size={20} color="#FF9500" />
+              </View>
+              <View style={styles.howItWorksContent}>
+                <Text style={styles.howItWorksTitle}>Build Streaks Together</Text>
+                <Text style={styles.howItWorksText}>
+                  Once connected, work out together and build friend streaks!
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -235,7 +369,7 @@ function SearchResultRow({ result, isSending, onSendRequest }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -244,7 +378,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   backButton: {
     padding: 8,
@@ -252,9 +386,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   placeholder: {
     width: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   pendingBanner: {
     flexDirection: 'row',
@@ -286,68 +427,153 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
     marginTop: 2,
   },
-  searchContainer: {
-    flexDirection: 'row',
+  section: {
+    marginTop: 24,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 4,
+    color: '#4A3728',
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginBottom: 16,
+  },
+  inviteCodeCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  codeContainer: {
+    backgroundColor: 'rgba(255, 149, 0, 0.12)',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  inviteCodeText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FF9500',
+    letterSpacing: 2,
+  },
+  codeActions: {
+    flexDirection: 'row',
     gap: 12,
   },
-  searchBar: {
-    flex: 1,
+  codeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 44,
-    gap: 8,
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#8B5A2B',
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000',
+  codeButtonCopied: {
+    borderColor: '#34C759',
   },
-  searchButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    height: 44,
-    justifyContent: 'center',
-  },
-  searchButtonDisabled: {
-    backgroundColor: '#C7C7CC',
-  },
-  searchButtonText: {
-    color: '#fff',
+  codeButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#8B5A2B',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  codeButtonTextCopied: {
+    color: '#34C759',
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#8E8E93',
-  },
-  resultsList: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  resultRow: {
+  shareButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 12,
+    gap: 6,
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderRadius: 12,
-    marginBottom: 8,
   },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  shareButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#FF3B30',
+  },
+  inputCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    gap: 12,
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(139, 90, 43, 0.08)',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+  },
+  codeInput: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '600',
+    paddingVertical: 12,
+    letterSpacing: 1,
+    color: '#4A3728',
+  },
+  clearButton: {
+    padding: 4,
+  },
+  lookupButton: {
+    backgroundColor: '#8B5A2B',
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  lookupButtonDisabled: {
+    backgroundColor: '#C7C7CC',
+  },
+  lookupButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  resultCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 12,
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  resultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  resultAvatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -356,90 +582,71 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   resultName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A3728',
   },
-  resultHamster: {
-    fontSize: 13,
+  resultSubtitle: {
+    fontSize: 14,
     color: '#8E8E93',
     marginTop: 2,
   },
-  friendBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    borderRadius: 8,
-  },
-  friendBadgeText: {
-    color: '#34C759',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  pendingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(255, 149, 0, 0.1)',
-    borderRadius: 8,
-  },
-  pendingBadgeText: {
-    color: '#FF9500',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyMessage: {
-    fontSize: 14,
-    color: '#8E8E93',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  inviteContainer: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  inviteButton: {
+  addFriendButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    backgroundColor: '#34C759',
     paddingVertical: 14,
     borderRadius: 12,
   },
-  inviteButtonText: {
-    color: '#007AFF',
+  addFriendButtonText: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#fff',
+  },
+  howItWorksCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  howItWorksItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+  },
+  howItWorksIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 149, 0, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  howItWorksContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  howItWorksTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
+    color: '#4A3728',
+  },
+  howItWorksText: {
+    fontSize: 13,
+    color: '#8E8E93',
+    lineHeight: 18,
+  },
+  howItWorksDivider: {
+    height: 1,
+    backgroundColor: '#E5E5EA',
+    marginVertical: 8,
+    marginLeft: 48,
   },
 });
