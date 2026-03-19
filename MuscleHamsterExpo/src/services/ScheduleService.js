@@ -30,13 +30,13 @@ export const DAYS_OF_WEEK = [
 ];
 
 export const DAY_LABELS = {
-  monday: 'Mon',
-  tuesday: 'Tue',
-  wednesday: 'Wed',
-  thursday: 'Thu',
-  friday: 'Fri',
-  saturday: 'Sat',
-  sunday: 'Sun',
+  monday: 'Monday',
+  tuesday: 'Tuesday',
+  wednesday: 'Wednesday',
+  thursday: 'Thursday',
+  friday: 'Friday',
+  saturday: 'Saturday',
+  sunday: 'Sunday',
 };
 
 export const DAY_TYPES = {
@@ -169,15 +169,44 @@ export const createEmptyDay = () => ({
 
 /**
  * Create a workout day schedule
+ * Supports multiple workouts per day
+ * @param {Array|string} workouts - Array of workout objects or single workoutId (legacy)
+ * @param {string} workoutType - Type if single workout (legacy support)
+ * @param {string} workoutName - Name if single workout (legacy support)
  */
-export const createWorkoutDay = (workoutId, workoutType, workoutName) => ({
-  type: DAY_TYPES.WORKOUT,
-  workoutId: workoutId || null,
-  workoutType: workoutType || null, // 'stock' or 'custom'
-  workoutName: workoutName || null,
-  completed: false,
-  completedAt: null,
-});
+export const createWorkoutDay = (workouts, workoutType, workoutName) => {
+  // Support legacy single workout format
+  if (typeof workouts === 'string' || workouts === null) {
+    const singleWorkout = workouts ? [{
+      workoutId: workouts,
+      workoutType: workoutType || null,
+      workoutName: workoutName || null,
+    }] : [];
+
+    return {
+      type: DAY_TYPES.WORKOUT,
+      workouts: singleWorkout,
+      // Legacy fields for backwards compatibility
+      workoutId: workouts || null,
+      workoutType: workoutType || null,
+      workoutName: workoutName || null,
+      completed: false,
+      completedAt: null,
+    };
+  }
+
+  // New array format
+  return {
+    type: DAY_TYPES.WORKOUT,
+    workouts: workouts || [],
+    // Set legacy fields from first workout for backwards compatibility
+    workoutId: workouts?.[0]?.workoutId || null,
+    workoutType: workouts?.[0]?.workoutType || null,
+    workoutName: workouts?.[0]?.workoutName || null,
+    completed: false,
+    completedAt: null,
+  };
+};
 
 /**
  * Create a rest day schedule

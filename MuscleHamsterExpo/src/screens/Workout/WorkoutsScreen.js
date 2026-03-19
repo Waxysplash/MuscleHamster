@@ -156,9 +156,19 @@ export default function WorkoutsScreen({ navigation, route }) {
     setShowAddWorkoutModal(true);
   };
 
+  // Handle single workout selection (legacy)
   const handleSelectWorkout = async (workoutId, workoutType, workoutName) => {
     if (selectedDay) {
       await scheduleWorkout(selectedDay, workoutId, workoutType, workoutName);
+      setShowAddWorkoutModal(false);
+      setSelectedDay(null);
+    }
+  };
+
+  // Handle multiple workout selection (new)
+  const handleSelectWorkouts = async (workoutsArray) => {
+    if (selectedDay && workoutsArray.length > 0) {
+      await scheduleWorkout(selectedDay, workoutsArray);
       setShowAddWorkoutModal(false);
       setSelectedDay(null);
     }
@@ -460,7 +470,7 @@ export default function WorkoutsScreen({ navigation, route }) {
           visible={showAddWorkoutModal}
           dayName={selectedDay}
           currentDayData={selectedDayData}
-          onSelectWorkout={handleSelectWorkout}
+          onSelectWorkouts={handleSelectWorkouts}
           onSelectRest={handleSelectRestDay}
           onClear={handleClearDay}
           onClose={() => {

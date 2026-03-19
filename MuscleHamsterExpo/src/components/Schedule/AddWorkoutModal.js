@@ -1,4 +1,4 @@
-// AddWorkoutModal - 2-step flow: Pick category → Pick workout
+// AddWorkoutModal - 2-step flow: Pick category → Pick multiple workouts
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -9,24 +9,37 @@ import {
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 
-// Category options for selection (matches Add Workout screen types + body parts)
+// Category images (same as Browse tab)
+const CategoryImages = {
+  legs: require('../../../assets/images/gym_legs.png'),
+  arms: require('../../../assets/images/gym_arms.png'),
+  back: require('../../../assets/images/gym_back.png'),
+  chest: require('../../../assets/images/gym_chest.png'),
+  shoulders: require('../../../assets/images/gym_shoulders.png'),
+  core: require('../../../assets/images/gym_core.png'),
+  cardio: null, // Will add later
+  class: null, // Will add later
+};
+
+// Category options for selection
 const CATEGORY_OPTIONS = [
-  { id: 'arms', name: 'Arms', icon: 'hand-left-outline', color: '#9B59B6' },
-  { id: 'legs', name: 'Legs', icon: 'walk-outline', color: '#E74C3C' },
-  { id: 'shoulders', name: 'Shoulders', icon: 'expand-outline', color: '#E67E22' },
-  { id: 'chest', name: 'Chest', icon: 'shield-outline', color: '#F39C12' },
-  { id: 'back', name: 'Back', icon: 'arrow-back-outline', color: '#45B7D1' },
-  { id: 'core', name: 'Core', icon: 'ellipse-outline', color: '#8B5A2B' },
+  { id: 'arms', name: 'Arms', color: '#9B59B6' },
+  { id: 'legs', name: 'Legs', color: '#E74C3C' },
+  { id: 'shoulders', name: 'Shoulders', color: '#E67E22' },
+  { id: 'chest', name: 'Chest', color: '#F39C12' },
+  { id: 'back', name: 'Back', color: '#45B7D1' },
+  { id: 'core', name: 'Core', color: '#8B5A2B' },
   { id: 'cardio', name: 'Cardio', icon: 'heart-outline', color: '#FF3B30' },
   { id: 'class', name: 'Class', icon: 'people-outline', color: '#AF52DE' },
 ];
 
-// Gym workouts from Browse tab (same as GymBodyPartScreen)
+// Gym workouts from Browse tab
 const GYM_WORKOUTS = {
   legs: [
     { id: 'gym-legs-1', name: 'Barbell Back Squat', target: 'Quads/Glutes' },
@@ -104,36 +117,51 @@ const GYM_WORKOUTS = {
 
 /**
  * AddWorkoutModal Component
- * 2-step flow for selecting a workout for a specific day
- * Step 1: Pick category (body part, cardio, or class)
- * Step 2: Pick workout from Browse library or My Workouts
+ * 2-step flow for selecting workouts for a specific day
+ * Step 1: Pick categories (body parts)
+ * Step 2: Pick multiple workouts from those categories
  */
 export default function AddWorkoutModal({
   visible,
   dayName,
   currentDayData,
-  onSelectWorkout,
+  onSelectWorkouts,
   onSelectRest,
   onClear,
   onClose,
 }) {
   // State
-  const [step, setStep] = useState(1); // 1 = categories, 2 = workouts
+  const [step, setStep] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [matchingWorkouts, setMatchingWorkouts] = useState([]);
+  const [selectedWorkouts, setSelectedWorkouts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Get custom workouts
   const { customWorkouts } = useCustomWorkouts();
 
-  // Reset state when modal opens
+  // Reset state when modal opens, pre-populate with existing workouts
   useEffect(() => {
     if (visible) {
       setStep(1);
       setSelectedCategories([]);
       setMatchingWorkouts([]);
+
+      // Pre-populate selected workouts from current day data
+      if (currentDayData?.workouts && currentDayData.workouts.length > 0) {
+        setSelectedWorkouts(currentDayData.workouts);
+      } else if (currentDayData?.workoutId) {
+        // Legacy single workout format
+        setSelectedWorkouts([{
+          workoutId: currentDayData.workoutId,
+          workoutType: currentDayData.workoutType,
+          workoutName: currentDayData.workoutName,
+        }]);
+      } else {
+        setSelectedWorkouts([]);
+      }
     }
-  }, [visible]);
+  }, [visible, currentDayData]);
 
   // Toggle category selection
   const toggleCategory = (categoryId) => {
@@ -151,11 +179,10 @@ export default function AddWorkoutModal({
 
     setIsLoading(true);
 
-    // Small delay to show loading state
     setTimeout(() => {
       const results = [];
 
-      // Get workouts from Browse library (GYM_WORKOUTS)
+      // Get workouts from Browse library
       selectedCategories.forEach((category) => {
         if (GYM_WORKOUTS[category]) {
           GYM_WORKOUTS[category].forEach((workout) => {
@@ -170,11 +197,9 @@ export default function AddWorkoutModal({
 
       // Get matching custom workouts
       const matchingCustom = customWorkouts.filter((w) => {
-        // Check if workout type matches category (cardio, class)
         if (selectedCategories.includes(w.type)) {
           return true;
         }
-        // Check tags for body part matches
         if (w.tags && Array.isArray(w.tags)) {
           return w.tags.some((tag) =>
             selectedCategories.some((cat) =>
@@ -186,7 +211,6 @@ export default function AddWorkoutModal({
         return false;
       });
 
-      // Add custom workouts at the top
       const customResults = matchingCustom.map((w) => ({
         ...w,
         isCustom: true,
@@ -197,7 +221,7 @@ export default function AddWorkoutModal({
     }, 200);
   }, [selectedCategories, customWorkouts]);
 
-  // Handle "Next" button - go to step 2
+  // Handle "Next" button
   const handleNext = () => {
     setStep(2);
     loadMatchingWorkouts();
@@ -209,15 +233,90 @@ export default function AddWorkoutModal({
     setMatchingWorkouts([]);
   };
 
-  // Handle workout selection
-  const handleSelectWorkout = (workout) => {
-    const type = workout.isCustom ? 'custom' : 'gym';
-    onSelectWorkout?.(workout.id, type, workout.name);
+  // Toggle workout selection (multi-select)
+  const toggleWorkout = (workout) => {
+    setSelectedWorkouts((prev) => {
+      const workoutId = workout.id;
+      const exists = prev.some((w) => w.workoutId === workoutId);
+
+      if (exists) {
+        return prev.filter((w) => w.workoutId !== workoutId);
+      } else {
+        return [...prev, {
+          workoutId: workout.id,
+          workoutType: workout.isCustom ? 'custom' : 'gym',
+          workoutName: workout.name,
+        }];
+      }
+    });
+  };
+
+  // Check if workout is selected
+  const isWorkoutSelected = (workoutId) => {
+    return selectedWorkouts.some((w) => w.workoutId === workoutId);
+  };
+
+  // Handle save button
+  const handleSave = () => {
+    if (selectedWorkouts.length > 0) {
+      onSelectWorkouts?.(selectedWorkouts);
+    }
   };
 
   // Check if day has content
   const hasContent = currentDayData && currentDayData.type !== DAY_TYPES.EMPTY;
   const dayLabel = DAY_LABELS[dayName] || dayName;
+
+  // Render category card with image
+  const renderCategoryCard = (cat) => {
+    const isSelected = selectedCategories.includes(cat.id);
+    const hasImage = CategoryImages[cat.id];
+
+    return (
+      <TouchableOpacity
+        key={cat.id}
+        style={[
+          styles.categoryCard,
+          isSelected && styles.categoryCardSelected,
+        ]}
+        onPress={() => toggleCategory(cat.id)}
+      >
+        {hasImage ? (
+          <Image
+            source={CategoryImages[cat.id]}
+            style={styles.categoryImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <View
+            style={[
+              styles.categoryIcon,
+              { backgroundColor: isSelected ? cat.color : '#F5F0EB' },
+            ]}
+          >
+            <Ionicons
+              name={cat.icon || 'fitness-outline'}
+              size={28}
+              color={isSelected ? '#fff' : cat.color}
+            />
+          </View>
+        )}
+        <Text
+          style={[
+            styles.categoryName,
+            isSelected && styles.categoryNameSelected,
+          ]}
+        >
+          {cat.name}
+        </Text>
+        {isSelected && (
+          <View style={styles.checkmark}>
+            <Ionicons name="checkmark-circle" size={22} color="#34C759" />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <Modal
@@ -250,36 +349,17 @@ export default function AddWorkoutModal({
           {step === 1 ? (
             // STEP 1: Category Selection
             <>
-              {/* Quick Options */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Quick Options</Text>
-
-                {/* Rest Day */}
-                <TouchableOpacity style={styles.quickOption} onPress={onSelectRest}>
-                  <View style={[styles.quickOptionIcon, styles.restIcon]}>
-                    <Ionicons name="bed" size={24} color="#8B5A2B" />
-                  </View>
-                  <View style={styles.quickOptionInfo}>
-                    <Text style={styles.quickOptionTitle}>Rest Day</Text>
-                    <Text style={styles.quickOptionSubtitle}>Recovery is part of the journey</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-                </TouchableOpacity>
-
-                {/* Clear Day */}
-                {hasContent && (
-                  <TouchableOpacity style={styles.quickOption} onPress={onClear}>
-                    <View style={[styles.quickOptionIcon, styles.clearIcon]}>
-                      <Ionicons name="close-circle" size={24} color="#FF3B30" />
+              {/* Clear Day Option (only if has content) */}
+              {hasContent && (
+                <View style={styles.section}>
+                  <TouchableOpacity style={styles.clearOption} onPress={onClear}>
+                    <View style={styles.clearIcon}>
+                      <Ionicons name="trash-outline" size={20} color="#FF3B30" />
                     </View>
-                    <View style={styles.quickOptionInfo}>
-                      <Text style={styles.quickOptionTitle}>Clear Day</Text>
-                      <Text style={styles.quickOptionSubtitle}>Remove scheduled activity</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+                    <Text style={styles.clearText}>Clear All Workouts</Text>
                   </TouchableOpacity>
-                )}
-              </View>
+                </View>
+              )}
 
               {/* Category Selection */}
               <View style={styles.section}>
@@ -287,45 +367,7 @@ export default function AddWorkoutModal({
                 <Text style={styles.sectionSubtitle}>Select one or more categories</Text>
 
                 <View style={styles.categoryGrid}>
-                  {CATEGORY_OPTIONS.map((cat) => {
-                    const isSelected = selectedCategories.includes(cat.id);
-                    return (
-                      <TouchableOpacity
-                        key={cat.id}
-                        style={[
-                          styles.categoryCard,
-                          isSelected && styles.categoryCardSelected,
-                        ]}
-                        onPress={() => toggleCategory(cat.id)}
-                      >
-                        <View
-                          style={[
-                            styles.categoryIcon,
-                            { backgroundColor: isSelected ? cat.color : '#F5F0EB' },
-                          ]}
-                        >
-                          <Ionicons
-                            name={cat.icon}
-                            size={24}
-                            color={isSelected ? '#fff' : cat.color}
-                          />
-                        </View>
-                        <Text
-                          style={[
-                            styles.categoryName,
-                            isSelected && styles.categoryNameSelected,
-                          ]}
-                        >
-                          {cat.name}
-                        </Text>
-                        {isSelected && (
-                          <View style={styles.checkmark}>
-                            <Ionicons name="checkmark-circle" size={20} color="#34C759" />
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
+                  {CATEGORY_OPTIONS.map(renderCategoryCard)}
                 </View>
               </View>
 
@@ -340,7 +382,7 @@ export default function AddWorkoutModal({
               )}
             </>
           ) : (
-            // STEP 2: Workout Selection
+            // STEP 2: Workout Selection (Multi-select)
             <>
               {/* Selected Categories Summary */}
               <View style={styles.selectedSummary}>
@@ -359,6 +401,16 @@ export default function AddWorkoutModal({
                 </View>
               </View>
 
+              {/* Selected Workouts Count */}
+              {selectedWorkouts.length > 0 && (
+                <View style={styles.selectionBanner}>
+                  <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+                  <Text style={styles.selectionBannerText}>
+                    {selectedWorkouts.length} workout{selectedWorkouts.length !== 1 ? 's' : ''} selected
+                  </Text>
+                </View>
+              )}
+
               {/* Loading */}
               {isLoading && (
                 <View style={styles.loadingContainer}>
@@ -369,37 +421,53 @@ export default function AddWorkoutModal({
               {/* Workouts List */}
               {!isLoading && matchingWorkouts.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Choose a Workout</Text>
+                  <Text style={styles.sectionTitle}>Select Workouts</Text>
+                  <Text style={styles.sectionSubtitle}>Tap to add or remove</Text>
 
-                  {matchingWorkouts.map((workout) => (
-                    <TouchableOpacity
-                      key={workout.id}
-                      style={styles.workoutItem}
-                      onPress={() => handleSelectWorkout(workout)}
-                    >
-                      <View
+                  {matchingWorkouts.map((workout) => {
+                    const isSelected = isWorkoutSelected(workout.id);
+                    return (
+                      <TouchableOpacity
+                        key={workout.id}
                         style={[
-                          styles.workoutIcon,
-                          workout.isCustom && styles.customWorkoutIcon,
+                          styles.workoutItem,
+                          isSelected && styles.workoutItemSelected,
                         ]}
+                        onPress={() => toggleWorkout(workout)}
                       >
-                        <Ionicons
-                          name={workout.isCustom ? 'person' : 'barbell'}
-                          size={20}
-                          color={workout.isCustom ? '#8B5A2B' : '#fff'}
-                        />
-                      </View>
-                      <View style={styles.workoutInfo}>
-                        <Text style={styles.workoutName}>{workout.name}</Text>
-                        <Text style={styles.workoutMeta}>
-                          {workout.isCustom
-                            ? `${workout.completionCount || 0} times completed`
-                            : workout.target || ''}
-                        </Text>
-                      </View>
-                      <Ionicons name="add-circle" size={24} color="#FF9500" />
-                    </TouchableOpacity>
-                  ))}
+                        <View
+                          style={[
+                            styles.workoutIcon,
+                            workout.isCustom && styles.customWorkoutIcon,
+                            isSelected && styles.workoutIconSelected,
+                          ]}
+                        >
+                          <Ionicons
+                            name={workout.isCustom ? 'person' : 'barbell'}
+                            size={20}
+                            color={isSelected ? '#fff' : (workout.isCustom ? '#8B5A2B' : '#fff')}
+                          />
+                        </View>
+                        <View style={styles.workoutInfo}>
+                          <Text style={styles.workoutName}>{workout.name}</Text>
+                          <Text style={styles.workoutMeta}>
+                            {workout.isCustom
+                              ? `${workout.completionCount || 0} times completed`
+                              : workout.target || ''}
+                          </Text>
+                        </View>
+                        {isSelected ? (
+                          <View style={styles.selectedCheck}>
+                            <Ionicons name="checkmark-circle" size={28} color="#34C759" />
+                          </View>
+                        ) : (
+                          <View style={styles.addCircle}>
+                            <Ionicons name="add-circle-outline" size={28} color="#8B5A2B" />
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               )}
 
@@ -416,6 +484,18 @@ export default function AddWorkoutModal({
             </>
           )}
         </ScrollView>
+
+        {/* Save Button (Step 2 only) */}
+        {step === 2 && selectedWorkouts.length > 0 && (
+          <View style={styles.saveButtonContainer}>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Ionicons name="checkmark" size={22} color="#fff" />
+              <Text style={styles.saveButtonText}>
+                Save {selectedWorkouts.length} Workout{selectedWorkouts.length !== 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </SafeAreaView>
     </Modal>
   );
@@ -457,7 +537,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 100,
   },
   section: {
     marginBottom: 24,
@@ -473,40 +553,26 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginBottom: 16,
   },
-  quickOption: {
+  clearOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFEBEE',
     borderRadius: 12,
     padding: 14,
-    marginBottom: 8,
     gap: 12,
   },
-  quickOptionIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+  clearIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  restIcon: {
-    backgroundColor: '#F5F0EB',
-  },
-  clearIcon: {
-    backgroundColor: '#FFEBEE',
-  },
-  quickOptionInfo: {
-    flex: 1,
-  },
-  quickOptionTitle: {
-    fontSize: 16,
+  clearText: {
+    fontSize: 15,
     fontWeight: '600',
-    color: '#4A3728',
-  },
-  quickOptionSubtitle: {
-    fontSize: 13,
-    color: '#6B5D52',
-    marginTop: 2,
+    color: '#FF3B30',
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -526,9 +592,14 @@ const styles = StyleSheet.create({
     borderColor: '#8B5A2B',
     backgroundColor: '#FFF8F0',
   },
+  categoryImage: {
+    width: 56,
+    height: 56,
+    marginBottom: 8,
+  },
   categoryIcon: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -567,7 +638,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   selectedSummaryLabel: {
     fontSize: 13,
@@ -588,6 +659,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+  selectionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5E9',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  selectionBannerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
   loadingContainer: {
     paddingVertical: 40,
     alignItems: 'center',
@@ -600,6 +685,12 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 8,
     gap: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  workoutItemSelected: {
+    borderColor: '#34C759',
+    backgroundColor: '#F8FFF8',
   },
   workoutIcon: {
     width: 40,
@@ -611,6 +702,9 @@ const styles = StyleSheet.create({
   },
   customWorkoutIcon: {
     backgroundColor: '#FFF3E0',
+  },
+  workoutIconSelected: {
+    backgroundColor: '#34C759',
   },
   workoutInfo: {
     flex: 1,
@@ -625,6 +719,8 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
+  selectedCheck: {},
+  addCircle: {},
   emptyState: {
     alignItems: 'center',
     paddingVertical: 48,
@@ -641,5 +737,30 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
     paddingHorizontal: 32,
+  },
+  saveButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    paddingBottom: 32,
+    backgroundColor: '#FFF8F0',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E0DB',
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#34C759',
+    borderRadius: 14,
+    paddingVertical: 16,
+    gap: 8,
+  },
+  saveButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

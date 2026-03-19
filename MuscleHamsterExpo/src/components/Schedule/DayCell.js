@@ -12,9 +12,10 @@ import { DAY_TYPES, DAY_LABELS } from '../../services/ScheduleService';
 /**
  * DayCell Component
  * Displays a single day in the week calendar
+ * Supports multiple workouts per day
  *
  * @param {string} dayName - 'monday', 'tuesday', etc.
- * @param {object} dayData - { type, workoutId, workoutName, completed, completedAt }
+ * @param {object} dayData - { type, workouts[], workoutId, workoutName, completed, completedAt }
  * @param {boolean} isToday - Whether this is today
  * @param {function} onPress - Callback when cell is pressed
  * @param {number} cellWidth - Width of the cell
@@ -28,8 +29,34 @@ export default function DayCell({
 }) {
   const dayType = dayData?.type || DAY_TYPES.EMPTY;
   const isCompleted = dayData?.completed === true;
-  const workoutName = dayData?.workoutName;
-  const hasWorkoutPicked = dayType === DAY_TYPES.WORKOUT && dayData?.workoutId;
+
+  // Get workouts array (support both new and legacy format)
+  const workouts = dayData?.workouts || [];
+  const workoutCount = workouts.length;
+
+  // Legacy support: if no workouts array but has workoutId
+  const hasLegacyWorkout = !workoutCount && dayData?.workoutId;
+  const effectiveWorkoutCount = workoutCount || (hasLegacyWorkout ? 1 : 0);
+
+  // Get display name
+  const getDisplayName = () => {
+    if (dayType === DAY_TYPES.REST) {
+      return 'Rest';
+    }
+
+    if (dayType === DAY_TYPES.WORKOUT) {
+      if (effectiveWorkoutCount > 1) {
+        return `${effectiveWorkoutCount} workouts`;
+      } else if (effectiveWorkoutCount === 1) {
+        const name = workouts[0]?.workoutName || dayData?.workoutName || '';
+        // Truncate to first word or 6 chars
+        const firstWord = name.split(' ')[0];
+        return firstWord.length > 7 ? firstWord.substring(0, 6) + '...' : firstWord;
+      }
+    }
+
+    return '';
+  };
 
   // Determine cell appearance based on state
   const getCellStyle = () => {
@@ -65,7 +92,15 @@ export default function DayCell({
     }
 
     if (dayType === DAY_TYPES.WORKOUT) {
-      if (hasWorkoutPicked) {
+      if (effectiveWorkoutCount > 1) {
+        // Multiple workouts - show count badge
+        return (
+          <View style={[styles.iconContainer, styles.multiWorkoutIcon]}>
+            <Text style={styles.workoutCountText}>{effectiveWorkoutCount}</Text>
+          </View>
+        );
+      } else if (effectiveWorkoutCount === 1) {
+        // Single workout
         return (
           <View style={[styles.iconContainer, styles.workoutIcon]}>
             <Ionicons name="barbell" size={18} color="#fff" />
@@ -87,19 +122,10 @@ export default function DayCell({
     );
   };
 
-  // Get truncated workout name
-  const getDisplayName = () => {
-    if (dayType === DAY_TYPES.REST) {
-      return 'Rest';
-    }
-
-    if (dayType === DAY_TYPES.WORKOUT && workoutName) {
-      // Truncate to first word or 6 chars
-      const firstWord = workoutName.split(' ')[0];
-      return firstWord.length > 7 ? firstWord.substring(0, 6) + '...' : firstWord;
-    }
-
-    return '';
+  // Get short day label (first 3 letters for narrow cells)
+  const getShortDayLabel = () => {
+    const fullLabel = DAY_LABELS[dayName] || dayName;
+    return fullLabel.substring(0, 3);
   };
 
   return (
@@ -107,17 +133,17 @@ export default function DayCell({
       style={getCellStyle()}
       onPress={() => onPress?.(dayName, dayData)}
       activeOpacity={0.7}
-      accessibilityLabel={`${DAY_LABELS[dayName]} - ${dayType === DAY_TYPES.EMPTY ? 'No workout scheduled' : workoutName || dayType}`}
+      accessibilityLabel={`${DAY_LABELS[dayName]} - ${dayType === DAY_TYPES.EMPTY ? 'No workout scheduled' : `${effectiveWorkoutCount} workout${effectiveWorkoutCount !== 1 ? 's' : ''}`}`}
     >
-      {/* Day label */}
+      {/* Day label - use short version for narrow cells */}
       <Text style={[styles.dayLabel, isToday && styles.todayLabel]}>
-        {DAY_LABELS[dayName]}
+        {getShortDayLabel()}
       </Text>
 
       {/* Icon */}
       {renderIcon()}
 
-      {/* Workout name (truncated) */}
+      {/* Workout name/count (truncated) */}
       <Text
         style={[styles.workoutName, isCompleted && styles.completedText]}
         numberOfLines={1}
@@ -166,6 +192,14 @@ const styles = StyleSheet.create({
   },
   workoutIcon: {
     backgroundColor: '#8B5A2B',
+  },
+  multiWorkoutIcon: {
+    backgroundColor: '#FF9500',
+  },
+  workoutCountText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
   },
   workoutDayIcon: {
     backgroundColor: '#FFF3E0',

@@ -314,9 +314,16 @@ export function ScheduleProvider({ children }) {
     }
   }, [userId, currentWeekStart, currentWeekSchedule]);
 
-  // Schedule a workout for a day
-  const scheduleWorkout = useCallback(async (dayName, workoutId, workoutType, workoutName) => {
-    const dayData = createWorkoutDay(workoutId, workoutType, workoutName);
+  // Schedule workout(s) for a day
+  // Supports both legacy (single workout) and new (array of workouts) formats
+  const scheduleWorkout = useCallback(async (dayName, workoutsOrId, workoutType, workoutName) => {
+    // Check if first argument is an array (new format)
+    if (Array.isArray(workoutsOrId)) {
+      const dayData = createWorkoutDay(workoutsOrId);
+      return updateDay(dayName, dayData);
+    }
+    // Legacy single workout format
+    const dayData = createWorkoutDay(workoutsOrId, workoutType, workoutName);
     return updateDay(dayName, dayData);
   }, [updateDay]);
 

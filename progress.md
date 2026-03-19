@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 39) - Submitted to TestFlight, issues found
-**Version:** 1.0.3 (Build 39) - Bug fixes + removed weekly setup modal
-**Last Updated:** Mar 19, 2026 (Session 71)
+**Status:** v1.0.3 (Build 39) - Workout planner fixes in progress
+**Version:** 1.0.3 (Build 39) - Multi-workout selection + UI improvements
+**Last Updated:** Mar 19, 2026 (Session 72)
 
 ---
 
@@ -123,6 +123,55 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 72 (Mar 19, 2026)
+**Workout Planner Fixes + Multi-Workout Selection**
+
+**Issues Fixed:**
+
+1. **Full Day Names:**
+   - Changed day labels from abbreviations (Mon, Tue) to full names (Monday, Tuesday, etc.)
+   - Updated `DAY_LABELS` in `ScheduleService.js`
+
+2. **Removed Rest Day from Modal:**
+   - Removed "Rest Day" quick option from AddWorkoutModal
+   - Users can still log rest days from the Home tab
+
+3. **Category Images:**
+   - Added gym images to category cards (arms, legs, chest, back, shoulders, core)
+   - Uses same images as Browse tab
+   - Cardio and Class categories use icon fallback (images to be added later)
+
+4. **Multi-Workout Selection:**
+   - Users can now select multiple workouts for a single day
+   - Workouts are selected with checkmarks instead of closing modal immediately
+   - "Save X Workouts" button confirms selection
+   - Pre-populates previously selected workouts when editing a day
+
+5. **Updated Data Structure:**
+   - Days now store `workouts` array instead of single `workoutId`
+   - Backwards compatible with legacy single-workout format
+   - `createWorkoutDay()` accepts both array and single workout formats
+
+6. **Updated UI Components:**
+   - `DayCell.js` - Shows workout count badge when multiple workouts
+   - `TodayWorkoutCard.js` - Lists all scheduled workouts with individual start buttons
+   - `AddWorkoutModal.js` - Multi-select UI with save button
+
+**Files Changed:**
+- `src/services/ScheduleService.js` - Full day names, multi-workout data structure
+- `src/context/ScheduleContext.js` - Updated scheduleWorkout to accept arrays
+- `src/components/Schedule/AddWorkoutModal.js` - Complete rewrite for multi-select + images
+- `src/components/Schedule/DayCell.js` - Multi-workout display
+- `src/components/Schedule/TodayWorkoutCard.js` - Multi-workout list view
+- `src/screens/Workout/WorkoutsScreen.js` - Added handleSelectWorkouts handler
+
+**Next Steps (Session 73):**
+1. Test multi-workout selection locally
+2. Build 40 and test on TestFlight
+3. Submit to App Store when ready
+
+---
 
 ### Session 71 (Mar 19, 2026)
 **Bug Fixes + Removed Weekly Setup Modal**
