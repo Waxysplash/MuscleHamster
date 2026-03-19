@@ -77,7 +77,7 @@ export default function SocialScreen() {
             ? `You have ${pendingRequestCount} pending friend requests`
             : 'Search for and add new friends'}
         >
-          <Ionicons name="person-add" size={24} color="#007AFF" />
+          <Ionicons name="person-add" size={24} color="#8B5A2B" />
           {pendingRequestCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{pendingRequestCount}</Text>
@@ -150,7 +150,7 @@ function EmptyState({ onAddFriends, pendingRequestCount, onViewRequests }) {
   return (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Ionicons name="people" size={50} color="#007AFF" />
+        <Ionicons name="people" size={50} color="#8B5A2B" />
       </View>
 
       <Text style={styles.emptyTitle}>No friends yet!</Text>
@@ -165,7 +165,7 @@ function EmptyState({ onAddFriends, pendingRequestCount, onViewRequests }) {
 
       {pendingRequestCount > 0 && (
         <TouchableOpacity style={styles.pendingLink} onPress={onViewRequests}>
-          <Ionicons name="mail" size={16} color="#007AFF" />
+          <Ionicons name="mail" size={16} color="#8B5A2B" />
           <Text style={styles.pendingLinkText}>
             {pendingRequestCount} pending request{pendingRequestCount === 1 ? '' : 's'}
           </Text>
@@ -255,7 +255,7 @@ function FriendRow({ friend, streak, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   header: {
     flexDirection: 'row',
@@ -264,11 +264,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   title: {
     fontSize: 34,
     fontWeight: 'bold',
+    color: '#4A3728',
   },
   addButton: {
     position: 'relative',
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#FF9500',
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -314,20 +315,30 @@ const styles = StyleSheet.create({
   pendingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     marginHorizontal: 16,
     marginTop: 16,
     padding: 12,
     borderRadius: 12,
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   friendRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     marginHorizontal: 16,
     marginTop: 8,
     padding: 12,
     borderRadius: 12,
+    shadowColor: '#8B5A2B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   avatar: {
     width: 44,
@@ -343,6 +354,7 @@ const styles = StyleSheet.create({
   friendName: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   friendSubtitle: {
     fontSize: 13,
@@ -396,7 +408,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    backgroundColor: 'rgba(255, 149, 0, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -405,6 +417,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 12,
+    color: '#4A3728',
   },
   emptyMessage: {
     fontSize: 16,
@@ -416,7 +429,7 @@ const styles = StyleSheet.create({
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
@@ -434,7 +447,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   pendingLinkText: {
-    color: '#007AFF',
+    color: '#8B5A2B',
     fontSize: 14,
   },
 });

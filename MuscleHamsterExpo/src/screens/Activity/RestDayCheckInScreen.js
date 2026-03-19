@@ -68,7 +68,7 @@ export default function RestDayCheckInScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#5856D6" />
+          <ActivityIndicator size="large" color="#8B5A2B" />
           <Text style={styles.confirmingText}>
             Recording your {activityInfo.displayName.toLowerCase()}...
           </Text>
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   confirmingText: {
     marginTop: 16,
     fontSize: 18,
-    color: '#5856D6',
+    color: '#8B5A2B',
   },
   errorTitle: {
     fontSize: 24,

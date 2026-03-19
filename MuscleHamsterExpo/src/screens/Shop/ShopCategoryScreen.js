@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   purchaseButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#C4B8AE',
   },
   purchaseButtonText: {
     fontSize: 17,

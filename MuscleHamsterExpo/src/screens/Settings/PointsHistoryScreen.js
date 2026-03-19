@@ -125,7 +125,7 @@ export default function PointsHistoryScreen({ navigation }) {
   const getCategoryColor = (category) => {
     switch (category) {
       case TransactionCategory.WORKOUT:
-        return '#007AFF';
+        return '#8B5A2B';
       case TransactionCategory.REST_DAY:
         return '#34C759';
       case TransactionCategory.STREAK_FREEZE:
@@ -247,7 +247,7 @@ export default function PointsHistoryScreen({ navigation }) {
   if (viewState === ViewState.LOADING) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#8B5A2B" />
         <Text style={styles.loadingText}>Loading your points history...</Text>
       </View>
     );
@@ -276,7 +276,7 @@ export default function PointsHistoryScreen({ navigation }) {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            tintColor="#007AFF"
+            tintColor="#8B5A2B"
           />
         }
         showsVerticalScrollIndicator={false}
@@ -289,17 +289,17 @@ export default function PointsHistoryScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   loadingText: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 16,
   },
   listContent: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 16,
   },
   todaySummary: {
@@ -350,12 +350,12 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   noActivityText: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   transactionRow: {
     flexDirection: 'row',
@@ -386,15 +386,15 @@ const styles = StyleSheet.create({
   },
   transactionCategory: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   transactionDot: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   transactionDate: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   transactionAmount: {
     fontSize: 17,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
     marginLeft: 66,
   },
   emptyContainer: {
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,

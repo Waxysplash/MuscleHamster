@@ -2,10 +2,10 @@
 // Controls which features are enabled. Set to false to defer features to v1.1+
 
 export const FeatureFlags = {
-  // DEFERRED FEATURES (OFF for Simplified MVP)
+  // DEFERRED TO v1.2 (Social update)
 
   // Social features: friends, friend streaks, nudges, blocking, privacy controls
-  socialFeatures: false,
+  socialFeatures: true,
 
   // Full workout library with browse, filter, recommendations, workout player
   workoutLibrary: true,

@@ -421,10 +421,11 @@ const styles = StyleSheet.create({
   pendingTitle: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   pendingSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   section: {
@@ -439,7 +440,7 @@ const styles = StyleSheet.create({
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 16,
   },
   inviteCodeCard: {
@@ -588,7 +589,7 @@ const styles = StyleSheet.create({
   },
   resultSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   addFriendButton: {
@@ -640,12 +641,12 @@ const styles = StyleSheet.create({
   },
   howItWorksText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     lineHeight: 18,
   },
   howItWorksDivider: {
     height: 1,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
     marginVertical: 8,
     marginLeft: 48,
   },

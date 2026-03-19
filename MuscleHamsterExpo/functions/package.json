@@ -1,0 +1,28 @@
+{
+  "name": "muscle-hamster-functions",
+  "version": "1.0.0",
+  "description": "Firebase Cloud Functions for Muscle Hamster",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "expo-server-sdk": "^3.7.0",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
+    "markdown-it": "^14.1.1",
+    "@types/markdown-it": "^14.1.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0"
+  },
+  "private": true
+}

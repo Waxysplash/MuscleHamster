@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   buyButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#C4B8AE',
   },
   buyButtonText: {
     fontSize: 15,

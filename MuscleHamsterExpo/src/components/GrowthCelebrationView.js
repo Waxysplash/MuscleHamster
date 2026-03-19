@@ -302,10 +302,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   hamsterNameText: {
-    color: '#007AFF',
+    color: '#FF9500',
   },
   stageTransition: {
     flexDirection: 'row',
@@ -348,11 +348,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   speechBubble: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
-    shadowColor: '#000',
+    shadowColor: '#4A3728',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
     lineHeight: 24,
   },
   achievementInfo: {

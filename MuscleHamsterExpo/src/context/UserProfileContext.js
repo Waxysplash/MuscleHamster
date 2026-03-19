@@ -4,7 +4,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Alert } from 'react-native';
 import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
-import { createEmptyProfile } from '../models/UserProfile';
+import { createEmptyProfile, needsProfileMigration } from '../models/UserProfile';
 import { saveSecure, getSecure, deleteSecure } from '../services/SecureStorageService';
 import Logger from '../services/LoggerService';
 
@@ -54,6 +54,7 @@ export const UserProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [onboardingProgress, setOnboardingProgress] = useState(null);
+  const [needsMigration, setNeedsMigration] = useState(false); // True if old profile format
   const lastLoadedUserId = useRef(null);
   const justSavedProfile = useRef(false); // Prevent reload after save
   const profileCompleteRef = useRef(false); // Track profile complete status for checks
@@ -147,6 +148,13 @@ export const UserProfileProvider = ({ children }) => {
           setOnboardingProgress(null);
           lastLoadedUserId.current = userId;
           profileCompleteRef.current = true;
+
+          // Check if profile needs migration to new format
+          const migrationNeeded = needsProfileMigration(firestoreData);
+          setNeedsMigration(migrationNeeded);
+          if (migrationNeeded) {
+            Logger.debug('Profile needs migration to new format (version 2)');
+          }
 
           // Cache to SecureStorage for offline access
           saveSecure(profileKey, firestoreData).catch(e =>
@@ -420,18 +428,25 @@ export const UserProfileProvider = ({ children }) => {
     });
   }, [profile]);
 
+  // Dismiss migration prompt (user chooses to skip)
+  const dismissMigration = () => {
+    setNeedsMigration(false);
+  };
+
   const value = {
     profile,
     isLoading,
     isProfileComplete: !!profile?.profileComplete,
     hasHamsterName: !!profile?.hamsterName,
     onboardingProgress,
+    needsMigration, // True if user has old profile format
     saveProfile,
     updateProfile,
     completeOnboarding,
     saveOnboardingProgress,
     clearProfile,
     loadProfile,
+    dismissMigration,
   };
 
   return (

@@ -83,10 +83,10 @@ export default function NotificationPermissionPrompt({
           {/* Header */}
           <View style={styles.header}>
             <LinearGradient
-              colors={['rgba(0,122,255,0.2)', 'rgba(0,122,255,0.05)']}
+              colors={['rgba(255,149,0,0.2)', 'rgba(255,149,0,0.05)']}
               style={styles.iconContainer}
             >
-              <Ionicons name="notifications" size={48} color="#007AFF" />
+              <Ionicons name="notifications" size={48} color="#FF9500" />
             </LinearGradient>
 
             <Text style={styles.title}>
@@ -123,7 +123,7 @@ export default function NotificationPermissionPrompt({
                   <Ionicons
                     name="heart"
                     size={48}
-                    color="#007AFF"
+                    color="#FF9500"
                     style={styles.resultIcon}
                   />
                 </>
@@ -202,7 +202,7 @@ export default function NotificationPermissionPrompt({
 function NotificationPreview({ icon, title, description }) {
   return (
     <View style={styles.previewItem}>
-      <Ionicons name={icon} size={24} color="#007AFF" style={styles.previewIcon} />
+      <Ionicons name={icon} size={24} color="#FF9500" style={styles.previewIcon} />
       <View style={styles.previewTextContainer}>
         <Text style={styles.previewTitle}>{title}</Text>
         <Text style={styles.previewDescription}>{description}</Text>
@@ -220,7 +220,7 @@ export function NotificationPromptBanner({ onPress }) {
       accessibilityLabel="Enable reminders. Opens notification settings"
     >
       <View style={styles.bannerContent}>
-        <Ionicons name="notifications" size={24} color="#007AFF" />
+        <Ionicons name="notifications" size={24} color="#FF9500" />
         <View style={styles.bannerTextContainer}>
           <Text style={styles.bannerTitle}>Want a gentle reminder?</Text>
           <Text style={styles.bannerSubtitle}>I can nudge you when it's workout time!</Text>
@@ -237,7 +237,7 @@ export function NotificationPromptBanner({ onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   dragIndicator: {
     width: 36,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
   },
   promptContent: {},
   explanationSection: {
@@ -282,16 +282,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   explanationText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#8E8E93',
+    color: '#6B5D52',
     lineHeight: 24,
   },
   previewSection: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     borderRadius: 16,
     padding: 16,
   },
@@ -309,11 +309,11 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   previewDescription: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   resultContent: {
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#8E8E93',
+    color: '#6B5D52',
     lineHeight: 24,
     marginBottom: 24,
   },
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   doneButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     paddingHorizontal: 48,
     borderRadius: 12,
@@ -345,10 +345,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   primaryButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -365,12 +365,12 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#8B5A2B',
   },
 
   // Banner styles
   bannerContainer: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.08)',
     borderRadius: 16,
     padding: 16,
   },
@@ -386,15 +386,15 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   bannerSubtitle: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   bannerButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

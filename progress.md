@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.2 Submitted | v1.0.3 Ready to Build
-**Version:** 1.0.3 (Build 37) - Bug fixes ready
-**Last Updated:** Mar 18, 2026 (Session 65)
+**Status:** v1.0.3 (Build 37) Ready to Submit
+**Version:** 1.0.3 (Build 37) - Color scheme + bug fixes
+**Last Updated:** Mar 19, 2026 (Session 68)
 
 ---
 
@@ -108,6 +108,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
+| v1.0.3 (Build 37) | Mar 19, 2026 | Ready to Submit | Color scheme fixes (60+ files) |
+| v1.0.2 (Build 36) | Mar 18, 2026 | Submitted | UI updates, Cloud Functions |
 | v1.0.1 | Mar 13, 2026 | Submitted | Google Sign-In fix (native SDK) |
 | v1.0.0 (Build 26) | Mar 11, 2026 | Live | First App Store release |
 | Build 22 | Mar 10, 2026 | Superseded | Fixed react-native-svg version |
@@ -119,6 +121,113 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 67 (Mar 19, 2026)
+**App-Wide Color Scheme Audit & Fix**
+
+Fixed 60+ files to ensure consistent warm cream/brown color scheme throughout the app.
+
+**Color Mapping Applied:**
+| Old Color | New Color | Purpose |
+|-----------|-----------|---------|
+| `#fff` / `#ffffff` | `#FFF8F0` | Screen backgrounds |
+| `#000` / `#333` | `#4A3728` | Dark text |
+| `#666` / `#8E8E93` | `#6B5D52` | Secondary text |
+| `#E5E5EA` / `#C7C7CC` | `#E5DDD5` | Borders/dividers |
+| `#007AFF` | `#FF9500` | Accent buttons/icons |
+| `#F2F2F7` | `rgba(139,90,43,0.08)` | Light backgrounds |
+
+**Components Fixed:**
+- `ErrorView.js`, `EmptyStateView.js` - Text colors
+- `NotificationPermissionPrompt.js` - Full theme update
+- `GrowthCelebrationView.js` - Text and backgrounds
+- `ProfileUpdatePrompt.js`, `NotificationContextBanner.js`
+- All Schedule components (DayCell, WeekCalendar, AddWorkoutModal, MiniWeekStrip, ScheduleSetupModal, TodayWorkoutCard)
+
+**Screens Fixed:**
+- Home, Workout (all screens), Settings (all screens)
+- Social (FriendProfile, AddFriends, PendingRequests, BlockedUsers)
+- Inventory, Shop, Onboarding
+
+**Verified:**
+- Notification toggle properly connected to NotificationService
+- Firestore rules up to date for friends/notifications
+- Cloud Functions deployed for push notifications
+
+**Build:** v1.0.3 (Build 37) - Submitted to TestFlight
+
+---
+
+### Session 66 (Mar 19, 2026)
+**Part 1: Weekly Planner Phase 4 - Home Screen Integration**
+
+Implemented Phase 4 of the Weekly Planner feature - Home screen now shows scheduled workouts.
+
+**New Component:**
+- `MiniWeekStrip.js` - Compact week visualization for Home screen
+
+**HomeScreen.js Updates:**
+- Schedule-aware action cards (workout/rest/pick workout/default)
+- MiniWeekStrip below action card (if user has schedule)
+
+---
+
+**Part 2: Simplified Profile & Onboarding**
+
+Completely rewrote the profile system to be simpler and more useful.
+
+**New Onboarding Flow (5 steps):**
+1. Age Gate (9+ confirmation)
+2. Fitness Level (Beginner/Intermediate/Advanced)
+3. Fitness Goals (multi-select):
+   - Stay Active
+   - Get Stronger
+   - Build Core
+   - Improve Flexibility
+4. Workout Days (Mon-Sun checklist)
+5. Hamster Name
+
+**Removed (no longer collected):**
+- Schedule Preference (Fixed/Flexible)
+- Preferred Workout Time
+- Fitness Intent (Maintain/Improve)
+- Weekly Workout Goal number (replaced by day checklist)
+
+**New Fitness Goals (Option B - Outcome-focused):**
+- Stay Active → Quick Sweats, Desk Workouts
+- Get Stronger → Upper Body, Lower Body, Gym workouts
+- Build Core → Core workouts
+- Improve Flexibility → Stretching/Yoga content
+
+**Migration for Existing Users:**
+- Added `needsProfileMigration()` function to detect old profiles
+- Added `ProfileUpdatePrompt.js` modal component
+- Shows prompt on HomeScreen for users with old profile format
+- Users can update now or skip for later
+
+**Files Changed:**
+- `src/models/UserProfile.js` - Simplified model, new goals, migration helpers
+- `src/screens/Onboarding/OnboardingScreen.js` - New 5-step flow
+- `src/screens/Settings/ProfileSettingsScreen.js` - Simplified to match
+- `src/context/UserProfileContext.js` - Added needsMigration state
+- `src/components/ProfileUpdatePrompt.js` - NEW migration prompt modal
+- `src/screens/Home/HomeScreen.js` - Added ProfileUpdatePrompt
+
+**Part 3: Profile → Schedule Wiring**
+- Connected profile.workoutDays to ScheduleContext
+- When user sets workout days in profile, schedule auto-populates
+- Added effect in ScheduleContext that syncs profile.workoutDays to preferences
+- Applied to current week automatically
+
+**Files Changed (Part 3):**
+- `src/context/ScheduleContext.js` - Added useUserProfile import, sync effect
+
+**What to Test:**
+1. New user onboarding flow (5 steps)
+2. Existing user migration prompt on HomeScreen
+3. Workout days → schedule sync (change days in profile, schedule updates)
+4. MiniWeekStrip on Home screen
+5. Schedule-aware action cards (scheduled workout, pick workout, rest day)
 
 ### Session 65 (Mar 18, 2026)
 **v1.0.3 Bug Fixes**

@@ -112,7 +112,7 @@ export default function BlockedUsersScreen() {
 }
 
 function BlockedUserRow({ blockedUser, profile, isUnblocking, onUnblock }) {
-  const stateColor = profile ? getHamsterStateColor(profile.hamsterState) : '#8E8E93';
+  const stateColor = profile ? getHamsterStateColor(profile.hamsterState) : '#6B5D52';
 
   const blockedDate = new Date(blockedUser.blockedAt);
   const now = new Date();
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   backButton: {
     padding: 8,
@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   placeholder: {
     width: 40,
@@ -185,15 +186,16 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#4A3728',
   },
   emptyMessage: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
   listHeader: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 12,
@@ -224,10 +226,11 @@ const styles = StyleSheet.create({
   blockedName: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#4A3728',
   },
   blockedDate: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   unblockButton: {

@@ -146,6 +146,11 @@ export const ActivityProvider = ({ children }) => {
     }
   }, []);
 
+  // Check if user logged a rest day today
+  const hasLoggedRestDayToday = stats.restDayHistory?.some(
+    (entry) => new Date(entry.completedAt).toDateString() === new Date().toDateString()
+  ) || false;
+
   const value = {
     stats,
     isLoading,
@@ -156,6 +161,7 @@ export const ActivityProvider = ({ children }) => {
     previousBrokenStreak: stats.previousBrokenStreak,
     hasCheckedInToday: stats.lastCheckInDate &&
       new Date(stats.lastCheckInDate).toDateString() === new Date().toDateString(),
+    hasLoggedRestDayToday,
     canRestoreStreak: stats.previousBrokenStreak > 0 &&
       stats.totalPoints >= 100,
     loadStats,

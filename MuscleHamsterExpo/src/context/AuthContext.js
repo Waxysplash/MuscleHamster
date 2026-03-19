@@ -18,6 +18,7 @@ import {
   signOutFromGoogle,
 } from '../services/SocialAuthService';
 import Logger from '../services/LoggerService';
+import { registerForPushNotifications, clearPushToken } from '../services/NotificationService';
 
 // Auth state enum equivalent
 export const AuthState = {
@@ -65,7 +66,7 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setCurrentUser({
           id: firebaseUser.uid,
@@ -75,6 +76,15 @@ export function AuthProvider({ children }) {
         setAuthState(AuthState.AUTHENTICATED);
         // Set user ID for Crashlytics (helps identify crashes per user)
         Logger.setUserId(firebaseUser.uid);
+
+        // Register for push notifications and save token to Firestore
+        // This enables Cloud Functions to send notifications to this user
+        try {
+          await registerForPushNotifications(firebaseUser.uid);
+        } catch (err) {
+          // Non-critical - don't block auth flow if push registration fails
+          Logger.debug('Push notification registration failed:', err);
+        }
       } else {
         setCurrentUser(null);
         setAuthState(AuthState.UNAUTHENTICATED);
@@ -134,6 +144,10 @@ export function AuthProvider({ children }) {
     }
 
     try {
+      // Clear push token from Firestore before signing out
+      if (auth.currentUser) {
+        await clearPushToken(auth.currentUser.uid);
+      }
       // Sign out from Google if user was signed in with Google
       await signOutFromGoogle();
       await firebaseSignOut(auth);

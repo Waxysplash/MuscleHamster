@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   rowSubLabel: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   visibilityBadge: {
@@ -332,17 +332,17 @@ const styles = StyleSheet.create({
   },
   visibilityText: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginLeft: 4,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#E5DDD5',
     marginLeft: 52,
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
     lineHeight: 18,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   footerInfoText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginLeft: 6,
     flex: 1,
     lineHeight: 18,
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   },
   comingSoonText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     fontWeight: '500',
   },
 });

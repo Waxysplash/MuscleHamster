@@ -3,10 +3,10 @@
  * MuscleHamster Expo
  *
  * React Context for managing friend state across the app
- * Ported from Phase 09: Social Features (Swift version)
+ * Uses Firebase for real-time updates and invite code system
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import friendService from '../services/FriendService';
 import { useAuth } from './AuthContext';
 import Logger from '../services/LoggerService';
@@ -24,8 +24,12 @@ export const FriendProvider = ({ children }) => {
   const [sentRequests, setSentRequests] = useState([]);
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [receivedNudges, setReceivedNudges] = useState([]);
+  const [inviteCode, setInviteCode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Track subscriptions
+  const subscriptionsRef = useRef({ requests: null, nudges: null });
 
   // Initialize and load data
   const loadFriendData = useCallback(async () => {
@@ -36,7 +40,9 @@ export const FriendProvider = ({ children }) => {
       setSentRequests([]);
       setBlockedUsers([]);
       setReceivedNudges([]);
+      setInviteCode(null);
       setIsLoading(false);
+      friendService.cleanup();
       return;
     }
 
@@ -44,13 +50,11 @@ export const FriendProvider = ({ children }) => {
     setError(null);
 
     try {
-      const [
-        friendsData,
-        pendingData,
-        sentData,
-        blockedData,
-        nudgesData,
-      ] = await Promise.all([
+      // Initialize service for this user
+      await friendService.initialize(currentUserId);
+
+      // Load each independently so one failure doesn't block others
+      const results = await Promise.allSettled([
         friendService.getFriendsWithStreaks(currentUserId),
         friendService.getPendingRequests(currentUserId),
         friendService.getSentRequests(currentUserId),
@@ -58,11 +62,22 @@ export const FriendProvider = ({ children }) => {
         friendService.getReceivedNudges(currentUserId),
       ]);
 
-      setFriends(friendsData);
-      setPendingRequests(pendingData);
-      setSentRequests(sentData);
-      setBlockedUsers(blockedData);
-      setReceivedNudges(nudgesData);
+      // Extract successful results, use empty arrays for failures
+      const [friendsResult, pendingResult, sentResult, blockedResult, nudgesResult] = results;
+
+      setFriends(friendsResult.status === 'fulfilled' ? friendsResult.value : []);
+      setPendingRequests(pendingResult.status === 'fulfilled' ? pendingResult.value : []);
+      setSentRequests(sentResult.status === 'fulfilled' ? sentResult.value : []);
+      setBlockedUsers(blockedResult.status === 'fulfilled' ? blockedResult.value : []);
+      setReceivedNudges(nudgesResult.status === 'fulfilled' ? nudgesResult.value : []);
+
+      // Log any failures but don't block the UI
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const names = ['friends', 'pending', 'sent', 'blocked', 'nudges'];
+          Logger.warn(`Failed to load ${names[index]}:`, result.reason?.message);
+        }
+      });
     } catch (err) {
       Logger.error('Error loading friend data:', err);
       setError(err.message);
@@ -71,11 +86,92 @@ export const FriendProvider = ({ children }) => {
     }
   }, [currentUserId]);
 
+  // Setup real-time subscriptions
+  useEffect(() => {
+    if (!currentUserId) {
+      return;
+    }
+
+    // Subscribe to pending requests
+    subscriptionsRef.current.requests = friendService.subscribeToRequests(
+      currentUserId,
+      (requests) => {
+        setPendingRequests(requests);
+      }
+    );
+
+    // Subscribe to nudges
+    subscriptionsRef.current.nudges = friendService.subscribeToNudges(
+      currentUserId,
+      (nudges) => {
+        setReceivedNudges(nudges);
+      }
+    );
+
+    // Cleanup on unmount or user change
+    return () => {
+      if (subscriptionsRef.current.requests) {
+        subscriptionsRef.current.requests();
+      }
+      if (subscriptionsRef.current.nudges) {
+        subscriptionsRef.current.nudges();
+      }
+    };
+  }, [currentUserId]);
+
   useEffect(() => {
     loadFriendData();
   }, [loadFriendData]);
 
-  // Actions
+  // ============================================
+  // INVITE CODE ACTIONS
+  // ============================================
+
+  /**
+   * Get or create user's invite code
+   */
+  const getInviteCode = useCallback(async (hamsterName) => {
+    if (!currentUserId) return null;
+    try {
+      const code = await friendService.getOrCreateInviteCode(currentUserId, hamsterName);
+      setInviteCode(code);
+      return code;
+    } catch (err) {
+      Logger.error('Error getting invite code:', err);
+      return null;
+    }
+  }, [currentUserId]);
+
+  /**
+   * Look up an invite code
+   */
+  const lookupInviteCode = useCallback(async (code) => {
+    try {
+      return await friendService.lookupInviteCode(code);
+    } catch (err) {
+      Logger.error('Error looking up invite code:', err);
+      return null;
+    }
+  }, []);
+
+  /**
+   * Use an invite code to add a friend
+   */
+  const useInviteCode = useCallback(async (code) => {
+    if (!currentUserId) return { success: false, error: 'Not logged in' };
+    try {
+      const request = await friendService.useInviteCode(code, currentUserId);
+      setSentRequests(prev => [...prev, request]);
+      return { success: true, request };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, [currentUserId]);
+
+  // ============================================
+  // FRIEND REQUEST ACTIONS
+  // ============================================
+
   const sendFriendRequest = async (receiverId) => {
     if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
@@ -142,6 +238,10 @@ export const FriendProvider = ({ children }) => {
     }
   };
 
+  // ============================================
+  // NUDGE ACTIONS
+  // ============================================
+
   const sendNudge = async (recipientId, senderCheckedInToday = true) => {
     if (!currentUserId) return { success: false, error: 'Not logged in' };
     try {
@@ -168,18 +268,20 @@ export const FriendProvider = ({ children }) => {
     return friendService.getNudgeEligibility(currentUserId, recipientId, senderCheckedInToday);
   };
 
-  const dismissNudge = (nudgeId) => {
+  const dismissNudge = async (nudgeId) => {
     setReceivedNudges(prev => prev.filter(n => n.nudge.id !== nudgeId));
+    // Mark as read in Firestore
+    await friendService.markNudgeRead(nudgeId);
   };
 
+  // ============================================
+  // OTHER ACTIONS
+  // ============================================
+
   const searchUsers = async (query) => {
-    if (!currentUserId) return [];
-    try {
-      return await friendService.searchUsers(query, currentUserId);
-    } catch (err) {
-      Logger.error('Error searching users:', err);
-      return [];
-    }
+    // With invite code system, search returns empty
+    // Users should use invite codes instead
+    return [];
   };
 
   const getLeaderboard = async () => {
@@ -231,6 +333,7 @@ export const FriendProvider = ({ children }) => {
     sentRequests,
     blockedUsers,
     receivedNudges,
+    inviteCode,
     isLoading,
     error,
 
@@ -240,7 +343,12 @@ export const FriendProvider = ({ children }) => {
     activeStreaksCount,
     atRiskStreaksCount,
 
-    // Actions
+    // Invite Code Actions
+    getInviteCode,
+    lookupInviteCode,
+    useInviteCode,
+
+    // Friend Actions
     loadFriendData,
     sendFriendRequest,
     acceptFriendRequest,
@@ -248,9 +356,13 @@ export const FriendProvider = ({ children }) => {
     removeFriend,
     blockUser,
     unblockUser,
+
+    // Nudge Actions
     sendNudge,
     getNudgeEligibility,
     dismissNudge,
+
+    // Other Actions
     searchUsers,
     getLeaderboard,
     restoreStreak,

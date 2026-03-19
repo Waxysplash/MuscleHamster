@@ -7,7 +7,10 @@
 
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Platform, AppState } from 'react-native';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db, isFirebaseInitialized } from '../config/firebase';
 import Logger from './LoggerService';
 import {
   loadNotificationPreferences,
@@ -45,6 +48,8 @@ let _listeners = [];
 let _notificationTapHandler = null;
 let _responseListener = null;
 let _receivedListener = null;
+let _expoPushToken = null;
+let _currentUserId = null;
 
 // Event subscription
 const notifyListeners = () => {
@@ -454,6 +459,136 @@ export const getPendingNotifications = async () => {
   return await Notifications.getAllScheduledNotificationsAsync();
 };
 
+// ============================================
+// PUSH TOKEN MANAGEMENT (for social nudges)
+// ============================================
+
+/**
+ * Register for push notifications and get Expo push token
+ * Requests permission if not already granted, then saves token to Firestore
+ */
+export const registerForPushNotifications = async (userId) => {
+  if (!Device.isDevice) {
+    Logger.debug('NotificationService: Push notifications only work on physical devices');
+    return null;
+  }
+
+  _currentUserId = userId;
+
+  try {
+    // Check current permission status
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    // Request permission if not already granted
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: true,
+        },
+      });
+      finalStatus = status;
+    }
+
+    // If permission was denied, we can't get a push token
+    if (finalStatus !== 'granted') {
+      Logger.debug('NotificationService: Push notification permission not granted');
+      return null;
+    }
+
+    // Get Expo push token
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (!projectId) {
+      Logger.error('NotificationService: No EAS project ID found');
+      return null;
+    }
+
+    const tokenResponse = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
+    _expoPushToken = tokenResponse.data;
+
+    Logger.debug('NotificationService: Got push token:', _expoPushToken);
+
+    // Save token to Firestore for this user
+    if (userId && isFirebaseInitialized() && db) {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        pushToken: _expoPushToken,
+        pushTokenUpdatedAt: new Date(),
+      });
+      Logger.debug('NotificationService: Saved push token to Firestore');
+    }
+
+    // Set up Android notification channel (required for Android 8+)
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF9500',
+      });
+    }
+
+    return _expoPushToken;
+  } catch (error) {
+    Logger.error('NotificationService: Failed to get push token:', error);
+    return null;
+  }
+};
+
+/**
+ * Get the current push token
+ */
+export const getExpoPushToken = () => _expoPushToken;
+
+/**
+ * Clear push token on logout
+ */
+export const clearPushToken = async (userId) => {
+  _expoPushToken = null;
+  _currentUserId = null;
+
+  if (userId && isFirebaseInitialized() && db) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        pushToken: null,
+      });
+    } catch (error) {
+      Logger.error('NotificationService: Failed to clear push token:', error);
+    }
+  }
+};
+
+/**
+ * Send a push notification to a user (via server/cloud function)
+ * In a production app, this would call a Cloud Function
+ * For now, we'll just log - actual push delivery happens via Expo's servers
+ */
+export const sendPushNotification = async (toToken, title, body, data = {}) => {
+  // In production, this would call a Firebase Cloud Function
+  // The Cloud Function would use Expo's push notification service
+  // For now, we just prepare the message format
+
+  const message = {
+    to: toToken,
+    sound: 'default',
+    title,
+    body,
+    data,
+  };
+
+  Logger.debug('NotificationService: Would send push notification:', message);
+
+  // TODO: Call Cloud Function to send this notification
+  // Example: await functions.httpsCallable('sendPushNotification')(message);
+
+  return message;
+};
+
 // Cleanup - call when unmounting
 export const cleanupNotificationService = () => {
   if (_responseListener) {
@@ -493,6 +628,11 @@ export const NotificationService = {
   cleanup: cleanupNotificationService,
   subscribe: subscribeToNotificationState,
   getState: getNotificationState,
+  // Push token management
+  registerForPushNotifications,
+  getExpoPushToken,
+  clearPushToken,
+  sendPushNotification,
 };
 
 export default NotificationService;

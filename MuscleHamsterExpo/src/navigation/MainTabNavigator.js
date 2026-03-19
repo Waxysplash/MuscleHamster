@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,10 +8,9 @@ import { HomeScreen } from '../screens/Home';
 import { DailyExerciseCheckInScreen } from '../screens/Home';
 import { WorkoutsScreen, WorkoutDetailScreen, WorkoutPlayerScreen, GymBodyPartScreen, GymExerciseDetailScreen, HomeCategoryScreen, HomeExerciseDetailScreen, AddWorkoutScreen, CustomWorkoutDetailScreen, LogProgressScreen } from '../screens/Workout';
 import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
-import { RestDayCheckInScreen, StreakFreezeScreen } from '../screens/Activity';
-import { useActivity } from '../context/ActivityContext';
+import { RestDayCheckInScreen, StreakFreezeScreen, QuickRestDayScreen } from '../screens/Activity';
 import { useFriends } from '../context/FriendContext';
-import FeatureFlags from '../config/FeatureFlags';
+import FeatureFlags, { showSocialTab } from '../config/FeatureFlags';
 
 // Settings screens
 import {
@@ -44,7 +43,6 @@ import {
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
 const WorkoutsStack = createNativeStackNavigator();
-const ShopStack = createNativeStackNavigator();
 const SocialStack = createNativeStackNavigator();
 
 function HomeStackScreen() {
@@ -124,6 +122,15 @@ function HomeStackScreen() {
         }}
       />
       <HomeStack.Screen
+        name="QuickRestDay"
+        component={QuickRestDayScreen}
+        options={{
+          title: 'Rest Day',
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+      <HomeStack.Screen
         name="StreakFreeze"
         component={StreakFreezeScreen}
         options={{
@@ -143,7 +150,10 @@ function HomeStackScreen() {
       <HomeStack.Screen
         name="Shop"
         component={ShopScreen}
-        options={{ title: 'Shop' }}
+        options={{
+          title: 'Shop',
+          headerBackTitle: 'Home',
+        }}
       />
       <HomeStack.Screen
         name="ShopCategory"
@@ -260,74 +270,6 @@ function WorkoutsStackScreen() {
         }}
       />
     </WorkoutsStack.Navigator>
-  );
-}
-
-function ShopStackScreen() {
-  const { totalPoints } = useActivity();
-
-  return (
-    <ShopStack.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: '#FFF8F0',
-        },
-        headerTintColor: '#4A3728',
-        headerTitleStyle: {
-          color: '#4A3728',
-          fontWeight: '600',
-        },
-        headerShadowVisible: false,
-      }}
-    >
-      <ShopStack.Screen
-        name="ShopMain"
-        component={ShopScreen}
-        options={{
-          title: 'Shop',
-          headerRight: () => (
-            <View style={styles.pointsBadge}>
-              <Ionicons name="star" size={16} color="#FF9500" />
-              <Text style={styles.pointsText}>{totalPoints}</Text>
-            </View>
-          ),
-        }}
-      />
-      <ShopStack.Screen
-        name="ShopCategory"
-        component={ShopCategoryScreen}
-        options={({ route }) => ({
-          title: route.params?.category
-            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
-            : 'Category',
-        })}
-      />
-      <ShopStack.Screen
-        name="Inventory"
-        component={InventoryScreen}
-        options={{
-          title: 'My Collection',
-          presentation: 'modal',
-        }}
-      />
-      <ShopStack.Screen
-        name="InventoryCategory"
-        component={InventoryCategoryScreen}
-        options={({ route }) => ({
-          title: route.params?.category
-            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
-            : 'Items',
-        })}
-      />
-      <ShopStack.Screen
-        name="InventoryItemPreview"
-        component={InventoryItemPreviewScreen}
-        options={{
-          title: 'Preview',
-          presentation: 'modal',
-        }}
-      />
-    </ShopStack.Navigator>
   );
 }
 
@@ -491,17 +433,6 @@ export default function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="ShopTab"
-        component={ShopStackScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bag" size={size} color={color} />
-          ),
-          tabBarAccessibilityLabel: 'Shop tab',
-          title: 'Shop',
-        }}
-      />
-      <Tab.Screen
         name="Workouts"
         component={WorkoutsStackScreen}
         options={{
@@ -511,6 +442,18 @@ export default function MainTabNavigator() {
           tabBarAccessibilityLabel: 'Workouts tab',
         }}
       />
+      {showSocialTab() && (
+        <Tab.Screen
+          name="Friends"
+          component={SocialStackScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <SocialTabIcon color={color} size={size} />
+            ),
+            tabBarAccessibilityLabel: 'Friends tab',
+          }}
+        />
+      )}
       <Tab.Screen
         name="Settings"
         component={SettingsStackScreen}
@@ -526,21 +469,6 @@ export default function MainTabNavigator() {
 }
 
 const styles = StyleSheet.create({
-  pointsBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,149,0,0.12)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    marginRight: 8,
-  },
-  pointsText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#FF9500',
-    marginLeft: 4,
-  },
   tabBadge: {
     position: 'absolute',
     top: -4,

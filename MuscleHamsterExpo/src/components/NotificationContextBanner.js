@@ -147,7 +147,7 @@ export default function NotificationContextBanner({
         accessibilityLabel="Dismiss"
         accessibilityHint="Dismisses this notification banner"
       >
-        <Ionicons name="close" size={16} color="#8E8E93" />
+        <Ionicons name="close" size={16} color="#6B5D52" />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#000',
+    color: '#4A3728',
     lineHeight: 22,
   },
   actionButton: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   dismissButton: {
     padding: 8,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: 'rgba(139,90,43,0.1)',
     borderRadius: 20,
     marginLeft: 8,
   },

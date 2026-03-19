@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   infoBannerSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   section: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#E5DDD5',
     marginLeft: 72,
   },
   optionRow: {
@@ -315,13 +315,13 @@ const styles = StyleSheet.create({
   },
   optionDescription: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 3,
     lineHeight: 18,
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
   },
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   changePreviewDescription: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 4,
     lineHeight: 18,
   },
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#FFF8F0',
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#C7C7CC',
+    borderTopColor: '#E5DDD5',
   },
   saveButton: {
     backgroundColor: '#8B5A2B',
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   savingText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#333',
+    color: '#4A3728',
     marginTop: 16,
   },
 });

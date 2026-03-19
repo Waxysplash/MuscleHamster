@@ -8,6 +8,7 @@
 export const HamsterImages = {
   happy: require('../../assets/images/hamster_happy.png'),
   hungry: require('../../assets/images/hamster_hungry.png'),
+  rest: require('../../assets/images/hamster_rest.png'),
   // Map old state names to new images for compatibility
   chillin: require('../../assets/images/hamster_happy.png'),
   sad: require('../../assets/images/hamster_hungry.png'),

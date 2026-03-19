@@ -1,4 +1,5 @@
-// Onboarding Screen - Phase 03 (Simplified MVP)
+// Onboarding Screen - Simplified Flow
+// Steps: Age Gate → Fitness Level → Goals → Workout Days → Hamster Name
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -14,71 +15,44 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
-import { useResponsive, getHamsterSize } from '../../utils/responsive';
+import { useResponsive } from '../../utils/responsive';
 import {
   FitnessLevel,
   FitnessLevelInfo,
   FitnessGoal,
   FitnessGoalInfo,
-  SchedulePreference,
-  SchedulePreferenceInfo,
-  WorkoutTime,
-  WorkoutTimeInfo,
-  FitnessIntent,
-  FitnessIntentInfo,
+  WeekDay,
+  WeekDayInfo,
+  WEEK_DAYS_ORDERED,
   validateHamsterName,
   HAMSTER_NAME_SUGGESTIONS,
   HAMSTER_NAME_MAX_LENGTH,
   createEmptyProfile,
 } from '../../models/UserProfile';
-import FeatureFlags from '../../config/FeatureFlags';
 
-// Full onboarding steps
-const FULL_STEPS = [
-  'age',
-  'fitnessLevel',
-  'goals',
-  'frequency',
-  'schedule',
-  'time',
-  'intent',
-  'hamsterName',
-  'meetHamster',
-];
-
-// Simplified MVP steps (just age gate + name hamster)
-const SIMPLIFIED_STEPS = [
-  'ageGate',
-  'hamsterName',
-];
-
-// Get active steps based on feature flag
-const getActiveSteps = () => {
-  return FeatureFlags.simplifiedOnboarding ? SIMPLIFIED_STEPS : FULL_STEPS;
-};
-
-const STEPS = getActiveSteps();
+// Onboarding steps
+const STEPS = ['ageGate', 'fitnessLevel', 'goals', 'workoutDays', 'hamsterName'];
 
 const STEP_TITLES = {
   ageGate: 'Before we begin...',
-  age: "Let's get to know you!",
-  fitnessLevel: 'What\'s your fitness level?',
+  fitnessLevel: "What's your fitness level?",
   goals: 'What are your goals?',
-  frequency: 'How often do you want to work out?',
-  schedule: 'Fixed or flexible schedule?',
-  time: 'When do you prefer to exercise?',
-  intent: 'Maintain or improve?',
+  workoutDays: 'When do you work out?',
   hamsterName: 'Name your hamster!',
-  meetHamster: 'Meet your hamster!',
+};
+
+const STEP_DESCRIPTIONS = {
+  ageGate: 'Muscle Hamster is designed for users 9 years and older.',
+  fitnessLevel: "No judgment! This helps us find the right workouts for you.",
+  goals: 'Select all that apply. You can change these anytime.',
+  workoutDays: 'Which days do you usually work out? Tap to select.',
+  hamsterName: 'What should we call your new fitness buddy?',
 };
 
 export default function OnboardingScreen({ navigation }) {
   const { saveOnboardingProgress, onboardingProgress, completeOnboarding } = useUserProfile();
   const { showAlert } = useAlert();
-
-  // Responsive design
-  const { isTablet, contentMaxWidth, spacing } = useResponsive();
-  const hamsterSize = getHamsterSize();
+  const { isTablet, contentMaxWidth } = useResponsive();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [profile, setProfile] = useState(createEmptyProfile());
@@ -86,90 +60,64 @@ export default function OnboardingScreen({ navigation }) {
   const [nameError, setNameError] = useState(null);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
 
-  // Get active steps (may change based on feature flag)
-  const activeSteps = FeatureFlags.simplifiedOnboarding ? SIMPLIFIED_STEPS : FULL_STEPS;
-
   // Restore progress on mount
   useEffect(() => {
     if (onboardingProgress) {
       setCurrentStep(onboardingProgress.step || 0);
       setProfile(onboardingProgress.profile || createEmptyProfile());
+      setAgeConfirmed(onboardingProgress.ageConfirmed || false);
     }
   }, []);
 
   // Save progress when profile changes
   useEffect(() => {
-    if (currentStep > 0 || Object.values(profile).some(v => v !== null && v !== 0)) {
-      saveOnboardingProgress({ step: currentStep, profile });
+    if (currentStep > 0 || ageConfirmed) {
+      saveOnboardingProgress({ step: currentStep, profile, ageConfirmed });
     }
-  }, [currentStep, profile]);
+  }, [currentStep, profile, ageConfirmed]);
 
   const updateProfile = (key, value) => {
     setProfile((prev) => ({ ...prev, [key]: value }));
   };
 
   const canProceed = () => {
-    const step = activeSteps[currentStep];
+    const step = STEPS[currentStep];
     switch (step) {
       case 'ageGate':
         return ageConfirmed;
-      case 'age':
-        return profile.age && profile.age >= 9 && profile.age <= 120;
       case 'fitnessLevel':
         return profile.fitnessLevel !== null;
       case 'goals':
         return profile.fitnessGoals.length > 0;
-      case 'frequency':
-        return profile.weeklyWorkoutGoal >= 1 && profile.weeklyWorkoutGoal <= 7;
-      case 'schedule':
-        return profile.schedulePreference !== null;
-      case 'time':
-        return profile.preferredWorkoutTime !== null;
-      case 'intent':
-        return profile.fitnessIntent !== null;
+      case 'workoutDays':
+        return profile.workoutDays.length > 0;
       case 'hamsterName':
-        const validation = validateHamsterName(profile.hamsterName);
-        return validation.valid;
-      case 'meetHamster':
-        return true;
+        return validateHamsterName(profile.hamsterName).valid;
       default:
         return false;
     }
   };
 
   const goNext = async () => {
-    if (currentStep < activeSteps.length - 1) {
+    if (currentStep < STEPS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       // Complete onboarding
       setIsSaving(true);
       try {
-        // Apply default values for simplified onboarding
-        const finalProfile = FeatureFlags.simplifiedOnboarding
-          ? applySimplifiedDefaults(profile)
-          : profile;
+        const finalProfile = {
+          ...profile,
+          profileComplete: true,
+          profileVersion: 2,
+        };
         await completeOnboarding(finalProfile);
-        // Navigation is handled automatically by RootNavigator when isProfileComplete becomes true
-        // Do NOT call navigation.replace('Main') here - it causes a race condition
+        // Navigation is handled automatically by RootNavigator
       } catch (e) {
         showAlert('Oops!', 'Something went wrong. Please try again.');
         setIsSaving(false);
       }
-      // Don't set isSaving to false on success - we're transitioning away
     }
   };
-
-  // Apply default values when using simplified onboarding
-  const applySimplifiedDefaults = (p) => ({
-    ...p,
-    age: p.age || 18,
-    fitnessLevel: p.fitnessLevel || FitnessLevel.BEGINNER,
-    fitnessGoals: p.fitnessGoals.length > 0 ? p.fitnessGoals : [FitnessGoal.GENERAL],
-    weeklyWorkoutGoal: p.weeklyWorkoutGoal || 3,
-    schedulePreference: p.schedulePreference || SchedulePreference.FLEXIBLE,
-    preferredWorkoutTime: p.preferredWorkoutTime || WorkoutTime.NO_PREFERENCE,
-    fitnessIntent: p.fitnessIntent || FitnessIntent.MAINTAIN,
-  });
 
   const goBack = () => {
     if (currentStep > 0) {
@@ -177,26 +125,22 @@ export default function OnboardingScreen({ navigation }) {
     }
   };
 
-  const renderStepContent = () => {
-    const step = activeSteps[currentStep];
+  const getButtonText = () => {
+    if (currentStep === STEPS.length - 1) return "Let's Get Started!";
+    return 'Continue';
+  };
 
+  const renderStepContent = () => {
+    const step = STEPS[currentStep];
     switch (step) {
       case 'ageGate':
         return <AgeGateStep ageConfirmed={ageConfirmed} setAgeConfirmed={setAgeConfirmed} />;
-      case 'age':
-        return <AgeStep profile={profile} updateProfile={updateProfile} />;
       case 'fitnessLevel':
         return <FitnessLevelStep profile={profile} updateProfile={updateProfile} />;
       case 'goals':
         return <GoalsStep profile={profile} updateProfile={updateProfile} />;
-      case 'frequency':
-        return <FrequencyStep profile={profile} updateProfile={updateProfile} />;
-      case 'schedule':
-        return <ScheduleStep profile={profile} updateProfile={updateProfile} />;
-      case 'time':
-        return <TimeStep profile={profile} updateProfile={updateProfile} />;
-      case 'intent':
-        return <IntentStep profile={profile} updateProfile={updateProfile} />;
+      case 'workoutDays':
+        return <WorkoutDaysStep profile={profile} updateProfile={updateProfile} />;
       case 'hamsterName':
         return (
           <HamsterNameStep
@@ -206,21 +150,9 @@ export default function OnboardingScreen({ navigation }) {
             setNameError={setNameError}
           />
         );
-      case 'meetHamster':
-        return <MeetHamsterStep profile={profile} />;
       default:
         return null;
     }
-  };
-
-  const getButtonText = () => {
-    const step = activeSteps[currentStep];
-    if (step === 'ageGate') return 'Continue';
-    // In simplified mode, hamsterName is the final step
-    if (step === 'hamsterName' && FeatureFlags.simplifiedOnboarding) return "Let's Get Started!";
-    if (step === 'hamsterName') return 'Meet Your Hamster';
-    if (step === 'meetHamster') return "Let's Get Started!";
-    return 'Continue';
   };
 
   return (
@@ -234,12 +166,12 @@ export default function OnboardingScreen({ navigation }) {
           <View
             style={[
               styles.progressFill,
-              { width: `${((currentStep + 1) / activeSteps.length) * 100}%` },
+              { width: `${((currentStep + 1) / STEPS.length) * 100}%` },
             ]}
           />
         </View>
         <Text style={styles.progressText}>
-          {currentStep + 1} of {activeSteps.length}
+          {currentStep + 1} of {STEPS.length}
         </Text>
       </View>
 
@@ -255,31 +187,38 @@ export default function OnboardingScreen({ navigation }) {
       )}
 
       {/* Title */}
-      <Text style={styles.title}>{STEP_TITLES[activeSteps[currentStep]]}</Text>
+      <Text style={styles.title}>{STEP_TITLES[STEPS[currentStep]]}</Text>
 
       {/* Content */}
       <ScrollView
         style={styles.content}
         contentContainerStyle={[
           styles.contentContainer,
-          isTablet && { alignItems: 'center' }
+          isTablet && { alignItems: 'center' },
         ]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={[
-          styles.stepContentWrapper,
-          isTablet && { maxWidth: contentMaxWidth, width: '100%' }
-        ]}>
+        <View
+          style={[
+            styles.stepContentWrapper,
+            isTablet && { maxWidth: contentMaxWidth, width: '100%' },
+          ]}
+        >
+          <Text style={styles.stepDescription}>
+            {STEP_DESCRIPTIONS[STEPS[currentStep]]}
+          </Text>
           {renderStepContent()}
         </View>
       </ScrollView>
 
       {/* Continue Button */}
-      <View style={[
-        styles.footer,
-        isTablet && { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }
-      ]}>
+      <View
+        style={[
+          styles.footer,
+          isTablet && { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' },
+        ]}
+      >
         <TouchableOpacity
           style={[styles.continueButton, !canProceed() && styles.continueButtonDisabled]}
           onPress={goNext}
@@ -297,21 +236,18 @@ export default function OnboardingScreen({ navigation }) {
   );
 }
 
-// Step Components
+// ============================================
+// STEP COMPONENTS
+// ============================================
 
-// Simplified age gate (just a checkbox confirming 9+)
 function AgeGateStep({ ageConfirmed, setAgeConfirmed }) {
   return (
     <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        Muscle Hamster is designed for users 9 years and older.
-      </Text>
       <TouchableOpacity
         style={[styles.ageGateOption, ageConfirmed && styles.ageGateOptionSelected]}
         onPress={() => setAgeConfirmed(!ageConfirmed)}
-        accessibilityLabel="I am 9 years or older"
-        accessibilityState={{ checked: ageConfirmed }}
         accessibilityRole="checkbox"
+        accessibilityState={{ checked: ageConfirmed }}
       >
         <View style={[styles.checkbox, ageConfirmed && styles.checkboxSelected]}>
           {ageConfirmed && <Ionicons name="checkmark" size={18} color="#fff" />}
@@ -322,39 +258,9 @@ function AgeGateStep({ ageConfirmed, setAgeConfirmed }) {
   );
 }
 
-function AgeStep({ profile, updateProfile }) {
-  return (
-    <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        We'll use this to personalize your workouts.
-      </Text>
-      <View style={styles.ageInputContainer}>
-        <TextInput
-          style={styles.ageInput}
-          value={profile.age?.toString() || ''}
-          onChangeText={(text) => {
-            const age = parseInt(text, 10);
-            updateProfile('age', isNaN(age) ? null : age);
-          }}
-          keyboardType="number-pad"
-          placeholder="Age"
-          maxLength={3}
-          accessibilityLabel="Enter your age"
-        />
-      </View>
-      {profile.age && profile.age < 9 && (
-        <Text style={styles.errorText}>You must be 9 or older to use this app.</Text>
-      )}
-    </View>
-  );
-}
-
 function FitnessLevelStep({ profile, updateProfile }) {
   return (
     <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        No judgment here! This helps us find the right workouts for you.
-      </Text>
       {Object.values(FitnessLevel).map((level) => (
         <TouchableOpacity
           key={level}
@@ -363,7 +269,6 @@ function FitnessLevelStep({ profile, updateProfile }) {
             profile.fitnessLevel === level && styles.optionCardSelected,
           ]}
           onPress={() => updateProfile('fitnessLevel', level)}
-          accessibilityLabel={FitnessLevelInfo[level].displayName}
           accessibilityState={{ selected: profile.fitnessLevel === level }}
         >
           <Ionicons
@@ -394,9 +299,6 @@ function GoalsStep({ profile, updateProfile }) {
 
   return (
     <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        Select all that apply. You can change these later!
-      </Text>
       <View style={styles.goalsGrid}>
         {Object.values(FitnessGoal).map((goal) => (
           <TouchableOpacity
@@ -406,7 +308,6 @@ function GoalsStep({ profile, updateProfile }) {
               profile.fitnessGoals.includes(goal) && styles.goalCardSelected,
             ]}
             onPress={() => toggleGoal(goal)}
-            accessibilityLabel={FitnessGoalInfo[goal].displayName}
             accessibilityState={{ selected: profile.fitnessGoals.includes(goal) }}
           >
             <Ionicons
@@ -422,158 +323,64 @@ function GoalsStep({ profile, updateProfile }) {
             >
               {FitnessGoalInfo[goal].displayName}
             </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-function FrequencyStep({ profile, updateProfile }) {
-  const days = [1, 2, 3, 4, 5, 6, 7];
-
-  const getMessage = () => {
-    const goal = profile.weeklyWorkoutGoal;
-    if (goal <= 2) return 'Starting small is smart! 💪';
-    if (goal <= 4) return 'A balanced approach! Nice!';
-    if (goal <= 5) return 'You\'re dedicated! 🌟';
-    return 'Wow, go you! Remember rest days are important too!';
-  };
-
-  return (
-    <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        How many days per week do you want to work out?
-      </Text>
-      <View style={styles.frequencyContainer}>
-        {days.map((day) => (
-          <TouchableOpacity
-            key={day}
-            style={[
-              styles.dayButton,
-              profile.weeklyWorkoutGoal === day && styles.dayButtonSelected,
-            ]}
-            onPress={() => updateProfile('weeklyWorkoutGoal', day)}
-            accessibilityLabel={`${day} days per week`}
-            accessibilityState={{ selected: profile.weeklyWorkoutGoal === day }}
-          >
-            <Text
-              style={[
-                styles.dayButtonText,
-                profile.weeklyWorkoutGoal === day && styles.dayButtonTextSelected,
-              ]}
-            >
-              {day}
+            <Text style={styles.goalDescription}>
+              {FitnessGoalInfo[goal].description}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
-      <Text style={styles.frequencyMessage}>{getMessage()}</Text>
     </View>
   );
 }
 
-function ScheduleStep({ profile, updateProfile }) {
-  return (
-    <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        How do you like to plan your workout days?
-      </Text>
-      {Object.values(SchedulePreference).map((pref) => (
-        <TouchableOpacity
-          key={pref}
-          style={[
-            styles.optionCard,
-            profile.schedulePreference === pref && styles.optionCardSelected,
-          ]}
-          onPress={() => updateProfile('schedulePreference', pref)}
-          accessibilityLabel={SchedulePreferenceInfo[pref].displayName}
-          accessibilityState={{ selected: profile.schedulePreference === pref }}
-        >
-          <Ionicons
-            name={SchedulePreferenceInfo[pref].icon}
-            size={28}
-            color={profile.schedulePreference === pref ? '#FF9500' : '#8B5A2B'}
-          />
-          <View style={styles.optionTextContainer}>
-            <Text style={styles.optionTitle}>{SchedulePreferenceInfo[pref].displayName}</Text>
-            <Text style={styles.optionDescription}>{SchedulePreferenceInfo[pref].description}</Text>
-          </View>
-          {profile.schedulePreference === pref && (
-            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
-          )}
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
+function WorkoutDaysStep({ profile, updateProfile }) {
+  const toggleDay = (day) => {
+    const days = profile.workoutDays.includes(day)
+      ? profile.workoutDays.filter((d) => d !== day)
+      : [...profile.workoutDays, day];
+    updateProfile('workoutDays', days);
+  };
 
-function TimeStep({ profile, updateProfile }) {
-  return (
-    <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        When do you usually prefer to exercise?
-      </Text>
-      {Object.values(WorkoutTime).map((time) => (
-        <TouchableOpacity
-          key={time}
-          style={[
-            styles.optionCard,
-            profile.preferredWorkoutTime === time && styles.optionCardSelected,
-          ]}
-          onPress={() => updateProfile('preferredWorkoutTime', time)}
-          accessibilityLabel={WorkoutTimeInfo[time].displayName}
-          accessibilityState={{ selected: profile.preferredWorkoutTime === time }}
-        >
-          <Ionicons
-            name={WorkoutTimeInfo[time].icon}
-            size={28}
-            color={profile.preferredWorkoutTime === time ? '#FF9500' : '#8B5A2B'}
-          />
-          <View style={styles.optionTextContainer}>
-            <Text style={styles.optionTitle}>{WorkoutTimeInfo[time].displayName}</Text>
-            <Text style={styles.optionDescription}>{WorkoutTimeInfo[time].description}</Text>
-          </View>
-          {profile.preferredWorkoutTime === time && (
-            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
-          )}
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
+  const getMessage = () => {
+    const count = profile.workoutDays.length;
+    if (count === 0) return 'Select at least one day';
+    if (count <= 2) return 'Starting small is smart!';
+    if (count <= 4) return 'A balanced approach!';
+    if (count <= 5) return "You're dedicated!";
+    return 'Remember rest days are important too!';
+  };
 
-function IntentStep({ profile, updateProfile }) {
   return (
     <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        Both paths are great! There's no wrong answer.
+      <View style={styles.daysContainer}>
+        {WEEK_DAYS_ORDERED.map((day) => {
+          const isSelected = profile.workoutDays.includes(day);
+          return (
+            <TouchableOpacity
+              key={day}
+              style={[styles.dayCard, isSelected && styles.dayCardSelected]}
+              onPress={() => toggleDay(day)}
+              accessibilityState={{ selected: isSelected }}
+            >
+              <Text style={[styles.dayLetter, isSelected && styles.dayLetterSelected]}>
+                {WeekDayInfo[day].letter}
+              </Text>
+              <Text style={[styles.dayName, isSelected && styles.dayNameSelected]}>
+                {WeekDayInfo[day].short}
+              </Text>
+              {isSelected && (
+                <View style={styles.dayCheck}>
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <Text style={styles.daysMessage}>{getMessage()}</Text>
+      <Text style={styles.daysCount}>
+        {profile.workoutDays.length} day{profile.workoutDays.length !== 1 ? 's' : ''} selected
       </Text>
-      {Object.values(FitnessIntent).map((intent) => (
-        <TouchableOpacity
-          key={intent}
-          style={[
-            styles.optionCard,
-            profile.fitnessIntent === intent && styles.optionCardSelected,
-          ]}
-          onPress={() => updateProfile('fitnessIntent', intent)}
-          accessibilityLabel={FitnessIntentInfo[intent].displayName}
-          accessibilityState={{ selected: profile.fitnessIntent === intent }}
-        >
-          <Ionicons
-            name={FitnessIntentInfo[intent].icon}
-            size={28}
-            color={profile.fitnessIntent === intent ? '#FF9500' : '#8B5A2B'}
-          />
-          <View style={styles.optionTextContainer}>
-            <Text style={styles.optionTitle}>{FitnessIntentInfo[intent].displayName}</Text>
-            <Text style={styles.optionDescription}>{FitnessIntentInfo[intent].description}</Text>
-          </View>
-          {profile.fitnessIntent === intent && (
-            <Ionicons name="checkmark-circle" size={24} color="#FF9500" />
-          )}
-        </TouchableOpacity>
-      ))}
     </View>
   );
 }
@@ -587,9 +394,6 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
 
   return (
     <View style={styles.stepContent}>
-      <Text style={styles.stepDescription}>
-        What should we call your new fitness buddy?
-      </Text>
       <TextInput
         style={[styles.nameInput, nameError && styles.nameInputError]}
         value={profile.hamsterName || ''}
@@ -600,9 +404,6 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
         autoCapitalize="words"
         autoCorrect={false}
         returnKeyType="done"
-        textContentType="none"
-        autoComplete="off"
-        accessibilityLabel="Hamster name"
       />
       <Text style={styles.characterCount}>
         {(profile.hamsterName || '').length}/{HAMSTER_NAME_MAX_LENGTH}
@@ -616,7 +417,6 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
             key={name}
             style={styles.suggestionChip}
             onPress={() => handleNameChange(name)}
-            accessibilityLabel={`Use name ${name}`}
           >
             <Text style={styles.suggestionText}>{name}</Text>
           </TouchableOpacity>
@@ -626,42 +426,9 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
   );
 }
 
-function MeetHamsterStep({ profile }) {
-  return (
-    <View style={styles.meetHamsterContent}>
-      <View style={styles.hamsterEnclosure}>
-        <View style={styles.hamsterPlaceholder}>
-          <Ionicons name="paw" size={80} color="#FF9500" />
-        </View>
-      </View>
-      <Text style={styles.hamsterName}>{profile.hamsterName}</Text>
-      <View style={styles.speechBubble}>
-        <Text style={styles.speechText}>
-          Hi! I'm {profile.hamsterName}! I'm so excited to start this fitness journey with you! 🎉
-        </Text>
-      </View>
-      <View style={styles.hamsterStatus}>
-        <Ionicons name="happy" size={20} color="#34C759" />
-        <Text style={styles.statusText}>Fed & Happy</Text>
-      </View>
-      <View style={styles.nextStepsContainer}>
-        <Text style={styles.nextStepsTitle}>What's next:</Text>
-        <View style={styles.nextStep}>
-          <Ionicons name="fitness" size={20} color="#FF9500" />
-          <Text style={styles.nextStepText}>Browse workouts made for you</Text>
-        </View>
-        <View style={styles.nextStep}>
-          <Ionicons name="star" size={20} color="#FF9500" />
-          <Text style={styles.nextStepText}>Earn points to customize me!</Text>
-        </View>
-        <View style={styles.nextStep}>
-          <Ionicons name="flame" size={20} color="#FF3B30" />
-          <Text style={styles.nextStepText}>Build streaks together</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
+// ============================================
+// STYLES
+// ============================================
 
 const styles = StyleSheet.create({
   container: {
@@ -719,7 +486,13 @@ const styles = StyleSheet.create({
   stepContent: {
     paddingTop: 10,
   },
-  // Age gate styles
+  stepDescription: {
+    fontSize: 16,
+    color: '#6B5D52',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  // Age Gate
   ageGateOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -752,24 +525,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#4A3728',
   },
-  stepDescription: {
-    fontSize: 16,
-    color: '#6B5D52',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  ageInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ageInput: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    width: 120,
-    color: '#FF9500',
-  },
+  // Options
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -798,6 +554,7 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
+  // Goals Grid
   goalsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -805,11 +562,10 @@ const styles = StyleSheet.create({
   },
   goalCard: {
     width: '48%',
-    aspectRatio: 1.2,
     backgroundColor: '#FFF2E5',
     borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
+    padding: 16,
     marginBottom: 12,
     borderWidth: 2,
     borderColor: 'transparent',
@@ -820,48 +576,85 @@ const styles = StyleSheet.create({
   },
   goalText: {
     marginTop: 8,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#6B5D52',
+    color: '#4A3728',
+    textAlign: 'center',
   },
   goalTextSelected: {
     color: '#FF9500',
   },
-  frequencyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
+  goalDescription: {
+    fontSize: 12,
+    color: '#6B5D52',
+    textAlign: 'center',
+    marginTop: 4,
   },
-  dayButton: {
+  // Workout Days
+  daysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  dayCard: {
     width: 44,
-    height: 44,
-    borderRadius: 22,
+    height: 70,
     backgroundColor: '#FFF2E5',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  dayCardSelected: {
+    backgroundColor: '#FF9500',
+    borderColor: '#FF9500',
+  },
+  dayLetter: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#8B5A2B',
+  },
+  dayLetterSelected: {
+    color: '#fff',
+  },
+  dayName: {
+    fontSize: 11,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
+  dayNameSelected: {
+    color: 'rgba(255,255,255,0.8)',
+  },
+  dayCheck: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(255,255,255,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayButtonSelected: {
-    backgroundColor: '#FF9500',
-  },
-  dayButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B5D52',
-  },
-  dayButtonTextSelected: {
-    color: '#fff',
-  },
-  frequencyMessage: {
+  daysMessage: {
     textAlign: 'center',
     fontSize: 16,
     color: '#34C759',
     fontWeight: '500',
+    marginBottom: 8,
   },
+  daysCount: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#6B5D52',
+  },
+  // Name Input
   nameInput: {
     fontSize: 24,
     textAlign: 'center',
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF8F0',
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#D4C4B0',
@@ -906,6 +699,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
   },
+  // Footer
   footer: {
     padding: 20,
     paddingBottom: 40,
@@ -923,81 +717,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
-  },
-  meetHamsterContent: {
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-  hamsterEnclosure: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#FFF5E6',
-    borderRadius: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: '#FFD180',
-  },
-  hamsterPlaceholder: {
-    width: 120,
-    height: 120,
-    backgroundColor: '#FFE0B2',
-    borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hamsterName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginTop: 16,
-    color: '#FF9500',
-  },
-  speechBubble: {
-    backgroundColor: '#FFF2E5',
-    padding: 16,
-    borderRadius: 16,
-    marginTop: 16,
-    marginHorizontal: 20,
-  },
-  speechText: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#4A3728',
-  },
-  hamsterStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(52,199,89,0.1)',
-    borderRadius: 16,
-  },
-  statusText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#34C759',
-  },
-  nextStepsContainer: {
-    marginTop: 24,
-    alignSelf: 'stretch',
-    paddingHorizontal: 20,
-  },
-  nextStepsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#4A3728',
-  },
-  nextStep: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  nextStepText: {
-    marginLeft: 12,
-    fontSize: 16,
-    color: '#6B5D52',
   },
 });

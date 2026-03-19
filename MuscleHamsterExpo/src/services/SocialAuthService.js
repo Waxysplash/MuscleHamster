@@ -2,6 +2,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { OAuthProvider, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import Constants from 'expo-constants';
 import { auth } from '../config/firebase';
 import Logger from './LoggerService';
 
@@ -17,11 +18,14 @@ import Logger from './LoggerService';
 // 3. The webClientId is required for Firebase authentication
 // =============================================================================
 
+// Get Web Client ID from environment variables
+const googleWebClientId = Constants.expoConfig?.extra?.googleWebClientId;
+
 // Configure Google Sign-In on module load
 // Use the Web Client ID for Firebase integration
 GoogleSignin.configure({
-  // Web Client ID from Firebase Console > Authentication > Sign-in method > Google
-  webClientId: '783320940502-o8h2fs9iaal938kmmb860npcjm29h20p.apps.googleusercontent.com',
+  // Web Client ID from environment variables (set in app.config.js)
+  webClientId: googleWebClientId,
   // Request offline access to get idToken
   offlineAccess: true,
 });

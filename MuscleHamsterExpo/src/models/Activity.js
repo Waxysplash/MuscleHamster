@@ -65,6 +65,7 @@ export const HamsterStateInfo = {
 };
 
 export const RestDayActivity = {
+  QUICK_REST: 'quickRest',
   PET_HAMSTER: 'petHamster',
   GIVE_TREAT: 'giveTreat',
   WALK: 'walk',
@@ -74,6 +75,14 @@ export const RestDayActivity = {
 };
 
 export const RestDayActivityInfo = {
+  [RestDayActivity.QUICK_REST]: {
+    displayName: 'Rest Day',
+    description: 'Take a well-deserved rest!',
+    icon: 'bed',
+    pointsAwarded: 2,
+    hamsterReaction: "Rest days are important! Your muscles grow while you recover. I'm proud of you for listening to your body!",
+    isQuickInteraction: true,
+  },
   [RestDayActivity.PET_HAMSTER]: {
     displayName: 'Pet Your Hamster',
     description: 'Show your hamster some love!',

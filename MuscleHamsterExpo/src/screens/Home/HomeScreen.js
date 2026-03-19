@@ -15,20 +15,26 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
+import { useSchedule } from '../../context/ScheduleContext';
 import { HamsterStateInfo, StreakStatus, getSimplifiedState } from '../../models/Activity';
 import LoadingView from '../../components/LoadingView';
 import HamsterPortrait from '../../components/HamsterPortrait';
+import { MiniWeekStrip } from '../../components/Schedule';
 import { useInventory } from '../../context/InventoryContext';
 import { EnclosureBackground } from '../../config/AssetImages';
 import { getTodaysExercise } from '../../models/DailyExercise';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
+import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
+import ProfileUpdatePrompt from '../../components/ProfileUpdatePrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
+import { shouldShowPermissionPrompt, enableNotifications } from '../../services/NotificationService';
+import { DAY_TYPES } from '../../services/ScheduleService';
 
 export default function HomeScreen({ navigation }) {
   const { currentUser } = useAuth();
-  const { profile } = useUserProfile();
+  const { profile, needsMigration, dismissMigration } = useUserProfile();
   const {
     stats,
     isLoading,
@@ -38,6 +44,7 @@ export default function HomeScreen({ navigation }) {
     currentStreak,
     previousBrokenStreak,
     hasCheckedInToday,
+    hasLoggedRestDayToday,
     loadStats,
   } = useActivity();
 
@@ -47,6 +54,15 @@ export default function HomeScreen({ navigation }) {
     loadInventory,
   } = useInventory();
 
+  // Schedule context for weekly planner integration
+  const {
+    todaySchedule,
+    currentWeekStart,
+    currentWeekSchedule,
+    hasScheduleThisWeek,
+    loadCurrentWeek,
+  } = useSchedule();
+
   // Responsive layout
   const { isTablet, spacing, contentMaxWidth } = useResponsive();
   const enclosureHeight = getEnclosureHeight();
@@ -55,16 +71,17 @@ export default function HomeScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [hasShownStreakFreeze, setHasShownStreakFreeze] = useState(false);
   const [error, setError] = useState(null);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
   // Get today's exercise (deterministic per user per day)
   const todaysExercise = getTodaysExercise(currentUser?.id || 'guest');
 
-  // Reload stats and inventory when screen comes into focus
+  // Reload stats, inventory, and schedule when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       const load = async () => {
         try {
-          await Promise.all([loadStats(), loadInventory()]);
+          await Promise.all([loadStats(), loadInventory(), loadCurrentWeek()]);
           setError(null);
         } catch (e) {
           Logger.error('Failed to load home data:', e);
@@ -72,7 +89,7 @@ export default function HomeScreen({ navigation }) {
         }
       };
       load();
-    }, [loadStats, loadInventory])
+    }, [loadStats, loadInventory, loadCurrentWeek])
   );
 
   // Show streak freeze if needed
@@ -87,11 +104,35 @@ export default function HomeScreen({ navigation }) {
     }
   }, [previousBrokenStreak, hasShownStreakFreeze, navigation]);
 
+  // Check if we should show notification permission prompt (after first workout)
+  useEffect(() => {
+    const checkNotificationPrompt = async () => {
+      const totalWorkouts = stats?.totalWorkoutsCompleted || 0;
+      const shouldShow = await shouldShowPermissionPrompt(totalWorkouts);
+      if (shouldShow) {
+        // Small delay to not overwhelm user right after completing workout
+        setTimeout(() => setShowNotificationPrompt(true), 1500);
+      }
+    };
+
+    if (stats && !isLoading) {
+      checkNotificationPrompt();
+    }
+  }, [stats, isLoading]);
+
+  // Handle notification prompt completion
+  const handleNotificationPromptComplete = async (granted) => {
+    if (granted) {
+      await enableNotifications();
+    }
+    setShowNotificationPrompt(false);
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     setError(null);
     try {
-      await Promise.all([loadStats(), loadInventory()]);
+      await Promise.all([loadStats(), loadInventory(), loadCurrentWeek()]);
     } catch (e) {
       Logger.error('Failed to refresh:', e);
       setError('Could not refresh. Pull down to try again.');
@@ -124,6 +165,115 @@ export default function HomeScreen({ navigation }) {
   const hasCompletedWorkoutToday = stats?.workoutHistory?.some(
     (w) => new Date(w.completedAt).toDateString() === new Date().toDateString()
   );
+
+  // Render the Today's Action card based on schedule
+  const renderTodayActionCard = () => {
+    // Already checked in today - show completed card
+    if (hasCheckedInToday) {
+      return (
+        <View style={styles.completedCard}>
+          <Ionicons name="checkmark-circle" size={32} color="#34C759" />
+          <View style={styles.completedInfo}>
+            <Text style={styles.completedTitle}>All done for today!</Text>
+            <Text style={styles.completedSubtitle}>
+              {hasCompletedWorkoutToday ? 'Workout completed' : 'Daily exercise done'}
+            </Text>
+          </View>
+        </View>
+      );
+    }
+
+    // Check if there's a scheduled workout or rest day for today
+    if (todaySchedule && todaySchedule.type !== DAY_TYPES.EMPTY) {
+      // Scheduled REST day
+      if (todaySchedule.type === DAY_TYPES.REST) {
+        return (
+          <TouchableOpacity
+            style={styles.restDayCard}
+            onPress={() => navigation.navigate('QuickRestDay')}
+            activeOpacity={0.9}
+          >
+            <View style={styles.restDayIconWrapper}>
+              <Ionicons name="bed" size={28} color="#8B5A2B" />
+            </View>
+            <View style={styles.actionInfo}>
+              <Text style={styles.restDayLabel}>SCHEDULED REST DAY</Text>
+              <Text style={styles.restDayTitle}>Recovery Day</Text>
+              <Text style={styles.restDaySubtitle}>Recovery is part of the journey</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#8B5A2B" />
+          </TouchableOpacity>
+        );
+      }
+
+      // Scheduled WORKOUT with specific workout
+      if (todaySchedule.type === DAY_TYPES.WORKOUT && todaySchedule.workoutId) {
+        return (
+          <TouchableOpacity
+            style={styles.scheduledWorkoutCard}
+            onPress={() => {
+              // Navigate to workout player with the scheduled workout
+              navigation.navigate('WorkoutPlayer', {
+                workoutId: todaySchedule.workoutId,
+                workoutType: todaySchedule.workoutType,
+              });
+            }}
+            activeOpacity={0.9}
+          >
+            <View style={styles.scheduledWorkoutIconWrapper}>
+              <Ionicons name="barbell" size={28} color="#fff" />
+            </View>
+            <View style={styles.actionInfo}>
+              <Text style={styles.scheduledWorkoutLabel}>TODAY'S PLAN</Text>
+              <Text style={styles.scheduledWorkoutTitle}>{todaySchedule.workoutName}</Text>
+              <Text style={styles.scheduledWorkoutSubtitle}>Scheduled workout</Text>
+            </View>
+            <Ionicons name="play-circle" size={32} color="#fff" />
+          </TouchableOpacity>
+        );
+      }
+
+      // Scheduled WORKOUT day but no specific workout picked
+      if (todaySchedule.type === DAY_TYPES.WORKOUT && !todaySchedule.workoutId) {
+        return (
+          <TouchableOpacity
+            style={styles.pickWorkoutCard}
+            onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain', params: { openPicker: true } })}
+            activeOpacity={0.9}
+          >
+            <View style={styles.pickWorkoutIconWrapper}>
+              <Ionicons name="fitness" size={28} color="#FF9500" />
+            </View>
+            <View style={styles.actionInfo}>
+              <Text style={styles.pickWorkoutLabel}>WORKOUT DAY</Text>
+              <Text style={styles.pickWorkoutTitle}>Pick a Workout</Text>
+              <Text style={styles.pickWorkoutSubtitle}>You planned to exercise today</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#FF9500" />
+          </TouchableOpacity>
+        );
+      }
+    }
+
+    // Default: No schedule - show daily exercise card
+    return (
+      <TouchableOpacity
+        style={styles.actionCard}
+        onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
+        activeOpacity={0.9}
+      >
+        <View style={styles.actionIconWrapper}>
+          <Ionicons name="fitness" size={28} color="#fff" />
+        </View>
+        <View style={styles.actionInfo}>
+          <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
+          <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
+          <Text style={styles.actionSubtitle}>Complete your daily exercise</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={24} color="#fff" />
+      </TouchableOpacity>
+    );
+  };
 
   if (isLoading && !stats) {
     return <LoadingView message="Waking up your hamster..." />;
@@ -172,6 +322,7 @@ export default function HomeScreen({ navigation }) {
                 size={hamsterSize}
                 equippedOutfit={equippedOutfit}
                 equippedAccessory={equippedAccessory}
+                isRestDay={hasLoggedRestDayToday}
               />
             </View>
           </SafeAreaView>
@@ -206,33 +357,16 @@ export default function HomeScreen({ navigation }) {
             styles.contentWrapper,
             isTablet && { maxWidth: contentMaxWidth, width: '100%' }
           ]}>
-          {/* Today's Action Card */}
-          {!hasCheckedInToday ? (
-            <TouchableOpacity
-              style={styles.actionCard}
-              onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
-              activeOpacity={0.9}
-            >
-              <View style={styles.actionIconWrapper}>
-                <Ionicons name="fitness" size={28} color="#fff" />
-              </View>
-              <View style={styles.actionInfo}>
-                <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
-                <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
-                <Text style={styles.actionSubtitle}>30-60 seconds daily exercise</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="#fff" />
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.completedCard}>
-              <Ionicons name="checkmark-circle" size={32} color="#34C759" />
-              <View style={styles.completedInfo}>
-                <Text style={styles.completedTitle}>All done for today!</Text>
-                <Text style={styles.completedSubtitle}>
-                  {hasCompletedWorkoutToday ? 'Workout completed' : 'Daily exercise done'}
-                </Text>
-              </View>
-            </View>
+          {/* Today's Action Card - Schedule-aware */}
+          {renderTodayActionCard()}
+
+          {/* Mini Week Strip - Only show if user has a schedule */}
+          {hasScheduleThisWeek && (
+            <MiniWeekStrip
+              weekStart={currentWeekStart}
+              schedule={currentWeekSchedule}
+              onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
+            />
           )}
 
           {/* Stats Row */}
@@ -246,7 +380,7 @@ export default function HomeScreen({ navigation }) {
 
             {/* Workouts Card */}
             <View style={styles.statCard}>
-              <Ionicons name="barbell" size={28} color="#007AFF" />
+              <Ionicons name="barbell" size={28} color="#8B5A2B" />
               <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
               <Text style={styles.statLabel}>workouts</Text>
             </View>
@@ -282,15 +416,35 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           )}
 
-          {/* Customize Button */}
-          <TouchableOpacity
-            style={styles.customizeButton}
-            onPress={() => navigation.navigate('Inventory')}
-          >
-            <Ionicons name="sparkles" size={20} color="#8B5A2B" />
-            <Text style={styles.customizeText}>Customize {hamsterName}</Text>
-            <Ionicons name="chevron-forward" size={18} color="#8B5A2B" />
-          </TouchableOpacity>
+          {/* Shop, Customize & Rest Day Buttons Row */}
+          <View style={styles.actionButtonsRow}>
+            {/* Shop Button */}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Shop')}
+            >
+              <Ionicons name="bag" size={20} color="#FF9500" />
+              <Text style={styles.actionButtonText}>Shop</Text>
+            </TouchableOpacity>
+
+            {/* Customize Button */}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Inventory')}
+            >
+              <Ionicons name="sparkles" size={20} color="#8B5A2B" />
+              <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Customize</Text>
+            </TouchableOpacity>
+
+            {/* Rest Day Button */}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('QuickRestDay')}
+            >
+              <Ionicons name="bed" size={20} color="#8B5A2B" />
+              <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Rest Day</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Longest Streak */}
           {stats?.longestStreak > 0 && (
@@ -301,6 +455,23 @@ export default function HomeScreen({ navigation }) {
           </View>
         </ScrollView>
       </View>
+
+      {/* Notification Permission Prompt */}
+      <NotificationPermissionPrompt
+        visible={showNotificationPrompt}
+        onComplete={handleNotificationPromptComplete}
+        onDismiss={() => setShowNotificationPrompt(false)}
+      />
+
+      {/* Profile Update Prompt (for users with old profile format) */}
+      <ProfileUpdatePrompt
+        visible={needsMigration}
+        onUpdate={() => {
+          dismissMigration();
+          navigation.navigate('Settings', { screen: 'ProfileSettings' });
+        }}
+        onSkip={dismissMigration}
+      />
     </View>
   );
 }
@@ -515,6 +686,124 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
+  // Scheduled Workout Card (brown theme)
+  scheduledWorkoutCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#8B5A2B',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#8B5A2B',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+  scheduledWorkoutIconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scheduledWorkoutLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 1,
+  },
+  scheduledWorkoutTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 2,
+  },
+  scheduledWorkoutSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
+  },
+  // Rest Day Card (warm cream/brown theme)
+  restDayCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F0EB',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(139,90,43,0.2)',
+  },
+  restDayIconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  restDayLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8B5A2B',
+    letterSpacing: 1,
+  },
+  restDayTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#4A3728',
+    marginTop: 2,
+  },
+  restDaySubtitle: {
+    fontSize: 13,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
+  // Pick Workout Card (orange accent with dashed border)
+  pickWorkoutCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#FF9500',
+    borderStyle: 'dashed',
+  },
+  pickWorkoutIconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pickWorkoutLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FF9500',
+    letterSpacing: 1,
+  },
+  pickWorkoutTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#4A3728',
+    marginTop: 2,
+  },
+  pickWorkoutSubtitle: {
+    fontSize: 13,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
   // Stats Row
   statsRow: {
     flexDirection: 'row',
@@ -523,7 +812,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
@@ -595,14 +884,21 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
-  // Customize Button
-  customizeButton: {
+  // Shop & Customize Buttons Row
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  actionButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'center',
+    backgroundColor: '#FFF8F0',
     borderRadius: 16,
     padding: 16,
-    marginBottom: 16,
+    gap: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#8B5A2B',
@@ -615,18 +911,16 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  customizeText: {
-    flex: 1,
+  actionButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#8B5A2B',
-    marginLeft: 12,
+    color: '#FF9500',
   },
   // Longest Streak
   longestStreak: {
     textAlign: 'center',
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
   },
 });

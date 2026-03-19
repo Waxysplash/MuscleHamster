@@ -1,4 +1,9 @@
-// User Profile Model - Phase 03
+// User Profile Model - Simplified
+// Focused on data that actually influences the app experience
+
+// ============================================
+// FITNESS LEVEL
+// ============================================
 
 export const FitnessLevel = {
   BEGINNER: 'beginner',
@@ -14,7 +19,7 @@ export const FitnessLevelInfo = {
   },
   [FitnessLevel.INTERMEDIATE]: {
     displayName: 'Intermediate',
-    description: 'Regular workouts, ready for more challenge',
+    description: 'Work out regularly, ready for more',
     icon: 'fitness',
   },
   [FitnessLevel.ADVANCED]: {
@@ -24,122 +29,172 @@ export const FitnessLevelInfo = {
   },
 };
 
+// ============================================
+// FITNESS GOALS (Outcome-focused)
+// ============================================
+
 export const FitnessGoal = {
-  CARDIO: 'cardio',
-  BUILD_MUSCLE: 'buildMuscle',
-  LOSE_FAT: 'loseFat',
-  FLEXIBILITY: 'flexibility',
-  GENERAL_FITNESS: 'generalFitness',
+  STAY_ACTIVE: 'stayActive',
+  GET_STRONGER: 'getStronger',
+  BUILD_CORE: 'buildCore',
+  IMPROVE_FLEXIBILITY: 'improveFlexibility',
 };
 
 export const FitnessGoalInfo = {
-  [FitnessGoal.CARDIO]: {
-    displayName: 'Cardio',
-    description: 'Improve heart health and endurance',
-    icon: 'heart',
+  [FitnessGoal.STAY_ACTIVE]: {
+    displayName: 'Stay Active',
+    description: 'Keep moving with quick, easy workouts',
+    icon: 'flash',
+    // Maps to: Quick Sweats, Desk Workouts
+    categories: ['quick_sweats', 'desk'],
   },
-  [FitnessGoal.BUILD_MUSCLE]: {
-    displayName: 'Build Muscle',
-    description: 'Get stronger and build lean muscle',
+  [FitnessGoal.GET_STRONGER]: {
+    displayName: 'Get Stronger',
+    description: 'Build muscle and increase strength',
     icon: 'barbell',
+    // Maps to: Upper Body, Lower Body, Gym workouts
+    categories: ['upper_body', 'lower_body', 'legs', 'arms', 'back', 'chest', 'shoulders'],
   },
-  [FitnessGoal.LOSE_FAT]: {
-    displayName: 'Lose Fat',
-    description: 'Burn calories and lose weight',
-    icon: 'flame',
+  [FitnessGoal.BUILD_CORE]: {
+    displayName: 'Build Core',
+    description: 'Strengthen your core and abs',
+    icon: 'ellipse',
+    // Maps to: Core
+    categories: ['core'],
   },
-  [FitnessGoal.FLEXIBILITY]: {
-    displayName: 'Flexibility',
-    description: 'Improve mobility and reduce stiffness',
+  [FitnessGoal.IMPROVE_FLEXIBILITY]: {
+    displayName: 'Improve Flexibility',
+    description: 'Stretch more and move better',
     icon: 'body',
-  },
-  [FitnessGoal.GENERAL_FITNESS]: {
-    displayName: 'General Fitness',
-    description: 'Overall health and wellness',
-    icon: 'star',
+    // Maps to: Flexibility/Yoga content
+    categories: ['flexibility', 'yoga', 'stretching'],
   },
 };
 
-export const SchedulePreference = {
-  FIXED: 'fixed',
-  FLEXIBLE: 'flexible',
+// ============================================
+// WORKOUT DAYS
+// ============================================
+
+export const WeekDay = {
+  MONDAY: 'monday',
+  TUESDAY: 'tuesday',
+  WEDNESDAY: 'wednesday',
+  THURSDAY: 'thursday',
+  FRIDAY: 'friday',
+  SATURDAY: 'saturday',
+  SUNDAY: 'sunday',
 };
 
-export const SchedulePreferenceInfo = {
-  [SchedulePreference.FIXED]: {
-    displayName: 'Fixed Days',
-    description: 'Same days each week (e.g., Mon/Wed/Fri)',
-    icon: 'calendar',
-  },
-  [SchedulePreference.FLEXIBLE]: {
-    displayName: 'Flexible',
-    description: 'Any days, as long as I hit my goal',
-    icon: 'shuffle',
-  },
+export const WeekDayInfo = {
+  [WeekDay.MONDAY]: { short: 'Mon', letter: 'M' },
+  [WeekDay.TUESDAY]: { short: 'Tue', letter: 'T' },
+  [WeekDay.WEDNESDAY]: { short: 'Wed', letter: 'W' },
+  [WeekDay.THURSDAY]: { short: 'Thu', letter: 'T' },
+  [WeekDay.FRIDAY]: { short: 'Fri', letter: 'F' },
+  [WeekDay.SATURDAY]: { short: 'Sat', letter: 'S' },
+  [WeekDay.SUNDAY]: { short: 'Sun', letter: 'S' },
 };
 
-export const WorkoutTime = {
-  MORNING: 'morning',
-  AFTERNOON: 'afternoon',
-  EVENING: 'evening',
-  NO_PREFERENCE: 'noPreference',
-};
+export const WEEK_DAYS_ORDERED = [
+  WeekDay.MONDAY,
+  WeekDay.TUESDAY,
+  WeekDay.WEDNESDAY,
+  WeekDay.THURSDAY,
+  WeekDay.FRIDAY,
+  WeekDay.SATURDAY,
+  WeekDay.SUNDAY,
+];
 
-export const WorkoutTimeInfo = {
-  [WorkoutTime.MORNING]: {
-    displayName: 'Morning',
-    description: '6am - 12pm',
-    icon: 'sunny',
-  },
-  [WorkoutTime.AFTERNOON]: {
-    displayName: 'Afternoon',
-    description: '12pm - 5pm',
-    icon: 'partly-sunny',
-  },
-  [WorkoutTime.EVENING]: {
-    displayName: 'Evening',
-    description: '5pm - 10pm',
-    icon: 'moon',
-  },
-  [WorkoutTime.NO_PREFERENCE]: {
-    displayName: 'No Preference',
-    description: 'Whenever works!',
-    icon: 'time',
-  },
-};
-
-export const FitnessIntent = {
-  MAINTAIN: 'maintain',
-  IMPROVE: 'improve',
-};
-
-export const FitnessIntentInfo = {
-  [FitnessIntent.MAINTAIN]: {
-    displayName: 'Maintain',
-    description: 'Keep my current fitness level',
-    icon: 'checkmark-circle',
-  },
-  [FitnessIntent.IMPROVE]: {
-    displayName: 'Improve',
-    description: 'Push myself to get better',
-    icon: 'trending-up',
-  },
-};
+// ============================================
+// PROFILE STRUCTURE
+// ============================================
 
 // Default empty profile
 export const createEmptyProfile = () => ({
-  age: null,
-  fitnessLevel: null,
-  fitnessGoals: [],
-  weeklyWorkoutGoal: 3,
-  schedulePreference: null,
-  preferredWorkoutTime: null,
-  fitnessIntent: null,
+  // Essential
   hamsterName: null,
+
+  // Fitness preferences (simplified)
+  fitnessLevel: null,
+  fitnessGoals: [], // Array of FitnessGoal values
+  workoutDays: [],  // Array of WeekDay values
+
+  // Profile state
   profileComplete: false,
+  profileVersion: 2, // Version 2 = simplified profile
+
+  // Legacy fields (kept for migration)
+  // These will be ignored but preserved for existing users
 });
 
-// Hamster name validation
+// Check if profile needs migration (old format)
+export const needsProfileMigration = (profile) => {
+  if (!profile) return false;
+
+  // If profile has old fields but no profileVersion or version 1
+  const hasOldFields = profile.schedulePreference !== undefined ||
+                       profile.preferredWorkoutTime !== undefined ||
+                       profile.fitnessIntent !== undefined ||
+                       profile.weeklyWorkoutGoal !== undefined;
+
+  const isOldVersion = !profile.profileVersion || profile.profileVersion < 2;
+
+  return hasOldFields && isOldVersion && profile.profileComplete;
+};
+
+// Migrate old profile to new format
+export const migrateProfile = (oldProfile) => {
+  if (!oldProfile) return createEmptyProfile();
+
+  // Map old fitness goals to new ones
+  const oldGoals = oldProfile.fitnessGoals || [];
+  const newGoals = [];
+
+  // Map old goal types to new
+  if (oldGoals.includes('cardio') || oldGoals.includes('generalFitness')) {
+    newGoals.push(FitnessGoal.STAY_ACTIVE);
+  }
+  if (oldGoals.includes('buildMuscle')) {
+    newGoals.push(FitnessGoal.GET_STRONGER);
+  }
+  if (oldGoals.includes('loseFat')) {
+    // Map to both stay active and build core
+    if (!newGoals.includes(FitnessGoal.STAY_ACTIVE)) {
+      newGoals.push(FitnessGoal.STAY_ACTIVE);
+    }
+    newGoals.push(FitnessGoal.BUILD_CORE);
+  }
+  if (oldGoals.includes('flexibility')) {
+    newGoals.push(FitnessGoal.IMPROVE_FLEXIBILITY);
+  }
+
+  // Convert weeklyWorkoutGoal to workout days
+  // Default to Mon/Wed/Fri pattern
+  let workoutDays = [];
+  const weeklyGoal = oldProfile.weeklyWorkoutGoal || 3;
+
+  if (weeklyGoal >= 1) workoutDays.push(WeekDay.MONDAY);
+  if (weeklyGoal >= 2) workoutDays.push(WeekDay.WEDNESDAY);
+  if (weeklyGoal >= 3) workoutDays.push(WeekDay.FRIDAY);
+  if (weeklyGoal >= 4) workoutDays.push(WeekDay.TUESDAY);
+  if (weeklyGoal >= 5) workoutDays.push(WeekDay.THURSDAY);
+  if (weeklyGoal >= 6) workoutDays.push(WeekDay.SATURDAY);
+  if (weeklyGoal >= 7) workoutDays.push(WeekDay.SUNDAY);
+
+  return {
+    hamsterName: oldProfile.hamsterName,
+    fitnessLevel: oldProfile.fitnessLevel,
+    fitnessGoals: newGoals.length > 0 ? newGoals : [FitnessGoal.STAY_ACTIVE],
+    workoutDays: workoutDays,
+    profileComplete: false, // Mark incomplete so they go through new flow
+    profileVersion: 2,
+  };
+};
+
+// ============================================
+// HAMSTER NAME VALIDATION
+// ============================================
+
 export const HAMSTER_NAME_MIN_LENGTH = 1;
 export const HAMSTER_NAME_MAX_LENGTH = 24;
 export const HAMSTER_NAME_PATTERN = /^[a-zA-Z0-9\s\-']+$/;
@@ -158,3 +213,50 @@ export const validateHamsterName = (name) => {
 };
 
 export const HAMSTER_NAME_SUGGESTIONS = ['Hammy', 'Peanut', 'Whiskers', 'Nugget', 'Biscuit', 'Coco'];
+
+// ============================================
+// LEGACY EXPORTS (for backward compatibility)
+// These are kept so existing code doesn't break
+// ============================================
+
+export const SchedulePreference = {
+  FIXED: 'fixed',
+  FLEXIBLE: 'flexible',
+};
+
+export const SchedulePreferenceInfo = {
+  [SchedulePreference.FIXED]: {
+    displayName: 'Fixed Days',
+    description: 'Same days each week',
+    icon: 'calendar',
+  },
+  [SchedulePreference.FLEXIBLE]: {
+    displayName: 'Flexible',
+    description: 'Any days work',
+    icon: 'shuffle',
+  },
+};
+
+export const WorkoutTime = {
+  MORNING: 'morning',
+  AFTERNOON: 'afternoon',
+  EVENING: 'evening',
+  NO_PREFERENCE: 'noPreference',
+};
+
+export const WorkoutTimeInfo = {
+  [WorkoutTime.MORNING]: { displayName: 'Morning', description: '6am - 12pm', icon: 'sunny' },
+  [WorkoutTime.AFTERNOON]: { displayName: 'Afternoon', description: '12pm - 5pm', icon: 'partly-sunny' },
+  [WorkoutTime.EVENING]: { displayName: 'Evening', description: '5pm - 10pm', icon: 'moon' },
+  [WorkoutTime.NO_PREFERENCE]: { displayName: 'No Preference', description: 'Whenever works!', icon: 'time' },
+};
+
+export const FitnessIntent = {
+  MAINTAIN: 'maintain',
+  IMPROVE: 'improve',
+};
+
+export const FitnessIntentInfo = {
+  [FitnessIntent.MAINTAIN]: { displayName: 'Maintain', description: 'Keep current level', icon: 'checkmark-circle' },
+  [FitnessIntent.IMPROVE]: { displayName: 'Improve', description: 'Push to get better', icon: 'trending-up' },
+};

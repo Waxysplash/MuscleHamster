@@ -160,7 +160,7 @@ function EmptyState({ icon, title, message }) {
 function IncomingRequestRow({ request, senderProfile, isProcessing, onAccept, onDecline }) {
   const stateColor = senderProfile
     ? getHamsterStateColor(senderProfile.hamsterState)
-    : '#8E8E93';
+    : '#6B5D52';
 
   return (
     <View style={styles.requestRow}>

@@ -1,12 +1,9 @@
 /**
- * ProfileSettingsScreen.js
- * MuscleHamster Expo
- *
- * Settings screen for editing user profile and fitness preferences
- * Ported from Phase 03.3: Persist and edit profile in settings
+ * ProfileSettingsScreen.js - Simplified
+ * Settings screen for editing fitness preferences
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -27,28 +24,22 @@ import {
   FitnessLevelInfo,
   FitnessGoal,
   FitnessGoalInfo,
-  SchedulePreference,
-  SchedulePreferenceInfo,
-  WorkoutTime,
-  WorkoutTimeInfo,
-  FitnessIntent,
-  FitnessIntentInfo,
+  WeekDay,
+  WeekDayInfo,
+  WEEK_DAYS_ORDERED,
   validateHamsterName,
   HAMSTER_NAME_MAX_LENGTH,
 } from '../../models/UserProfile';
 
 export default function ProfileSettingsScreen({ navigation }) {
-  const { profile, updateProfile, isProfileComplete } = useUserProfile();
+  const { profile, updateProfile } = useUserProfile();
   const { showAlert } = useAlert();
 
   // Local editing state
   const [hamsterName, setHamsterName] = useState('');
   const [fitnessLevel, setFitnessLevel] = useState(null);
   const [fitnessGoals, setFitnessGoals] = useState([]);
-  const [weeklyWorkoutGoal, setWeeklyWorkoutGoal] = useState(3);
-  const [schedulePreference, setSchedulePreference] = useState(null);
-  const [preferredWorkoutTime, setPreferredWorkoutTime] = useState(null);
-  const [fitnessIntent, setFitnessIntent] = useState(null);
+  const [workoutDays, setWorkoutDays] = useState([]);
 
   // UI state
   const [isSaving, setIsSaving] = useState(false);
@@ -68,30 +59,21 @@ export default function ProfileSettingsScreen({ navigation }) {
     setHamsterName(profile.hamsterName || '');
     setFitnessLevel(profile.fitnessLevel);
     setFitnessGoals(profile.fitnessGoals || []);
-    setWeeklyWorkoutGoal(profile.weeklyWorkoutGoal || 3);
-    setSchedulePreference(profile.schedulePreference);
-    setPreferredWorkoutTime(profile.preferredWorkoutTime);
-    setFitnessIntent(profile.fitnessIntent);
+    setWorkoutDays(profile.workoutDays || []);
 
-    // Reset change tracking after loading
     setTimeout(() => setHasUnsavedChanges(false), 100);
   };
 
-  // Validate profile
   const isValidProfile = () => {
     if (!hamsterName || hamsterName.trim().length === 0) return false;
     const validation = validateHamsterName(hamsterName);
     if (!validation.valid) return false;
     if (!fitnessLevel) return false;
     if (fitnessGoals.length === 0) return false;
-    if (weeklyWorkoutGoal < 1 || weeklyWorkoutGoal > 7) return false;
-    if (!schedulePreference) return false;
-    if (!preferredWorkoutTime) return false;
-    if (!fitnessIntent) return false;
+    if (workoutDays.length === 0) return false;
     return true;
   };
 
-  // Check for changes
   const checkForChanges = () => {
     if (!profile) {
       setHasUnsavedChanges(true);
@@ -102,15 +84,11 @@ export default function ProfileSettingsScreen({ navigation }) {
       hamsterName !== (profile.hamsterName || '') ||
       fitnessLevel !== profile.fitnessLevel ||
       JSON.stringify(fitnessGoals.sort()) !== JSON.stringify((profile.fitnessGoals || []).sort()) ||
-      weeklyWorkoutGoal !== (profile.weeklyWorkoutGoal || 3) ||
-      schedulePreference !== profile.schedulePreference ||
-      preferredWorkoutTime !== profile.preferredWorkoutTime ||
-      fitnessIntent !== profile.fitnessIntent;
+      JSON.stringify(workoutDays.sort()) !== JSON.stringify((profile.workoutDays || []).sort());
 
     setHasUnsavedChanges(changed);
   };
 
-  // Handle name change
   const handleNameChange = (text) => {
     setHamsterName(text);
     const validation = validateHamsterName(text);
@@ -118,18 +96,26 @@ export default function ProfileSettingsScreen({ navigation }) {
     checkForChanges();
   };
 
-  // Toggle goal selection
   const toggleGoal = (goal) => {
     setFitnessGoals((prev) => {
-      if (prev.includes(goal)) {
-        return prev.filter((g) => g !== goal);
-      }
-      return [...prev, goal];
+      const updated = prev.includes(goal)
+        ? prev.filter((g) => g !== goal)
+        : [...prev, goal];
+      setTimeout(checkForChanges, 0);
+      return updated;
     });
-    setTimeout(checkForChanges, 0);
   };
 
-  // Save profile
+  const toggleDay = (day) => {
+    setWorkoutDays((prev) => {
+      const updated = prev.includes(day)
+        ? prev.filter((d) => d !== day)
+        : [...prev, day];
+      setTimeout(checkForChanges, 0);
+      return updated;
+    });
+  };
+
   const saveProfile = async () => {
     if (!isValidProfile()) return;
 
@@ -141,23 +127,19 @@ export default function ProfileSettingsScreen({ navigation }) {
         hamsterName: hamsterName.trim(),
         fitnessLevel,
         fitnessGoals,
-        weeklyWorkoutGoal,
-        schedulePreference,
-        preferredWorkoutTime,
-        fitnessIntent,
+        workoutDays,
         profileComplete: true,
+        profileVersion: 2,
       };
 
       await updateProfile(updatedProfile);
-
-      // Brief delay for UX
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       setHasUnsavedChanges(false);
 
       showAlert(
         'Changes Saved!',
-        'Your profile has been updated. Your workout recommendations will reflect these changes.',
+        'Your profile has been updated.',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (e) {
@@ -168,24 +150,9 @@ export default function ProfileSettingsScreen({ navigation }) {
     }
   };
 
-  // Fitness level options
-  const fitnessLevelOptions = Object.values(FitnessLevel);
-  const fitnessGoalOptions = Object.values(FitnessGoal);
-  const scheduleOptions = Object.values(SchedulePreference);
-  const workoutTimeOptions = Object.values(WorkoutTime);
-  const intentOptions = Object.values(FitnessIntent);
-
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        {/* Info Banner */}
-        <View style={styles.infoBanner}>
-          <Ionicons name="information-circle" size={20} color="#FF9500" />
-          <Text style={styles.infoBannerText}>
-            Changes to your profile will update your workout recommendations and reminders.
-          </Text>
-        </View>
-
         {/* Hamster Section */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Hamster</Text>
@@ -195,7 +162,7 @@ export default function ProfileSettingsScreen({ navigation }) {
                 <Ionicons name="paw" size={24} color="#FF9500" />
               </View>
               <View style={styles.hamsterInputContainer}>
-                <Text style={styles.inputLabel}>Your Hamster</Text>
+                <Text style={styles.inputLabel}>Name</Text>
                 <TextInput
                   style={styles.hamsterInput}
                   value={hamsterName}
@@ -207,9 +174,6 @@ export default function ProfileSettingsScreen({ navigation }) {
                   autoCorrect={false}
                 />
                 {nameError && <Text style={styles.errorText}>{nameError}</Text>}
-                <Text style={styles.charCount}>
-                  {hamsterName.length}/{HAMSTER_NAME_MAX_LENGTH} characters
-                </Text>
               </View>
             </View>
           </View>
@@ -219,7 +183,7 @@ export default function ProfileSettingsScreen({ navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Fitness Level</Text>
           <View style={styles.card}>
-            {fitnessLevelOptions.map((level, index) => (
+            {Object.values(FitnessLevel).map((level, index) => (
               <React.Fragment key={level}>
                 {index > 0 && <View style={styles.separator} />}
                 <TouchableOpacity
@@ -229,6 +193,12 @@ export default function ProfileSettingsScreen({ navigation }) {
                     setTimeout(checkForChanges, 0);
                   }}
                 >
+                  <Ionicons
+                    name={FitnessLevelInfo[level].icon}
+                    size={22}
+                    color="#FF9500"
+                    style={styles.optionIcon}
+                  />
                   <View style={styles.optionInfo}>
                     <Text style={styles.optionLabel}>{FitnessLevelInfo[level].displayName}</Text>
                     <Text style={styles.optionDescription}>{FitnessLevelInfo[level].description}</Text>
@@ -240,16 +210,13 @@ export default function ProfileSettingsScreen({ navigation }) {
               </React.Fragment>
             ))}
           </View>
-          <Text style={styles.footerText}>
-            This helps us pick workouts that match your experience.
-          </Text>
         </View>
 
         {/* Goals Section */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Fitness Goals</Text>
           <View style={styles.card}>
-            {fitnessGoalOptions.map((goal, index) => (
+            {Object.values(FitnessGoal).map((goal, index) => (
               <React.Fragment key={goal}>
                 {index > 0 && <View style={styles.separator} />}
                 <TouchableOpacity
@@ -262,153 +229,56 @@ export default function ProfileSettingsScreen({ navigation }) {
                     color="#FF9500"
                     style={styles.optionIcon}
                   />
-                  <Text style={styles.optionLabel}>{FitnessGoalInfo[goal].displayName}</Text>
-                  <View style={styles.checkboxContainer}>
-                    <Ionicons
-                      name={fitnessGoals.includes(goal) ? 'checkmark-circle' : 'ellipse-outline'}
-                      size={24}
-                      color={fitnessGoals.includes(goal) ? '#FF9500' : '#C4B8AE'}
-                    />
+                  <View style={styles.optionInfo}>
+                    <Text style={styles.optionLabel}>{FitnessGoalInfo[goal].displayName}</Text>
+                    <Text style={styles.optionDescription}>{FitnessGoalInfo[goal].description}</Text>
                   </View>
+                  <Ionicons
+                    name={fitnessGoals.includes(goal) ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={24}
+                    color={fitnessGoals.includes(goal) ? '#FF9500' : '#C4B8AE'}
+                  />
                 </TouchableOpacity>
               </React.Fragment>
             ))}
           </View>
-          <Text style={styles.footerText}>
-            Select all that apply. We'll recommend workouts that help you reach these goals.
-          </Text>
+          <Text style={styles.footerText}>Select all that apply.</Text>
         </View>
 
-        {/* Schedule Section */}
+        {/* Workout Days Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Schedule</Text>
+          <Text style={styles.sectionHeader}>Workout Days</Text>
           <View style={styles.card}>
-            {/* Weekly Goal */}
-            <View style={styles.weeklyGoalRow}>
-              <Text style={styles.weeklyGoalLabel}>Weekly Workout Goal</Text>
-              <View style={styles.dayButtons}>
-                {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+            <View style={styles.daysGrid}>
+              {WEEK_DAYS_ORDERED.map((day) => {
+                const isSelected = workoutDays.includes(day);
+                return (
                   <TouchableOpacity
                     key={day}
-                    style={[
-                      styles.dayButton,
-                      weeklyWorkoutGoal === day && styles.dayButtonSelected,
-                    ]}
-                    onPress={() => {
-                      setWeeklyWorkoutGoal(day);
-                      setTimeout(checkForChanges, 0);
-                    }}
+                    style={[styles.dayButton, isSelected && styles.dayButtonSelected]}
+                    onPress={() => toggleDay(day)}
                   >
-                    <Text
-                      style={[
-                        styles.dayButtonText,
-                        weeklyWorkoutGoal === day && styles.dayButtonTextSelected,
-                      ]}
-                    >
-                      {day}
+                    <Text style={[styles.dayLetter, isSelected && styles.dayLetterSelected]}>
+                      {WeekDayInfo[day].letter}
+                    </Text>
+                    <Text style={[styles.dayName, isSelected && styles.dayNameSelected]}>
+                      {WeekDayInfo[day].short}
                     </Text>
                   </TouchableOpacity>
-                ))}
-              </View>
-              <Text style={styles.weeklyGoalSubtext}>
-                {weeklyWorkoutGoal} workout{weeklyWorkoutGoal === 1 ? '' : 's'} per week
-              </Text>
+                );
+              })}
             </View>
-
-            <View style={styles.separator} />
-
-            {/* Schedule Preference */}
-            {scheduleOptions.map((pref, index) => (
-              <React.Fragment key={pref}>
-                {index > 0 && <View style={styles.separator} />}
-                <TouchableOpacity
-                  style={styles.optionRow}
-                  onPress={() => {
-                    setSchedulePreference(pref);
-                    setTimeout(checkForChanges, 0);
-                  }}
-                >
-                  <View style={styles.optionInfo}>
-                    <Text style={styles.optionLabel}>{SchedulePreferenceInfo[pref].displayName}</Text>
-                    <Text style={styles.optionDescription}>{SchedulePreferenceInfo[pref].description}</Text>
-                  </View>
-                  {schedulePreference === pref && (
-                    <Ionicons name="checkmark" size={22} color="#FF9500" />
-                  )}
-                </TouchableOpacity>
-              </React.Fragment>
-            ))}
-
-            <View style={[styles.separator, { marginTop: 8 }]} />
-
-            {/* Preferred Workout Time */}
-            <View style={styles.subSection}>
-              <Text style={styles.subSectionLabel}>Preferred Workout Time</Text>
-              {workoutTimeOptions.map((time, index) => (
-                <React.Fragment key={time}>
-                  {index > 0 && <View style={styles.separator} />}
-                  <TouchableOpacity
-                    style={styles.timeRow}
-                    onPress={() => {
-                      setPreferredWorkoutTime(time);
-                      setTimeout(checkForChanges, 0);
-                    }}
-                  >
-                    <Ionicons
-                      name={WorkoutTimeInfo[time].icon}
-                      size={22}
-                      color="#FF9500"
-                      style={styles.optionIcon}
-                    />
-                    <View style={styles.optionInfo}>
-                      <Text style={styles.optionLabel}>{WorkoutTimeInfo[time].displayName}</Text>
-                      <Text style={styles.optionDescription}>{WorkoutTimeInfo[time].description}</Text>
-                    </View>
-                    {preferredWorkoutTime === time && (
-                      <Ionicons name="checkmark" size={22} color="#FF9500" />
-                    )}
-                  </TouchableOpacity>
-                </React.Fragment>
-              ))}
-            </View>
+            <Text style={styles.daysCount}>
+              {workoutDays.length} day{workoutDays.length !== 1 ? 's' : ''} per week
+            </Text>
           </View>
           <Text style={styles.footerText}>
-            We'll use this to plan your workout days and send reminders at the right time.
-          </Text>
-        </View>
-
-        {/* Focus Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Focus</Text>
-          <View style={styles.card}>
-            {intentOptions.map((intent, index) => (
-              <React.Fragment key={intent}>
-                {index > 0 && <View style={styles.separator} />}
-                <TouchableOpacity
-                  style={styles.optionRow}
-                  onPress={() => {
-                    setFitnessIntent(intent);
-                    setTimeout(checkForChanges, 0);
-                  }}
-                >
-                  <View style={styles.optionInfo}>
-                    <Text style={styles.optionLabel}>{FitnessIntentInfo[intent].displayName}</Text>
-                    <Text style={styles.optionDescription}>{FitnessIntentInfo[intent].description}</Text>
-                  </View>
-                  {fitnessIntent === intent && (
-                    <Ionicons name="checkmark" size={22} color="#FF9500" />
-                  )}
-                </TouchableOpacity>
-              </React.Fragment>
-            ))}
-          </View>
-          <Text style={styles.footerText}>
-            Maintain keeps things steady. Improve gradually increases intensity over time.
+            This helps us plan your weekly schedule and send reminders.
           </Text>
         </View>
       </ScrollView>
 
-      {/* Save Button (Fixed at bottom) */}
+      {/* Save Button */}
       <View style={styles.saveButtonContainer}>
         <TouchableOpacity
           style={[
@@ -451,21 +321,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 100,
   },
-  infoBanner: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,149,0,0.1)',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 24,
-    alignItems: 'flex-start',
-  },
-  infoBannerText: {
-    fontSize: 14,
-    color: '#4A3728',
-    marginLeft: 10,
-    flex: 1,
-    lineHeight: 20,
-  },
   section: {
     marginBottom: 24,
   },
@@ -487,6 +342,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5DDD5',
     marginLeft: 16,
   },
+  // Hamster
   hamsterRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -520,11 +376,7 @@ const styles = StyleSheet.create({
     color: '#FF3B30',
     marginTop: 4,
   },
-  charCount: {
-    fontSize: 12,
-    color: '#6B5D52',
-    marginTop: 4,
-  },
+  // Options
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -546,68 +398,52 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
-  checkboxContainer: {
-    marginLeft: 12,
-  },
-  weeklyGoalRow: {
-    padding: 14,
-  },
-  weeklyGoalLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 12,
-    color: '#4A3728',
-  },
-  dayButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  dayButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#F5EDE5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dayButtonSelected: {
-    backgroundColor: '#FF9500',
-  },
-  dayButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#4A3728',
-  },
-  dayButtonTextSelected: {
-    color: '#fff',
-  },
-  weeklyGoalSubtext: {
-    fontSize: 13,
-    color: '#6B5D52',
-  },
-  subSection: {
-    paddingTop: 8,
-  },
-  subSectionLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    paddingHorizontal: 14,
-    paddingBottom: 8,
-    color: '#4A3728',
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-  },
   footerText: {
     fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
-    lineHeight: 18,
   },
+  // Days Grid
+  daysGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 14,
+  },
+  dayButton: {
+    width: 40,
+    height: 54,
+    borderRadius: 8,
+    backgroundColor: '#F5EDE5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayButtonSelected: {
+    backgroundColor: '#FF9500',
+  },
+  dayLetter: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8B5A2B',
+  },
+  dayLetterSelected: {
+    color: '#fff',
+  },
+  dayName: {
+    fontSize: 10,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
+  dayNameSelected: {
+    color: 'rgba(255,255,255,0.8)',
+  },
+  daysCount: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#6B5D52',
+    paddingBottom: 14,
+  },
+  // Save Button
   saveButtonContainer: {
     position: 'absolute',
     bottom: 0,
@@ -632,6 +468,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  // Saving Overlay
   savingOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',

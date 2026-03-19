@@ -140,7 +140,7 @@ export default function FriendProfileScreen() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Read-only banner */}
         <View style={styles.readOnlyBanner}>
-          <Ionicons name="eye" size={14} color="#8E8E93" />
+          <Ionicons name="eye" size={14} color="#6B5D52" />
           <Text style={styles.readOnlyText}>You're viewing {profile.displayName}'s profile</Text>
         </View>
 
@@ -365,9 +365,9 @@ function NudgeCard({ eligibility, friendName, isNudging, onNudge }) {
       case 'canNudge': return '#8B5A2B';
       case 'recipientAlreadyCheckedIn': return '#34C759';
       case 'senderNotCheckedIn': return '#FF9500';
-      case 'cooldownActive': return '#8E8E93';
+      case 'cooldownActive': return '#6B5D52';
       case 'dailyLimitReached': return '#FF2D55';
-      default: return '#8E8E93';
+      default: return '#6B5D52';
     }
   };
 
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   backButton: {
     padding: 8,
@@ -443,6 +443,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 17,
     fontWeight: '600',
+    color: '#4A3728',
   },
   menuButton: {
     padding: 8,
@@ -459,14 +460,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 8,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
     marginHorizontal: 16,
     marginTop: 16,
     borderRadius: 20,
   },
   readOnlyText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   hamsterHeader: {
     alignItems: 'center',
@@ -484,10 +485,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#4A3728',
   },
   hamsterName: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 12,
   },
   statusBadges: {
@@ -512,6 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
+    color: '#4A3728',
   },
   statsGrid: {
     flexDirection: 'row',
@@ -532,10 +535,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#4A3728',
   },
   statLabel: {
     fontSize: 11,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 4,
     textAlign: 'center',
   },
@@ -550,10 +554,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 12,
     marginBottom: 8,
+    color: '#4A3728',
   },
   noStreakMessage: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
   streakCard: {
@@ -578,7 +583,7 @@ const styles = StyleSheet.create({
   },
   streakDays: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   streakStatusBadge: {
     paddingHorizontal: 10,
@@ -596,15 +601,16 @@ const styles = StyleSheet.create({
   },
   bestTogetherLabel: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   bestTogetherValue: {
     fontSize: 13,
     fontWeight: '600',
+    color: '#4A3728',
   },
   streakMessage: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
   },
   nudgeCard: {
@@ -630,10 +636,11 @@ const styles = StyleSheet.create({
   nudgeTitle: {
     fontSize: 14,
     fontWeight: '500',
+    color: '#4A3728',
   },
   nudgeSubtitle: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   nudgeButton: {
@@ -680,7 +687,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   modalOverlay: {
     flex: 1,
@@ -708,10 +715,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: '#4A3728',
   },
   nudgeSentMessage: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -749,7 +757,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
     marginHorizontal: 20,
   },
 });

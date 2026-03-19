@@ -198,7 +198,7 @@ export default function AudioSettingsScreen({ navigation }) {
             <Switch
               value={sfxEnabled}
               onValueChange={handleSfxEnabledChange}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#8B5A2B' }}
               disabled={globalMute}
               accessibilityLabel="Sound Effects toggle"
             />
@@ -212,7 +212,7 @@ export default function AudioSettingsScreen({ navigation }) {
             <Switch
               value={musicEnabled}
               onValueChange={handleMusicEnabledChange}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#8B5A2B' }}
               disabled={globalMute}
               accessibilityLabel="Music toggle"
             />
@@ -230,7 +230,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Ionicons
                 name={getSfxVolumeIcon()}
                 size={22}
-                color={canAdjustSFXVolume ? '#007AFF' : '#8E8E93'}
+                color={canAdjustSFXVolume ? '#8B5A2B' : '#8E8E93'}
               />
               <Text style={[styles.volumeLabel, !canAdjustSFXVolume && styles.disabledText]}>
                 Sound Effects
@@ -271,7 +271,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Ionicons
                 name="musical-note"
                 size={22}
-                color={canAdjustMusicVolume ? '#007AFF' : '#8E8E93'}
+                color={canAdjustMusicVolume ? '#8B5A2B' : '#8E8E93'}
               />
               <Text style={[styles.volumeLabel, !canAdjustMusicVolume && styles.disabledText]}>
                 Music
@@ -320,7 +320,7 @@ export default function AudioSettingsScreen({ navigation }) {
             <Switch
               value={mixWithOthers}
               onValueChange={handleMixWithOthersChange}
-              trackColor={{ true: '#007AFF' }}
+              trackColor={{ true: '#8B5A2B' }}
               accessibilityLabel="Mix with Other Apps toggle"
             />
           </View>
@@ -346,13 +346,13 @@ export default function AudioSettingsScreen({ navigation }) {
             <Ionicons
               name={isPlayingPreviewSFX ? 'volume-medium' : 'play-circle'}
               size={24}
-              color={canPreviewSFX ? '#007AFF' : '#8E8E93'}
+              color={canPreviewSFX ? '#8B5A2B' : '#8E8E93'}
             />
             <Text style={[styles.previewText, !canPreviewSFX && styles.disabledText]}>
               Preview Sound Effect
             </Text>
             {isPlayingPreviewSFX && (
-              <ActivityIndicator size="small" color="#007AFF" />
+              <ActivityIndicator size="small" color="#8B5A2B" />
             )}
           </TouchableOpacity>
 
@@ -368,13 +368,13 @@ export default function AudioSettingsScreen({ navigation }) {
             <Ionicons
               name={isPlayingPreviewMusic ? 'musical-note' : 'play-circle'}
               size={24}
-              color={canPreviewMusic ? '#007AFF' : '#8E8E93'}
+              color={canPreviewMusic ? '#8B5A2B' : '#8E8E93'}
             />
             <Text style={[styles.previewText, !canPreviewMusic && styles.disabledText]}>
               Preview Music
             </Text>
             {isPlayingPreviewMusic && (
-              <ActivityIndicator size="small" color="#007AFF" />
+              <ActivityIndicator size="small" color="#8B5A2B" />
             )}
           </TouchableOpacity>
         </View>
@@ -389,7 +389,7 @@ export default function AudioSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
   },
   content: {
     padding: 16,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
@@ -433,12 +433,12 @@ const styles = StyleSheet.create({
   },
   rowSubText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#E5DDD5',
     marginLeft: 48,
   },
   mutedBanner: {
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   },
   mutedSubtitle: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 2,
   },
   volumeRow: {
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   },
   volumeValue: {
     fontSize: 15,
-    color: '#8E8E93',
+    color: '#6B5D52',
     fontVariant: ['tabular-nums'],
   },
   sliderContainer: {
@@ -494,10 +494,10 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
   },
   volumeButtonFilled: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
   },
   volumeButtonDisabled: {
     opacity: 0.3,
@@ -517,11 +517,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   disabledText: {
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   footerText: {
     fontSize: 13,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
     lineHeight: 18,

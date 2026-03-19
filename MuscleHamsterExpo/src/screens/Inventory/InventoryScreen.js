@@ -141,7 +141,7 @@ export default function InventoryScreen({ navigation }) {
         {/* Owned Items */}
         {ownedItems.length === 0 ? (
           <View style={styles.emptyState}>
-            <Ionicons name="shirt-outline" size={48} color="#C7C7CC" />
+            <Ionicons name="shirt-outline" size={48} color="#C4B8AE" />
             <Text style={styles.emptyTitle}>No items yet</Text>
             <Text style={styles.emptySubtitle}>Visit the shop to buy items for your hamster!</Text>
             <TouchableOpacity

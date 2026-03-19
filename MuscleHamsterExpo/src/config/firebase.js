@@ -1,6 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
 // Firebase configuration from environment variables (via app.config.js)
@@ -30,13 +31,27 @@ try {
   const firebaseConfig = getFirebaseConfig();
 
   if (firebaseConfig) {
-    // Initialize Firebase
-    app = initializeApp(firebaseConfig);
+    // Check if Firebase is already initialized (handles hot reload)
+    if (getApps().length === 0) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApp();
+    }
 
-    // Initialize Auth
-    // On web, getAuth() uses browser persistence automatically
-    // On native, we'll set up persistence separately if needed
-    auth = getAuth(app);
+    // Initialize Auth with AsyncStorage persistence for React Native
+    // Use try/catch to handle case where auth is already initialized
+    try {
+      auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+    } catch (authError) {
+      // Auth already initialized, use getAuth instead
+      if (authError.code === 'auth/already-initialized') {
+        auth = getAuth(app);
+      } else {
+        throw authError;
+      }
+    }
 
     // Initialize Firestore
     db = getFirestore(app);

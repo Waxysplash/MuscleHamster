@@ -53,7 +53,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#8B5A2B" />
         <Text style={styles.loadingText}>Loading workout...</Text>
       </View>
     );
@@ -95,17 +95,17 @@ export default function WorkoutDetailScreen({ route, navigation }) {
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="time" size={20} color="#8E8E93" />
+            <Ionicons name="time" size={20} color="#6B5D52" />
             <Text style={styles.statValue}>{durationInfo.range}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Ionicons name={difficultyInfo.icon} size={20} color="#8E8E93" />
+            <Ionicons name={difficultyInfo.icon} size={20} color="#6B5D52" />
             <Text style={styles.statValue}>{difficultyInfo.displayName}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Ionicons name="flash" size={20} color="#8E8E93" />
+            <Ionicons name="flash" size={20} color="#6B5D52" />
             <Text style={styles.statValue}>{workout.exercises.length} exercises</Text>
           </View>
         </View>
@@ -122,7 +122,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <View style={styles.tagsContainer}>
             {workout.bodyFocus.map((focus) => (
               <View key={focus} style={styles.tag}>
-                <Ionicons name={BodyFocusInfo[focus].icon} size={16} color="#007AFF" />
+                <Ionicons name={BodyFocusInfo[focus].icon} size={16} color="#8B5A2B" />
                 <Text style={styles.tagText}>{BodyFocusInfo[focus].displayName}</Text>
               </View>
             ))}
@@ -204,7 +204,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   centerContainer: {
     flex: 1,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   errorText: {
     marginTop: 12,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8B5A2B',
     borderRadius: 8,
   },
   retryButtonText: {
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   category: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 4,
     textAlign: 'center',
-    color: '#000',
+    color: '#4A3728',
   },
   statsRow: {
     flexDirection: 'row',
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#E5DDD5',
   },
   statItem: {
     flexDirection: 'row',
@@ -282,28 +282,28 @@ const styles = StyleSheet.create({
   statValue: {
     marginLeft: 6,
     fontSize: 14,
-    color: '#3C3C43',
+    color: '#4A3728',
   },
   statDivider: {
     width: 1,
     height: 20,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
   },
   section: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: '#E5DDD5',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: '#000',
+    color: '#4A3728',
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#3C3C43',
+    color: '#6B5D52',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   tagText: {
     marginLeft: 6,
     fontSize: 14,
-    color: '#3C3C43',
+    color: '#4A3728',
   },
   noEquipmentBadge: {
     flexDirection: 'row',
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   goalText: {
     marginLeft: 12,
     fontSize: 16,
-    color: '#3C3C43',
+    color: '#4A3728',
   },
   exerciseItem: {
     flexDirection: 'row',
@@ -361,14 +361,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: '#FFF8F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   exerciseNumberText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   exerciseInfo: {
     flex: 1,
@@ -378,17 +378,17 @@ const styles = StyleSheet.create({
   },
   exerciseName: {
     fontSize: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   exerciseDuration: {
     fontSize: 14,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   moreExercises: {
     textAlign: 'center',
     marginTop: 8,
     fontSize: 14,
-    color: '#007AFF',
+    color: '#8B5A2B',
   },
   bottomPadding: {
     height: 20,
@@ -400,9 +400,9 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 20,
     paddingBottom: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     borderTopWidth: 1,
-    borderTopColor: '#E5E5EA',
+    borderTopColor: '#E5DDD5',
   },
   startButton: {
     flexDirection: 'row',

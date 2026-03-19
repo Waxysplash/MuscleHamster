@@ -28,16 +28,24 @@
       "distribution": "internal",
       "ios": {
         "simulator": false
-      }
+      },
+      "environment": "production"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {
     "production": {
       "ios": {
         "ascAppId": "6759973700"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal"
       }
     }
   }

@@ -305,7 +305,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
                     <Ionicons
                       name={WorkoutFeedbackInfo[fb].icon}
                       size={32}
-                      color={WorkoutFeedbackInfo[fb].isPositive ? '#34C759' : '#8E8E93'}
+                      color={WorkoutFeedbackInfo[fb].isPositive ? '#34C759' : '#6B5D52'}
                     />
                     <Text style={styles.feedbackButtonText}>
                       {WorkoutFeedbackInfo[fb].displayName}
@@ -394,7 +394,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 
         {isPaused && (
           <View style={styles.pausedOverlay}>
-            <Ionicons name="pause-circle" size={40} color="#8E8E93" />
+            <Ionicons name="pause-circle" size={40} color="#6B5D52" />
             <Text style={styles.pausedText}>Paused</Text>
           </View>
         )}
@@ -407,7 +407,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           onPress={skipExercise}
           accessibilityLabel="Skip exercise"
         >
-          <Ionicons name="play-skip-forward" size={28} color="#8E8E93" />
+          <Ionicons name="play-skip-forward" size={28} color="#6B5D52" />
           <Text style={styles.controlLabel}>Skip</Text>
         </TouchableOpacity>
 
@@ -440,7 +440,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           <Ionicons
             name={isLastExercise ? 'checkmark-circle' : 'play-forward'}
             size={28}
-            color="#8E8E93"
+            color="#6B5D52"
           />
           <Text style={styles.controlLabel}>{isLastExercise ? 'Finish' : 'Next'}</Text>
         </TouchableOpacity>
@@ -452,7 +452,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
   },
   centerContent: {
     alignItems: 'center',
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginBottom: 20,
   },
   loadingIcon: {
@@ -524,11 +524,11 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#3C3C43',
+    color: '#4A3728',
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#E5DDD5',
     marginHorizontal: 16,
     borderRadius: 2,
     overflow: 'hidden',
@@ -564,11 +564,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   exerciseInstructions: {
     fontSize: 18,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -585,11 +585,11 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#4A3728',
   },
   timerLabel: {
     fontSize: 16,
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 4,
   },
   pausedOverlay: {
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
   pausedText: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: '#6B5D52',
     marginTop: 12,
   },
   controls: {
@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
   controlLabel: {
     marginTop: 4,
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   mainControlButton: {
     // width, height, borderRadius set dynamically
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   completedContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF8F0',
     padding: 24,
   },
   completedContent: {
@@ -651,11 +651,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#000',
+    color: '#4A3728',
   },
   completedSubtitle: {
     fontSize: 18,
-    color: '#8E8E93',
+    color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 18,
     fontWeight: '600',
-    color: '#000',
+    color: '#4A3728',
   },
   feedbackSection: {
     alignItems: 'center',
@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
-    color: '#000',
+    color: '#4A3728',
   },
   feedbackButtons: {
     flexDirection: 'row',
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
   feedbackButtonText: {
     marginTop: 8,
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#6B5D52',
   },
   skipFeedbackText: {
     marginTop: 16,

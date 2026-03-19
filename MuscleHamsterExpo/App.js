@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, useAuth, AuthState } from './src/context/AuthContext';
 import { UserProfileProvider, useUserProfile } from './src/context/UserProfileContext';
 import { ActivityProvider } from './src/context/ActivityContext';
+import { ScheduleProvider } from './src/context/ScheduleContext';
 import { FriendProvider } from './src/context/FriendContext';
 import { InventoryProvider } from './src/context/InventoryContext';
 import { CustomWorkoutProvider } from './src/context/CustomWorkoutContext';
@@ -63,18 +64,20 @@ export default function App() {
         <AuthProvider>
           <UserProfileProvider>
             <ActivityProvider>
-              <InventoryProvider>
-                <CustomWorkoutProvider>
-                  <FriendProvider>
-                    <AlertProvider>
-                      <NavigationContainer>
-                        <StatusBar style="auto" />
-                        <RootNavigator />
-                      </NavigationContainer>
-                    </AlertProvider>
-                  </FriendProvider>
-                </CustomWorkoutProvider>
-              </InventoryProvider>
+              <ScheduleProvider>
+                <InventoryProvider>
+                  <CustomWorkoutProvider>
+                    <FriendProvider>
+                      <AlertProvider>
+                        <NavigationContainer>
+                          <StatusBar style="auto" />
+                          <RootNavigator />
+                        </NavigationContainer>
+                      </AlertProvider>
+                    </FriendProvider>
+                  </CustomWorkoutProvider>
+                </InventoryProvider>
+              </ScheduleProvider>
             </ActivityProvider>
           </UserProfileProvider>
         </AuthProvider>

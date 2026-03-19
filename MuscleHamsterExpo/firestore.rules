@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function: Check if user owns this document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function: Check if user is in the users array (for friend relationships)
+    function isParticipant(usersArray) {
+      return isAuthenticated() && request.auth.uid in usersArray;
+    }
+
+    // ===========================================
+    // USER DATA - Only owner can read/write
+    // ===========================================
+
+    // User profiles
+    match /users/{userId} {
+      // Users can read their own profile
+      // Other users can read limited profile data for friends list
+      allow read: if isAuthenticated();
+
+      // Only owner can write their own profile
+      allow write: if isOwner(userId);
+    }
+
+    // User stats (streaks, points, etc.)
+    match /userStats/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // User inventory (purchased items)
+    match /inventory/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Exercise journals
+    match /exerciseJournals/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // User favorites
+    match /userFavorites/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Custom workouts
+    match /customWorkouts/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ===========================================
+    // WEEKLY SCHEDULE (Planner Feature)
+    // ===========================================
+
+    // Weekly schedules
+    // Document ID format: {userId}_{weekStartDate} e.g., "abc123_2026-03-17"
+    match /weeklySchedules/{scheduleId} {
+      // User can read/write their own schedules
+      // Check that the document's userId field matches the authenticated user
+      allow read: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid;
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+
+      allow update: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid;
+
+      allow delete: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid;
+    }
+
+    // ===========================================
+    // SOCIAL FEATURES - Shared between users
+    // ===========================================
+
+    // Friend relationships
+    // Document ID format: {userId1}_{userId2} (sorted alphabetically)
+    match /friends/{friendId} {
+      // Both participants can read the relationship
+      allow read: if isAuthenticated() &&
+        (request.auth.uid in resource.data.users);
+
+      // Create: Either user can initiate
+      allow create: if isAuthenticated() &&
+        request.auth.uid in request.resource.data.users &&
+        request.resource.data.initiatedBy == request.auth.uid;
+
+      // Update: Both participants can update (accept, update streak)
+      allow update: if isAuthenticated() &&
+        request.auth.uid in resource.data.users;
+
+      // Delete: Either participant can remove/decline
+      allow delete: if isAuthenticated() &&
+        request.auth.uid in resource.data.users;
+    }
+
+    // Nudges
+    match /nudges/{nudgeId} {
+      // Sender and recipient can read
+      allow read: if isAuthenticated() &&
+        (request.auth.uid == resource.data.fromUserId ||
+         request.auth.uid == resource.data.toUserId);
+
+      // Only sender can create, and must set fromUserId correctly
+      allow create: if isAuthenticated() &&
+        request.resource.data.fromUserId == request.auth.uid;
+
+      // Only recipient can update (mark as read)
+      allow update: if isAuthenticated() &&
+        request.auth.uid == resource.data.toUserId;
+
+      // Sender or recipient can delete
+      allow delete: if isAuthenticated() &&
+        (request.auth.uid == resource.data.fromUserId ||
+         request.auth.uid == resource.data.toUserId);
+    }
+
+    // Invite codes
+    match /invites/{inviteCode} {
+      // Anyone authenticated can read (to look up codes)
+      allow read: if isAuthenticated();
+
+      // Only owner can create
+      allow create: if isAuthenticated() &&
+        request.resource.data.ownerId == request.auth.uid;
+
+      // Anyone can update usedBy array (to record usage)
+      allow update: if isAuthenticated();
+
+      // Only owner can delete
+      allow delete: if isAuthenticated() &&
+        resource.data.ownerId == request.auth.uid;
+    }
+
+    // ===========================================
+    // CATCH-ALL: Deny everything else
+    // ===========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
