@@ -275,14 +275,24 @@ export function ScheduleProvider({ children }) {
 
   // Update a specific day
   const updateDay = useCallback(async (dayName, dayData) => {
-    if (!userId) return false;
+    if (!userId) {
+      Logger.warn('ScheduleContext: updateDay called without userId');
+      return false;
+    }
 
     try {
       setIsSaving(true);
 
-      // Ensure week schedule exists
-      if (!currentWeekSchedule) {
-        await ScheduleService.createWeekSchedule(userId, currentWeekStart);
+      // Ensure week schedule exists - create if needed
+      let scheduleExists = currentWeekSchedule !== null;
+      if (!scheduleExists) {
+        Logger.info('ScheduleContext: Creating new week schedule before update');
+        const created = await ScheduleService.createWeekSchedule(userId, currentWeekStart);
+        if (!created) {
+          Logger.error('ScheduleContext: Failed to create week schedule');
+          return false;
+        }
+        scheduleExists = true;
       }
 
       const success = await ScheduleService.updateDaySchedule(
@@ -293,17 +303,28 @@ export function ScheduleProvider({ children }) {
       );
 
       if (success) {
-        // Update local state immediately for responsiveness
-        setCurrentWeekSchedule((prev) => ({
-          ...prev,
-          days: {
-            ...prev?.days,
-            [dayName]: dayData,
-          },
-        }));
+        // Update local state - handle both new and existing schedules
+        setCurrentWeekSchedule((prev) => {
+          // If prev is null, create a fresh structure
+          const base = prev || {
+            userId,
+            weekStart: currentWeekStart,
+            days: {},
+          };
+
+          return {
+            ...base,
+            days: {
+              ...base.days,
+              [dayName]: dayData,
+            },
+          };
+        });
+        Logger.info(`ScheduleContext: Successfully updated ${dayName}`);
         return true;
       }
 
+      Logger.error('ScheduleContext: updateDaySchedule returned false');
       return false;
     } catch (err) {
       Logger.error('ScheduleContext: Error updating day', err);

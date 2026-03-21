@@ -14,7 +14,7 @@ import {
 const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
-import { getExerciseDisplayPrompt } from '../../models/DailyExercise';
+import { getExerciseDisplayPrompt, FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 
 const CheckInState = {
   READY: 'ready',
@@ -134,6 +134,17 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
               <Ionicons name="flame" size={24} color="#FF3B30" />
               <Text style={styles.streakText}>{result.newStreak} day streak!</Text>
             </View>
+          </View>
+
+          {/* The Final Stretch - always shown after check-in */}
+          <View style={styles.finalStretchCard}>
+            <View style={styles.finalStretchHeader}>
+              <Ionicons name={FINAL_STRETCH_PROMPT.icon} size={24} color="#FF9500" />
+              <Text style={styles.finalStretchTitle}>{FINAL_STRETCH_PROMPT.title}</Text>
+            </View>
+            <Text style={styles.finalStretchInstruction}>
+              {FINAL_STRETCH_PROMPT.instruction}
+            </Text>
           </View>
         </ScrollView>
 
@@ -347,5 +358,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
+  },
+  // Final Stretch
+  finalStretchCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    width: '90%',
+    marginTop: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(255,149,0,0.3)',
+    borderStyle: 'dashed',
+  },
+  finalStretchHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  finalStretchTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4A3728',
+  },
+  finalStretchInstruction: {
+    fontSize: 14,
+    color: '#6B5D52',
+    lineHeight: 20,
   },
 });

@@ -1,5 +1,5 @@
 // Workouts Screen - My Plan / Browse Tabs
-// Restructured for weekly planner feature
+// Redesigned with horizontal day slider and reorganized Browse tab
 import React, { useState, useCallback } from 'react';
 import {
   View,
@@ -17,15 +17,15 @@ import { useSchedule } from '../../context/ScheduleContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import { useActivity } from '../../context/ActivityContext';
 import {
-  WeekCalendar,
-  TodayWorkoutCard,
+  HorizontalDaySlider,
+  DayDetailExpander,
   AddWorkoutModal,
+  MyWorkoutsSection,
 } from '../../components/Schedule';
 import LoadingView from '../../components/LoadingView';
-import ErrorView from '../../components/ErrorView';
-import FavoriteButton from '../../components/FavoriteButton';
 import { useResponsive } from '../../utils/responsive';
 import { RestDayActivity } from '../../models/Activity';
+import { getTodayName } from '../../services/ScheduleService';
 
 // Gym body part images
 const GymBodyPartImages = {
@@ -65,14 +65,6 @@ const HOME_CATEGORIES = [
   { id: 'desk', name: 'Desk Workouts', icon: 'desktop-outline', color: '#45B7D1' },
 ];
 
-// Workout type info for custom workouts
-const TYPE_INFO = {
-  strength: { icon: 'barbell-outline', label: 'Strength', color: '#4ECDC4' },
-  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#FF6B6B' },
-  class: { icon: 'people-outline', label: 'Class', color: '#9B59B6' },
-  other: { icon: 'fitness-outline', label: 'Other', color: '#FF9500' },
-};
-
 export default function WorkoutsScreen({ navigation, route }) {
   // Responsive design
   const { isTablet, width, contentMaxWidth, spacing } = useResponsive();
@@ -82,24 +74,18 @@ export default function WorkoutsScreen({ navigation, route }) {
 
   // State
   const [activeTab, setActiveTab] = useState('plan'); // 'plan' or 'browse'
-  const [browseSubTab, setBrowseSubTab] = useState('home'); // 'home' or 'gym'
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [browseSubTab, setBrowseSubTab] = useState('home'); // 'home', 'gym', or 'myworkouts'
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(getTodayName()); // Default to today
 
   // Schedule context
   const {
-    currentWeekStart,
     currentWeekSchedule,
-    todaySchedule,
     isLoading: isScheduleLoading,
-    goToPreviousWeek,
-    goToNextWeek,
-    goToCurrentWeek,
     scheduleWorkout,
     setRestDay,
     clearDay,
-    markTodayCompleted,
+    markDayCompleted,
     refreshData,
   } = useSchedule();
 
@@ -111,8 +97,8 @@ export default function WorkoutsScreen({ navigation, route }) {
 
   // Modals
   const [showAddWorkoutModal, setShowAddWorkoutModal] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [selectedDayData, setSelectedDayData] = useState(null);
+  const [modalDayName, setModalDayName] = useState(null);
+  const [modalDayData, setModalDayData] = useState(null);
 
   // Refresh data on focus
   useFocusEffect(
@@ -129,10 +115,6 @@ export default function WorkoutsScreen({ navigation, route }) {
   };
 
   // Navigation handlers
-  const navigateToWorkout = (workout) => {
-    navigation.navigate('WorkoutDetail', { workoutId: workout.id });
-  };
-
   const navigateToBodyPart = (bodyPart) => {
     navigation.navigate('GymBodyPartWorkouts', { bodyPart });
   };
@@ -149,81 +131,65 @@ export default function WorkoutsScreen({ navigation, route }) {
     navigation.navigate('AddWorkout');
   };
 
-  // Schedule handlers
-  const handleDayPress = (dayName, dayData) => {
+  // Day selection handler
+  const handleDaySelect = (dayName, dayData) => {
     setSelectedDay(dayName);
-    setSelectedDayData(dayData);
+  };
+
+  // Open add workout modal for a specific day
+  const handleOpenAddWorkout = (dayName) => {
+    const dayData = currentWeekSchedule?.days?.[dayName] || {};
+    setModalDayName(dayName);
+    setModalDayData(dayData);
     setShowAddWorkoutModal(true);
   };
 
-  // Handle single workout selection (legacy)
-  const handleSelectWorkout = async (workoutId, workoutType, workoutName) => {
-    if (selectedDay) {
-      await scheduleWorkout(selectedDay, workoutId, workoutType, workoutName);
-      setShowAddWorkoutModal(false);
-      setSelectedDay(null);
-    }
-  };
-
-  // Handle multiple workout selection (new)
+  // Handle multiple workout selection
   const handleSelectWorkouts = async (workoutsArray) => {
-    if (selectedDay && workoutsArray.length > 0) {
-      await scheduleWorkout(selectedDay, workoutsArray);
+    if (modalDayName && workoutsArray.length > 0) {
+      const success = await scheduleWorkout(modalDayName, workoutsArray);
+      if (success) {
+        // Force refresh to ensure we have the latest data
+        await refreshData();
+      } else {
+        console.warn('Failed to save workouts for', modalDayName);
+      }
       setShowAddWorkoutModal(false);
-      setSelectedDay(null);
+      setModalDayName(null);
     }
   };
 
   const handleSelectRestDay = async () => {
-    if (selectedDay) {
-      await setRestDay(selectedDay);
+    if (modalDayName) {
+      await setRestDay(modalDayName);
       setShowAddWorkoutModal(false);
-      setSelectedDay(null);
+      setModalDayName(null);
     }
   };
 
   const handleClearDay = async () => {
-    if (selectedDay) {
-      await clearDay(selectedDay);
+    if (modalDayName) {
+      await clearDay(modalDayName);
       setShowAddWorkoutModal(false);
-      setSelectedDay(null);
+      setModalDayName(null);
     }
   };
 
   const handleStartWorkout = (workoutId) => {
-    // Navigate to workout player
     navigation.navigate('WorkoutDetail', { workoutId });
-  };
-
-  const handlePickWorkout = () => {
-    // Open add workout modal for today
-    const todayName = todaySchedule?.dayName;
-    if (todayName) {
-      setSelectedDay(todayName);
-      setSelectedDayData(todaySchedule);
-      setShowAddWorkoutModal(true);
-    }
   };
 
   const handleLogRestDay = async () => {
     // Log the rest day through activity context
     await recordRestDayCheckIn(RestDayActivity.QUICK_REST);
-    // Mark the scheduled day as completed
-    await markTodayCompleted();
+    // Mark the selected day as completed
+    if (selectedDay) {
+      await markDayCompleted(selectedDay);
+    }
   };
 
-  // Format last completed
-  const formatLastCompleted = (dateString) => {
-    if (!dateString) return 'Never completed';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
+  // Get selected day data
+  const selectedDayData = currentWeekSchedule?.days?.[selectedDay] || {};
 
   if (isScheduleLoading && !currentWeekSchedule) {
     return <LoadingView message="Loading your plan..." />;
@@ -277,98 +243,28 @@ export default function WorkoutsScreen({ navigation, route }) {
             isTablet && { maxWidth: contentMaxWidth + 48, width: '100%' }
           ]}>
             {activeTab === 'plan' ? (
-              // MY PLAN TAB
+              // MY PLAN TAB - New horizontal slider design
               <View style={styles.section}>
-                {/* Week Calendar */}
-                <WeekCalendar
-                  weekStart={currentWeekStart}
+                {/* Horizontal Day Slider */}
+                <HorizontalDaySlider
                   schedule={currentWeekSchedule}
-                  onDayPress={handleDayPress}
-                  onPreviousWeek={goToPreviousWeek}
-                  onNextWeek={goToNextWeek}
-                  onGoToCurrentWeek={goToCurrentWeek}
+                  selectedDay={selectedDay}
+                  onDaySelect={handleDaySelect}
                 />
 
-                {/* Today's Workout Card */}
-                {todaySchedule && (
-                  <View style={styles.todaySection}>
-                    <Text style={styles.todaySectionTitle}>Today</Text>
-                    <TodayWorkoutCard
-                      todaySchedule={todaySchedule}
-                      onStartWorkout={handleStartWorkout}
-                      onPickWorkout={handlePickWorkout}
-                      onLogRestDay={handleLogRestDay}
-                    />
-                  </View>
-                )}
-
-                {/* My Workouts Section */}
-                <View style={styles.myWorkoutsSection}>
-                  <View style={styles.myWorkoutsHeader}>
-                    <Ionicons name="person" size={20} color="#FF9500" />
-                    <Text style={styles.myWorkoutsTitle}>My Workouts</Text>
-                  </View>
-
-                  {/* Add Workout Button */}
-                  <TouchableOpacity
-                    style={styles.addWorkoutButton}
-                    onPress={navigateToAddWorkout}
-                  >
-                    <Ionicons name="add-circle-outline" size={24} color="#FFF8F0" />
-                    <Text style={styles.addWorkoutButtonText}>Add Workout</Text>
-                  </TouchableOpacity>
-
-                  {/* Custom Workouts List */}
-                  {customWorkouts.length === 0 ? (
-                    <View style={styles.emptyCustomState}>
-                      <Text style={styles.emptyCustomText}>
-                        Track custom workouts like Spin Class or Morning Run
-                      </Text>
-                    </View>
-                  ) : (
-                    <View style={styles.workoutsList}>
-                      {customWorkouts.slice(0, 5).map((workout) => {
-                        const typeInfo = TYPE_INFO[workout.type] || TYPE_INFO.other;
-                        return (
-                          <TouchableOpacity
-                            key={workout.id}
-                            style={styles.workoutCard}
-                            onPress={() => navigateToCustomWorkout(workout)}
-                            accessibilityLabel={`${workout.name} workout`}
-                          >
-                            <View style={[styles.workoutIcon, { backgroundColor: typeInfo.color + '20' }]}>
-                              <Ionicons name={typeInfo.icon} size={24} color={typeInfo.color} />
-                            </View>
-                            <View style={styles.workoutInfo}>
-                              <Text style={styles.workoutName}>{workout.name}</Text>
-                              <View style={styles.workoutMeta}>
-                                <Text style={styles.workoutMetaText}>
-                                  {workout.completionCount} {workout.completionCount === 1 ? 'time' : 'times'}
-                                </Text>
-                                <Text style={styles.workoutMetaDot}>•</Text>
-                                <Text style={styles.workoutMetaText}>
-                                  {formatLastCompleted(workout.lastCompletedAt)}
-                                </Text>
-                              </View>
-                            </View>
-                            <FavoriteButton workoutId={workout.id} size={22} />
-                            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" style={{ marginLeft: 4 }} />
-                          </TouchableOpacity>
-                        );
-                      })}
-                      {customWorkouts.length > 5 && (
-                        <Text style={styles.moreWorkoutsText}>
-                          +{customWorkouts.length - 5} more workouts
-                        </Text>
-                      )}
-                    </View>
-                  )}
-                </View>
+                {/* Day Detail Expander */}
+                <DayDetailExpander
+                  dayName={selectedDay}
+                  dayData={selectedDayData}
+                  onStartWorkout={handleStartWorkout}
+                  onAddWorkout={handleOpenAddWorkout}
+                  onLogRestDay={handleLogRestDay}
+                />
               </View>
             ) : (
-              // BROWSE TAB
+              // BROWSE TAB - Now with 3 sub-tabs
               <View style={styles.section}>
-                {/* Sub-tabs for At Home / At Gym */}
+                {/* Sub-tabs: At Home / At Gym / My Workouts */}
                 <View style={styles.subTabContainer}>
                   <TouchableOpacity
                     style={[styles.subTab, browseSubTab === 'home' && styles.subTabActive]}
@@ -394,6 +290,19 @@ export default function WorkoutsScreen({ navigation, route }) {
                     />
                     <Text style={[styles.subTabText, browseSubTab === 'gym' && styles.subTabTextActive]}>
                       At Gym
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.subTab, browseSubTab === 'myworkouts' && styles.subTabActive]}
+                    onPress={() => setBrowseSubTab('myworkouts')}
+                  >
+                    <Ionicons
+                      name="person-outline"
+                      size={16}
+                      color={browseSubTab === 'myworkouts' ? '#8B5A2B' : '#6B5D52'}
+                    />
+                    <Text style={[styles.subTabText, browseSubTab === 'myworkouts' && styles.subTabTextActive]}>
+                      My Workouts
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -427,7 +336,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                       ))}
                     </View>
                   </>
-                ) : (
+                ) : browseSubTab === 'gym' ? (
                   // AT GYM
                   <>
                     <View style={styles.browseHeader}>
@@ -459,6 +368,13 @@ export default function WorkoutsScreen({ navigation, route }) {
                       ))}
                     </View>
                   </>
+                ) : (
+                  // MY WORKOUTS
+                  <MyWorkoutsSection
+                    customWorkouts={customWorkouts}
+                    onAddWorkout={navigateToAddWorkout}
+                    onWorkoutPress={navigateToCustomWorkout}
+                  />
                 )}
               </View>
             )}
@@ -468,14 +384,14 @@ export default function WorkoutsScreen({ navigation, route }) {
         {/* Add Workout Modal */}
         <AddWorkoutModal
           visible={showAddWorkoutModal}
-          dayName={selectedDay}
-          currentDayData={selectedDayData}
+          dayName={modalDayName}
+          currentDayData={modalDayData}
           onSelectWorkouts={handleSelectWorkouts}
           onSelectRest={handleSelectRestDay}
           onClear={handleClearDay}
           onClose={() => {
             setShowAddWorkoutModal(false);
-            setSelectedDay(null);
+            setModalDayName(null);
           }}
         />
       </View>
@@ -531,104 +447,6 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 16,
   },
-  todaySection: {
-    marginTop: 20,
-  },
-  todaySectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#4A3728',
-    marginBottom: 12,
-  },
-  myWorkoutsSection: {
-    marginTop: 28,
-  },
-  myWorkoutsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  myWorkoutsTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginLeft: 8,
-    color: '#4A3728',
-  },
-  addWorkoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#8B5A2B',
-    borderRadius: 12,
-    paddingVertical: 14,
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  addWorkoutButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFF8F0',
-  },
-  emptyCustomState: {
-    paddingVertical: 16,
-  },
-  emptyCustomText: {
-    fontSize: 14,
-    color: '#6B5D52',
-    textAlign: 'center',
-  },
-  workoutsList: {
-    gap: 10,
-  },
-  workoutCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 14,
-    shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  workoutIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  workoutInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  workoutName: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#4A3728',
-  },
-  workoutMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 3,
-  },
-  workoutMetaText: {
-    fontSize: 13,
-    color: '#6B5D52',
-  },
-  workoutMetaDot: {
-    fontSize: 13,
-    color: '#A89B8C',
-    marginHorizontal: 6,
-  },
-  moreWorkoutsText: {
-    fontSize: 14,
-    color: '#6B5D52',
-    textAlign: 'center',
-    marginTop: 8,
-  },
   subTabContainer: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -643,13 +461,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 10,
     borderRadius: 8,
-    gap: 6,
+    gap: 4,
   },
   subTabActive: {
     backgroundColor: '#FFF8F0',
   },
   subTabText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#6B5D52',
   },

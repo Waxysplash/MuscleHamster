@@ -23,8 +23,8 @@ const CategoryImages = {
   chest: require('../../../assets/images/gym_chest.png'),
   shoulders: require('../../../assets/images/gym_shoulders.png'),
   core: require('../../../assets/images/gym_core.png'),
-  cardio: null, // Will add later
-  class: null, // Will add later
+  cardio: require('../../../assets/images/gym_cardio.png'),
+  class: require('../../../assets/images/gym_class.png'),
 };
 
 // Category options for selection
@@ -35,8 +35,8 @@ const CATEGORY_OPTIONS = [
   { id: 'chest', name: 'Chest', color: '#F39C12' },
   { id: 'back', name: 'Back', color: '#45B7D1' },
   { id: 'core', name: 'Core', color: '#8B5A2B' },
-  { id: 'cardio', name: 'Cardio', icon: 'heart-outline', color: '#FF3B30' },
-  { id: 'class', name: 'Class', icon: 'people-outline', color: '#AF52DE' },
+  { id: 'cardio', name: 'Cardio', color: '#FF3B30' },
+  { id: 'class', name: 'Class', color: '#AF52DE' },
 ];
 
 // Gym workouts from Browse tab
@@ -259,7 +259,14 @@ export default function AddWorkoutModal({
   // Handle save button
   const handleSave = () => {
     if (selectedWorkouts.length > 0) {
+      console.log('AddWorkoutModal: Saving workouts', {
+        dayName,
+        workoutCount: selectedWorkouts.length,
+        workouts: selectedWorkouts.map((w) => w.workoutName),
+      });
       onSelectWorkouts?.(selectedWorkouts);
+    } else {
+      console.warn('AddWorkoutModal: No workouts selected');
     }
   };
 

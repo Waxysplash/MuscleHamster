@@ -24,7 +24,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
-      buildNumber: "41",
+      buildNumber: "42",
       usesAppleSignIn: true,
       googleServicesFile: process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
       infoPlist: {

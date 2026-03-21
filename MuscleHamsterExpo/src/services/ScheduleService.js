@@ -421,8 +421,18 @@ export const getOrCreateWeekSchedule = async (userId, weekStart = null) => {
  * @returns {Promise<boolean>} Success status
  */
 export const updateDaySchedule = async (userId, weekStart, dayName, dayData) => {
-  if (!userId || !DAYS_OF_WEEK.includes(dayName)) {
-    Logger.warn('ScheduleService: updateDaySchedule called with invalid params');
+  if (!userId) {
+    Logger.warn('ScheduleService: updateDaySchedule called without userId');
+    return false;
+  }
+
+  if (!DAYS_OF_WEEK.includes(dayName)) {
+    Logger.warn(`ScheduleService: updateDaySchedule called with invalid dayName: ${dayName}`);
+    return false;
+  }
+
+  if (!dayData) {
+    Logger.warn('ScheduleService: updateDaySchedule called without dayData');
     return false;
   }
 
@@ -432,10 +442,16 @@ export const updateDaySchedule = async (userId, weekStart, dayName, dayData) => 
     const scheduleDoc = await getDoc(scheduleRef);
 
     if (!scheduleDoc.exists()) {
-      // Create the schedule first
-      await createWeekSchedule(userId, weekStart);
+      // Create the schedule first, then get fresh reference
+      Logger.info(`ScheduleService: Creating schedule for week ${weekStart} before update`);
+      const created = await createWeekSchedule(userId, weekStart);
+      if (!created) {
+        Logger.error('ScheduleService: Failed to create week schedule');
+        return false;
+      }
     }
 
+    // Now update the specific day
     await updateDoc(scheduleRef, {
       [`days.${dayName}`]: dayData,
       updatedAt: serverTimestamp(),
@@ -445,6 +461,13 @@ export const updateDaySchedule = async (userId, weekStart, dayName, dayData) => 
     return true;
   } catch (error) {
     Logger.error('ScheduleService: Error updating day schedule', error);
+    Logger.error('ScheduleService: Error details:', {
+      userId: userId ? 'present' : 'missing',
+      weekStart,
+      dayName,
+      dayDataType: typeof dayData,
+      errorMessage: error.message,
+    });
     return false;
   }
 };

@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 41) - Submitted to TestFlight for testing
-**Version:** 1.0.3 (Build 41) - Multi-workout selection + UI improvements
-**Last Updated:** Mar 20, 2026 (Session 73)
+**Status:** v1.0.3 (Build 42) - Ready to build
+**Version:** 1.0.3 (Build 42) - Workout saving fix + Low Guilt Daily 50
+**Last Updated:** Mar 20, 2026 (Session 74)
 
 ---
 
@@ -124,6 +124,39 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 74 (Mar 20, 2026)
+**Build 42 - Workout Saving Fix + Low Guilt Daily 50**
+
+**Bug Fix: Workouts Not Saving**
+- Fixed issue where workouts added to any day weren't being saved
+- Improved `updateDay` in ScheduleContext to properly handle new week schedules
+- Added `refreshData()` call after saving to ensure UI updates
+- Better error logging in ScheduleService for debugging
+- Added validation and error handling throughout save flow
+
+**New Feature: "The Low Guilt Daily 50" Exercises**
+- Replaced the 20 original daily check-in exercises with 50 new gentle exercises
+- All exercises are accessible, low-impact, and guilt-free
+- Organized into 4 categories:
+  1. Mobility & Stretching ("Feel Good") - 15 exercises
+  2. Light Cardio ("Get Moving") - 12 exercises
+  3. Easy Bodyweight ("Stay Strong") - 10 exercises
+  4. Quick Wins (Repeats) - 13 exercises
+- Added `repType` field to distinguish seconds/minutes/reps/breath exercises
+- Updated `getExerciseDisplayPrompt()` to handle new exercise formats
+- Fun hamster-themed encouragement messages for each exercise
+
+**Files Changed:**
+- `src/context/ScheduleContext.js` - Fixed updateDay, better null handling
+- `src/screens/Workout/WorkoutsScreen.js` - Check save result, force refresh
+- `src/services/ScheduleService.js` - Better validation and error logging
+- `src/components/Schedule/AddWorkoutModal.js` - Added debug logging
+- `src/models/DailyExercise.js` - Complete rewrite with 50 new exercises
+
+**Build:** v1.0.3 (Build 42)
+
+---
 
 ### Session 73 (Mar 20, 2026)
 **Build 41 - TestFlight Testing**
