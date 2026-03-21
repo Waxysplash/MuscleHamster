@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 39) - Workout planner fixes in progress
-**Version:** 1.0.3 (Build 39) - Multi-workout selection + UI improvements
-**Last Updated:** Mar 19, 2026 (Session 72)
+**Status:** v1.0.3 (Build 41) - Submitted to TestFlight for testing
+**Version:** 1.0.3 (Build 41) - Multi-workout selection + UI improvements
+**Last Updated:** Mar 20, 2026 (Session 73)
 
 ---
 
@@ -108,7 +108,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 39) | Mar 19, 2026 | Ready for TestFlight | Bug fixes, removed weekly setup modal |
+| v1.0.3 (Build 41) | Mar 20, 2026 | TestFlight | Multi-workout selection testing |
+| v1.0.3 (Build 39) | Mar 19, 2026 | Superseded | Bug fixes, removed weekly setup modal |
 | v1.0.3 (Build 38) | Mar 19, 2026 | Superseded | Weekly planner improvements + rest day popup |
 | v1.0.3 (Build 37) | Mar 19, 2026 | Superseded | Color scheme fixes (60+ files) |
 | v1.0.2 (Build 36) | Mar 18, 2026 | Submitted | UI updates, Cloud Functions |
@@ -123,6 +124,26 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 73 (Mar 20, 2026)
+**Build 41 - TestFlight Testing**
+
+- Bumped build number to 41 (Build 40 was already used on Expo)
+- Built and submitted to TestFlight for testing
+- Testing multi-workout selection and Session 72 changes
+
+**Features to Test:**
+1. Multi-workout selection (select multiple workouts per day)
+2. "Save X Workouts" button confirms selection
+3. Workout count badge on day cells
+4. TodayWorkoutCard shows all scheduled workouts
+5. Full day names (Monday instead of Mon)
+6. Category images on workout cards
+7. No "Rest Day" option in AddWorkoutModal
+
+**Build:** v1.0.3 (Build 41) - Submitted to TestFlight
+
+---
 
 ### Session 72 (Mar 19, 2026)
 **Workout Planner Fixes + Multi-Workout Selection**
