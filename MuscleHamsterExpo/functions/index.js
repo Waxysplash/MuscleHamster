@@ -10,13 +10,15 @@
  * 4. Install dependencies: cd functions && npm install
  */
 
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+// Use v1 API for compatibility with existing 1st Gen functions
+const functions = require('firebase-functions/v1');
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const { Expo } = require('expo-server-sdk');
 
 // Initialize Firebase Admin
-admin.initializeApp();
-const db = admin.firestore();
+initializeApp();
+const db = getFirestore();
 
 // Initialize Expo SDK
 const expo = new Expo();
@@ -123,7 +125,7 @@ exports.onNudgeCreated = functions.firestore
       }
 
       // Server-side cooldown enforcement
-      const now = admin.firestore.Timestamp.now();
+      const now = Timestamp.now();
       const cooldownCutoff = new Date(now.toMillis() - NUDGE_COOLDOWN_MS);
       const dailyCutoff = new Date(now.toMillis() - 24 * 60 * 60 * 1000);
 
@@ -131,7 +133,7 @@ exports.onNudgeCreated = functions.firestore
       const recentNudgesQuery = await db.collection('nudges')
         .where('fromUserId', '==', fromUserId)
         .where('toUserId', '==', toUserId)
-        .where('sentAt', '>', admin.firestore.Timestamp.fromDate(cooldownCutoff))
+        .where('sentAt', '>', Timestamp.fromDate(cooldownCutoff))
         .get();
 
       // Exclude the current nudge from the count
@@ -145,7 +147,7 @@ exports.onNudgeCreated = functions.firestore
       // Check daily limit (all nudges from this sender today)
       const dailyNudgesQuery = await db.collection('nudges')
         .where('fromUserId', '==', fromUserId)
-        .where('sentAt', '>', admin.firestore.Timestamp.fromDate(dailyCutoff))
+        .where('sentAt', '>', Timestamp.fromDate(dailyCutoff))
         .get();
 
       // Exclude current nudge

@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 56) - Ready for TestFlight
-**Version:** 1.0.3 (Build 56) - Saved Routines + Bug Fixes
-**Last Updated:** Mar 23, 2026 (Session 81)
+**Status:** v1.0.3 (Build 53) - Submitted to TestFlight
+**Version:** 1.0.3 (Build 53) - Security Hardening + Cloud Functions Update
+**Last Updated:** Mar 23, 2026 (Session 82)
 
 ---
 
@@ -108,7 +108,8 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 56) | Mar 21, 2026 | Ready | Individual workout checkboxes + delete account fix |
+| v1.0.3 (Build 53) | Mar 23, 2026 | TestFlight | Security hardening + Cloud Functions upgrade |
+| v1.0.3 (Build 56) | Mar 21, 2026 | Superseded | Individual workout checkboxes + delete account fix |
 | v1.0.3 (Build 48) | Mar 21, 2026 | Superseded | Friends tab: hamster images + nudge buttons |
 | v1.0.3 (Build 47) | Mar 20, 2026 | TestFlight | Workout persistence layer + delete account fix |
 | v1.0.3 (Build 41) | Mar 20, 2026 | TestFlight | Multi-workout selection testing |
@@ -127,6 +128,31 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 82 (Mar 23, 2026)
+**Cloud Functions Deployment + TestFlight Build**
+
+- Deployed Cloud Functions with Session 81 security hardening
+- Upgraded `firebase-admin` 11.11.1 → 13.7.0
+- Upgraded `firebase-functions` 4.9.0 → latest
+- Fixed breaking API changes (using v1 compatibility layer for 1st Gen functions)
+- Fixed npm vulnerabilities (9 critical → 9 low)
+- Built and submitted v1.0.3 (Build 53) to TestFlight
+
+**Cloud Functions Deployed:**
+- `lookupInviteCode` - Rate-limited invite lookup (10 attempts/min)
+- `onNudgeCreated` - Server-side cooldown (8hr) + daily limit (5/day)
+- `onFriendRequestCreated` - XSS prevention via sanitizeName()
+- `onFriendRequestAccepted` - XSS prevention via sanitizeName()
+- `sendPushNotification` - Input validation
+
+**Files Changed:**
+- `functions/index.js` - Updated imports for firebase-functions v5+ compatibility
+- `functions/package.json` - Updated dependencies
+
+**Build:** v1.0.3 (Build 53) - Submitted to TestFlight
+
+---
 
 ### Session 81 (Mar 23, 2026)
 **Social/Friends Feature Security Hardening**
