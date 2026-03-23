@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 56) - Ready to test
-**Version:** 1.0.3 (Build 56) - Saved Routines + Notification Hardening
-**Last Updated:** Mar 22, 2026 (Session 79)
+**Status:** v1.0.3 (Build 56) - Ready for TestFlight
+**Version:** 1.0.3 (Build 56) - Saved Routines + Bug Fixes
+**Last Updated:** Mar 23, 2026 (Session 81)
 
 ---
 
@@ -127,6 +127,84 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 81 (Mar 23, 2026)
+**Social/Friends Feature Security Hardening**
+
+Implemented comprehensive security hardening for the social/friends feature:
+
+**1. Input Validation Utility (`src/utils/validation.js`)**
+- Created new validation module with:
+  - `isValidUserId()` - Firebase UID format (20-128 alphanumeric)
+  - `isValidInviteCode()` - MH-XXXXXX format validation
+  - `isValidHamsterName()` - 1-50 chars, safe characters
+  - `sanitizeText()` / `sanitizeName()` - Strip HTML/dangerous chars
+  - Composite validators: `validateFriendRequest()`, `validateNudge()`, `validateBlockUser()`, `validateInviteCodeLookup()`
+
+**2. FriendService.js Security Updates**
+- Added validation to all sensitive functions:
+  - `sendFriendRequest()` - validates sender/receiver IDs + uses transaction
+  - `acceptFriendRequest()` - uses transaction for atomic updates
+  - `sendNudge()` - validates sender/recipient IDs
+  - `blockUser()` - validates blocker/blocked IDs
+  - `lookupInviteCode()` - validates code format, uses Cloud Function when available
+- **Race condition fixes**: Converted `sendFriendRequest()` and `acceptFriendRequest()` to use Firestore transactions
+
+**3. Cloud Functions Security (`functions/index.js`)**
+- **Rate-limited invite lookup** (`lookupInviteCode`):
+  - Requires authentication
+  - Rate limit: 10 attempts per minute per user
+  - Server-side code format validation
+  - Prevents using own invite code
+  - Returns sanitized owner profile
+- **Server-side nudge cooldown** (enhanced `onNudgeCreated`):
+  - Enforces 8-hour cooldown between nudges to same recipient
+  - Enforces 5 nudges/day limit
+  - Deletes violating nudges automatically
+  - Logs violations for monitoring
+- **XSS prevention**: Added `sanitizeName()` helper applied to all user names in notifications
+
+**4. Firebase Config Update (`src/config/firebase.js`)**
+- Added Firebase Functions initialization
+- Added `callFunction()` helper for calling Cloud Functions
+
+**Files Created:**
+- `src/utils/validation.js` - New validation utility
+
+**Files Modified:**
+- `src/utils/index.js` - Export validation module
+- `src/services/FriendService.js` - Validation + transactions
+- `src/config/firebase.js` - Cloud Functions support
+- `functions/index.js` - Rate limiting + cooldown + sanitization
+
+**Testing Needed:**
+1. Input validation - try invalid IDs, malformed invite codes
+2. Rate limiting - make 11+ rapid invite lookups
+3. Nudge cooldown - send nudge, clear cache, try again (should be blocked)
+4. Race conditions - simultaneous friend requests (only one should succeed)
+5. XSS prevention - set name with HTML tags, verify sanitized in notification
+
+---
+
+### Session 80 (Mar 22, 2026)
+**Bug Fixes + Apple Re-auth**
+
+**Fixes:**
+1. **Home screen action card simplified** - Now only shows daily exercise check-in (removed scheduled workout/rest day cards)
+2. **WorkoutPlayer navigation fixed** - Used nested navigation for cross-tab navigation
+3. **Apple re-authentication for account deletion** - Added `reauthenticateWithApple()` to SocialAuthService
+4. **Routine delete button (X) fixed** - Changed to Pressable, fixed render order, used native Alert.alert
+
+**Files Changed:**
+- `src/screens/Home/HomeScreen.js` - Simplified renderTodayActionCard()
+- `src/services/SocialAuthService.js` - Added reauthenticateWithApple()
+- `src/context/AuthContext.js` - Added reauthenticateWithApple to context
+- `src/screens/Settings/AccountSettingsScreen.js` - Added Apple re-auth flow
+- `src/components/Schedule/AddWorkoutModal.js` - Fixed delete button with Pressable + native Alert
+
+**Note:** App freezing in dev mode is likely Expo Go/hot reload issue - will verify in TestFlight build.
+
+---
 
 ### Session 79 (Mar 22, 2026)
 **Saved Routines Feature + Notification Hardening + Delete Account Fix**

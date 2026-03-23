@@ -24,8 +24,15 @@ import {
   writeBatch,
   arrayUnion,
   increment,
+  runTransaction,
 } from 'firebase/firestore';
-import { db, isFirebaseInitialized } from '../config/firebase';
+import {
+  validateFriendRequest,
+  validateNudge,
+  validateBlockUser,
+  validateInviteCodeLookup,
+} from '../utils/validation';
+import { db, isFirebaseInitialized, callFunction } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logger from './LoggerService';
 import {
@@ -215,13 +222,62 @@ class FriendService {
 
   /**
    * Look up an invite code and get the owner's info
+   * Uses rate-limited Cloud Function with fallback to direct Firestore
    */
   async lookupInviteCode(code) {
     if (!isFirebaseInitialized() || !db) {
       throw new Error('Firebase not initialized');
     }
 
-    const normalizedCode = code.toUpperCase().trim();
+    // Validate invite code format
+    const validation = validateInviteCodeLookup(code, this.currentUserId);
+    if (!validation.valid) {
+      Logger.warn('Invalid invite code lookup:', validation.errors);
+      throw new Error(validation.errors[0]);
+    }
+
+    const normalizedCode = validation.normalizedCode;
+
+    // Try Cloud Function first (rate-limited, more secure)
+    try {
+      const lookupFunction = callFunction('lookupInviteCode');
+      const result = await lookupFunction({ code: normalizedCode });
+
+      if (result.data && result.data.success) {
+        const data = result.data;
+        return {
+          inviteCode: data.inviteCode,
+          ownerId: data.ownerId,
+          ownerHamsterName: data.ownerHamsterName,
+          ownerProfile: createFriendProfile({
+            id: data.ownerId,
+            email: '',
+            hamsterName: data.ownerProfile.hamsterName,
+            currentStreak: data.ownerProfile.currentStreak || 0,
+            longestStreak: 0,
+            hamsterState: HamsterState.HAPPY,
+            growthStage: data.ownerProfile.growthStage || GrowthStage.BABY,
+            isRestingToday: false,
+          }),
+        };
+      }
+    } catch (cloudFnError) {
+      // Handle specific Cloud Function errors
+      if (cloudFnError.code === 'functions/resource-exhausted') {
+        throw new Error('Too many attempts. Please wait a minute and try again.');
+      }
+      if (cloudFnError.code === 'functions/not-found') {
+        return null;
+      }
+      if (cloudFnError.code === 'functions/failed-precondition') {
+        throw new Error(cloudFnError.message || "You can't use your own invite code");
+      }
+
+      // For other errors, fall back to direct Firestore (for backward compatibility)
+      Logger.warn('Cloud function failed, falling back to direct lookup:', cloudFnError.code);
+    }
+
+    // Fallback: Direct Firestore lookup
     const inviteRef = doc(db, COLLECTIONS.INVITES, normalizedCode);
     const inviteDoc = await getDoc(inviteRef);
 
@@ -518,41 +574,53 @@ class FriendService {
       throw new Error('Firebase not initialized');
     }
 
+    // Validate parameters
+    const validation = validateFriendRequest(senderId, receiverId);
+    if (!validation.valid) {
+      Logger.warn('Invalid friend request params:', validation.errors);
+      throw new Error(validation.errors[0]);
+    }
+
     const friendDocId = getFriendDocId(senderId, receiverId);
     const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
     try {
-      // Check for existing relationship
-      const existingDoc = await getDoc(friendRef);
-      if (existingDoc.exists()) {
-        const data = existingDoc.data();
-        if (data.status === FriendRelationshipStatus.ACCEPTED) {
-          throw new Error('Already friends');
-        }
-        if (data.status === FriendRelationshipStatus.PENDING) {
-          throw new Error('Request already pending');
-        }
-        if (data.status === FriendRelationshipStatus.BLOCKED) {
-          throw new Error('Cannot send request to this user');
-        }
-      }
+      // Use transaction to prevent race conditions
+      const result = await runTransaction(db, async (transaction) => {
+        const existingDoc = await transaction.get(friendRef);
 
-      // Create friend request
-      await setDoc(friendRef, {
-        users: [senderId, receiverId].sort(),
-        status: FriendRelationshipStatus.PENDING,
-        initiatedBy: senderId,
-        createdAt: serverTimestamp(),
-        acceptedAt: null,
-        friendStreak: {
-          currentStreak: 0,
-          longestStreak: 0,
-          lastBothActiveDate: null,
-        },
+        if (existingDoc.exists()) {
+          const data = existingDoc.data();
+          if (data.status === FriendRelationshipStatus.ACCEPTED) {
+            throw new Error('Already friends');
+          }
+          if (data.status === FriendRelationshipStatus.PENDING) {
+            throw new Error('Request already pending');
+          }
+          if (data.status === FriendRelationshipStatus.BLOCKED) {
+            throw new Error('Cannot send request to this user');
+          }
+        }
+
+        // Create friend request within transaction
+        transaction.set(friendRef, {
+          users: [senderId, receiverId].sort(),
+          status: FriendRelationshipStatus.PENDING,
+          initiatedBy: senderId,
+          createdAt: serverTimestamp(),
+          acceptedAt: null,
+          friendStreak: {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastBothActiveDate: null,
+          },
+        });
+
+        return friendDocId;
       });
 
       return createFriendRequest({
-        id: friendDocId,
+        id: result,
         senderId,
         receiverId,
         status: FriendRequestStatus.PENDING,
@@ -577,42 +645,54 @@ class FriendService {
     }
 
     const friendRef = doc(db, COLLECTIONS.FRIENDS, requestId);
-    const friendDoc = await getDoc(friendRef);
 
-    if (!friendDoc.exists()) {
-      throw new Error('Request not found');
-    }
+    // Use transaction to prevent race conditions
+    const result = await runTransaction(db, async (transaction) => {
+      const friendDoc = await transaction.get(friendRef);
 
-    const data = friendDoc.data();
+      if (!friendDoc.exists()) {
+        throw new Error('Request not found');
+      }
 
-    // Verify user is the receiver (not the initiator)
-    if (data.initiatedBy === userId) {
-      throw new Error('Cannot accept your own request');
-    }
-    if (!data.users.includes(userId)) {
-      throw new Error('Not authorized to accept this request');
-    }
+      const data = friendDoc.data();
 
-    // Update to accepted
-    await updateDoc(friendRef, {
-      status: FriendRelationshipStatus.ACCEPTED,
-      acceptedAt: serverTimestamp(),
-    });
+      // Verify user is the receiver (not the initiator)
+      if (data.initiatedBy === userId) {
+        throw new Error('Cannot accept your own request');
+      }
+      if (!data.users.includes(userId)) {
+        throw new Error('Not authorized to accept this request');
+      }
 
-    // Update friend counts for both users
-    const batch = writeBatch(db);
-    data.users.forEach(uid => {
-      const userRef = doc(db, COLLECTIONS.USERS, uid);
-      batch.update(userRef, {
-        friendCount: increment(1),
+      // Verify status is still pending (not already accepted)
+      if (data.status === FriendRelationshipStatus.ACCEPTED) {
+        throw new Error('Request already accepted');
+      }
+
+      // Update to accepted
+      transaction.update(friendRef, {
+        status: FriendRelationshipStatus.ACCEPTED,
+        acceptedAt: serverTimestamp(),
       });
+
+      // Update friend counts for both users within the same transaction
+      data.users.forEach(uid => {
+        const userRef = doc(db, COLLECTIONS.USERS, uid);
+        transaction.update(userRef, {
+          friendCount: increment(1),
+        });
+      });
+
+      return {
+        requestId,
+        users: data.users,
+      };
     });
-    await batch.commit();
 
     return createFriendRelationship({
-      id: requestId,
-      userId1: data.users[0],
-      userId2: data.users[1],
+      id: result.requestId,
+      userId1: result.users[0],
+      userId2: result.users[1],
       status: FriendRelationshipStatus.ACCEPTED,
       acceptedAt: new Date(),
     });
@@ -676,6 +756,13 @@ class FriendService {
   async blockUser(blockerId, blockedId) {
     if (!isFirebaseInitialized() || !db) {
       throw new Error('Firebase not initialized');
+    }
+
+    // Validate parameters
+    const validation = validateBlockUser(blockerId, blockedId);
+    if (!validation.valid) {
+      Logger.warn('Invalid block user params:', validation.errors);
+      throw new Error(validation.errors[0]);
     }
 
     const friendDocId = getFriendDocId(blockerId, blockedId);
@@ -967,6 +1054,13 @@ class FriendService {
   async sendNudge(senderId, recipientId) {
     if (!isFirebaseInitialized() || !db) {
       throw new Error('Firebase not initialized');
+    }
+
+    // Validate parameters
+    const validation = validateNudge(senderId, recipientId);
+    if (!validation.valid) {
+      Logger.warn('Invalid nudge params:', validation.errors);
+      throw new Error(validation.errors[0]);
     }
 
     const nudge = {

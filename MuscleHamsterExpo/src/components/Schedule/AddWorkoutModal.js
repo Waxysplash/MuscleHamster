@@ -18,7 +18,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import { useRoutines } from '../../context/RoutineContext';
-import { useAlert } from '../../context/AlertContext';
 import SaveRoutineModal from './SaveRoutineModal';
 
 // Category images (same as Browse tab)
@@ -150,7 +149,6 @@ export default function AddWorkoutModal({
   // Get custom workouts and routines
   const { customWorkouts } = useCustomWorkouts();
   const { sortedRoutines, createRoutine, useRoutine, deleteRoutine, freeTierLimit } = useRoutines();
-  const { showAlert } = useAlert();
 
   // Reset state when modal opens, pre-populate with existing workouts
   useEffect(() => {
@@ -283,6 +281,7 @@ export default function AddWorkoutModal({
   };
 
   // Handle using a saved routine
+  // Uses native Alert.alert because ThemedAlert renders behind this Modal
   const handleUseRoutine = async (routine) => {
     console.log('AddWorkoutModal: Using routine', routine.name);
     const result = await useRoutine(routine.id);
@@ -291,7 +290,7 @@ export default function AddWorkoutModal({
       // Schedule all workouts from the routine
       onSelectWorkouts?.(result.workouts);
     } else {
-      showAlert('Error', 'Could not load routine. Please try again.');
+      Alert.alert('Error', 'Could not load routine. Please try again.');
     }
   };
 
@@ -318,6 +317,7 @@ export default function AddWorkoutModal({
   };
 
   // Handle saving selected workouts as a routine
+  // Uses native Alert.alert because ThemedAlert renders behind this Modal
   const handleSaveAsRoutine = async (name) => {
     setIsSavingRoutine(true);
 
@@ -327,19 +327,19 @@ export default function AddWorkoutModal({
     setShowSaveRoutineModal(false);
 
     if (result.success) {
-      showAlert(
+      Alert.alert(
         'Routine Saved!',
         `"${name}" has been saved with ${selectedWorkouts.length} workout${selectedWorkouts.length !== 1 ? 's' : ''}. You can use it anytime from the My Routines section.`,
         [{ text: 'Got it!' }]
       );
     } else if (result.error === 'limit-reached') {
-      showAlert(
+      Alert.alert(
         'Routine Limit Reached',
         result.message,
         [{ text: 'OK' }]
       );
     } else {
-      showAlert('Error', 'Could not save routine. Please try again.');
+      Alert.alert('Error', 'Could not save routine. Please try again.');
     }
   };
 

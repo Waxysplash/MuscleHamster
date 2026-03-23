@@ -134,11 +134,11 @@ export const getStreakStatusIcon = (status) => {
 export const getStreakStatusColor = (status) => {
   switch (status) {
     case FriendStreakStatus.ACTIVE: return '#FF9500';
-    case FriendStreakStatus.WAITING: return '#007AFF';
-    case FriendStreakStatus.AT_RISK: return '#FFCC00';
-    case FriendStreakStatus.BROKEN: return '#8E8E93';
-    case FriendStreakStatus.NONE: return '#AF52DE';
-    default: return '#8E8E93';
+    case FriendStreakStatus.WAITING: return '#8B5A2B';
+    case FriendStreakStatus.AT_RISK: return '#D4A84B';
+    case FriendStreakStatus.BROKEN: return '#8B7355';
+    case FriendStreakStatus.NONE: return '#A0968E';
+    default: return '#8B7355';
   }
 };
 
@@ -376,10 +376,10 @@ export const getVisibilityIcon = (level) => {
 
 export const getVisibilityColor = (level) => {
   switch (level) {
-    case ProfileVisibilityLevel.EVERYONE: return '#34C759';
-    case ProfileVisibilityLevel.FRIENDS_ONLY: return '#007AFF';
+    case ProfileVisibilityLevel.EVERYONE: return '#5D9A5D';
+    case ProfileVisibilityLevel.FRIENDS_ONLY: return '#8B5A2B';
     case ProfileVisibilityLevel.PRIVATE: return '#FF9500';
-    default: return '#8E8E93';
+    default: return '#8B7355';
   }
 };
 

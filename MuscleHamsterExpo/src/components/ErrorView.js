@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 export default function ErrorView({ message = "Something went wrong. Let's try again!", onRetry }) {
   return (
     <View style={styles.container}>
-      <Ionicons name="rainy" size={50} color="#007AFF" />
+      <Ionicons name="rainy" size={50} color="#8B5A2B" />
       <Text style={styles.title}>Oops!</Text>
       <Text style={styles.message}>{message}</Text>
       {onRetry && (
@@ -33,18 +33,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
+    color: '#4A3728',
     marginTop: 16,
   },
   message: {
     fontSize: 15,
-    color: '#4A3728',
+    color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,
   },
   button: {
     marginTop: 24,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 25,

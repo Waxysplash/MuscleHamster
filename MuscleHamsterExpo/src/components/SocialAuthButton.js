@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   googleButton: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: '#E5DDD5',
   },
   buttonDisabled: {
     opacity: 0.6,

@@ -21,18 +21,141 @@ const db = admin.firestore();
 // Initialize Expo SDK
 const expo = new Expo();
 
+// ============================================
+// SECURITY HELPERS
+// ============================================
+
+/**
+ * Sanitize a name for safe display in notifications
+ * Removes HTML, dangerous chars, and ensures safe length
+ */
+const sanitizeName = (name, fallback = 'A friend') => {
+  if (!name || typeof name !== 'string') {
+    return fallback;
+  }
+
+  const sanitized = name
+    .replace(/<[^>]*>/g, '')      // Remove HTML tags
+    .replace(/[<>'"&]/g, '')      // Remove dangerous chars
+    .replace(/javascript:|data:|vbscript:/gi, '') // Remove script protocols
+    .trim()
+    .substring(0, 50);
+
+  return sanitized.length > 0 ? sanitized : fallback;
+};
+
+/**
+ * Validate Firebase User ID format
+ */
+const isValidUserId = (id) => {
+  if (!id || typeof id !== 'string') {
+    return false;
+  }
+  return /^[a-zA-Z0-9]{20,128}$/.test(id);
+};
+
+/**
+ * Validate invite code format (MH-XXXXXX)
+ */
+const isValidInviteCode = (code) => {
+  if (!code || typeof code !== 'string') {
+    return false;
+  }
+  return /^MH-[A-HJ-NP-Z2-9]{6}$/i.test(code.toUpperCase().trim());
+};
+
+// Rate limiting storage (in-memory, resets on cold start)
+// For production at scale, use Redis or Firestore
+const rateLimitStore = new Map();
+
+/**
+ * Check rate limit for a user action
+ * @param {string} userId - User ID
+ * @param {string} action - Action type (e.g., 'inviteLookup')
+ * @param {number} maxAttempts - Max attempts allowed
+ * @param {number} windowMs - Time window in milliseconds
+ * @returns {boolean} True if rate limited
+ */
+const isRateLimited = (userId, action, maxAttempts, windowMs) => {
+  const key = `${userId}:${action}`;
+  const now = Date.now();
+  const record = rateLimitStore.get(key) || { attempts: [], firstAttempt: now };
+
+  // Clean old attempts outside the window
+  record.attempts = record.attempts.filter(t => now - t < windowMs);
+
+  if (record.attempts.length >= maxAttempts) {
+    return true;
+  }
+
+  record.attempts.push(now);
+  rateLimitStore.set(key, record);
+  return false;
+};
+
+// ============================================
+// NUDGE COOLDOWN CONSTANTS
+// ============================================
+const NUDGE_COOLDOWN_MS = 8 * 60 * 60 * 1000; // 8 hours
+const NUDGE_DAILY_LIMIT = 5;
+
+// ============================================
+// CLOUD FUNCTIONS
+// ============================================
+
 /**
  * Cloud Function: Send push notification when a nudge is created
- *
- * Triggered when a new document is created in the 'nudges' collection
+ * Also enforces server-side cooldown and daily limits
  */
 exports.onNudgeCreated = functions.firestore
   .document('nudges/{nudgeId}')
   .onCreate(async (snap, context) => {
     const nudge = snap.data();
     const { toUserId, fromUserId, message } = nudge;
+    const nudgeId = context.params.nudgeId;
 
     try {
+      // Validate user IDs
+      if (!isValidUserId(toUserId) || !isValidUserId(fromUserId)) {
+        console.log('Invalid user IDs in nudge, deleting:', nudgeId);
+        await snap.ref.delete();
+        return null;
+      }
+
+      // Server-side cooldown enforcement
+      const now = admin.firestore.Timestamp.now();
+      const cooldownCutoff = new Date(now.toMillis() - NUDGE_COOLDOWN_MS);
+      const dailyCutoff = new Date(now.toMillis() - 24 * 60 * 60 * 1000);
+
+      // Check for recent nudges from same sender to same recipient
+      const recentNudgesQuery = await db.collection('nudges')
+        .where('fromUserId', '==', fromUserId)
+        .where('toUserId', '==', toUserId)
+        .where('sentAt', '>', admin.firestore.Timestamp.fromDate(cooldownCutoff))
+        .get();
+
+      // Exclude the current nudge from the count
+      const recentCount = recentNudgesQuery.docs.filter(d => d.id !== nudgeId).length;
+      if (recentCount > 0) {
+        console.log('Nudge cooldown violated, deleting:', nudgeId);
+        await snap.ref.delete();
+        return { deleted: true, reason: 'cooldown_violated' };
+      }
+
+      // Check daily limit (all nudges from this sender today)
+      const dailyNudgesQuery = await db.collection('nudges')
+        .where('fromUserId', '==', fromUserId)
+        .where('sentAt', '>', admin.firestore.Timestamp.fromDate(dailyCutoff))
+        .get();
+
+      // Exclude current nudge
+      const dailyCount = dailyNudgesQuery.docs.filter(d => d.id !== nudgeId).length;
+      if (dailyCount >= NUDGE_DAILY_LIMIT) {
+        console.log('Daily nudge limit exceeded, deleting:', nudgeId);
+        await snap.ref.delete();
+        return { deleted: true, reason: 'daily_limit_exceeded' };
+      }
+
       // Get recipient's push token
       const recipientDoc = await db.collection('users').doc(toUserId).get();
       if (!recipientDoc.exists) {
@@ -48,17 +171,15 @@ exports.onNudgeCreated = functions.firestore
         return null;
       }
 
-      // Check if this is a valid Expo push token
       if (!Expo.isExpoPushToken(pushToken)) {
         console.log('Invalid Expo push token:', pushToken);
         return null;
       }
 
-      // Get sender's name
+      // Get sender's name and sanitize it
       const senderDoc = await db.collection('users').doc(fromUserId).get();
-      const senderName = senderDoc.exists
-        ? senderDoc.data().hamsterName || 'A friend'
-        : 'A friend';
+      const rawSenderName = senderDoc.exists ? senderDoc.data().hamsterName : null;
+      const senderName = sanitizeName(rawSenderName, 'A friend');
 
       // Prepare the push notification
       const notificationMessages = [
@@ -78,7 +199,7 @@ exports.onNudgeCreated = functions.firestore
         body: body,
         data: {
           type: 'nudge',
-          nudgeId: context.params.nudgeId,
+          nudgeId: nudgeId,
           fromUserId: fromUserId,
         },
         badge: 1,
@@ -107,8 +228,6 @@ exports.onNudgeCreated = functions.firestore
 
 /**
  * Cloud Function: Send push notification when a friend request is received
- *
- * Triggered when a friend document is created or updated with pending status
  */
 exports.onFriendRequestCreated = functions.firestore
   .document('friends/{friendId}')
@@ -127,6 +246,12 @@ exports.onFriendRequestCreated = functions.firestore
       return null;
     }
 
+    // Validate user IDs
+    if (!isValidUserId(initiatedBy) || !isValidUserId(receiverId)) {
+      console.log('Invalid user IDs in friend request');
+      return null;
+    }
+
     try {
       // Get receiver's push token
       const receiverDoc = await db.collection('users').doc(receiverId).get();
@@ -141,11 +266,10 @@ exports.onFriendRequestCreated = functions.firestore
         return null;
       }
 
-      // Get sender's name
+      // Get sender's name and sanitize it
       const senderDoc = await db.collection('users').doc(initiatedBy).get();
-      const senderName = senderDoc.exists
-        ? senderDoc.data().hamsterName || 'Someone'
-        : 'Someone';
+      const rawSenderName = senderDoc.exists ? senderDoc.data().hamsterName : null;
+      const senderName = sanitizeName(rawSenderName, 'Someone');
 
       // Prepare the push notification
       const pushMessage = {
@@ -198,6 +322,12 @@ exports.onFriendRequestAccepted = functions.firestore
     // Notify the person who sent the request
     const senderId = initiatedBy;
 
+    // Validate user IDs
+    if (!isValidUserId(senderId)) {
+      console.log('Invalid sender ID in friend request accepted');
+      return null;
+    }
+
     try {
       // Get sender's push token
       const senderDoc = await db.collection('users').doc(senderId).get();
@@ -212,12 +342,15 @@ exports.onFriendRequestAccepted = functions.firestore
         return null;
       }
 
-      // Get accepter's name
+      // Get accepter's name and sanitize it
       const accepterId = users.find(id => id !== senderId);
+      if (!isValidUserId(accepterId)) {
+        return null;
+      }
+
       const accepterDoc = await db.collection('users').doc(accepterId).get();
-      const accepterName = accepterDoc.exists
-        ? accepterDoc.data().hamsterName || 'Your friend'
-        : 'Your friend';
+      const rawAccepterName = accepterDoc.exists ? accepterDoc.data().hamsterName : null;
+      const accepterName = sanitizeName(rawAccepterName, 'Your friend');
 
       // Prepare the push notification
       const pushMessage = {
@@ -253,6 +386,102 @@ exports.onFriendRequestAccepted = functions.firestore
   });
 
 /**
+ * Callable function: Rate-limited invite code lookup
+ * Prevents brute-force attacks on invite codes
+ */
+exports.lookupInviteCode = functions.https.onCall(async (data, context) => {
+  // Verify authentication
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'Must be logged in to look up invite codes'
+    );
+  }
+
+  const userId = context.auth.uid;
+  const { code } = data;
+
+  // Rate limit: 10 attempts per minute
+  if (isRateLimited(userId, 'inviteLookup', 10, 60 * 1000)) {
+    throw new functions.https.HttpsError(
+      'resource-exhausted',
+      'Too many attempts. Please wait a minute and try again.'
+    );
+  }
+
+  // Validate code format
+  if (!code || typeof code !== 'string') {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Invite code is required'
+    );
+  }
+
+  const normalizedCode = code.toUpperCase().trim();
+
+  if (!isValidInviteCode(normalizedCode)) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Invalid invite code format. Codes look like: MH-ABC123'
+    );
+  }
+
+  try {
+    // Look up the invite
+    const inviteDoc = await db.collection('invites').doc(normalizedCode).get();
+
+    if (!inviteDoc.exists || !inviteDoc.data().active) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Invite code not found or expired'
+      );
+    }
+
+    const inviteData = inviteDoc.data();
+
+    // Prevent using own code
+    if (inviteData.ownerId === userId) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        "You can't use your own invite code"
+      );
+    }
+
+    // Get owner's profile
+    const ownerDoc = await db.collection('users').doc(inviteData.ownerId).get();
+
+    if (!ownerDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Invite code owner not found'
+      );
+    }
+
+    const ownerData = ownerDoc.data();
+
+    // Return sanitized owner profile
+    return {
+      success: true,
+      inviteCode: normalizedCode,
+      ownerId: inviteData.ownerId,
+      ownerHamsterName: sanitizeName(ownerData.hamsterName, 'A hamster friend'),
+      ownerProfile: {
+        id: inviteData.ownerId,
+        hamsterName: sanitizeName(ownerData.hamsterName, 'A hamster friend'),
+        currentStreak: ownerData.currentStreak || 0,
+        growthStage: ownerData.growthStage || 'baby',
+      },
+    };
+  } catch (error) {
+    if (error instanceof functions.https.HttpsError) {
+      throw error;
+    }
+    console.error('Error in lookupInviteCode:', error);
+    throw new functions.https.HttpsError('internal', 'Failed to look up invite code');
+  }
+});
+
+/**
  * Callable function: Manually send a push notification
  * Used for testing or manual notifications
  */
@@ -274,6 +503,14 @@ exports.sendPushNotification = functions.https.onCall(async (data, context) => {
     );
   }
 
+  // Validate user ID
+  if (!isValidUserId(toUserId)) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Invalid recipient user ID'
+    );
+  }
+
   try {
     // Get recipient's push token
     const recipientDoc = await db.collection('users').doc(toUserId).get();
@@ -292,8 +529,8 @@ exports.sendPushNotification = functions.https.onCall(async (data, context) => {
     const pushMessage = {
       to: pushToken,
       sound: 'default',
-      title,
-      body,
+      title: sanitizeName(title, 'Notification'),
+      body: sanitizeName(body, ''),
       data: notificationData || {},
     };
 

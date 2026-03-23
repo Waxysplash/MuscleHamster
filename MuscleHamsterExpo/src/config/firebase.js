@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
@@ -25,6 +26,7 @@ const getFirebaseConfig = () => {
 let app = null;
 let auth = null;
 let db = null;
+let functions = null;
 let firebaseInitError = null;
 
 try {
@@ -55,6 +57,9 @@ try {
 
     // Initialize Firestore
     db = getFirestore(app);
+
+    // Initialize Cloud Functions
+    functions = getFunctions(app);
   } else {
     firebaseInitError = new Error('Firebase configuration missing');
   }
@@ -67,4 +72,12 @@ try {
 export const isFirebaseInitialized = () => app !== null && auth !== null && db !== null;
 export const getFirebaseError = () => firebaseInitError;
 
-export { app, auth, db };
+// Helper to call Cloud Functions
+export const callFunction = (functionName) => {
+  if (!functions) {
+    throw new Error('Firebase Functions not initialized');
+  }
+  return httpsCallable(functions, functionName);
+};
+
+export { app, auth, db, functions };

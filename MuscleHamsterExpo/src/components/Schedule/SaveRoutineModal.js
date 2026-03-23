@@ -170,7 +170,7 @@ export default function SaveRoutineModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(74, 55, 40, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },

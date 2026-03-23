@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function EmptyStateView({ icon, title, message, actionTitle, onAction, iconColor = '#007AFF' }) {
+export default function EmptyStateView({ icon, title, message, actionTitle, onAction, iconColor = '#8B5A2B' }) {
   return (
     <View style={styles.container}>
       {icon && <Ionicons name={icon} size={50} color={iconColor} />}
@@ -32,19 +32,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
+    color: '#4A3728',
     marginTop: 16,
     textAlign: 'center',
   },
   message: {
     fontSize: 15,
-    color: '#4A3728',
+    color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 22,
   },
   button: {
     marginTop: 24,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FF9500',
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 25,
