@@ -25,6 +25,7 @@ import {
   signInWithApple as socialSignInWithApple,
   signOutFromGoogle,
   reauthenticateWithGoogle as socialReauthWithGoogle,
+  reauthenticateWithApple as socialReauthWithApple,
 } from '../services/SocialAuthService';
 import Logger from '../services/LoggerService';
 import { registerForPushNotifications, clearPushToken } from '../services/NotificationService';
@@ -233,6 +234,15 @@ export function AuthProvider({ children }) {
     return await socialReauthWithGoogle();
   }, []);
 
+  // Re-authenticate with Apple (for Apple sign-in users)
+  const reauthenticateWithApple = useCallback(async () => {
+    if (!isFirebaseInitialized() || !auth || !auth.currentUser) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    return await socialReauthWithApple();
+  }, []);
+
   // Delete account and all associated data
   const deleteAccount = useCallback(async () => {
     setError(null);
@@ -397,6 +407,7 @@ export function AuthProvider({ children }) {
     signInWithApple,
     reauthenticate,
     reauthenticateWithGoogle,
+    reauthenticateWithApple,
     deleteAccount,
     clearError,
   };

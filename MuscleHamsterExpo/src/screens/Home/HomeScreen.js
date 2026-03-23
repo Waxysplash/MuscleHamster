@@ -29,7 +29,6 @@ import NotificationPermissionPrompt from '../../components/NotificationPermissio
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
 import { shouldShowPermissionPrompt, enableNotifications } from '../../services/NotificationService';
-import { DAY_TYPES } from '../../services/ScheduleService';
 
 export default function HomeScreen({ navigation }) {
   const { currentUser } = useAuth();
@@ -55,7 +54,6 @@ export default function HomeScreen({ navigation }) {
 
   // Schedule context for weekly planner integration
   const {
-    todaySchedule,
     currentWeekStart,
     currentWeekSchedule,
     hasScheduleThisWeek,
@@ -170,7 +168,7 @@ export default function HomeScreen({ navigation }) {
     ) || false;
   }, [stats?.workoutHistory]);
 
-  // Render the Today's Action card based on schedule
+  // Render the Today's Action card - Daily exercise check-in only
   const renderTodayActionCard = () => {
     // Already checked in today - show completed card
     if (hasCheckedInToday) {
@@ -187,79 +185,7 @@ export default function HomeScreen({ navigation }) {
       );
     }
 
-    // Check if there's a scheduled workout or rest day for today
-    if (todaySchedule && todaySchedule.type !== DAY_TYPES.EMPTY) {
-      // Scheduled REST day
-      if (todaySchedule.type === DAY_TYPES.REST) {
-        return (
-          <TouchableOpacity
-            style={styles.restDayCard}
-            onPress={() => navigation.navigate('QuickRestDay')}
-            activeOpacity={0.9}
-          >
-            <View style={styles.restDayIconWrapper}>
-              <Ionicons name="bed" size={28} color="#8B5A2B" />
-            </View>
-            <View style={styles.actionInfo}>
-              <Text style={styles.restDayLabel}>SCHEDULED REST DAY</Text>
-              <Text style={styles.restDayTitle}>Recovery Day</Text>
-              <Text style={styles.restDaySubtitle}>Recovery is part of the journey</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#8B5A2B" />
-          </TouchableOpacity>
-        );
-      }
-
-      // Scheduled WORKOUT with specific workout
-      if (todaySchedule.type === DAY_TYPES.WORKOUT && todaySchedule.workoutId) {
-        return (
-          <TouchableOpacity
-            style={styles.scheduledWorkoutCard}
-            onPress={() => {
-              // Navigate to workout player with the scheduled workout
-              navigation.navigate('WorkoutPlayer', {
-                workoutId: todaySchedule.workoutId,
-                workoutType: todaySchedule.workoutType,
-              });
-            }}
-            activeOpacity={0.9}
-          >
-            <View style={styles.scheduledWorkoutIconWrapper}>
-              <Ionicons name="barbell" size={28} color="#fff" />
-            </View>
-            <View style={styles.actionInfo}>
-              <Text style={styles.scheduledWorkoutLabel}>TODAY'S PLAN</Text>
-              <Text style={styles.scheduledWorkoutTitle}>{todaySchedule.workoutName}</Text>
-              <Text style={styles.scheduledWorkoutSubtitle}>Scheduled workout</Text>
-            </View>
-            <Ionicons name="play-circle" size={32} color="#fff" />
-          </TouchableOpacity>
-        );
-      }
-
-      // Scheduled WORKOUT day but no specific workout picked
-      if (todaySchedule.type === DAY_TYPES.WORKOUT && !todaySchedule.workoutId) {
-        return (
-          <TouchableOpacity
-            style={styles.pickWorkoutCard}
-            onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain', params: { openPicker: true } })}
-            activeOpacity={0.9}
-          >
-            <View style={styles.pickWorkoutIconWrapper}>
-              <Ionicons name="fitness" size={28} color="#FF9500" />
-            </View>
-            <View style={styles.actionInfo}>
-              <Text style={styles.pickWorkoutLabel}>WORKOUT DAY</Text>
-              <Text style={styles.pickWorkoutTitle}>Pick a Workout</Text>
-              <Text style={styles.pickWorkoutSubtitle}>You planned to exercise today</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#FF9500" />
-          </TouchableOpacity>
-        );
-      }
-    }
-
-    // Default: No schedule - show daily exercise card
+    // Daily exercise check-in card
     return (
       <TouchableOpacity
         style={styles.actionCard}

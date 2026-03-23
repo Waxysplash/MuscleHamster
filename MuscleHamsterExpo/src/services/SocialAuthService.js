@@ -241,6 +241,67 @@ export async function reauthenticateWithGoogle() {
 }
 
 /**
+ * Re-authenticate with Apple for sensitive operations (like account deletion)
+ * This prompts the user to sign in with Apple again to get fresh credentials.
+ * @returns {Promise<{success: boolean, error?: string, cancelled?: boolean}>}
+ */
+export async function reauthenticateWithApple() {
+  try {
+    // Check if Apple Sign-In is available
+    const isAvailable = await AppleAuthentication.isAvailableAsync();
+    if (!isAvailable) {
+      return {
+        success: false,
+        error: 'Apple Sign-In is not available on this device.',
+      };
+    }
+
+    // Generate nonce for security
+    const { nonce, hashedNonce } = await generateNonce();
+
+    // Request Apple Sign-In to get fresh credentials
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+      nonce: hashedNonce,
+    });
+
+    // Create Firebase OAuth credential
+    const provider = new OAuthProvider('apple.com');
+    const oauthCredential = provider.credential({
+      idToken: credential.identityToken,
+      rawNonce: nonce,
+    });
+
+    // Re-authenticate the current user with fresh credential
+    if (!auth.currentUser) {
+      return {
+        success: false,
+        error: 'No user signed in.',
+      };
+    }
+
+    await reauthenticateWithCredential(auth.currentUser, oauthCredential);
+    Logger.debug('Apple re-authentication successful');
+
+    return { success: true };
+  } catch (error) {
+    // Handle user cancellation
+    if (error.code === 'ERR_REQUEST_CANCELED' || error.code === 'ERR_CANCELED') {
+      return { success: false, cancelled: true };
+    }
+
+    Logger.error('Apple re-auth error:', error);
+    return {
+      success: false,
+      error: 'Apple authentication failed. Please try again.',
+    };
+  }
+}
+
+/**
  * Check if user is currently signed in with Google
  * @returns {Promise<boolean>}
  */

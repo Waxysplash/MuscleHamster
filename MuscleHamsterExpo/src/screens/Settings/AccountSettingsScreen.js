@@ -25,7 +25,7 @@ import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 
 export default function AccountSettingsScreen({ navigation }) {
-  const { currentUser, deleteAccount, reauthenticate, reauthenticateWithGoogle, signOut } = useAuth();
+  const { currentUser, deleteAccount, reauthenticate, reauthenticateWithGoogle, reauthenticateWithApple, signOut } = useAuth();
   const { isProfileComplete } = useUserProfile();
   const { showAlert } = useAlert();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -103,8 +103,21 @@ export default function AccountSettingsScreen({ navigation }) {
               },
             ]
           );
+        } else if (authProvider === 'apple') {
+          // For Apple users, re-authenticate with Apple
+          showAlert(
+            'Confirm Your Identity',
+            'For security, please sign in with Apple again to confirm this action.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Continue with Apple',
+                onPress: handleAppleReauthAndDelete,
+              },
+            ]
+          );
         } else {
-          // For Apple or other social auth users, they need to sign out and sign back in
+          // For other auth providers, they need to sign out and sign back in
           showAlert(
             'Re-authentication Required',
             'For security, please sign out and sign back in, then try deleting your account again.',
@@ -154,6 +167,43 @@ export default function AccountSettingsScreen({ navigation }) {
     // Now delete the account
     const deleteResult = await deleteAccount();
     console.log('[AccountSettings] Delete result after Google reauth:', deleteResult);
+
+    if (!deleteResult.success) {
+      setIsDeleting(false);
+      showAlert(
+        'Something Went Wrong',
+        'We couldn\'t delete your account right now. Please try again later.',
+        [{ text: 'OK' }]
+      );
+    }
+    // If successful, auth state listener will redirect
+  };
+
+  const handleAppleReauthAndDelete = async () => {
+    console.log('[AccountSettings] handleAppleReauthAndDelete called');
+    setIsDeleting(true);
+
+    // Re-authenticate with Apple
+    const reauthResult = await reauthenticateWithApple();
+    console.log('[AccountSettings] Apple reauth result:', reauthResult);
+
+    if (!reauthResult.success) {
+      setIsDeleting(false);
+      if (reauthResult.cancelled) {
+        // User cancelled, do nothing
+        return;
+      }
+      showAlert(
+        'Authentication Failed',
+        reauthResult.error || 'We couldn\'t verify your identity. Please try again.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Now delete the account
+    const deleteResult = await deleteAccount();
+    console.log('[AccountSettings] Delete result after Apple reauth:', deleteResult);
 
     if (!deleteResult.success) {
       setIsDeleting(false);

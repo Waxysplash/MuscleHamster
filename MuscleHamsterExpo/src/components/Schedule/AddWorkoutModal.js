@@ -5,12 +5,14 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Pressable,
   StyleSheet,
   Modal,
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
@@ -294,19 +296,20 @@ export default function AddWorkoutModal({
   };
 
   // Handle deleting a routine
+  // Uses native Alert.alert because ThemedAlert renders behind this Modal
   const handleDeleteRoutine = (routine) => {
-    showAlert(
+    Alert.alert(
       'Delete Routine?',
       `Are you sure you want to delete "${routine.name}"?`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'No', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Yes, Delete',
           style: 'destructive',
           onPress: async () => {
             const result = await deleteRoutine(routine.id);
             if (!result.success) {
-              showAlert('Error', 'Could not delete routine. Please try again.');
+              Alert.alert('Error', 'Could not delete routine. Please try again.');
             }
           },
         },
@@ -456,32 +459,45 @@ export default function AddWorkoutModal({
                   >
                     {sortedRoutines.map((routine) => (
                       <View key={routine.id} style={styles.routineCardWrapper}>
-                        <TouchableOpacity
-                          style={styles.routineCard}
-                          onPress={() => handleUseRoutine(routine)}
-                        >
-                          <View style={styles.routineIcon}>
-                            <Ionicons name="bookmark" size={20} color="#8B5A2B" />
-                          </View>
-                          <Text style={styles.routineName} numberOfLines={1}>
-                            {routine.name}
-                          </Text>
-                          <Text style={styles.routineWorkoutCount}>
-                            {routine.workouts.length} workout{routine.workouts.length !== 1 ? 's' : ''}
-                          </Text>
-                          {routine.usageCount > 0 && (
-                            <Text style={styles.routineUsage}>
-                              Used {routine.usageCount}x
+                        {/* Card container */}
+                        <View style={styles.routineCard}>
+                          {/* Card content - touchable area (render first, so it's behind) */}
+                          <TouchableOpacity
+                            style={styles.routineCardContent}
+                            onPress={() => handleUseRoutine(routine)}
+                            activeOpacity={0.7}
+                          >
+                            <View style={styles.routineIcon}>
+                              <Ionicons name="bookmark" size={20} color="#8B5A2B" />
+                            </View>
+                            <Text style={styles.routineName} numberOfLines={1}>
+                              {routine.name}
                             </Text>
-                          )}
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.routineDeleteButton}
-                          onPress={() => handleDeleteRoutine(routine)}
-                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        >
-                          <Ionicons name="close-circle" size={20} color="#A0968E" />
-                        </TouchableOpacity>
+                            <Text style={styles.routineWorkoutCount}>
+                              {routine.workouts.length} workout{routine.workouts.length !== 1 ? 's' : ''}
+                            </Text>
+                            {routine.usageCount > 0 && (
+                              <Text style={styles.routineUsage}>
+                                Used {routine.usageCount}x
+                              </Text>
+                            )}
+                          </TouchableOpacity>
+
+                          {/* Delete button - render LAST so it's on top */}
+                          <Pressable
+                            style={({ pressed }) => [
+                              styles.routineDeleteButton,
+                              pressed && styles.routineDeleteButtonPressed,
+                            ]}
+                            onPress={() => {
+                              console.log('Delete button pressed for:', routine.name);
+                              handleDeleteRoutine(routine);
+                            }}
+                            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                          >
+                            <Ionicons name="close-circle" size={24} color="#8B5A2B" />
+                          </Pressable>
+                        </View>
                       </View>
                     ))}
                   </ScrollView>
@@ -719,22 +735,33 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   routineCardWrapper: {
-    position: 'relative',
+    marginRight: 10,
   },
   routineCard: {
     backgroundColor: '#fff',
     borderRadius: 14,
-    padding: 14,
-    width: 130,
+    width: 140,
     borderWidth: 2,
     borderColor: 'rgba(139, 90, 43, 0.15)',
   },
+  routineCardContent: {
+    padding: 14,
+    paddingTop: 36,
+    zIndex: 1,
+  },
   routineDeleteButton: {
     position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    top: 8,
+    right: 8,
+    backgroundColor: '#FFF8F0',
+    borderRadius: 14,
+    padding: 6,
+    zIndex: 100,
+    elevation: 10,
+  },
+  routineDeleteButtonPressed: {
+    backgroundColor: '#FFDDDD',
+    transform: [{ scale: 1.1 }],
   },
   routineIcon: {
     width: 36,
