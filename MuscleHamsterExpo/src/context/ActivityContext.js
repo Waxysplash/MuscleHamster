@@ -1,5 +1,5 @@
 // Activity Context - Phase 05-06 (with Firestore)
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { ActivityService, setActivityUserId } from '../services/ActivityService';
 import { setJournalUserId } from '../services/JournalService';
 import { useAuth } from './AuthContext';
@@ -146,12 +146,15 @@ export const ActivityProvider = ({ children }) => {
     }
   }, []);
 
-  // Check if user logged a rest day today
-  const hasLoggedRestDayToday = stats.restDayHistory?.some(
-    (entry) => new Date(entry.completedAt).toDateString() === new Date().toDateString()
-  ) || false;
+  // Check if user logged a rest day today (memoized)
+  const hasLoggedRestDayToday = useMemo(() => {
+    return stats.restDayHistory?.some(
+      (entry) => new Date(entry.completedAt).toDateString() === new Date().toDateString()
+    ) || false;
+  }, [stats.restDayHistory]);
 
-  const value = {
+  // Memoized context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     stats,
     isLoading,
     streakStatus,
@@ -172,7 +175,20 @@ export const ActivityProvider = ({ children }) => {
     restoreStreak,
     acknowledgeStreakReset,
     recordShopPurchase,
-  };
+  }), [
+    stats,
+    isLoading,
+    streakStatus,
+    hasLoggedRestDayToday,
+    loadStats,
+    recordWorkoutCompletion,
+    recordDailyCheckIn,
+    recordRestDayCheckIn,
+    recordFeedback,
+    restoreStreak,
+    acknowledgeStreakReset,
+    recordShopPurchase,
+  ]);
 
   return (
     <ActivityContext.Provider value={value}>

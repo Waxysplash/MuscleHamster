@@ -9,13 +9,22 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from 'firebase/auth';
-import { doc, deleteDoc } from 'firebase/firestore';
+import {
+  doc,
+  deleteDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  writeBatch,
+} from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, db, isFirebaseInitialized, getFirebaseError } from '../config/firebase';
 import {
   isAppleSignInAvailable,
   signInWithApple as socialSignInWithApple,
   signOutFromGoogle,
+  reauthenticateWithGoogle as socialReauthWithGoogle,
 } from '../services/SocialAuthService';
 import Logger from '../services/LoggerService';
 import { registerForPushNotifications, clearPushToken } from '../services/NotificationService';
@@ -215,58 +224,158 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Re-authenticate with Google (for Google sign-in users)
+  const reauthenticateWithGoogle = useCallback(async () => {
+    if (!isFirebaseInitialized() || !auth || !auth.currentUser) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    return await socialReauthWithGoogle();
+  }, []);
+
   // Delete account and all associated data
   const deleteAccount = useCallback(async () => {
     setError(null);
+    Logger.debug('[AuthContext] deleteAccount called');
 
     if (!isFirebaseInitialized() || !auth || !auth.currentUser) {
+      Logger.debug('[AuthContext] deleteAccount: Not authenticated');
       setError('Unable to delete account. Please try again.');
       return { success: false, error: 'Not authenticated' };
     }
 
     const userId = auth.currentUser.uid;
+    Logger.debug('[AuthContext] deleteAccount: Deleting user', userId);
 
     try {
-      // Delete all user data from Firestore collections
-      const collectionsToDelete = [
+      // 1. Delete simple documents (userId as document ID)
+      const simpleCollections = [
         'users',
         'userStats',
         'inventory',
         'exerciseJournals',
         'userFavorites',
         'customWorkouts',
+        'savedRoutines',
       ];
 
-      for (const collectionName of collectionsToDelete) {
+      for (const collectionName of simpleCollections) {
         try {
           const docRef = doc(db, collectionName, userId);
           await deleteDoc(docRef);
-          Logger.debug(`Deleted ${collectionName} for user ${userId}`);
+          Logger.debug(`[AuthContext] Deleted ${collectionName}/${userId}`);
         } catch (err) {
-          // Document might not exist, that's okay
-          Logger.debug(`No ${collectionName} document to delete for user ${userId}`);
+          Logger.debug(`[AuthContext] No ${collectionName} document to delete (or error):`, err.message);
         }
       }
 
-      // Clear all local AsyncStorage data
+      // 2. Delete weeklySchedules (document ID format: userId_weekStart)
       try {
-        await AsyncStorage.clear();
-        Logger.debug('Cleared AsyncStorage');
+        const schedulesRef = collection(db, 'weeklySchedules');
+        const schedulesQuery = query(schedulesRef, where('userId', '==', userId));
+        const schedulesSnapshot = await getDocs(schedulesQuery);
+
+        if (!schedulesSnapshot.empty) {
+          const batch = writeBatch(db);
+          schedulesSnapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+          Logger.debug(`[AuthContext] Deleted ${schedulesSnapshot.size} weeklySchedules`);
+        }
       } catch (err) {
-        Logger.debug('Error clearing AsyncStorage:', err);
+        Logger.debug('[AuthContext] Error deleting weeklySchedules:', err.message);
       }
 
-      // Delete the Firebase Auth account
+      // 3. Delete friends (user is in the 'users' array)
+      try {
+        const friendsRef = collection(db, 'friends');
+        const friendsQuery = query(friendsRef, where('users', 'array-contains', userId));
+        const friendsSnapshot = await getDocs(friendsQuery);
+
+        if (!friendsSnapshot.empty) {
+          const batch = writeBatch(db);
+          friendsSnapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+          Logger.debug(`[AuthContext] Deleted ${friendsSnapshot.size} friend relationships`);
+        }
+      } catch (err) {
+        Logger.debug('[AuthContext] Error deleting friends:', err.message);
+      }
+
+      // 4. Delete nudges (sent or received)
+      try {
+        // Nudges sent by user
+        const nudgesSentRef = collection(db, 'nudges');
+        const nudgesSentQuery = query(nudgesSentRef, where('fromUserId', '==', userId));
+        const nudgesSentSnapshot = await getDocs(nudgesSentQuery);
+
+        if (!nudgesSentSnapshot.empty) {
+          const batch = writeBatch(db);
+          nudgesSentSnapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+          Logger.debug(`[AuthContext] Deleted ${nudgesSentSnapshot.size} sent nudges`);
+        }
+
+        // Nudges received by user
+        const nudgesReceivedQuery = query(nudgesSentRef, where('toUserId', '==', userId));
+        const nudgesReceivedSnapshot = await getDocs(nudgesReceivedQuery);
+
+        if (!nudgesReceivedSnapshot.empty) {
+          const batch = writeBatch(db);
+          nudgesReceivedSnapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+          Logger.debug(`[AuthContext] Deleted ${nudgesReceivedSnapshot.size} received nudges`);
+        }
+      } catch (err) {
+        Logger.debug('[AuthContext] Error deleting nudges:', err.message);
+      }
+
+      // 5. Delete invites (user's invite code)
+      try {
+        const invitesRef = collection(db, 'invites');
+        const invitesQuery = query(invitesRef, where('ownerId', '==', userId));
+        const invitesSnapshot = await getDocs(invitesQuery);
+
+        if (!invitesSnapshot.empty) {
+          const batch = writeBatch(db);
+          invitesSnapshot.docs.forEach((docSnap) => {
+            batch.delete(docSnap.ref);
+          });
+          await batch.commit();
+          Logger.debug(`[AuthContext] Deleted ${invitesSnapshot.size} invites`);
+        }
+      } catch (err) {
+        Logger.debug('[AuthContext] Error deleting invites:', err.message);
+      }
+
+      // 6. Clear all local AsyncStorage data
+      try {
+        await AsyncStorage.clear();
+        Logger.debug('[AuthContext] Cleared AsyncStorage');
+      } catch (err) {
+        Logger.debug('[AuthContext] Error clearing AsyncStorage:', err.message);
+      }
+
+      // 7. Delete the Firebase Auth account
+      Logger.debug('[AuthContext] About to delete Firebase Auth account...');
       await deleteUser(auth.currentUser);
-      Logger.info('Account deleted successfully');
+      Logger.info('[AuthContext] Account deleted successfully');
 
       // Auth state listener will handle clearing currentUser
       return { success: true };
     } catch (err) {
-      Logger.error('Account deletion error:', err);
+      Logger.error('[AuthContext] Account deletion error:', err.code, err.message);
 
       // Handle specific error codes
       if (err.code === 'auth/requires-recent-login') {
+        Logger.debug('[AuthContext] Requires recent login');
         setError('For security, please sign out and sign back in, then try deleting again.');
         return { success: false, error: 'requires-recent-login' };
       }
@@ -287,6 +396,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     signInWithApple,
     reauthenticate,
+    reauthenticateWithGoogle,
     deleteAccount,
     clearError,
   };

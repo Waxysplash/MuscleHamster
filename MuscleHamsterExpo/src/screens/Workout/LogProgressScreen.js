@@ -28,6 +28,13 @@ export default function LogProgressScreen({ route, navigation }) {
   const [notes, setNotes] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Safe parseInt that returns null for NaN values
+  const safeParseInt = (value) => {
+    if (!value) return null;
+    const num = parseInt(value, 10);
+    return isNaN(num) ? null : num;
+  };
+
   const handleSave = async () => {
     // At least one metric should be filled
     const hasMetric = sets || reps || weight || duration || distance || notes;
@@ -43,10 +50,10 @@ export default function LogProgressScreen({ route, navigation }) {
     setIsSaving(true);
     try {
       const metrics = {
-        sets: sets ? parseInt(sets, 10) : null,
-        reps: reps ? parseInt(reps, 10) : null,
+        sets: safeParseInt(sets),
+        reps: safeParseInt(reps),
         weight: weight.trim() || null,
-        duration: duration ? parseInt(duration, 10) : null,
+        duration: safeParseInt(duration),
         distance: distance.trim() || null,
         notes: notes.trim(),
       };

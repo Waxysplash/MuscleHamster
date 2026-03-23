@@ -9,20 +9,58 @@ import { ScheduleProvider } from './src/context/ScheduleContext';
 import { FriendProvider } from './src/context/FriendContext';
 import { InventoryProvider } from './src/context/InventoryContext';
 import { CustomWorkoutProvider } from './src/context/CustomWorkoutContext';
+import { RoutineProvider } from './src/context/RoutineContext';
 import { AlertProvider } from './src/context/AlertContext';
-import { initializeNotificationService } from './src/services/NotificationService';
+import {
+  initializeNotificationService,
+  setNotificationTapHandler,
+} from './src/services/NotificationService';
+import { navigationRef, navigateToHome } from './src/services/NavigationService';
+import { NotificationType } from './src/models/NotificationPreferences';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import OnboardingScreen from './src/screens/Onboarding/OnboardingScreen';
 import LoadingView from './src/components/LoadingView';
 import ErrorBoundary from './src/components/ErrorBoundary';
+import Logger from './src/services/LoggerService';
 
 const RootStack = createNativeStackNavigator();
 
-// Initialize notification service on app start
+// Initialize notification service and set up tap handler
 function NotificationInitializer({ children }) {
   useEffect(() => {
+    // Initialize the notification service
     initializeNotificationService();
+
+    // Set up the notification tap handler
+    // This is called when user taps a notification
+    setNotificationTapHandler((notificationType) => {
+      Logger.debug('App: Notification tapped, type:', notificationType);
+
+      // Navigate to Home tab for all notification types
+      // The Home screen will show the appropriate state based on user's current streak/check-in status
+      switch (notificationType) {
+        case NotificationType.DAILY_REMINDER:
+          Logger.debug('App: Daily reminder tapped, navigating to Home');
+          navigateToHome();
+          break;
+
+        case NotificationType.STREAK_AT_RISK:
+          Logger.debug('App: Streak at risk tapped, navigating to Home');
+          navigateToHome();
+          break;
+
+        case NotificationType.FRIEND_NUDGE:
+          Logger.debug('App: Friend nudge tapped, navigating to Home');
+          navigateToHome();
+          break;
+
+        default:
+          Logger.debug('App: Unknown notification type, navigating to Home');
+          navigateToHome();
+          break;
+      }
+    });
   }, []);
 
   return children;
@@ -67,14 +105,16 @@ export default function App() {
               <ScheduleProvider>
                 <InventoryProvider>
                   <CustomWorkoutProvider>
-                    <FriendProvider>
-                      <AlertProvider>
-                        <NavigationContainer>
+                    <RoutineProvider>
+                      <FriendProvider>
+                        <AlertProvider>
+                        <NavigationContainer ref={navigationRef}>
                           <StatusBar style="auto" />
                           <RootNavigator />
                         </NavigationContainer>
-                      </AlertProvider>
-                    </FriendProvider>
+                        </AlertProvider>
+                      </FriendProvider>
+                    </RoutineProvider>
                   </CustomWorkoutProvider>
                 </InventoryProvider>
               </ScheduleProvider>

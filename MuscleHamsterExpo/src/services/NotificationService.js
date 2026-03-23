@@ -261,6 +261,34 @@ export const updateNotificationPreferences = async (newPreferences) => {
   }
 };
 
+// Check if a given hour is during quiet hours
+const isHourDuringQuietHours = (hour, prefs) => {
+  if (!prefs.quietHoursEnabled) return false;
+
+  const start = prefs.quietHoursStart;
+  const end = prefs.quietHoursEnd;
+
+  if (start < end) {
+    // Simple range (e.g., 22:00 to 23:00 - unlikely but possible)
+    return hour >= start && hour < end;
+  } else {
+    // Overnight range (e.g., 22:00 to 07:00)
+    return hour >= start || hour < end;
+  }
+};
+
+// Get adjusted hour that respects quiet hours
+// If the hour is during quiet hours, return the first hour after quiet hours end
+const getAdjustedHourForQuietHours = (hour, prefs) => {
+  if (!isHourDuringQuietHours(hour, prefs)) {
+    return hour; // Not during quiet hours, no adjustment needed
+  }
+
+  // Return the hour when quiet hours end
+  Logger.debug(`NotificationService: Adjusting hour ${hour} to ${prefs.quietHoursEnd} due to quiet hours`);
+  return prefs.quietHoursEnd;
+};
+
 // Reschedule all notifications based on current preferences
 export const rescheduleNotifications = async () => {
   // First, cancel all existing notifications
@@ -289,9 +317,16 @@ export const rescheduleNotifications = async () => {
 const scheduleDailyReminder = async (prefs) => {
   const content = NotificationContent.getRandomDailyReminder();
 
+  // Check if reminder time is during quiet hours and adjust if needed
+  const adjustedHour = getAdjustedHourForQuietHours(prefs.reminderHour, prefs);
+  const wasAdjusted = adjustedHour !== prefs.reminderHour;
+
+  // If adjusted, use 0 minutes (start of the hour)
+  const adjustedMinute = wasAdjusted ? 0 : prefs.reminderMinute;
+
   const trigger = {
-    hour: prefs.reminderHour,
-    minute: prefs.reminderMinute,
+    hour: adjustedHour,
+    minute: adjustedMinute,
     repeats: true,
   };
 
@@ -307,7 +342,11 @@ const scheduleDailyReminder = async (prefs) => {
       identifier: `${NotificationTypeInfo[NotificationType.DAILY_REMINDER].identifierPrefix}_daily`,
     });
 
-    Logger.debug(`NotificationService: Scheduled daily reminder for ${prefs.reminderHour}:${String(prefs.reminderMinute).padStart(2, '0')}`);
+    if (wasAdjusted) {
+      Logger.debug(`NotificationService: Daily reminder adjusted from ${prefs.reminderHour}:${String(prefs.reminderMinute).padStart(2, '0')} to ${adjustedHour}:00 due to quiet hours`);
+    } else {
+      Logger.debug(`NotificationService: Scheduled daily reminder for ${adjustedHour}:${String(adjustedMinute).padStart(2, '0')}`);
+    }
   } catch (error) {
     Logger.error('NotificationService: Failed to schedule daily reminder:', error);
   }
@@ -317,8 +356,24 @@ const scheduleDailyReminder = async (prefs) => {
 const scheduleStreakAtRiskReminder = async (prefs, streakReminderHour) => {
   const content = NotificationContent.getRandomStreakAtRisk();
 
+  // Safety check: ensure streak reminder is not during quiet hours
+  // The computed streakReminderHour should already account for this, but double-check
+  const adjustedHour = getAdjustedHourForQuietHours(streakReminderHour, prefs);
+
+  // If the adjusted hour is in the morning (after quiet hours end),
+  // it's too late for a "streak at risk" reminder, so use the hour before quiet hours start
+  let finalHour = adjustedHour;
+  if (adjustedHour !== streakReminderHour && prefs.quietHoursEnabled) {
+    // The original hour was during quiet hours, try 1 hour before quiet hours start
+    const beforeQuietHours = (prefs.quietHoursStart - 1 + 24) % 24;
+    if (!isHourDuringQuietHours(beforeQuietHours, prefs)) {
+      finalHour = beforeQuietHours;
+      Logger.debug(`NotificationService: Streak reminder moved to ${finalHour}:00 (1 hour before quiet hours)`);
+    }
+  }
+
   const trigger = {
-    hour: streakReminderHour,
+    hour: finalHour,
     minute: 0,
     repeats: true,
   };
@@ -335,7 +390,7 @@ const scheduleStreakAtRiskReminder = async (prefs, streakReminderHour) => {
       identifier: `${NotificationTypeInfo[NotificationType.STREAK_AT_RISK].identifierPrefix}_daily`,
     });
 
-    Logger.debug(`NotificationService: Scheduled streak at risk reminder for ${streakReminderHour}:00`);
+    Logger.debug(`NotificationService: Scheduled streak at risk reminder for ${finalHour}:00`);
   } catch (error) {
     Logger.error('NotificationService: Failed to schedule streak at risk reminder:', error);
   }
@@ -558,6 +613,11 @@ export const clearPushToken = async (userId) => {
         pushToken: null,
       });
     } catch (error) {
+      // Ignore "not-found" errors - document may have been deleted during account deletion
+      if (error?.code === 'not-found') {
+        Logger.debug('NotificationService: User document already deleted, skipping push token clear');
+        return;
+      }
       Logger.error('NotificationService: Failed to clear push token:', error);
     }
   }
@@ -604,6 +664,12 @@ export const cleanupNotificationService = () => {
   _notificationTapHandler = null;
 };
 
+// Check if a time is during quiet hours (exported for use in Settings)
+export const checkIsTimeDuringQuietHours = (hour) => {
+  const prefs = _preferences || createDefaultNotificationPreferences();
+  return isHourDuringQuietHours(hour, prefs);
+};
+
 // Export NotificationService object for consistent API
 export const NotificationService = {
   initialize: initializeNotificationService,
@@ -633,6 +699,8 @@ export const NotificationService = {
   getExpoPushToken,
   clearPushToken,
   sendPushNotification,
+  // Quiet hours
+  checkIsTimeDuringQuietHours,
 };
 
 export default NotificationService;

@@ -3,11 +3,11 @@
  * Simplified shop - just a list of wearable items
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
@@ -53,7 +53,7 @@ export default function ShopScreen({ navigation }) {
       ]);
 
       setItems(allItems);
-      setOwnedItemIds(new Set(inventory.ownedItems.map((o) => o.itemId)));
+      setOwnedItemIds(new Set((inventory?.ownedItems || []).map((o) => o.itemId)));
     } catch (e) {
       Logger.error('Failed to load shop:', e);
       setError('Could not load the shop. Pull down to try again.');
@@ -126,28 +126,28 @@ export default function ShopScreen({ navigation }) {
         />
       )}
 
-      <ScrollView
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={[
           styles.content,
           isTablet && { alignItems: 'center' }
         ]}
+        style={isTablet ? { width: '100%' } : undefined}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
-      >
-        <View style={[
-          styles.contentWrapper,
-          isTablet && { maxWidth: contentMaxWidth, width: '100%' }
-        ]}>
-        {/* Items List */}
-        {items.map((item) => {
+        renderItem={({ item }) => {
           const isOwned = ownedItemIds.has(item.id);
           const itemImage = getShopItemImage(item.id);
           const canAfford = totalPoints >= item.price;
 
           return (
-            <View key={item.id} style={styles.itemCard}>
+            <View style={[
+              styles.itemCard,
+              isTablet && { maxWidth: contentMaxWidth, width: '100%' }
+            ]}>
               {/* Item Image */}
               <View style={styles.itemImageContainer}>
                 {itemImage ? (
@@ -192,19 +192,30 @@ export default function ShopScreen({ navigation }) {
               </View>
             </View>
           );
-        })}
-
-        {/* Go to Inventory Link */}
-        <TouchableOpacity
-          style={styles.inventoryLink}
-          onPress={() => navigation.navigate('Inventory')}
-        >
-          <Ionicons name="grid" size={20} color="#FF9500" />
-          <Text style={styles.inventoryLinkText}>View My Items</Text>
-          <Ionicons name="chevron-forward" size={16} color="#FF9500" />
-        </TouchableOpacity>
-        </View>
-      </ScrollView>
+        }}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Ionicons name="bag-outline" size={48} color="#C4B8AE" />
+            <Text style={styles.emptyTitle}>Shop is empty</Text>
+            <Text style={styles.emptySubtitle}>Check back soon for new items!</Text>
+          </View>
+        }
+        ListFooterComponent={
+          items.length > 0 ? (
+            <TouchableOpacity
+              style={[
+                styles.inventoryLink,
+                isTablet && { maxWidth: contentMaxWidth, width: '100%' }
+              ]}
+              onPress={() => navigation.navigate('Inventory')}
+            >
+              <Ionicons name="grid" size={20} color="#FF9500" />
+              <Text style={styles.inventoryLinkText}>View My Items</Text>
+              <Ionicons name="chevron-forward" size={16} color="#FF9500" />
+            </TouchableOpacity>
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -246,9 +257,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
-  },
-  contentWrapper: {
-    width: '100%',
   },
   itemCard: {
     flexDirection: 'row',
@@ -328,5 +336,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#8B5A2B',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4A3728',
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#6B5D52',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });

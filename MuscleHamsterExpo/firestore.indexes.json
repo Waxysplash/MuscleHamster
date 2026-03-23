@@ -21,6 +21,7 @@
       "collectionGroup": "friends",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "users", "arrayConfig": "CONTAINS" },
         { "fieldPath": "initiatedBy", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
@@ -29,6 +30,7 @@
       "collectionGroup": "friends",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "users", "arrayConfig": "CONTAINS" },
         { "fieldPath": "blockedBy", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]

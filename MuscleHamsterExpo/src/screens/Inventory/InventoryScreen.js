@@ -1,12 +1,12 @@
 // Inventory Screen - Simplified
 // Shows owned items and lets you equip one at a time
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   RefreshControl,
   Image,
@@ -29,6 +29,7 @@ export default function InventoryScreen({ navigation }) {
   const [error, setError] = useState(null);
   const [ownedItems, setOwnedItems] = useState([]);
   const [equippedItemId, setEquippedItemId] = useState(null);
+  const [isEquipping, setIsEquipping] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,6 +76,9 @@ export default function InventoryScreen({ navigation }) {
   };
 
   const handleEquip = async (itemId) => {
+    if (isEquipping) return; // Prevent rapid tapping
+
+    setIsEquipping(true);
     try {
       // If tapping the currently equipped item, unequip it
       if (equippedItemId === itemId) {
@@ -87,6 +91,8 @@ export default function InventoryScreen({ navigation }) {
       }
     } catch (e) {
       showAlert('Error', 'Failed to update outfit');
+    } finally {
+      setIsEquipping(false);
     }
   };
 
@@ -111,35 +117,85 @@ export default function InventoryScreen({ navigation }) {
         />
       )}
 
-      <ScrollView
+      <FlatList
+        data={ownedItems}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
-      >
-        {/* Hamster Preview */}
-        <View style={styles.previewSection}>
-          <View style={styles.previewCard}>
-            <HamsterPortrait
-              state="happy"
-              size={140}
-              equippedOutfit={equippedItemId?.startsWith('outfit') ? equippedItemId : null}
-              equippedAccessory={equippedItemId?.startsWith('acc') ? equippedItemId : null}
-            />
-            {equippedItem ? (
-              <View style={styles.equippedLabel}>
-                <Ionicons name="checkmark-circle" size={14} color="#34C759" />
-                <Text style={styles.equippedLabelText}>Wearing: {equippedItem.name}</Text>
+        ListHeaderComponent={
+          <>
+            {/* Hamster Preview */}
+            <View style={styles.previewSection}>
+              <View style={styles.previewCard}>
+                <HamsterPortrait
+                  state="happy"
+                  size={140}
+                  equippedOutfit={equippedItemId?.startsWith('outfit') ? equippedItemId : null}
+                  equippedAccessory={equippedItemId?.startsWith('acc') ? equippedItemId : null}
+                />
+                {equippedItem ? (
+                  <View style={styles.equippedLabel}>
+                    <Ionicons name="checkmark-circle" size={14} color="#34C759" />
+                    <Text style={styles.equippedLabelText}>Wearing: {equippedItem.name}</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.noEquippedText}>No item equipped</Text>
+                )}
               </View>
-            ) : (
-              <Text style={styles.noEquippedText}>No item equipped</Text>
-            )}
-          </View>
-        </View>
+            </View>
 
-        {/* Owned Items */}
-        {ownedItems.length === 0 ? (
+            {/* Section Title (only if items exist) */}
+            {ownedItems.length > 0 && (
+              <View style={styles.itemsSection}>
+                <Text style={styles.sectionTitle}>Your Items ({ownedItems.length})</Text>
+              </View>
+            )}
+          </>
+        }
+        renderItem={({ item }) => {
+          const isEquipped = equippedItemId === item.id;
+          const itemImage = getShopItemImage(item.id);
+
+          return (
+            <TouchableOpacity
+              style={[styles.itemCard, isEquipped && styles.itemCardEquipped]}
+              onPress={() => handleEquip(item.id)}
+              disabled={isEquipping}
+            >
+              {/* Item Image */}
+              <View style={styles.itemImageContainer}>
+                {itemImage ? (
+                  <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
+                ) : (
+                  <Ionicons name="shirt" size={32} color="#6B5D52" />
+                )}
+              </View>
+
+              {/* Item Info */}
+              <View style={styles.itemInfo}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemDescription}>{item.description}</Text>
+              </View>
+
+              {/* Equip Status */}
+              <View style={styles.equipStatus}>
+                {isEquipped ? (
+                  <View style={styles.equippedBadge}>
+                    <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                  </View>
+                ) : (
+                  <View style={styles.equipButton}>
+                    <Text style={styles.equipButtonText}>Wear</Text>
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+        ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="shirt-outline" size={48} color="#C4B8AE" />
             <Text style={styles.emptyTitle}>No items yet</Text>
@@ -152,64 +208,20 @@ export default function InventoryScreen({ navigation }) {
               <Text style={styles.shopButtonText}>Go to Shop</Text>
             </TouchableOpacity>
           </View>
-        ) : (
-          <View style={styles.itemsSection}>
-            <Text style={styles.sectionTitle}>Your Items ({ownedItems.length})</Text>
-
-            {ownedItems.map((item) => {
-              const isEquipped = equippedItemId === item.id;
-              const itemImage = getShopItemImage(item.id);
-
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.itemCard, isEquipped && styles.itemCardEquipped]}
-                  onPress={() => handleEquip(item.id)}
-                >
-                  {/* Item Image */}
-                  <View style={styles.itemImageContainer}>
-                    {itemImage ? (
-                      <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
-                    ) : (
-                      <Ionicons name="shirt" size={32} color="#6B5D52" />
-                    )}
-                  </View>
-
-                  {/* Item Info */}
-                  <View style={styles.itemInfo}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemDescription}>{item.description}</Text>
-                  </View>
-
-                  {/* Equip Status */}
-                  <View style={styles.equipStatus}>
-                    {isEquipped ? (
-                      <View style={styles.equippedBadge}>
-                        <Ionicons name="checkmark-circle" size={24} color="#34C759" />
-                      </View>
-                    ) : (
-                      <View style={styles.equipButton}>
-                        <Text style={styles.equipButtonText}>Wear</Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-
-            {/* Unequip Button */}
-            {equippedItemId && (
-              <TouchableOpacity
-                style={styles.unequipButton}
-                onPress={() => handleEquip(equippedItemId)}
-              >
-                <Ionicons name="close-circle-outline" size={18} color="#FF3B30" />
-                <Text style={styles.unequipButtonText}>Remove current item</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      </ScrollView>
+        }
+        ListFooterComponent={
+          equippedItemId && ownedItems.length > 0 ? (
+            <TouchableOpacity
+              style={styles.unequipButton}
+              onPress={() => handleEquip(equippedItemId)}
+              disabled={isEquipping}
+            >
+              <Ionicons name="close-circle-outline" size={18} color="#FF3B30" />
+              <Text style={styles.unequipButtonText}>Remove current item</Text>
+            </TouchableOpacity>
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 }

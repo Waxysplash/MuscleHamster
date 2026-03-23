@@ -4,6 +4,7 @@ export { default as DayCell } from './DayCell';
 export { default as TodayWorkoutCard } from './TodayWorkoutCard';
 export { default as AddWorkoutModal } from './AddWorkoutModal';
 export { default as MiniWeekStrip } from './MiniWeekStrip';
+export { default as SaveRoutineModal } from './SaveRoutineModal';
 
 // New horizontal slider components
 export { default as HorizontalDaySlider } from './HorizontalDaySlider';

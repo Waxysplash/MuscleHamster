@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 42) - Ready to build
-**Version:** 1.0.3 (Build 42) - Workout saving fix + Low Guilt Daily 50
-**Last Updated:** Mar 20, 2026 (Session 74)
+**Status:** v1.0.3 (Build 56) - Ready to test
+**Version:** 1.0.3 (Build 56) - Saved Routines + Notification Hardening
+**Last Updated:** Mar 22, 2026 (Session 79)
 
 ---
 
@@ -108,6 +108,9 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
+| v1.0.3 (Build 56) | Mar 21, 2026 | Ready | Individual workout checkboxes + delete account fix |
+| v1.0.3 (Build 48) | Mar 21, 2026 | Superseded | Friends tab: hamster images + nudge buttons |
+| v1.0.3 (Build 47) | Mar 20, 2026 | TestFlight | Workout persistence layer + delete account fix |
 | v1.0.3 (Build 41) | Mar 20, 2026 | TestFlight | Multi-workout selection testing |
 | v1.0.3 (Build 39) | Mar 19, 2026 | Superseded | Bug fixes, removed weekly setup modal |
 | v1.0.3 (Build 38) | Mar 19, 2026 | Superseded | Weekly planner improvements + rest day popup |
@@ -124,6 +127,168 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 79 (Mar 22, 2026)
+**Saved Routines Feature + Notification Hardening + Delete Account Fix**
+
+**New Feature: Saved Routines (like Strong app)**
+- Users can save groups of workouts with a custom name (e.g., "Upper Body A", "Push Day")
+- Tap a saved routine to instantly schedule all its workouts
+- Free tier: 3 routines max (ready for premium upgrade)
+- Delete routines with X button + confirmation
+
+**Files Created:**
+- `src/services/RoutineService.js` - CRUD for saved routines
+- `src/context/RoutineContext.js` - React context for state
+- `src/components/Schedule/SaveRoutineModal.js` - Name your routine modal
+- `src/services/NavigationService.js` - Navigation from outside React components
+
+**Files Updated:**
+- `src/components/Schedule/AddWorkoutModal.js` - "My Routines" section + "Save as Routine" button
+- `App.js` - Added RoutineProvider + notification tap handler
+- `firestore.rules` - Added `savedRoutines` collection rules
+
+**Bug Fix: Delete Account for Google Users**
+- Fixed: Google auth users couldn't delete account (requires-recent-login error)
+- Added `reauthenticateWithGoogle()` function in SocialAuthService
+- Now prompts "Continue with Google" instead of "Sign out and back in"
+- Fixed push token clear error when user document already deleted
+
+**Notification Hardening:**
+1. **Fixed notification tap handler** - Tapping notifications now navigates to Home
+   - Registered handler in App.js NotificationInitializer
+   - Created NavigationService for navigation outside React components
+2. **Enforced quiet hours** - Notifications won't fire during sleep hours (10PM-7AM default)
+   - Daily reminders auto-adjust to first hour after quiet hours end
+   - Streak reminders schedule 1 hour before quiet hours start
+
+**Firestore Rules Deployed:**
+- Added `savedRoutines/{userId}` collection
+- Fixed `weeklySchedules` read rule for queries
+
+---
+
+### Session 78 (Mar 21, 2026)
+**Build 56 - Individual Workout Checkboxes + Delete Account Simplification**
+
+**Bug Fix: Individual Workout Checkboxes**
+- Issue: Checking any workout marked the ENTIRE day as complete, showing "Workout done, 3 workouts completed"
+- Users wanted to check off each workout individually while keeping them visible
+
+**Changes:**
+1. **ScheduleContext.js** - Added `markWorkoutComplete()` function
+   - Toggles `completed` property on individual workouts (not the whole day)
+   - Saves workout completion state to Firebase and AsyncStorage
+
+2. **DayDetailExpander.js** - Updated workout list UI
+   - Each workout has its own checkbox that toggles individually
+   - Completed workouts show green checkmark and strikethrough text
+   - Progress indicator: "X of Y done" when some workouts are completed
+   - "All workouts done!" celebration when all are checked
+   - Workouts stay visible after being checked (not hidden)
+   - Day-level "completed" state now only applies to rest days
+
+3. **WorkoutsScreen.js** - Updated to use `markWorkoutComplete`
+   - Added key dependency on completed workout count for proper re-renders
+
+**Delete Account Dialog Simplification:**
+- Changed "Danger Zone" section header to "Delete Account"
+- Simplified confirmation to single dialog: "Are you sure? This is permanent."
+- Buttons: "Yes" (red) and "No thanks" (app color scheme)
+- Auto sign-out after deletion (already worked, unchanged)
+
+**Files Changed:**
+- `src/context/ScheduleContext.js` - Added `markWorkoutComplete()` function
+- `src/components/Schedule/DayDetailExpander.js` - Individual checkbox states + progress UI
+- `src/screens/Workout/WorkoutsScreen.js` - Use new function + key update
+- `src/screens/Settings/AccountSettingsScreen.js` - Simplified delete dialog
+- `app.config.js` - Bumped to Build 56
+
+**Build:** v1.0.3 (Build 56)
+
+---
+
+### Session 76 (Mar 21, 2026)
+**Build 48 - Friends Tab Enhancement: Hamster Images + Nudge Buttons + Resting Status**
+
+**New Features:**
+1. **Hamster Images on Friend Cards:**
+   - Friend cards now show the actual hamster sprite instead of a paw icon
+   - Hamster image dynamically reflects friend's current state (happy, hungry, rest)
+   - State-colored background tint around hamster avatar
+
+2. **Quick Nudge Button on Friend Cards:**
+   - New notification bell button on each friend card
+   - Tap to send nudge directly from friends list (no need to open profile)
+   - Loading state while nudge is sending
+   - Success/error feedback via alerts
+   - Handles cooldown errors gracefully (once per day limit)
+
+3. **"Resting" Badge for Rest Days:**
+   - When a friend logs a rest day, shows "Resting" badge in **top left corner** of their card
+   - Badge has moon icon + "Resting" text in warm brown (#8B5A2B)
+   - Hamster image shows the rest/sleeping sprite
+   - `isRestingToday` field synced to Firestore `users` collection
+
+4. **HamsterState Syncs to Users Collection:**
+   - When user completes workout/rest day, state syncs to Firestore `users` collection
+   - Friends can see real-time hamster state updates
+   - Syncs: hamsterState, currentStreak, longestStreak, totalWorkoutsCompleted, isRestingToday
+
+**Files Changed:**
+- `src/screens/Social/SocialScreen.js` - Hamster images + nudge button + resting badge
+- `src/services/ActivityService.js` - Added `isRestingToday` sync to `users` collection
+- `src/services/FriendService.js` - Added `isRestingToday` to friend profile fetching
+- `app.config.js` - Bumped to Build 48
+
+**Technical Details:**
+- Added `mapHamsterStateToImageState()` to convert HamsterState enum to image keys
+- Imported `getHamsterImage` from AssetImages for dynamic sprite loading
+- FriendRow now receives `onNudge` callback from parent (uses sendNudge from FriendContext)
+- saveStats() now updates both `userStats/{userId}` and `users/{userId}` for friend visibility
+- Rest day detection: checks if most recent restDayHistory entry is from today
+
+**Build:** v1.0.3 (Build 48)
+
+---
+
+### Session 75 (Mar 20, 2026)
+**Build 47 - Workout Persistence Layer + Delete Account Fix**
+
+**Major Fix: Data Persistence Layer with AsyncStorage**
+- Issue: Workouts weren't persisting - UI was "stateless" after adding workouts
+- Root cause: Local state update was conditional on Firebase success, which fails in local dev
+- **Solution: Implemented optimistic updates + AsyncStorage fallback**
+
+**Changes to ScheduleContext.js:**
+1. **Optimistic Updates**: Now updates React state IMMEDIATELY before Firebase write
+   - UI reflects changes instantly, regardless of Firebase connectivity
+2. **AsyncStorage Persistence**: Added local storage as fallback
+   - `saveScheduleToStorage()` - Saves schedule to AsyncStorage after each change
+   - `loadScheduleFromStorage()` - Loads from local storage on app start
+   - Data persists even when Firebase is unavailable (local dev)
+3. **Hybrid Loading Strategy**:
+   - First loads from AsyncStorage for instant display
+   - Then tries Firebase for latest data
+   - Syncs Firebase data back to AsyncStorage
+4. **Debug Logging**: Added console.log throughout for debugging
+
+**Bug Fix #2: Delete Account Button for Social Auth Users**
+- Issue: Delete account re-authentication only worked for email/password users
+- Fix: Added auth provider detection using `auth.currentUser.providerData`
+- Email/password users: Show password re-authentication modal
+- Social auth users: Show message to sign out and sign back in, then try again
+
+**Files Changed:**
+- `src/context/ScheduleContext.js` - Complete persistence layer rewrite
+- `src/screens/Workout/WorkoutsScreen.js` - Added debug logging
+- `src/components/Schedule/DayDetailExpander.js` - Added debug logging
+- `src/screens/Settings/AccountSettingsScreen.js` - Social auth flow fix
+- `app.config.js` - Bumped to Build 47
+
+**Build:** v1.0.3 (Build 47)
+
+---
 
 ### Session 74 (Mar 20, 2026)
 **Build 42 - Workout Saving Fix + Low Guilt Daily 50**

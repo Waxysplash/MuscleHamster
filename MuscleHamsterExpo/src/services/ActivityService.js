@@ -1,5 +1,5 @@
 // Activity Service - Phase 05-06 (with Firestore + SecureStorage)
-import { doc, getDoc, setDoc, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { saveSecure, getSecure, deleteSecure } from './SecureStorageService';
 import { db } from '../config/firebase';
 import Logger from './LoggerService';
@@ -58,10 +58,14 @@ export const setActivityUserId = (userId) => {
   }
 };
 
-// Helper functions
+// Helper functions for date comparison
+// Note: These use local timezone intentionally - streak/activity tracking
+// should respect the user's local day boundaries, not UTC
+
 const isSameDay = (date1, date2) => {
   const d1 = new Date(date1);
   const d2 = new Date(date2);
+  // toDateString() uses local timezone, which is correct for user-facing dates
   return d1.toDateString() === d2.toDateString();
 };
 
@@ -152,6 +156,27 @@ const saveStats = async (stats) => {
     if (currentUserId) {
       const docRef = doc(db, 'userStats', currentUserId);
       await setDoc(docRef, stats);
+
+      // Sync key fields to users collection so friends can see current state
+      try {
+        // Check if user logged a rest day today
+        const today = new Date().toDateString();
+        const lastRestDay = stats.restDayHistory?.[0]?.completedAt;
+        const isRestingToday = lastRestDay && new Date(lastRestDay).toDateString() === today;
+
+        const userRef = doc(db, 'users', currentUserId);
+        await updateDoc(userRef, {
+          hamsterState: stats.hamsterState || HamsterState.HAPPY,
+          currentStreak: stats.currentStreak || 0,
+          longestStreak: stats.longestStreak || 0,
+          totalWorkoutsCompleted: stats.totalWorkoutsCompleted || 0,
+          lastActivityDate: stats.lastActivityDate || null,
+          isRestingToday: isRestingToday || false,
+        });
+      } catch (syncError) {
+        // Don't fail the main save if sync fails (user doc might not exist yet)
+        Logger.debug('Failed to sync stats to users collection:', syncError.message);
+      }
     } else {
       // Fallback to SecureStorage if not logged in
       await saveSecure(getStorageKey(), stats);
@@ -187,9 +212,9 @@ const calculateHamsterState = (stats) => {
     return HamsterState.HAPPY;
   }
 
-  // Active yesterday (chillin')
+  // Active yesterday - still feeling good
   if (lastActivity && isYesterday(lastActivity)) {
-    return HamsterState.CHILLIN;
+    return HamsterState.HAPPY;
   }
 
   // No recent activity
@@ -448,7 +473,7 @@ export const ActivityService = {
       lastActivityDate: now.toISOString(),
       lastCheckInDate: now.toISOString(),
       previousBrokenStreak: null,
-      hamsterState: HamsterState.CHILLIN,
+      hamsterState: HamsterState.RESTED,  // Rest day = Rested state
       restDayHistory: [checkIn, ...stats.restDayHistory].slice(0, 100),
       transactions: [transaction, ...stats.transactions].slice(0, 500),
     };

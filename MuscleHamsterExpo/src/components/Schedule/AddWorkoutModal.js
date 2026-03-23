@@ -1,4 +1,5 @@
 // AddWorkoutModal - 2-step flow: Pick category → Pick multiple workouts
+// Now with "My Routines" support for saved workout groups
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -14,6 +15,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
+import { useRoutines } from '../../context/RoutineContext';
+import { useAlert } from '../../context/AlertContext';
+import SaveRoutineModal from './SaveRoutineModal';
 
 // Category images (same as Browse tab)
 const CategoryImages = {
@@ -137,8 +141,14 @@ export default function AddWorkoutModal({
   const [selectedWorkouts, setSelectedWorkouts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get custom workouts
+  // Routine state
+  const [showSaveRoutineModal, setShowSaveRoutineModal] = useState(false);
+  const [isSavingRoutine, setIsSavingRoutine] = useState(false);
+
+  // Get custom workouts and routines
   const { customWorkouts } = useCustomWorkouts();
+  const { sortedRoutines, createRoutine, useRoutine, deleteRoutine, freeTierLimit } = useRoutines();
+  const { showAlert } = useAlert();
 
   // Reset state when modal opens, pre-populate with existing workouts
   useEffect(() => {
@@ -270,6 +280,66 @@ export default function AddWorkoutModal({
     }
   };
 
+  // Handle using a saved routine
+  const handleUseRoutine = async (routine) => {
+    console.log('AddWorkoutModal: Using routine', routine.name);
+    const result = await useRoutine(routine.id);
+
+    if (result.success) {
+      // Schedule all workouts from the routine
+      onSelectWorkouts?.(result.workouts);
+    } else {
+      showAlert('Error', 'Could not load routine. Please try again.');
+    }
+  };
+
+  // Handle deleting a routine
+  const handleDeleteRoutine = (routine) => {
+    showAlert(
+      'Delete Routine?',
+      `Are you sure you want to delete "${routine.name}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await deleteRoutine(routine.id);
+            if (!result.success) {
+              showAlert('Error', 'Could not delete routine. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Handle saving selected workouts as a routine
+  const handleSaveAsRoutine = async (name) => {
+    setIsSavingRoutine(true);
+
+    const result = await createRoutine(name, selectedWorkouts);
+
+    setIsSavingRoutine(false);
+    setShowSaveRoutineModal(false);
+
+    if (result.success) {
+      showAlert(
+        'Routine Saved!',
+        `"${name}" has been saved with ${selectedWorkouts.length} workout${selectedWorkouts.length !== 1 ? 's' : ''}. You can use it anytime from the My Routines section.`,
+        [{ text: 'Got it!' }]
+      );
+    } else if (result.error === 'limit-reached') {
+      showAlert(
+        'Routine Limit Reached',
+        result.message,
+        [{ text: 'OK' }]
+      );
+    } else {
+      showAlert('Error', 'Could not save routine. Please try again.');
+    }
+  };
+
   // Check if day has content
   const hasContent = currentDayData && currentDayData.type !== DAY_TYPES.EMPTY;
   const dayLabel = DAY_LABELS[dayName] || dayName;
@@ -368,9 +438,61 @@ export default function AddWorkoutModal({
                 </View>
               )}
 
+              {/* My Routines Section */}
+              {sortedRoutines && sortedRoutines.length > 0 && (
+                <View style={styles.section}>
+                  <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionTitle}>My Routines</Text>
+                    <Text style={styles.routineCount}>
+                      {sortedRoutines.length}/{freeTierLimit}
+                    </Text>
+                  </View>
+                  <Text style={styles.sectionSubtitle}>Tap to use a saved routine</Text>
+
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.routineScroll}
+                  >
+                    {sortedRoutines.map((routine) => (
+                      <View key={routine.id} style={styles.routineCardWrapper}>
+                        <TouchableOpacity
+                          style={styles.routineCard}
+                          onPress={() => handleUseRoutine(routine)}
+                        >
+                          <View style={styles.routineIcon}>
+                            <Ionicons name="bookmark" size={20} color="#8B5A2B" />
+                          </View>
+                          <Text style={styles.routineName} numberOfLines={1}>
+                            {routine.name}
+                          </Text>
+                          <Text style={styles.routineWorkoutCount}>
+                            {routine.workouts.length} workout{routine.workouts.length !== 1 ? 's' : ''}
+                          </Text>
+                          {routine.usageCount > 0 && (
+                            <Text style={styles.routineUsage}>
+                              Used {routine.usageCount}x
+                            </Text>
+                          )}
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.routineDeleteButton}
+                          onPress={() => handleDeleteRoutine(routine)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
+                          <Ionicons name="close-circle" size={20} color="#A0968E" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
               {/* Category Selection */}
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>What do you want to work out?</Text>
+                <Text style={styles.sectionTitle}>
+                  {sortedRoutines?.length > 0 ? 'Or pick by category' : 'What do you want to work out?'}
+                </Text>
                 <Text style={styles.sectionSubtitle}>Select one or more categories</Text>
 
                 <View style={styles.categoryGrid}>
@@ -492,9 +614,21 @@ export default function AddWorkoutModal({
           )}
         </ScrollView>
 
-        {/* Save Button (Step 2 only) */}
+        {/* Save Buttons (Step 2 only) */}
         {step === 2 && selectedWorkouts.length > 0 && (
           <View style={styles.saveButtonContainer}>
+            {/* Save as Routine button */}
+            {selectedWorkouts.length >= 2 && (
+              <TouchableOpacity
+                style={styles.saveAsRoutineButton}
+                onPress={() => setShowSaveRoutineModal(true)}
+              >
+                <Ionicons name="bookmark-outline" size={18} color="#8B5A2B" />
+                <Text style={styles.saveAsRoutineText}>Save as Routine</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Main save button */}
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Ionicons name="checkmark" size={22} color="#fff" />
               <Text style={styles.saveButtonText}>
@@ -504,6 +638,15 @@ export default function AddWorkoutModal({
           </View>
         )}
       </SafeAreaView>
+
+      {/* Save Routine Modal */}
+      <SaveRoutineModal
+        visible={showSaveRoutineModal}
+        workouts={selectedWorkouts}
+        onSave={handleSaveAsRoutine}
+        onClose={() => setShowSaveRoutineModal(false)}
+        isSaving={isSavingRoutine}
+      />
     </Modal>
   );
 }
@@ -549,6 +692,12 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   sectionTitle: {
     fontSize: 17,
     fontWeight: '600',
@@ -559,6 +708,57 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B5D52',
     marginBottom: 16,
+  },
+  routineCount: {
+    fontSize: 13,
+    color: '#6B5D52',
+    fontWeight: '500',
+  },
+  routineScroll: {
+    paddingRight: 16,
+    gap: 10,
+  },
+  routineCardWrapper: {
+    position: 'relative',
+  },
+  routineCard: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    width: 130,
+    borderWidth: 2,
+    borderColor: 'rgba(139, 90, 43, 0.15)',
+  },
+  routineDeleteButton: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+  },
+  routineIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(139, 90, 43, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  routineName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4A3728',
+    marginBottom: 4,
+  },
+  routineWorkoutCount: {
+    fontSize: 12,
+    color: '#6B5D52',
+  },
+  routineUsage: {
+    fontSize: 11,
+    color: '#A0968E',
+    marginTop: 4,
   },
   clearOption: {
     flexDirection: 'row',
@@ -755,6 +955,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF8F0',
     borderTopWidth: 1,
     borderTopColor: '#E5E0DB',
+  },
+  saveAsRoutineButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(139, 90, 43, 0.1)',
+    borderRadius: 10,
+    paddingVertical: 10,
+    marginBottom: 10,
+    gap: 6,
+  },
+  saveAsRoutineText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8B5A2B',
   },
   saveButton: {
     flexDirection: 'row',

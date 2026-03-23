@@ -61,13 +61,30 @@ export default function HorizontalDaySlider({
     onDaySelect?.(dayName, dayData);
   };
 
+  // Force re-render when schedule changes by creating unique keys
+  const getItemKey = (dayName) => {
+    const dayData = schedule?.days?.[dayName];
+    const workoutCount = dayData?.workouts?.length || 0;
+    const dayType = dayData?.type || 'empty';
+    return `${dayName}-${dayType}-${workoutCount}`;
+  };
+
   const renderItem = ({ item: dayName }) => {
     const dayData = schedule?.days?.[dayName] || {};
     const isToday = dayName === todayName;
     const isSelected = dayName === selectedDay;
 
+    // Debug log for each day
+    if (dayData?.type && dayData.type !== 'empty') {
+      console.log(`[HorizontalDaySlider] ${dayName}:`, {
+        type: dayData.type,
+        workouts: dayData.workouts?.length || 0
+      });
+    }
+
     return (
       <SliderDayItem
+        key={getItemKey(dayName)}
         dayName={dayName}
         dayData={dayData}
         isToday={isToday}
@@ -99,6 +116,7 @@ export default function HorizontalDaySlider({
             offset: TOTAL_ITEM_WIDTH * index,
             index,
           })}
+          extraData={JSON.stringify(schedule?.days || {})}
         />
       </View>
     </View>

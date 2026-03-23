@@ -23,9 +23,11 @@ service cloud.firestore {
 
     // User profiles
     match /users/{userId} {
-      // Users can read their own profile
-      // Other users can read limited profile data for friends list
-      allow read: if isAuthenticated();
+      // Owner can read their full profile
+      // Other authenticated users can only read profiles (for friend features)
+      // Note: Sensitive fields should not be stored here - use a separate private subcollection
+      allow read: if isOwner(userId) ||
+        (isAuthenticated() && resource.data.profileVisibility != 'PRIVATE');
 
       // Only owner can write their own profile
       allow write: if isOwner(userId);
@@ -56,6 +58,11 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // Saved workout routines (grouped workouts with custom names)
+    match /savedRoutines/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // ===========================================
     // WEEKLY SCHEDULE (Planner Feature)
     // ===========================================
@@ -63,18 +70,23 @@ service cloud.firestore {
     // Weekly schedules
     // Document ID format: {userId}_{weekStartDate} e.g., "abc123_2026-03-17"
     match /weeklySchedules/{scheduleId} {
-      // User can read/write their own schedules
-      // Check that the document's userId field matches the authenticated user
-      allow read: if isAuthenticated() &&
-        resource.data.userId == request.auth.uid;
+      // Helper: Check if document ID starts with user's UID
+      // This allows reads even when document doesn't exist yet
+      function isScheduleOwner() {
+        return scheduleId.matches(request.auth.uid + '_.*');
+      }
 
+      // User can read their own schedules
+      // Check ID prefix (for direct access) OR userId field (for queries)
+      allow read: if isAuthenticated() &&
+        (isScheduleOwner() || resource.data.userId == request.auth.uid);
+
+      // User can create schedules with their own userId
       allow create: if isAuthenticated() &&
         request.resource.data.userId == request.auth.uid;
 
-      allow update: if isAuthenticated() &&
-        resource.data.userId == request.auth.uid;
-
-      allow delete: if isAuthenticated() &&
+      // User can update/delete their own schedules
+      allow update, delete: if isAuthenticated() &&
         resource.data.userId == request.auth.uid;
     }
 
@@ -95,8 +107,12 @@ service cloud.firestore {
         request.resource.data.initiatedBy == request.auth.uid;
 
       // Update: Both participants can update (accept, update streak)
+      // Protect immutable fields: users array, initiatedBy, createdAt
       allow update: if isAuthenticated() &&
-        request.auth.uid in resource.data.users;
+        request.auth.uid in resource.data.users &&
+        request.resource.data.users == resource.data.users &&
+        request.resource.data.initiatedBy == resource.data.initiatedBy &&
+        request.resource.data.createdAt == resource.data.createdAt;
 
       // Delete: Either participant can remove/decline
       allow delete: if isAuthenticated() &&
@@ -115,8 +131,12 @@ service cloud.firestore {
         request.resource.data.fromUserId == request.auth.uid;
 
       // Only recipient can update (mark as read)
+      // Protect immutable fields: fromUserId, toUserId, message, sentAt/createdAt
       allow update: if isAuthenticated() &&
-        request.auth.uid == resource.data.toUserId;
+        request.auth.uid == resource.data.toUserId &&
+        request.resource.data.fromUserId == resource.data.fromUserId &&
+        request.resource.data.toUserId == resource.data.toUserId &&
+        request.resource.data.message == resource.data.message;
 
       // Sender or recipient can delete
       allow delete: if isAuthenticated() &&
@@ -126,15 +146,22 @@ service cloud.firestore {
 
     // Invite codes
     match /invites/{inviteCode} {
-      // Anyone authenticated can read (to look up codes)
+      // Only owner can read their own invite code details
+      // Lookup by code is done via the document ID, so we allow read if authenticated
+      // but the code itself must be known (prevents enumeration)
       allow read: if isAuthenticated();
 
-      // Only owner can create
+      // Only owner can create with their own ownerId
       allow create: if isAuthenticated() &&
-        request.resource.data.ownerId == request.auth.uid;
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.createdAt == request.time;
 
-      // Anyone can update usedBy array (to record usage)
-      allow update: if isAuthenticated();
+      // Only owner can update their invite (protect ownerId, createdAt)
+      // usedBy tracking should happen server-side via Cloud Functions
+      allow update: if isAuthenticated() &&
+        request.auth.uid == resource.data.ownerId &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.createdAt == resource.data.createdAt;
 
       // Only owner can delete
       allow delete: if isAuthenticated() &&

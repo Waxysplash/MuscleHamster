@@ -39,6 +39,16 @@ export const DAY_LABELS = {
   sunday: 'Sunday',
 };
 
+export const DAY_LABELS_SHORT = {
+  monday: 'Mon',
+  tuesday: 'Tue',
+  wednesday: 'Wed',
+  thursday: 'Thu',
+  friday: 'Fri',
+  saturday: 'Sat',
+  sunday: 'Sun',
+};
+
 export const DAY_TYPES = {
   EMPTY: 'empty',
   WORKOUT: 'workout',
@@ -414,6 +424,7 @@ export const getOrCreateWeekSchedule = async (userId, weekStart = null) => {
 
 /**
  * Update a specific day in the week schedule
+ * Uses setDoc with merge to create-or-update atomically
  * @param {string} userId
  * @param {string} weekStart - Monday date (YYYY-MM-DD)
  * @param {string} dayName - Day to update (e.g., 'monday')
@@ -439,23 +450,17 @@ export const updateDaySchedule = async (userId, weekStart, dayName, dayData) => 
   try {
     const docId = getWeekDocId(userId, weekStart);
     const scheduleRef = doc(db, 'weeklySchedules', docId);
-    const scheduleDoc = await getDoc(scheduleRef);
 
-    if (!scheduleDoc.exists()) {
-      // Create the schedule first, then get fresh reference
-      Logger.info(`ScheduleService: Creating schedule for week ${weekStart} before update`);
-      const created = await createWeekSchedule(userId, weekStart);
-      if (!created) {
-        Logger.error('ScheduleService: Failed to create week schedule');
-        return false;
-      }
-    }
-
-    // Now update the specific day
-    await updateDoc(scheduleRef, {
-      [`days.${dayName}`]: dayData,
+    // Use setDoc with merge to create-or-update atomically
+    // This avoids race conditions with separate create + update calls
+    await setDoc(scheduleRef, {
+      userId,
+      weekStart,
+      days: {
+        [dayName]: dayData,
+      },
       updatedAt: serverTimestamp(),
-    });
+    }, { merge: true });
 
     Logger.info(`ScheduleService: Updated ${dayName} for week ${weekStart}`);
     return true;
@@ -757,6 +762,7 @@ export const ScheduleService = {
   // Constants
   DAYS_OF_WEEK,
   DAY_LABELS,
+  DAY_LABELS_SHORT,
   DAY_TYPES,
   WORKOUT_TYPES,
 };

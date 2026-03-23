@@ -316,17 +316,18 @@ export const FriendProvider = ({ children }) => {
     }
   };
 
-  // Computed values
-  const pendingRequestCount = pendingRequests.length;
-  const friendCount = friends.length;
-  const activeStreaksCount = friends.filter(f =>
+  // Computed values (memoized)
+  const pendingRequestCount = useMemo(() => pendingRequests.length, [pendingRequests]);
+  const friendCount = useMemo(() => friends.length, [friends]);
+  const activeStreaksCount = useMemo(() => friends.filter(f =>
     f.streak && ['active', 'waiting'].includes(f.streak.status)
-  ).length;
-  const atRiskStreaksCount = friends.filter(f =>
+  ).length, [friends]);
+  const atRiskStreaksCount = useMemo(() => friends.filter(f =>
     f.streak?.status === 'atRisk'
-  ).length;
+  ).length, [friends]);
 
-  const value = {
+  // Memoized context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     // State
     friends,
     pendingRequests,
@@ -367,7 +368,24 @@ export const FriendProvider = ({ children }) => {
     getLeaderboard,
     restoreStreak,
     recordCheckIn,
-  };
+  }), [
+    friends,
+    pendingRequests,
+    sentRequests,
+    blockedUsers,
+    receivedNudges,
+    inviteCode,
+    isLoading,
+    error,
+    pendingRequestCount,
+    friendCount,
+    activeStreaksCount,
+    atRiskStreaksCount,
+    getInviteCode,
+    lookupInviteCode,
+    useInviteCode,
+    loadFriendData,
+  ]);
 
   return (
     <FriendContext.Provider value={value}>

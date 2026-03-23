@@ -64,7 +64,15 @@ export default function OnboardingScreen({ navigation }) {
   useEffect(() => {
     if (onboardingProgress) {
       setCurrentStep(onboardingProgress.step || 0);
-      setProfile(onboardingProgress.profile || createEmptyProfile());
+      // Ensure restored profile has all required fields with proper defaults
+      const restoredProfile = onboardingProgress.profile || {};
+      setProfile({
+        ...createEmptyProfile(),
+        ...restoredProfile,
+        // Ensure arrays are always arrays (not undefined/null)
+        fitnessGoals: Array.isArray(restoredProfile.fitnessGoals) ? restoredProfile.fitnessGoals : [],
+        workoutDays: Array.isArray(restoredProfile.workoutDays) ? restoredProfile.workoutDays : [],
+      });
       setAgeConfirmed(onboardingProgress.ageConfirmed || false);
     }
   }, []);
@@ -88,11 +96,11 @@ export default function OnboardingScreen({ navigation }) {
       case 'fitnessLevel':
         return profile.fitnessLevel !== null;
       case 'goals':
-        return profile.fitnessGoals.length > 0;
+        return (profile.fitnessGoals || []).length > 0;
       case 'workoutDays':
-        return profile.workoutDays.length > 0;
+        return (profile.workoutDays || []).length > 0;
       case 'hamsterName':
-        return validateHamsterName(profile.hamsterName).valid;
+        return validateHamsterName(profile.hamsterName || '').valid;
       default:
         return false;
     }
@@ -290,12 +298,17 @@ function FitnessLevelStep({ profile, updateProfile }) {
 }
 
 function GoalsStep({ profile, updateProfile }) {
+  // Ensure fitnessGoals is always an array
+  const currentGoals = profile?.fitnessGoals || [];
+
   const toggleGoal = (goal) => {
-    const goals = profile.fitnessGoals.includes(goal)
-      ? profile.fitnessGoals.filter((g) => g !== goal)
-      : [...profile.fitnessGoals, goal];
+    const goals = currentGoals.includes(goal)
+      ? currentGoals.filter((g) => g !== goal)
+      : [...currentGoals, goal];
     updateProfile('fitnessGoals', goals);
   };
+
+  const isSelected = (goal) => currentGoals.includes(goal);
 
   return (
     <View style={styles.stepContent}>
@@ -305,20 +318,20 @@ function GoalsStep({ profile, updateProfile }) {
             key={goal}
             style={[
               styles.goalCard,
-              profile.fitnessGoals.includes(goal) && styles.goalCardSelected,
+              isSelected(goal) && styles.goalCardSelected,
             ]}
             onPress={() => toggleGoal(goal)}
-            accessibilityState={{ selected: profile.fitnessGoals.includes(goal) }}
+            accessibilityState={{ selected: isSelected(goal) }}
           >
             <Ionicons
               name={FitnessGoalInfo[goal].icon}
               size={32}
-              color={profile.fitnessGoals.includes(goal) ? '#FF9500' : '#8B5A2B'}
+              color={isSelected(goal) ? '#FF9500' : '#8B5A2B'}
             />
             <Text
               style={[
                 styles.goalText,
-                profile.fitnessGoals.includes(goal) && styles.goalTextSelected,
+                isSelected(goal) && styles.goalTextSelected,
               ]}
             >
               {FitnessGoalInfo[goal].displayName}
@@ -334,15 +347,18 @@ function GoalsStep({ profile, updateProfile }) {
 }
 
 function WorkoutDaysStep({ profile, updateProfile }) {
+  // Ensure workoutDays is always an array
+  const currentDays = profile?.workoutDays || [];
+
   const toggleDay = (day) => {
-    const days = profile.workoutDays.includes(day)
-      ? profile.workoutDays.filter((d) => d !== day)
-      : [...profile.workoutDays, day];
+    const days = currentDays.includes(day)
+      ? currentDays.filter((d) => d !== day)
+      : [...currentDays, day];
     updateProfile('workoutDays', days);
   };
 
   const getMessage = () => {
-    const count = profile.workoutDays.length;
+    const count = currentDays.length;
     if (count === 0) return 'Select at least one day';
     if (count <= 2) return 'Starting small is smart!';
     if (count <= 4) return 'A balanced approach!';
@@ -354,7 +370,7 @@ function WorkoutDaysStep({ profile, updateProfile }) {
     <View style={styles.stepContent}>
       <View style={styles.daysContainer}>
         {WEEK_DAYS_ORDERED.map((day) => {
-          const isSelected = profile.workoutDays.includes(day);
+          const isSelected = currentDays.includes(day);
           return (
             <TouchableOpacity
               key={day}
@@ -379,7 +395,7 @@ function WorkoutDaysStep({ profile, updateProfile }) {
       </View>
       <Text style={styles.daysMessage}>{getMessage()}</Text>
       <Text style={styles.daysCount}>
-        {profile.workoutDays.length} day{profile.workoutDays.length !== 1 ? 's' : ''} selected
+        {currentDays.length} day{currentDays.length !== 1 ? 's' : ''} selected
       </Text>
     </View>
   );

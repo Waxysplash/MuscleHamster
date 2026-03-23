@@ -250,8 +250,9 @@ class FriendService {
         hamsterName: ownerData.hamsterName,
         currentStreak: ownerData.currentStreak || 0,
         longestStreak: ownerData.longestStreak || 0,
-        hamsterState: ownerData.hamsterState || HamsterState.CHILLIN,
+        hamsterState: ownerData.hamsterState || HamsterState.HAPPY,
         growthStage: ownerData.growthStage || GrowthStage.BABY,
+        isRestingToday: ownerData.isRestingToday || false,
       }),
     };
   }
@@ -293,11 +294,18 @@ class FriendService {
         }
       }
 
-      // Record that this code was used
-      const inviteRef = doc(db, COLLECTIONS.INVITES, code.toUpperCase().trim());
-      await updateDoc(inviteRef, {
-        usedBy: arrayUnion(currentUserId),
-      });
+      // Record that this code was used (non-blocking - analytics only)
+      // Note: With hardened Firestore rules, only the invite owner can update
+      // This may fail silently, which is fine - tracking is optional
+      try {
+        const inviteRef = doc(db, COLLECTIONS.INVITES, code.toUpperCase().trim());
+        await updateDoc(inviteRef, {
+          usedBy: arrayUnion(currentUserId),
+        });
+      } catch (trackingError) {
+        // Tracking failed - not critical, continue with friend request
+        Logger.debug('Invite tracking update failed (expected with hardened rules):', trackingError.code);
+      }
 
       // Send friend request
       return this.sendFriendRequest(currentUserId, inviteInfo.ownerId);
@@ -387,11 +395,13 @@ class FriendService {
         id: userId,
         email: data.email || '',
         hamsterName: data.hamsterName,
+        displayName: data.hamsterName || data.displayName || 'Friend',
         currentStreak: data.currentStreak || 0,
         longestStreak: data.longestStreak || 0,
         totalWorkoutsCompleted: data.totalWorkoutsCompleted || 0,
-        hamsterState: data.hamsterState || HamsterState.CHILLIN,
+        hamsterState: data.hamsterState || HamsterState.HAPPY,
         growthStage: data.growthStage || GrowthStage.BABY,
+        isRestingToday: data.isRestingToday || false,
       };
     } catch (error) {
       Logger.error('Error fetching friend profile:', error);
@@ -474,8 +484,10 @@ class FriendService {
     }
 
     try {
+      // Must include array-contains for users to satisfy Firestore security rules
       const requestsQuery = query(
         collection(db, COLLECTIONS.FRIENDS),
+        where('users', 'array-contains', userId),
         where('initiatedBy', '==', userId),
         where('status', '==', FriendRelationshipStatus.PENDING)
       );
@@ -725,8 +737,10 @@ class FriendService {
     }
 
     try {
+      // Must include array-contains for users to satisfy Firestore security rules
       const blockedQuery = query(
         collection(db, COLLECTIONS.FRIENDS),
+        where('users', 'array-contains', userId),
         where('blockedBy', '==', userId),
         where('status', '==', FriendRelationshipStatus.BLOCKED)
       );

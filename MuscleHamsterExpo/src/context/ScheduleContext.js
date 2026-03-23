@@ -10,6 +10,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from './AuthContext';
 import { useUserProfile } from './UserProfileContext';
 import {
@@ -21,6 +22,74 @@ import {
   createRestDay,
 } from '../services/ScheduleService';
 import Logger from '../services/LoggerService';
+
+// AsyncStorage keys
+const SCHEDULE_STORAGE_KEY = '@muscle_hamster_schedule';
+const PREFERENCES_STORAGE_KEY = '@muscle_hamster_preferences';
+
+// ============================================
+// ASYNC STORAGE HELPERS
+// ============================================
+
+/**
+ * Save schedule to AsyncStorage for local persistence
+ */
+const saveScheduleToStorage = async (userId, weekStart, schedule) => {
+  try {
+    const key = `${SCHEDULE_STORAGE_KEY}_${userId}_${weekStart}`;
+    await AsyncStorage.setItem(key, JSON.stringify(schedule));
+    console.log('[AsyncStorage] Schedule saved locally');
+  } catch (err) {
+    console.warn('[AsyncStorage] Failed to save schedule:', err);
+  }
+};
+
+/**
+ * Load schedule from AsyncStorage
+ */
+const loadScheduleFromStorage = async (userId, weekStart) => {
+  try {
+    const key = `${SCHEDULE_STORAGE_KEY}_${userId}_${weekStart}`;
+    const data = await AsyncStorage.getItem(key);
+    if (data) {
+      console.log('[AsyncStorage] Schedule loaded from local storage');
+      return JSON.parse(data);
+    }
+    return null;
+  } catch (err) {
+    console.warn('[AsyncStorage] Failed to load schedule:', err);
+    return null;
+  }
+};
+
+/**
+ * Save preferences to AsyncStorage
+ */
+const savePreferencesToStorage = async (userId, preferences) => {
+  try {
+    const key = `${PREFERENCES_STORAGE_KEY}_${userId}`;
+    await AsyncStorage.setItem(key, JSON.stringify(preferences));
+  } catch (err) {
+    console.warn('[AsyncStorage] Failed to save preferences:', err);
+  }
+};
+
+/**
+ * Load preferences from AsyncStorage
+ */
+const loadPreferencesFromStorage = async (userId) => {
+  try {
+    const key = `${PREFERENCES_STORAGE_KEY}_${userId}`;
+    const data = await AsyncStorage.getItem(key);
+    if (data) {
+      return JSON.parse(data);
+    }
+    return null;
+  } catch (err) {
+    console.warn('[AsyncStorage] Failed to load preferences:', err);
+    return null;
+  }
+};
 
 // ============================================
 // CONTEXT CREATION
@@ -35,7 +104,7 @@ const ScheduleContext = createContext(null);
 export function ScheduleProvider({ children }) {
   const { currentUser } = useAuth();
   const { profile } = useUserProfile();
-  const userId = currentUser?.uid;
+  const userId = currentUser?.id;
 
   // ----------------------------------------
   // STATE
@@ -166,8 +235,36 @@ export function ScheduleProvider({ children }) {
 
     try {
       setIsLoadingSchedule(true);
-      const schedule = await ScheduleService.getWeekSchedule(userId, week);
-      setCurrentWeekSchedule(schedule);
+
+      // First, try to load from AsyncStorage for immediate display
+      const localSchedule = await loadScheduleFromStorage(userId, week);
+      if (localSchedule) {
+        console.log('[ScheduleContext] Loaded schedule from AsyncStorage');
+        setCurrentWeekSchedule(localSchedule);
+        setCurrentWeekStart(week);
+      }
+
+      // Then try Firebase for the latest data
+      try {
+        const schedule = await ScheduleService.getWeekSchedule(userId, week);
+        if (schedule) {
+          console.log('[ScheduleContext] Loaded schedule from Firebase');
+          setCurrentWeekSchedule(schedule);
+          // Sync back to AsyncStorage
+          saveScheduleToStorage(userId, week, schedule);
+        } else if (!localSchedule) {
+          // No data from Firebase or local storage
+          console.log('[ScheduleContext] No schedule found, using empty state');
+          setCurrentWeekSchedule(null);
+        }
+      } catch (firebaseErr) {
+        console.warn('[ScheduleContext] Firebase load failed, using local data:', firebaseErr);
+        // If Firebase fails but we have local data, that's okay
+        if (!localSchedule) {
+          Logger.error('ScheduleContext: Error loading week schedule', firebaseErr);
+        }
+      }
+
       setCurrentWeekStart(week);
       setError(null);
     } catch (err) {
@@ -277,76 +374,121 @@ export function ScheduleProvider({ children }) {
   const updateDay = useCallback(async (dayName, dayData) => {
     if (!userId) {
       Logger.warn('ScheduleContext: updateDay called without userId');
+      console.log('[ScheduleContext] updateDay FAILED: no userId');
       return false;
     }
+
+    // Get the week start, defaulting to current week if not set
+    const weekStart = currentWeekStart || ScheduleService.getCurrentWeekStart();
+
+    if (!weekStart) {
+      Logger.warn('ScheduleContext: updateDay could not determine weekStart');
+      console.log('[ScheduleContext] updateDay FAILED: no weekStart');
+      return false;
+    }
+
+    console.log(`[ScheduleContext] updateDay START for ${dayName}`, {
+      dayDataType: dayData?.type,
+      workoutCount: dayData?.workouts?.length || 0,
+      workoutNames: dayData?.workouts?.map(w => w.workoutName) || [],
+      weekStart,
+      userId: userId.substring(0, 8) + '...',
+    });
 
     try {
       setIsSaving(true);
 
-      // Ensure week schedule exists - create if needed
-      let scheduleExists = currentWeekSchedule !== null;
-      if (!scheduleExists) {
-        Logger.info('ScheduleContext: Creating new week schedule before update');
-        const created = await ScheduleService.createWeekSchedule(userId, currentWeekStart);
-        if (!created) {
-          Logger.error('ScheduleContext: Failed to create week schedule');
-          return false;
-        }
-        scheduleExists = true;
-      }
-
-      const success = await ScheduleService.updateDaySchedule(
+      // STEP 1: Save to Firebase FIRST (source of truth)
+      const firebaseSuccess = await ScheduleService.updateDaySchedule(
         userId,
-        currentWeekStart,
+        weekStart,
         dayName,
         dayData
       );
 
-      if (success) {
-        // Update local state - handle both new and existing schedules
-        setCurrentWeekSchedule((prev) => {
-          // If prev is null, create a fresh structure
-          const base = prev || {
-            userId,
-            weekStart: currentWeekStart,
-            days: {},
-          };
+      console.log(`[ScheduleContext] Firebase save result for ${dayName}:`, firebaseSuccess);
 
-          return {
-            ...base,
-            days: {
-              ...base.days,
-              [dayName]: dayData,
-            },
-          };
-        });
-        Logger.info(`ScheduleContext: Successfully updated ${dayName}`);
-        return true;
+      if (!firebaseSuccess) {
+        console.warn(`[ScheduleContext] Firebase save FAILED for ${dayName}`);
+        Logger.warn('ScheduleContext: Firebase updateDaySchedule returned false');
+        return false;
       }
 
-      Logger.error('ScheduleContext: updateDaySchedule returned false');
-      return false;
+      // STEP 2: Update local state to match what we saved
+      setCurrentWeekSchedule((prev) => {
+        const base = prev || {
+          userId,
+          weekStart,
+          days: {},
+        };
+
+        const newSchedule = {
+          ...base,
+          weekStart,
+          days: {
+            ...base.days,
+            [dayName]: dayData,
+          },
+        };
+
+        console.log(`[ScheduleContext] Local state updated for ${dayName}`, {
+          prevWasNull: !prev,
+          newDayType: newSchedule.days[dayName]?.type,
+          newWorkoutCount: newSchedule.days[dayName]?.workouts?.length || 0,
+        });
+
+        // Also save to AsyncStorage
+        saveScheduleToStorage(userId, weekStart, newSchedule);
+
+        return newSchedule;
+      });
+
+      // Update currentWeekStart if it wasn't set
+      if (!currentWeekStart) {
+        setCurrentWeekStart(weekStart);
+      }
+
+      console.log(`[ScheduleContext] updateDay COMPLETE for ${dayName}`);
+      Logger.info(`ScheduleContext: Successfully saved ${dayName}`);
+      return true;
     } catch (err) {
-      Logger.error('ScheduleContext: Error updating day', err);
-      setError('Failed to update schedule');
+      console.error(`[ScheduleContext] updateDay ERROR for ${dayName}:`, err);
+      Logger.error('ScheduleContext: Error in updateDay', err);
       return false;
     } finally {
       setIsSaving(false);
     }
-  }, [userId, currentWeekStart, currentWeekSchedule]);
+  }, [userId, currentWeekStart]);
 
   // Schedule workout(s) for a day
   // Supports both legacy (single workout) and new (array of workouts) formats
   const scheduleWorkout = useCallback(async (dayName, workoutsOrId, workoutType, workoutName) => {
+    console.log('[ScheduleContext] scheduleWorkout called:', { dayName, isArray: Array.isArray(workoutsOrId) });
+
     // Check if first argument is an array (new format)
+    let dayData;
     if (Array.isArray(workoutsOrId)) {
-      const dayData = createWorkoutDay(workoutsOrId);
-      return updateDay(dayName, dayData);
+      dayData = createWorkoutDay(workoutsOrId);
+    } else {
+      // Legacy single workout format
+      dayData = createWorkoutDay(workoutsOrId, workoutType, workoutName);
     }
-    // Legacy single workout format
-    const dayData = createWorkoutDay(workoutsOrId, workoutType, workoutName);
-    return updateDay(dayName, dayData);
-  }, [updateDay]);
+
+    console.log('[ScheduleContext] Created dayData:', {
+      type: dayData.type,
+      workoutCount: dayData.workouts?.length
+    });
+
+    const success = await updateDay(dayName, dayData);
+
+    // CRITICAL: Reload schedule after save to ensure UI sync (like Shop pattern)
+    if (success) {
+      console.log('[ScheduleContext] Save successful, reloading schedule...');
+      await loadCurrentWeek();
+    }
+
+    return success;
+  }, [updateDay, loadCurrentWeek]);
 
   // Set a day as rest day
   const setRestDay = useCallback(async (dayName) => {
@@ -403,6 +545,69 @@ export function ScheduleProvider({ children }) {
     const todayName = ScheduleService.getTodayName();
     return markDayCompleted(todayName);
   }, [markDayCompleted]);
+
+  // Mark a specific workout as complete (or toggle it)
+  const markWorkoutComplete = useCallback(async (dayName, workoutId) => {
+    if (!userId || !currentWeekSchedule?.days?.[dayName]) return false;
+
+    try {
+      setIsSaving(true);
+
+      const dayData = currentWeekSchedule.days[dayName];
+      const workouts = dayData.workouts || [];
+
+      // Toggle the completed state for this specific workout
+      const updatedWorkouts = workouts.map(w => {
+        if (w.workoutId === workoutId) {
+          return { ...w, completed: !w.completed };
+        }
+        return w;
+      });
+
+      const updatedDayData = {
+        ...dayData,
+        workouts: updatedWorkouts,
+      };
+
+      // Save to Firebase
+      const firebaseSuccess = await ScheduleService.updateDaySchedule(
+        userId,
+        currentWeekStart,
+        dayName,
+        updatedDayData
+      );
+
+      if (firebaseSuccess) {
+        // Update local state
+        setCurrentWeekSchedule((prev) => ({
+          ...prev,
+          days: {
+            ...prev?.days,
+            [dayName]: updatedDayData,
+          },
+        }));
+
+        // Save to AsyncStorage
+        const newSchedule = {
+          ...currentWeekSchedule,
+          days: {
+            ...currentWeekSchedule.days,
+            [dayName]: updatedDayData,
+          },
+        };
+        saveScheduleToStorage(userId, currentWeekStart, newSchedule);
+
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      Logger.error('ScheduleContext: Error marking workout completed', err);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [userId, currentWeekStart, currentWeekSchedule]);
 
   // ----------------------------------------
   // COPY/REPEAT ACTIONS
@@ -566,6 +771,7 @@ export function ScheduleProvider({ children }) {
     clearDay,
     markDayCompleted,
     markTodayCompleted,
+    markWorkoutComplete,
 
     // Copy/repeat
     copyLastWeek,
@@ -606,6 +812,7 @@ export function ScheduleProvider({ children }) {
     clearDay,
     markDayCompleted,
     markTodayCompleted,
+    markWorkoutComplete,
     copyLastWeek,
     applyPreferencesToCurrentWeek,
   ]);

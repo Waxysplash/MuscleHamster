@@ -236,6 +236,7 @@ export const createBlockedUser = ({
 export const HamsterState = {
   HUNGRY: 'hungry',
   CHILLIN: 'chillin',
+  RESTED: 'rested',
   HAPPY: 'happy',
   EXCITED: 'excited',
   PROUD: 'proud',
@@ -244,7 +245,9 @@ export const HamsterState = {
 export const getHamsterStateColor = (state) => {
   switch (state) {
     case HamsterState.HUNGRY: return '#FF9500';
-    case HamsterState.CHILLIN: return '#007AFF';
+    case HamsterState.CHILLIN:
+    case HamsterState.RESTED:
+    case 'rested': return '#8B5A2B';  // Warm brown for rested
     case HamsterState.HAPPY: return '#34C759';
     case HamsterState.EXCITED: return '#FFCC00';
     case HamsterState.PROUD: return '#AF52DE';

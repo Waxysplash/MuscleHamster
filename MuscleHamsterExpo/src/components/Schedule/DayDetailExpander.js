@@ -23,14 +23,16 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
  *
  * @param {string} dayName - Selected day name
  * @param {object} dayData - { type, workouts[], completed }
- * @param {function} onStartWorkout - Callback to start a workout
+ * @param {function} onViewProgress - Callback to view workout progress log
+ * @param {function} onMarkWorkoutComplete - Callback to mark a workout as complete
  * @param {function} onAddWorkout - Callback to open workout picker
  * @param {function} onLogRestDay - Callback to log rest day
  */
 export default function DayDetailExpander({
   dayName,
   dayData,
-  onStartWorkout,
+  onViewProgress,
+  onMarkWorkoutComplete,
   onAddWorkout,
   onLogRestDay,
 }) {
@@ -38,7 +40,6 @@ export default function DayDetailExpander({
 
   const dayLabel = DAY_LABELS[dayName] || dayName;
   const dayType = dayData?.type || DAY_TYPES.EMPTY;
-  const isCompleted = dayData?.completed === true;
 
   // Get effective workouts
   const workouts = dayData?.workouts || [];
@@ -48,13 +49,29 @@ export default function DayDetailExpander({
     : workouts;
   const workoutCount = effectiveWorkouts.length;
 
+  // Count how many workouts are completed
+  const completedWorkoutCount = effectiveWorkouts.filter(w => w.completed).length;
+
+  // Only show day-level completed state for rest days that have been logged
+  const isRestDayCompleted = dayData?.completed === true && dayType === DAY_TYPES.REST;
+
+  // Debug logging
+  console.log('[DayDetailExpander] Rendering:', {
+    dayName,
+    dayType,
+    workoutCount,
+    completedWorkoutCount,
+    isRestDayCompleted,
+    rawDayData: dayData,
+  });
+
   // Animate layout changes
   React.useEffect(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [dayName, dayType, workoutCount]);
 
-  // Completed state
-  if (isCompleted) {
+  // Rest day completed state (only for rest days)
+  if (isRestDayCompleted) {
     return (
       <View style={styles.container}>
         <View style={styles.completedCard}>
@@ -62,21 +79,15 @@ export default function DayDetailExpander({
             <Ionicons name="checkmark-circle" size={32} color="#34C759" />
           </View>
           <View style={styles.completedInfo}>
-            <Text style={styles.completedTitle}>
-              {dayType === DAY_TYPES.REST ? 'Rest day logged!' : 'Workout done!'}
-            </Text>
-            <Text style={styles.completedSubtitle}>
-              {workoutCount > 1
-                ? `${workoutCount} workouts completed`
-                : (effectiveWorkouts[0]?.workoutName || 'Great job!')}
-            </Text>
+            <Text style={styles.completedTitle}>Rest day logged!</Text>
+            <Text style={styles.completedSubtitle}>Great job taking care of yourself!</Text>
           </View>
         </View>
       </View>
     );
   }
 
-  // Rest day scheduled
+  // Rest day scheduled (not yet logged)
   if (dayType === DAY_TYPES.REST) {
     return (
       <View style={styles.container}>
@@ -140,46 +151,57 @@ export default function DayDetailExpander({
           </TouchableOpacity>
         </View>
 
-        {/* Multiple workouts */}
-        {workoutCount > 1 ? (
-          <View style={styles.workoutList}>
-            {effectiveWorkouts.map((w, index) => (
-              <TouchableOpacity
-                key={w.workoutId || index}
-                style={styles.workoutListItem}
-                onPress={() => onStartWorkout?.(w.workoutId)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.workoutListIcon}>
-                  <Ionicons name="barbell" size={18} color="#8B5A2B" />
-                </View>
-                <Text style={styles.workoutListName} numberOfLines={1}>
-                  {w.workoutName}
-                </Text>
-                <Ionicons name="play-circle" size={26} color="#FF9500" />
-              </TouchableOpacity>
-            ))}
+        {/* Workout list */}
+        <View style={styles.workoutList}>
+          {effectiveWorkouts.map((w, index) => {
+            const isWorkoutCompleted = w.completed === true;
+            return (
+              <View key={w.workoutId || index} style={styles.workoutListItem}>
+                {/* Checkbox to mark complete */}
+                <TouchableOpacity
+                  style={styles.checkboxButton}
+                  onPress={() => onMarkWorkoutComplete?.(w.workoutId)}
+                  activeOpacity={0.7}
+                  accessibilityLabel={isWorkoutCompleted ? `Unmark ${w.workoutName}` : `Mark ${w.workoutName} as complete`}
+                >
+                  <View style={[styles.checkbox, isWorkoutCompleted && styles.checkboxChecked]}>
+                    {isWorkoutCompleted && (
+                      <Ionicons name="checkmark" size={18} color="#fff" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+
+                {/* Workout name - tappable for progress log */}
+                <TouchableOpacity
+                  style={styles.workoutNameButton}
+                  onPress={() => onViewProgress?.(w.workoutId)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.workoutListName, isWorkoutCompleted && styles.workoutListNameCompleted]} numberOfLines={1}>
+                    {w.workoutName}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={18} color="#8B5A2B" />
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Show completion progress if some workouts are done */}
+        {completedWorkoutCount > 0 && completedWorkoutCount < workoutCount && (
+          <View style={styles.progressRow}>
+            <Ionicons name="fitness-outline" size={16} color="#6B5D52" />
+            <Text style={styles.progressText}>
+              {completedWorkoutCount} of {workoutCount} done
+            </Text>
           </View>
-        ) : (
-          // Single workout
-          <View style={styles.singleWorkoutCard}>
-            <View style={styles.singleWorkoutHeader}>
-              <View style={styles.singleWorkoutIcon}>
-                <Ionicons name="barbell" size={24} color="#fff" />
-              </View>
-              <View style={styles.singleWorkoutInfo}>
-                <Text style={styles.singleWorkoutLabel}>TODAY'S PLAN</Text>
-                <Text style={styles.singleWorkoutTitle}>{effectiveWorkouts[0]?.workoutName}</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.startButton}
-              onPress={() => onStartWorkout?.(effectiveWorkouts[0]?.workoutId)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="play" size={20} color="#fff" />
-              <Text style={styles.startButtonText}>Start Workout</Text>
-            </TouchableOpacity>
+        )}
+
+        {/* Show celebration when all workouts are done */}
+        {completedWorkoutCount === workoutCount && workoutCount > 0 && (
+          <View style={styles.allDoneRow}>
+            <Ionicons name="checkmark-circle" size={18} color="#34C759" />
+            <Text style={styles.allDoneText}>All workouts done!</Text>
           </View>
         )}
       </View>
@@ -329,7 +351,7 @@ const styles = StyleSheet.create({
     color: '#8B5A2B',
   },
 
-  // Workout list (multiple workouts)
+  // Workout list
   workoutList: {
     gap: 10,
   },
@@ -338,7 +360,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 14,
+    padding: 12,
     gap: 12,
     shadowColor: '#4A3728',
     shadowOffset: { width: 0, height: 2 },
@@ -346,13 +368,28 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  workoutListIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: '#FFF8F0',
+  checkboxButton: {
+    padding: 4,
+  },
+  checkbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#8B5A2B',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: '#34C759',
+    borderColor: '#34C759',
+  },
+  workoutNameButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
   },
   workoutListName: {
     flex: 1,
@@ -360,54 +397,36 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#4A3728',
   },
-
-  // Single workout card
-  singleWorkoutCard: {
-    backgroundColor: '#8B5A2B',
-    borderRadius: 16,
-    padding: 16,
-    gap: 12,
+  workoutListNameCompleted: {
+    color: '#6B5D52',
+    textDecorationLine: 'line-through',
   },
-  singleWorkoutHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  singleWorkoutIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  singleWorkoutInfo: {
-    flex: 1,
-  },
-  singleWorkoutLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: 0.5,
-  },
-  singleWorkoutTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-    marginTop: 2,
-  },
-  startButton: {
+  progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF9500',
-    borderRadius: 12,
-    paddingVertical: 14,
-    gap: 8,
+    marginTop: 12,
+    gap: 6,
   },
-  startButtonText: {
-    fontSize: 16,
+  progressText: {
+    fontSize: 13,
+    color: '#6B5D52',
+    fontWeight: '500',
+  },
+  allDoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    gap: 6,
+    backgroundColor: '#E8F5E9',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  allDoneText: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#34C759',
   },
 });

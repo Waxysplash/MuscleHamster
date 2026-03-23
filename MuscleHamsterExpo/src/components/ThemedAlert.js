@@ -36,11 +36,17 @@ export default function ThemedAlert({
   onDismiss,
 }) {
   const handleButtonPress = (button) => {
-    if (button.onPress) {
-      button.onPress();
-    }
+    // Dismiss first, then call onPress
+    // This ensures any new alert shown by onPress won't be immediately hidden
     if (onDismiss) {
       onDismiss();
+    }
+    if (button.onPress) {
+      // Delay to let the dismiss animation and React state update complete
+      // before showing new alert or executing async actions
+      setTimeout(() => {
+        button.onPress();
+      }, 200);
     }
   };
 

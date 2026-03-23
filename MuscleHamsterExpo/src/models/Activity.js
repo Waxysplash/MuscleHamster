@@ -3,20 +3,24 @@ import FeatureFlags from '../config/FeatureFlags';
 
 export const HamsterState = {
   HUNGRY: 'hungry',
-  CHILLIN: 'chillin',
+  CHILLIN: 'chillin',  // Legacy - maps to RESTED
+  RESTED: 'rested',    // New state for rest days
   HAPPY: 'happy',
   EXCITED: 'excited',
   PROUD: 'proud',
 };
 
-// Get simplified state (happy or hungry only)
+// Get simplified state (hungry, happy, or rested)
+// User requested exactly 3 states: Hungry, Happy, Rested
 export const getSimplifiedState = (state) => {
   if (!FeatureFlags.simplifiedHamsterStates) return state;
 
   switch (state) {
     case HamsterState.HUNGRY:
-    case HamsterState.CHILLIN:
       return HamsterState.HUNGRY;
+    case HamsterState.CHILLIN:
+    case HamsterState.RESTED:
+      return HamsterState.RESTED;  // Rest day = Rested (not Hungry!)
     case HamsterState.HAPPY:
     case HamsterState.EXCITED:
     case HamsterState.PROUD:
@@ -35,11 +39,18 @@ export const HamsterStateInfo = {
     color: '#FF9500',
   },
   [HamsterState.CHILLIN]: {
-    displayName: 'Chillin\'',
-    description: 'Relaxing after a good workout',
-    greeting: "Ahh, this is nice. We're doing great!",
-    icon: 'cafe',
-    color: '#5AC8FA',
+    displayName: 'Rested',
+    description: 'Enjoying a well-deserved rest day',
+    greeting: "Rest days are important too!",
+    icon: 'moon',
+    color: '#8B5A2B',
+  },
+  [HamsterState.RESTED]: {
+    displayName: 'Rested',
+    description: 'Enjoying a well-deserved rest day',
+    greeting: "Rest days are important too!",
+    icon: 'moon',
+    color: '#8B5A2B',
   },
   [HamsterState.HAPPY]: {
     displayName: 'Happy',

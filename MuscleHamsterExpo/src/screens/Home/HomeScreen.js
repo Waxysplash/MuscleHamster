@@ -1,5 +1,5 @@
 // Home Screen - Fixed enclosure top, scrollable content below
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -161,9 +161,14 @@ export default function HomeScreen({ navigation }) {
   };
 
   const streakInfo = getStreakStatusInfo();
-  const hasCompletedWorkoutToday = stats?.workoutHistory?.some(
-    (w) => new Date(w.completedAt).toDateString() === new Date().toDateString()
-  );
+
+  // Memoize expensive date computation
+  const hasCompletedWorkoutToday = useMemo(() => {
+    const today = new Date().toDateString();
+    return stats?.workoutHistory?.some(
+      (w) => new Date(w.completedAt).toDateString() === today
+    ) || false;
+  }, [stats?.workoutHistory]);
 
   // Render the Today's Action card based on schedule
   const renderTodayActionCard = () => {

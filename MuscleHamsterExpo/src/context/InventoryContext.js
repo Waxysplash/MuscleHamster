@@ -64,13 +64,13 @@ export function InventoryProvider({ children }) {
 
   // Check if user owns an item
   const ownsItem = useCallback((itemId) => {
-    if (!inventory) return false;
+    if (!inventory?.ownedItems) return false;
     return inventory.ownedItems.some(owned => owned.itemId === itemId);
   }, [inventory]);
 
   // Get all owned items with full details
   const getOwnedItems = useCallback(() => {
-    if (!inventory) return [];
+    if (!inventory?.ownedItems) return [];
     return inventory.ownedItems.map(owned => ({
       ...owned,
       item: getItemById(owned.itemId),

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {
   DAYS_OF_WEEK,
-  DAY_LABELS,
+  DAY_LABELS_SHORT,
   DAY_TYPES,
   getTodayName,
   isCurrentWeek,
@@ -97,7 +97,7 @@ export default function MiniWeekStrip({
                 styles.dayLabel,
                 isToday && styles.todayLabel,
               ]}>
-                {DAY_LABELS[dayName]}
+                {DAY_LABELS_SHORT[dayName]}
               </Text>
               <View style={[
                 styles.indicatorContainer,

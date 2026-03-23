@@ -15,13 +15,33 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Image,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
-import { getHamsterStateColor, getStreakStatusColor, FriendStreakStatus } from '../../models/Friend';
+import { getHamsterStateColor, getStreakStatusColor, FriendStreakStatus, HamsterState } from '../../models/Friend';
+import { getHamsterImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
+
+// Map HamsterState to image state name
+const mapHamsterStateToImageState = (state) => {
+  switch (state) {
+    case HamsterState.HUNGRY:
+      return 'hungry';
+    case HamsterState.CHILLIN:
+    case HamsterState.RESTED:
+    case 'rested':  // Handle string value from Firestore
+      return 'rest';
+    case HamsterState.HAPPY:
+    case HamsterState.EXCITED:
+    case HamsterState.PROUD:
+    default:
+      return 'happy';
+  }
+};
 
 export default function SocialScreen() {
   const navigation = useNavigation();
@@ -31,6 +51,7 @@ export default function SocialScreen() {
     isLoading,
     error,
     loadFriendData,
+    sendNudge,
   } = useFriends();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -130,6 +151,7 @@ export default function SocialScreen() {
                     profile: item.data.friend,
                     streak: item.data.streak,
                   })}
+                  onNudge={sendNudge}
                 />
               );
             }
@@ -202,14 +224,45 @@ function SectionHeader({ title, icon }) {
 }
 
 // Friend Row Component
-function FriendRow({ friend, streak, onPress }) {
-  const stateColor = getHamsterStateColor(friend.hamsterState);
+function FriendRow({ friend, streak, onPress, onNudge }) {
+  const [isNudging, setIsNudging] = useState(false);
+  const isResting = friend.isRestingToday;
+  const stateColor = isResting ? '#8B5A2B' : getHamsterStateColor(friend.hamsterState);
+  // Show rest hamster image if resting today
+  const imageState = isResting ? 'rest' : mapHamsterStateToImageState(friend.hamsterState);
+  const hamsterImage = getHamsterImage(imageState);
+
+  const handleNudge = async () => {
+    if (isNudging) return;
+    setIsNudging(true);
+    try {
+      await onNudge(friend.id);
+      Alert.alert('Nudge sent!', `You poked ${friend.displayName}'s hamster!`);
+    } catch (error) {
+      // Check for cooldown error
+      if (error.message?.includes('cooldown') || error.message?.includes('already')) {
+        Alert.alert('Too soon!', 'You can only nudge this friend once per day.');
+      } else {
+        Alert.alert('Oops!', 'Could not send nudge. Try again later.');
+      }
+    } finally {
+      setIsNudging(false);
+    }
+  };
 
   return (
     <TouchableOpacity style={styles.friendRow} onPress={onPress}>
-      {/* Avatar */}
-      <View style={[styles.avatar, { backgroundColor: `${stateColor}33` }]}>
-        <Ionicons name="paw" size={22} color={stateColor} />
+      {/* Resting Badge - Top Left Corner */}
+      {isResting && (
+        <View style={styles.restingBadge}>
+          <Ionicons name="moon" size={10} color="#fff" />
+          <Text style={styles.restingBadgeText}>Resting</Text>
+        </View>
+      )}
+
+      {/* Hamster Avatar */}
+      <View style={[styles.avatarContainer, { backgroundColor: `${stateColor}20` }]}>
+        <Image source={hamsterImage} style={styles.hamsterImage} resizeMode="contain" />
       </View>
 
       {/* Info */}
@@ -242,10 +295,26 @@ function FriendRow({ friend, streak, onPress }) {
             </View>
           )}
 
-          {/* Hamster state */}
-          <Text style={styles.stateText}>{friend.hamsterState}</Text>
+          {/* Hamster state label */}
+          <View style={[styles.stateBadge, { backgroundColor: `${stateColor}20` }]}>
+            <Text style={[styles.stateText, { color: stateColor }]}>{friend.hamsterState}</Text>
+          </View>
         </View>
       </View>
+
+      {/* Nudge Button */}
+      <TouchableOpacity
+        style={styles.nudgeButton}
+        onPress={handleNudge}
+        disabled={isNudging}
+        hitSlop={{ top: 10, bottom: 10, left: 5, right: 10 }}
+      >
+        <Ionicons
+          name={isNudging ? 'hourglass' : 'notifications'}
+          size={18}
+          color={isNudging ? '#C7C7CC' : '#FF9500'}
+        />
+      </TouchableOpacity>
 
       <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
     </TouchableOpacity>
@@ -327,6 +396,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   friendRow: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -340,12 +410,42 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  restingBadge: {
+    position: 'absolute',
+    top: -4,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#8B5A2B',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    gap: 4,
+    zIndex: 10,
+  },
+  restingBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#fff',
+  },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  hamsterImage: {
+    width: 40,
+    height: 40,
   },
   friendInfo: {
     flex: 1,
@@ -393,9 +493,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   stateText: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: 11,
+    fontWeight: '500',
     textTransform: 'capitalize',
+  },
+  stateBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  nudgeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 149, 0, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   // Empty state styles
   emptyContainer: {

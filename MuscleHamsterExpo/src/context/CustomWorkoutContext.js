@@ -1,5 +1,5 @@
 // Custom Workout Context - Wraps CustomWorkoutService and FavoritesService
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { CustomWorkoutService, setCustomWorkoutUserId } from '../services/CustomWorkoutService';
 import { FavoritesService, setFavoritesUserId } from '../services/FavoritesService';
 import { useAuth } from './AuthContext';
@@ -159,7 +159,8 @@ export const CustomWorkoutProvider = ({ children }) => {
     return favorites.includes(workoutId);
   }, [favorites]);
 
-  const value = {
+  // Memoized context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
     customWorkouts,
     favorites,
     isLoading,
@@ -171,7 +172,19 @@ export const CustomWorkoutProvider = ({ children }) => {
     toggleFavorite,
     isFavorite,
     refreshData: loadData,
-  };
+  }), [
+    customWorkouts,
+    favorites,
+    isLoading,
+    addWorkout,
+    updateWorkout,
+    deleteWorkout,
+    recordProgress,
+    getCompletionHistory,
+    toggleFavorite,
+    isFavorite,
+    loadData,
+  ]);
 
   return (
     <CustomWorkoutContext.Provider value={value}>

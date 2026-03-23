@@ -6,7 +6,7 @@
  * Ported from Phase 02.3: Account basics with signed-in state and deletion placeholder
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,12 +19,13 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 
 export default function AccountSettingsScreen({ navigation }) {
-  const { currentUser, deleteAccount, reauthenticate } = useAuth();
+  const { currentUser, deleteAccount, reauthenticate, reauthenticateWithGoogle, signOut } = useAuth();
   const { isProfileComplete } = useUserProfile();
   const { showAlert } = useAlert();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -32,39 +33,35 @@ export default function AccountSettingsScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  // Determine if user signed in with email/password or social auth
+  // Use currentUser from context as dependency to ensure proper re-renders
+  const authProvider = useMemo(() => {
+    // Access auth.currentUser directly but depend on context's currentUser for reactivity
+    const firebaseUser = auth?.currentUser;
+    if (!firebaseUser?.providerData) return 'unknown';
+    const providers = firebaseUser.providerData.map(p => p.providerId);
+    if (providers.includes('password')) return 'password';
+    if (providers.includes('google.com')) return 'google';
+    if (providers.includes('apple.com')) return 'apple';
+    return 'unknown';
+  }, [currentUser]);
+
   const handleDeleteAccountPress = () => {
-    // First confirmation
+    // Simple single confirmation
     if (Platform.OS === 'web') {
-      if (window.confirm('Delete your Muscle Hamster account?\n\nThis will permanently delete:\n• Your workout history\n• Your points and streaks\n• Your inventory and customizations\n• Your hamster\n\nThis action cannot be undone.')) {
-        // Second confirmation for web
-        if (window.confirm('Are you absolutely sure? This is permanent and cannot be undone.')) {
-          performAccountDeletion();
-        }
+      if (window.confirm('Are you sure? This is permanent.')) {
+        performAccountDeletion();
       }
     } else {
       showAlert(
-        'Delete Your Account?',
-        'This will permanently delete:\n\n• Your workout history\n• Your points and streaks\n• Your inventory and customizations\n• Your hamster\n\nThis action cannot be undone.',
+        'Are you sure?',
+        'This is permanent.',
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: 'No thanks', style: 'cancel' },
           {
-            text: 'Delete Account',
+            text: 'Yes',
             style: 'destructive',
-            onPress: () => {
-              // Second confirmation
-              showAlert(
-                'Are You Sure?',
-                'This is permanent. Your hamster and all your progress will be gone forever.',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Yes, Delete Everything',
-                    style: 'destructive',
-                    onPress: performAccountDeletion,
-                  },
-                ]
-              );
-            },
+            onPress: performAccountDeletion,
           },
         ]
       );
@@ -72,28 +69,101 @@ export default function AccountSettingsScreen({ navigation }) {
   };
 
   const performAccountDeletion = async () => {
+    console.log('[AccountSettings] performAccountDeletion called, authProvider:', authProvider);
     setIsDeleting(true);
 
     const result = await deleteAccount();
+    console.log('[AccountSettings] deleteAccount result:', result);
 
     if (result.success) {
       // Account deleted - auth state listener will redirect to sign in
-      // No need to show alert since the screen will change
+      console.log('[AccountSettings] Account deleted successfully');
     } else {
       setIsDeleting(false);
+      console.log('[AccountSettings] Delete failed, error:', result.error);
+
       if (result.error === 'requires-recent-login') {
-        // Show password modal for re-authentication
-        setPassword('');
-        setPasswordError('');
-        setShowPasswordModal(true);
+        // Handle re-authentication based on auth provider
+        console.log('[AccountSettings] Requires recent login, authProvider:', authProvider);
+        if (authProvider === 'password') {
+          // Show password modal for email/password users
+          setPassword('');
+          setPasswordError('');
+          setShowPasswordModal(true);
+        } else if (authProvider === 'google') {
+          // For Google users, re-authenticate with Google
+          showAlert(
+            'Confirm Your Identity',
+            'For security, please sign in with Google again to confirm this action.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Continue with Google',
+                onPress: handleGoogleReauthAndDelete,
+              },
+            ]
+          );
+        } else {
+          // For Apple or other social auth users, they need to sign out and sign back in
+          showAlert(
+            'Re-authentication Required',
+            'For security, please sign out and sign back in, then try deleting your account again.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Sign Out',
+                onPress: () => signOut(),
+              },
+            ]
+          );
+        }
       } else {
+        // Show the actual error for debugging
+        const errorMsg = result.error || 'Unknown error';
         showAlert(
           'Something Went Wrong',
-          'We couldn\'t delete your account right now. Please try again later.',
+          `We couldn't delete your account: ${errorMsg}`,
           [{ text: 'OK' }]
         );
       }
     }
+  };
+
+  const handleGoogleReauthAndDelete = async () => {
+    console.log('[AccountSettings] handleGoogleReauthAndDelete called');
+    setIsDeleting(true);
+
+    // Re-authenticate with Google
+    const reauthResult = await reauthenticateWithGoogle();
+    console.log('[AccountSettings] Google reauth result:', reauthResult);
+
+    if (!reauthResult.success) {
+      setIsDeleting(false);
+      if (reauthResult.cancelled) {
+        // User cancelled, do nothing
+        return;
+      }
+      showAlert(
+        'Authentication Failed',
+        reauthResult.error || 'We couldn\'t verify your identity. Please try again.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Now delete the account
+    const deleteResult = await deleteAccount();
+    console.log('[AccountSettings] Delete result after Google reauth:', deleteResult);
+
+    if (!deleteResult.success) {
+      setIsDeleting(false);
+      showAlert(
+        'Something Went Wrong',
+        'We couldn\'t delete your account right now. Please try again later.',
+        [{ text: 'OK' }]
+      );
+    }
+    // If successful, auth state listener will redirect
   };
 
   const handleReauthAndDelete = async () => {
@@ -117,8 +187,11 @@ export default function AccountSettingsScreen({ navigation }) {
       } else {
         showAlert(
           'Authentication Failed',
-          'We couldn\'t verify your identity. Please try again.',
-          [{ text: 'OK' }]
+          'We couldn\'t verify your identity. Please try signing out and signing back in, then try again.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Sign Out', onPress: () => signOut() },
+          ]
         );
       }
       return;
@@ -195,9 +268,9 @@ export default function AccountSettingsScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Danger Zone Section */}
+      {/* Delete Account Section */}
       <View style={styles.section}>
-        <Text style={styles.sectionHeader}>Danger Zone</Text>
+        <Text style={styles.sectionHeader}>Delete Account</Text>
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.dangerRow}

@@ -69,8 +69,27 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   const pausedAtRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
-  const currentExercise = workout.exercises[currentExerciseIndex];
+  const currentExercise = workout.exercises?.[currentExerciseIndex];
   const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
+
+  // Safety check: If currentExercise is undefined (shouldn't happen, but defensive)
+  if (!currentExercise && playerState !== PlayerState.COMPLETED && playerState !== PlayerState.LOADING) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={60} color="#FF9500" />
+          <Text style={styles.errorTitle}>Exercise not found</Text>
+          <Text style={styles.errorText}>Something went wrong. Let's head back.</Text>
+          <TouchableOpacity
+            style={styles.errorButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.errorButtonText}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   // Start workout on mount
   useEffect(() => {

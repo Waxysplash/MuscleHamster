@@ -26,6 +26,7 @@ import LoadingView from '../../components/LoadingView';
 import { useResponsive } from '../../utils/responsive';
 import { RestDayActivity } from '../../models/Activity';
 import { getTodayName } from '../../services/ScheduleService';
+import { findExerciseById } from '../../services/WorkoutLibrary';
 
 // Gym body part images
 const GymBodyPartImages = {
@@ -86,6 +87,7 @@ export default function WorkoutsScreen({ navigation, route }) {
     setRestDay,
     clearDay,
     markDayCompleted,
+    markWorkoutComplete,
     refreshData,
   } = useSchedule();
 
@@ -147,13 +149,31 @@ export default function WorkoutsScreen({ navigation, route }) {
   // Handle multiple workout selection
   const handleSelectWorkouts = async (workoutsArray) => {
     if (modalDayName && workoutsArray.length > 0) {
-      const success = await scheduleWorkout(modalDayName, workoutsArray);
+      console.log('[WorkoutsScreen] Saving workouts for', modalDayName, {
+        workoutCount: workoutsArray.length,
+        workouts: workoutsArray.map(w => w.workoutName),
+      });
+
+      // Store the day we're saving to before closing modal
+      const savedDay = modalDayName;
+
+      const success = await scheduleWorkout(savedDay, workoutsArray);
+
+      console.log('[WorkoutsScreen] After save:', {
+        success,
+        savedDay,
+        selectedDay,
+      });
+
       if (success) {
-        // Force refresh to ensure we have the latest data
-        await refreshData();
+        console.log('[WorkoutsScreen] Workouts saved successfully for', savedDay);
+        // Ensure we're showing the day we just saved to
+        setSelectedDay(savedDay);
       } else {
-        console.warn('Failed to save workouts for', modalDayName);
+        console.warn('[WorkoutsScreen] Failed to save workouts for', savedDay);
       }
+
+      // Close modal after ensuring selectedDay is set
       setShowAddWorkoutModal(false);
       setModalDayName(null);
     }
@@ -175,8 +195,43 @@ export default function WorkoutsScreen({ navigation, route }) {
     }
   };
 
-  const handleStartWorkout = (workoutId) => {
-    navigation.navigate('WorkoutDetail', { workoutId });
+  // Navigate to exercise detail or progress log for a workout
+  const handleViewProgress = (workoutId) => {
+    // Find the workout data from the schedule
+    const workouts = selectedDayData?.workouts || [];
+    const workout = workouts.find(w => w.workoutId === workoutId);
+    const workoutType = workout?.workoutType || '';
+
+    // Try to find the exercise in the workout library
+    const libraryResult = findExerciseById(workoutId);
+
+    if (libraryResult?.type === 'gym') {
+      // Navigate to gym exercise detail with progress journal
+      navigation.navigate('GymExerciseDetail', {
+        exercise: libraryResult.exercise,
+        bodyPart: libraryResult.bodyPart,
+      });
+    } else if (libraryResult?.type === 'home') {
+      // Navigate to home exercise detail
+      navigation.navigate('HomeExerciseDetail', {
+        exercise: libraryResult.exercise,
+        category: libraryResult.category,
+      });
+    } else if (workoutType === 'custom' || workoutId.startsWith('custom-')) {
+      // Custom workout - navigate to custom workout detail
+      navigation.navigate('CustomWorkoutDetail', { workoutId });
+    } else {
+      // Fallback to log progress screen
+      const workoutName = workout?.workoutName || 'Workout';
+      navigation.navigate('LogProgress', { workoutId, workoutName });
+    }
+  };
+
+  // Mark a specific workout as complete (toggles individual workout)
+  const handleMarkWorkoutComplete = async (workoutId) => {
+    if (selectedDay) {
+      await markWorkoutComplete(selectedDay, workoutId);
+    }
   };
 
   const handleLogRestDay = async () => {
@@ -190,6 +245,21 @@ export default function WorkoutsScreen({ navigation, route }) {
 
   // Get selected day data
   const selectedDayData = currentWeekSchedule?.days?.[selectedDay] || {};
+
+  // Debug logging - this runs on every render
+  console.log('[WorkoutsScreen] RENDER:', {
+    selectedDay,
+    hasSchedule: !!currentWeekSchedule,
+    weekStart: currentWeekSchedule?.weekStart,
+    selectedDayType: selectedDayData?.type,
+    selectedDayWorkouts: selectedDayData?.workouts?.length || 0,
+    selectedDayWorkoutNames: selectedDayData?.workouts?.map(w => w.workoutName) || [],
+    allDaysWithData: currentWeekSchedule?.days
+      ? Object.entries(currentWeekSchedule.days)
+          .filter(([k, v]) => v?.type && v.type !== 'empty')
+          .map(([k, v]) => `${k}:${v.type}`)
+      : [],
+  });
 
   if (isScheduleLoading && !currentWeekSchedule) {
     return <LoadingView message="Loading your plan..." />;
@@ -252,11 +322,13 @@ export default function WorkoutsScreen({ navigation, route }) {
                   onDaySelect={handleDaySelect}
                 />
 
-                {/* Day Detail Expander */}
+                {/* Day Detail Expander - key changes when day data changes to force re-render */}
                 <DayDetailExpander
+                  key={`${selectedDay}-${selectedDayData?.type || 'empty'}-${selectedDayData?.workouts?.length || 0}-${(selectedDayData?.workouts || []).filter(w => w.completed).length}`}
                   dayName={selectedDay}
                   dayData={selectedDayData}
-                  onStartWorkout={handleStartWorkout}
+                  onViewProgress={handleViewProgress}
+                  onMarkWorkoutComplete={handleMarkWorkoutComplete}
                   onAddWorkout={handleOpenAddWorkout}
                   onLogRestDay={handleLogRestDay}
                 />

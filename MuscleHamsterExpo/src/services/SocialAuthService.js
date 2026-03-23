@@ -1,7 +1,7 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { OAuthProvider, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { OAuthProvider, GoogleAuthProvider, signInWithCredential, reauthenticateWithCredential } from 'firebase/auth';
 import Constants from 'expo-constants';
 import { auth } from '../config/firebase';
 import Logger from './LoggerService';
@@ -176,6 +176,67 @@ export async function signOutFromGoogle() {
   } catch (error) {
     // Ignore sign out errors
     Logger.debug('Google Sign-Out error:', error);
+  }
+}
+
+/**
+ * Re-authenticate with Google for sensitive operations (like account deletion)
+ * This prompts the user to sign in with Google again to get fresh credentials.
+ * @returns {Promise<{success: boolean, error?: string, cancelled?: boolean}>}
+ */
+export async function reauthenticateWithGoogle() {
+  try {
+    // Check if Google Play Services are available
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+    // Sign in with Google to get fresh credentials
+    const signInResult = await GoogleSignin.signIn();
+
+    // Get the ID token
+    const idToken = signInResult?.data?.idToken || signInResult?.idToken;
+
+    if (!idToken) {
+      Logger.error('Google re-auth: No ID token received');
+      return {
+        success: false,
+        error: 'Google authentication failed. Please try again.',
+      };
+    }
+
+    // Create Firebase Google credential
+    const credential = GoogleAuthProvider.credential(idToken);
+
+    // Re-authenticate the current user with fresh credential
+    if (!auth.currentUser) {
+      return {
+        success: false,
+        error: 'No user signed in.',
+      };
+    }
+
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    Logger.debug('Google re-authentication successful');
+
+    return { success: true };
+  } catch (error) {
+    // Handle user cancellation
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      return { success: false, cancelled: true };
+    }
+
+    // Handle Play Services not available (Android)
+    if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      return {
+        success: false,
+        error: 'Google Play Services is required.',
+      };
+    }
+
+    Logger.error('Google re-auth error:', error);
+    return {
+      success: false,
+      error: 'Google authentication failed. Please try again.',
+    };
   }
 }
 
