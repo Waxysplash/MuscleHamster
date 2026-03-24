@@ -97,11 +97,15 @@ service cloud.firestore {
     // Friend relationships
     // Document ID format: {userId1}_{userId2} (sorted alphabetically)
     match /friends/{friendId} {
-      // Both participants can read the relationship
-      allow read: if isAuthenticated() &&
-        (request.auth.uid in resource.data.users);
+      // Read: Allow if EITHER:
+      // 1. User's UID is in the users array (for queries on existing docs)
+      // 2. User's UID is in the document ID (for checking if doc exists)
+      allow read: if isAuthenticated() && (
+        (resource != null && request.auth.uid in resource.data.users) ||
+        request.auth.uid in friendId.split('_')
+      );
 
-      // Create: Either user can initiate
+      // Create: User must be in users array AND be the initiator
       allow create: if isAuthenticated() &&
         request.auth.uid in request.resource.data.users &&
         request.resource.data.initiatedBy == request.auth.uid;

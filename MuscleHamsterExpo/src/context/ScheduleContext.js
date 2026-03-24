@@ -38,9 +38,8 @@ const saveScheduleToStorage = async (userId, weekStart, schedule) => {
   try {
     const key = `${SCHEDULE_STORAGE_KEY}_${userId}_${weekStart}`;
     await AsyncStorage.setItem(key, JSON.stringify(schedule));
-    console.log('[AsyncStorage] Schedule saved locally');
   } catch (err) {
-    console.warn('[AsyncStorage] Failed to save schedule:', err);
+    Logger.warn('[ScheduleContext] Failed to save to AsyncStorage:', err);
   }
 };
 
@@ -52,12 +51,11 @@ const loadScheduleFromStorage = async (userId, weekStart) => {
     const key = `${SCHEDULE_STORAGE_KEY}_${userId}_${weekStart}`;
     const data = await AsyncStorage.getItem(key);
     if (data) {
-      console.log('[AsyncStorage] Schedule loaded from local storage');
       return JSON.parse(data);
     }
     return null;
   } catch (err) {
-    console.warn('[AsyncStorage] Failed to load schedule:', err);
+    Logger.warn('[ScheduleContext] Failed to load from AsyncStorage:', err);
     return null;
   }
 };
@@ -135,6 +133,10 @@ export function ScheduleProvider({ children }) {
 
   // Ref to track last synced workout days from profile
   const lastSyncedWorkoutDays = useRef(null);
+
+  // Ref to prevent redundant loads
+  const isLoadingRef = useRef(false);
+  const lastLoadedWeek = useRef(null);
 
   // ----------------------------------------
   // DERIVED STATE
@@ -225,7 +227,7 @@ export function ScheduleProvider({ children }) {
   }, [userId]);
 
   // Load schedule for a specific week
-  const loadWeekSchedule = useCallback(async (weekStart = null) => {
+  const loadWeekSchedule = useCallback(async (weekStart = null, forceReload = false) => {
     if (!userId) {
       setIsLoadingSchedule(false);
       return;
@@ -233,13 +235,25 @@ export function ScheduleProvider({ children }) {
 
     const week = weekStart || ScheduleService.getCurrentWeekStart();
 
+    // Prevent redundant loads for the same week
+    if (!forceReload && isLoadingRef.current && lastLoadedWeek.current === week) {
+      return;
+    }
+
+    // Skip if we already loaded this week and aren't forcing a reload
+    if (!forceReload && lastLoadedWeek.current === week && currentWeekSchedule) {
+      return;
+    }
+
+    isLoadingRef.current = true;
+    lastLoadedWeek.current = week;
+
     try {
       setIsLoadingSchedule(true);
 
       // First, try to load from AsyncStorage for immediate display
       const localSchedule = await loadScheduleFromStorage(userId, week);
       if (localSchedule) {
-        console.log('[ScheduleContext] Loaded schedule from AsyncStorage');
         setCurrentWeekSchedule(localSchedule);
         setCurrentWeekStart(week);
       }
@@ -248,17 +262,15 @@ export function ScheduleProvider({ children }) {
       try {
         const schedule = await ScheduleService.getWeekSchedule(userId, week);
         if (schedule) {
-          console.log('[ScheduleContext] Loaded schedule from Firebase');
           setCurrentWeekSchedule(schedule);
           // Sync back to AsyncStorage
           saveScheduleToStorage(userId, week, schedule);
         } else if (!localSchedule) {
           // No data from Firebase or local storage
-          console.log('[ScheduleContext] No schedule found, using empty state');
           setCurrentWeekSchedule(null);
         }
       } catch (firebaseErr) {
-        console.warn('[ScheduleContext] Firebase load failed, using local data:', firebaseErr);
+        Logger.warn('[ScheduleContext] Firebase load failed, using local data:', firebaseErr);
         // If Firebase fails but we have local data, that's okay
         if (!localSchedule) {
           Logger.error('ScheduleContext: Error loading week schedule', firebaseErr);
@@ -272,8 +284,9 @@ export function ScheduleProvider({ children }) {
       setError('Failed to load schedule');
     } finally {
       setIsLoadingSchedule(false);
+      isLoadingRef.current = false;
     }
-  }, [userId]);
+  }, [userId, currentWeekSchedule]);
 
   // Load current week
   const loadCurrentWeek = useCallback(() => {
@@ -374,7 +387,6 @@ export function ScheduleProvider({ children }) {
   const updateDay = useCallback(async (dayName, dayData) => {
     if (!userId) {
       Logger.warn('ScheduleContext: updateDay called without userId');
-      console.log('[ScheduleContext] updateDay FAILED: no userId');
       return false;
     }
 
@@ -383,17 +395,8 @@ export function ScheduleProvider({ children }) {
 
     if (!weekStart) {
       Logger.warn('ScheduleContext: updateDay could not determine weekStart');
-      console.log('[ScheduleContext] updateDay FAILED: no weekStart');
       return false;
     }
-
-    console.log(`[ScheduleContext] updateDay START for ${dayName}`, {
-      dayDataType: dayData?.type,
-      workoutCount: dayData?.workouts?.length || 0,
-      workoutNames: dayData?.workouts?.map(w => w.workoutName) || [],
-      weekStart,
-      userId: userId.substring(0, 8) + '...',
-    });
 
     try {
       setIsSaving(true);
@@ -406,10 +409,7 @@ export function ScheduleProvider({ children }) {
         dayData
       );
 
-      console.log(`[ScheduleContext] Firebase save result for ${dayName}:`, firebaseSuccess);
-
       if (!firebaseSuccess) {
-        console.warn(`[ScheduleContext] Firebase save FAILED for ${dayName}`);
         Logger.warn('ScheduleContext: Firebase updateDaySchedule returned false');
         return false;
       }
@@ -431,12 +431,6 @@ export function ScheduleProvider({ children }) {
           },
         };
 
-        console.log(`[ScheduleContext] Local state updated for ${dayName}`, {
-          prevWasNull: !prev,
-          newDayType: newSchedule.days[dayName]?.type,
-          newWorkoutCount: newSchedule.days[dayName]?.workouts?.length || 0,
-        });
-
         // Also save to AsyncStorage
         saveScheduleToStorage(userId, weekStart, newSchedule);
 
@@ -448,11 +442,8 @@ export function ScheduleProvider({ children }) {
         setCurrentWeekStart(weekStart);
       }
 
-      console.log(`[ScheduleContext] updateDay COMPLETE for ${dayName}`);
-      Logger.info(`ScheduleContext: Successfully saved ${dayName}`);
       return true;
     } catch (err) {
-      console.error(`[ScheduleContext] updateDay ERROR for ${dayName}:`, err);
       Logger.error('ScheduleContext: Error in updateDay', err);
       return false;
     } finally {
@@ -463,8 +454,6 @@ export function ScheduleProvider({ children }) {
   // Schedule workout(s) for a day
   // Supports both legacy (single workout) and new (array of workouts) formats
   const scheduleWorkout = useCallback(async (dayName, workoutsOrId, workoutType, workoutName) => {
-    console.log('[ScheduleContext] scheduleWorkout called:', { dayName, isArray: Array.isArray(workoutsOrId) });
-
     // Check if first argument is an array (new format)
     let dayData;
     if (Array.isArray(workoutsOrId)) {
@@ -474,16 +463,11 @@ export function ScheduleProvider({ children }) {
       dayData = createWorkoutDay(workoutsOrId, workoutType, workoutName);
     }
 
-    console.log('[ScheduleContext] Created dayData:', {
-      type: dayData.type,
-      workoutCount: dayData.workouts?.length
-    });
-
     const success = await updateDay(dayName, dayData);
 
-    // CRITICAL: Reload schedule after save to ensure UI sync (like Shop pattern)
+    // Force reload schedule after save to ensure UI sync
     if (success) {
-      console.log('[ScheduleContext] Save successful, reloading schedule...');
+      lastLoadedWeek.current = null; // Reset to allow reload
       await loadCurrentWeek();
     }
 
@@ -698,6 +682,7 @@ export function ScheduleProvider({ children }) {
   }, [currentWeekStart, isCurrentWeek, loadWeekSchedule]);
 
   // Sync profile.workoutDays to schedule when they change
+  // Note: We intentionally exclude savePreferences from deps since we use the ref guard
   useEffect(() => {
     if (!userId || !profile?.workoutDays || profile.workoutDays.length === 0) return;
 
@@ -720,7 +705,8 @@ export function ScheduleProvider({ children }) {
 
     // Save preferences and apply to current week
     savePreferences(newPrefs, true);
-  }, [userId, profile?.workoutDays, preferences.reminderTime, savePreferences]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, profile?.workoutDays]);
 
   // ----------------------------------------
   // CONTEXT VALUE

@@ -1,5 +1,5 @@
 // Activity Context - Phase 05-06 (with Firestore)
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ActivityService, setActivityUserId } from '../services/ActivityService';
 import { setJournalUserId } from '../services/JournalService';
 import { useAuth } from './AuthContext';
@@ -22,13 +22,21 @@ export const ActivityProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [streakStatus, setStreakStatus] = useState(null);
 
-  const loadStats = useCallback(async () => {
+  // Ref to prevent redundant loads
+  const isLoadingRef = useRef(false);
+  const hasLoadedRef = useRef(false);
+
+  const loadStats = useCallback(async (forceReload = false) => {
+    // Prevent redundant loads
+    if (!forceReload && (isLoadingRef.current || hasLoadedRef.current)) {
+      return;
+    }
+
+    isLoadingRef.current = true;
     setIsLoading(true);
-    Logger.debug('Loading activity stats...');
     try {
       const userStats = await ActivityService.getUserStats();
       setStats(userStats);
-      Logger.debug('Stats loaded, validating streak...');
 
       // Also validate streak
       const streakResult = await ActivityService.validateStreak();
@@ -37,11 +45,12 @@ export const ActivityProvider = ({ children }) => {
       if (streakResult.stats) {
         setStats(streakResult.stats);
       }
-      Logger.debug('Activity loading complete');
+      hasLoadedRef.current = true;
     } catch (e) {
       Logger.warn('Failed to load stats:', e);
     } finally {
       setIsLoading(false);
+      isLoadingRef.current = false;
     }
   }, []);
 
@@ -52,8 +61,11 @@ export const ActivityProvider = ({ children }) => {
     setJournalUserId(userId);
 
     if (userId) {
+      // Reset hasLoaded when user changes to allow fresh load
+      hasLoadedRef.current = false;
       loadStats();
     } else {
+      hasLoadedRef.current = false;
       setStats(createDefaultUserStats());
       setStreakStatus(null);
       setIsLoading(false);

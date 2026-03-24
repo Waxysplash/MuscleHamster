@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 53) - Submitted to TestFlight
+**Status:** v1.0.3 (Build 53) - LIVE on App Store
 **Version:** 1.0.3 (Build 53) - Security Hardening + Cloud Functions Update
-**Last Updated:** Mar 23, 2026 (Session 82)
+**Last Updated:** Mar 23, 2026 (Session 83)
 
 ---
 
@@ -12,8 +12,8 @@
 |-------|-------|
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
-| Live Version | 1.0.0 (Build 26) |
-| Pending Version | 1.0.1 - Submitted to App Store |
+| Live Version | 1.0.3 (Build 53) |
+| Previous Version | 1.0.0 (Build 26) |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
 | App Store Connect | https://appstoreconnect.apple.com/apps/6759973700 |
@@ -108,7 +108,7 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.3 (Build 53) | Mar 23, 2026 | TestFlight | Security hardening + Cloud Functions upgrade |
+| v1.0.3 (Build 53) | Mar 23, 2026 | **LIVE** | Security hardening + Cloud Functions upgrade |
 | v1.0.3 (Build 56) | Mar 21, 2026 | Superseded | Individual workout checkboxes + delete account fix |
 | v1.0.3 (Build 48) | Mar 21, 2026 | Superseded | Friends tab: hamster images + nudge buttons |
 | v1.0.3 (Build 47) | Mar 20, 2026 | TestFlight | Workout persistence layer + delete account fix |
@@ -128,6 +128,22 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 83 (Mar 23, 2026)
+**v1.0.3 Live + Friend Request Bug Fix**
+
+- v1.0.3 (Build 53) is now **LIVE on App Store**
+- **Fixed friend request "permission-denied" bug**
+  - Root cause: Firestore security rules failed when checking if a friend document exists (non-existent documents have `resource.data` as null)
+  - Fix: Updated `friends` collection read rule to check both:
+    1. `request.auth.uid in resource.data.users` (for existing docs/queries)
+    2. `request.auth.uid in friendId.split('_')` (for existence checks)
+- Deployed updated Firestore security rules
+
+**Files Changed:**
+- `firestore.rules` - Fixed friends collection read rule
+
+---
 
 ### Session 82 (Mar 23, 2026)
 **Cloud Functions Deployment + TestFlight Build**

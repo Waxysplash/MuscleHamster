@@ -324,10 +324,11 @@ const scheduleDailyReminder = async (prefs) => {
   // If adjusted, use 0 minutes (start of the hour)
   const adjustedMinute = wasAdjusted ? 0 : prefs.reminderMinute;
 
+  // SDK 54+ requires 'type: daily' instead of 'repeats: true'
   const trigger = {
+    type: 'daily',
     hour: adjustedHour,
     minute: adjustedMinute,
-    repeats: true,
   };
 
   try {
@@ -372,10 +373,11 @@ const scheduleStreakAtRiskReminder = async (prefs, streakReminderHour) => {
     }
   }
 
+  // SDK 54+ requires 'type: daily' instead of 'repeats: true'
   const trigger = {
+    type: 'daily',
     hour: finalHour,
     minute: 0,
-    repeats: true,
   };
 
   try {
