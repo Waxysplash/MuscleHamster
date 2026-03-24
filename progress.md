@@ -2,7 +2,7 @@
 
 **Status:** v1.0.3 (Build 53) - LIVE on App Store
 **Version:** 1.0.3 (Build 53) - Security Hardening + Cloud Functions Update
-**Last Updated:** Mar 23, 2026 (Session 83)
+**Last Updated:** Mar 24, 2026 (Session 84)
 
 ---
 
@@ -128,6 +128,26 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 84 (Mar 24, 2026)
+**SDK 54 Notification Fix + Performance + Daily Exercises**
+
+- **Fixed Expo SDK 54 notification trigger format** - Changed `repeats: true` to `type: 'daily'`
+- **Confirmed push notifications working** - Tested via Expo Push Notifications Tool
+- **Fixed log spam** - Added deduplication refs to ActivityContext and ScheduleContext
+- **Updated daily check-in exercises** - Replaced 50 low-guilt exercises with "The Daily 36"
+  - 10 core fundamentals (push-ups, squats, plank, etc.)
+  - Cardio & movement (butt kicks, skater jumps, sprinting)
+  - Strength & stability (tricep dips, wall angels, diver push-ups)
+  - Mobility & breathing (box breathing, thread the needle, deep squat hold)
+
+**Files Changed:**
+- `src/services/NotificationService.js` - SDK 54 trigger fix
+- `src/context/ActivityContext.js` - Deduplication refs
+- `src/context/ScheduleContext.js` - Deduplication refs, removed log spam
+- `src/models/DailyExercise.js` - "The Daily 36" exercises
+
+---
 
 ### Session 83 (Mar 23, 2026)
 **v1.0.3 Live + Friend Request Bug Fix**
