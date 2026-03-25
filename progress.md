@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.3 (Build 53) - LIVE on App Store
-**Version:** 1.0.3 (Build 53) - Security Hardening + Cloud Functions Update
-**Last Updated:** Mar 24, 2026 (Session 84)
+**Status:** v1.0.4 (Build 55) - Submitted to App Store | Hardening for v1.0.5
+**Version:** 1.0.4 (Build 55) - Notification Fix + Daily 36 Exercises
+**Last Updated:** Mar 24, 2026 (Session 86)
 
 ---
 
@@ -13,6 +13,7 @@
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
 | Live Version | 1.0.3 (Build 53) |
+| Pending Review | 1.0.4 (Build 55) |
 | Previous Version | 1.0.0 (Build 26) |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
@@ -47,6 +48,18 @@
 - [ ] Wait 14 days of closed testing
 - [ ] Apply for Production access
 - [ ] Submit to Production
+
+### Session 86: Full App Hardening Audit
+- [x] Fixed accept friend request (insufficient permissions — friendCount moved to Cloud Function)
+- [x] Fixed block user (Firestore rules compliance — delete + create instead of overwrite)
+- [x] Fixed push notifications sent after user disables them (clear/restore push token)
+- [x] Cloud Functions now respect friendNudgesEnabled preference
+- [x] Invite usage tracking moved server-side (was always failing client-side)
+- [x] Removed dead EditWorkout route (would crash on tap)
+- [x] Added error handling to dismissNudge and markNudgeRead
+- [x] Outgoing friend requests now show recipient's name
+- [x] Removed unused onFriendBlocked Cloud Function
+- [x] Deployed all Cloud Functions
 
 ### Implemented in v1.1
 - [x] Social features (friends, nudges, friend streaks, invite codes)
@@ -108,6 +121,7 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
+| v1.0.4 (Build 55) | Mar 24, 2026 | **Submitted** | Notification fix + Daily 36 exercises |
 | v1.0.3 (Build 53) | Mar 23, 2026 | **LIVE** | Security hardening + Cloud Functions upgrade |
 | v1.0.3 (Build 56) | Mar 21, 2026 | Superseded | Individual workout checkboxes + delete account fix |
 | v1.0.3 (Build 48) | Mar 21, 2026 | Superseded | Friends tab: hamster images + nudge buttons |
@@ -128,6 +142,19 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 85 (Mar 24, 2026)
+**v1.0.4 Submitted to App Store**
+
+- Bumped version to 1.0.4 (Build 55)
+- Built and submitted to App Store Connect via EAS
+- Includes all Session 84 fixes (SDK 54 notifications, log spam fix, Daily 36 exercises)
+
+**Release Notes:**
+- Improved daily reminder notifications
+- Updated daily exercise selection with fresh new exercises
+
+---
 
 ### Session 84 (Mar 24, 2026)
 **SDK 54 Notification Fix + Performance + Daily Exercises**

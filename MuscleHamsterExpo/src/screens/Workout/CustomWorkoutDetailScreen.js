@@ -59,10 +59,6 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
     navigation.navigate('LogProgress', { workoutId, workoutName: workout.name });
   };
 
-  const handleEdit = () => {
-    navigation.navigate('EditWorkout', { workoutId });
-  };
-
   const handleDelete = () => {
     showAlert(
       'Delete Workout',

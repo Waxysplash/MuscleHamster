@@ -270,8 +270,12 @@ export const FriendProvider = ({ children }) => {
 
   const dismissNudge = async (nudgeId) => {
     setReceivedNudges(prev => prev.filter(n => n.nudge.id !== nudgeId));
-    // Mark as read in Firestore
-    await friendService.markNudgeRead(nudgeId);
+    // Mark as read in Firestore (optimistic UI - nudge removed immediately)
+    try {
+      await friendService.markNudgeRead(nudgeId);
+    } catch (err) {
+      Logger.warn('Failed to mark nudge as read:', err.message);
+    }
   };
 
   // ============================================

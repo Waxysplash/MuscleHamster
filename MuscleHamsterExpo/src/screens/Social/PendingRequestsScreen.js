@@ -135,9 +135,9 @@ export default function PendingRequestsScreen() {
         ) : (
           <FlatList
             data={sentRequests}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.request.id}
             renderItem={({ item }) => (
-              <OutgoingRequestRow request={item} />
+              <OutgoingRequestRow request={item.request} receiverProfile={item.receiverProfile} />
             )}
             contentContainerStyle={styles.listContent}
           />
@@ -205,7 +205,9 @@ function IncomingRequestRow({ request, senderProfile, isProcessing, onAccept, on
   );
 }
 
-function OutgoingRequestRow({ request }) {
+function OutgoingRequestRow({ request, receiverProfile }) {
+  const displayName = receiverProfile?.displayName || receiverProfile?.hamsterName || 'Someone';
+
   return (
     <View style={styles.requestRow}>
       {/* Avatar */}
@@ -215,7 +217,7 @@ function OutgoingRequestRow({ request }) {
 
       {/* Info */}
       <View style={styles.requestInfo}>
-        <Text style={styles.requestName}>Pending</Text>
+        <Text style={styles.requestName}>{displayName}</Text>
         <Text style={styles.requestTime}>Sent {request.displaySentDate}</Text>
       </View>
 

@@ -13,7 +13,7 @@
 // Use v1 API for compatibility with existing 1st Gen functions
 const functions = require('firebase-functions/v1');
 const { initializeApp } = require('firebase-admin/app');
-const { getFirestore, Timestamp } = require('firebase-admin/firestore');
+const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
 const { Expo } = require('expo-server-sdk');
 
 // Initialize Firebase Admin
@@ -178,6 +178,12 @@ exports.onNudgeCreated = functions.firestore
         return null;
       }
 
+      // Respect user's friend nudge preference
+      if (recipientData.friendNudgesEnabled === false) {
+        console.log('Recipient has disabled friend nudges:', toUserId);
+        return null;
+      }
+
       // Get sender's name and sanitize it
       const senderDoc = await db.collection('users').doc(fromUserId).get();
       const rawSenderName = senderDoc.exists ? senderDoc.data().hamsterName : null;
@@ -299,6 +305,32 @@ exports.onFriendRequestCreated = functions.firestore
         }
       }
 
+      // Track invite code usage (server-side to avoid client permission issues)
+      try {
+        const senderDoc = await db.collection('users').doc(initiatedBy).get();
+        const receiverInviteCode = receiverData.inviteCode;
+        const senderInviteCode = senderDoc.exists ? senderDoc.data().inviteCode : null;
+
+        // Check if either user's invite code was used (update the one that exists)
+        for (const code of [receiverInviteCode, senderInviteCode]) {
+          if (code) {
+            const inviteDoc = await db.collection('invites').doc(code).get();
+            if (inviteDoc.exists) {
+              const inviteData = inviteDoc.data();
+              // Only update if the other user is the one who used this code
+              const otherUserId = inviteData.ownerId === initiatedBy ? receiverId : initiatedBy;
+              if (inviteData.ownerId !== otherUserId) {
+                await inviteDoc.ref.update({
+                  usedBy: FieldValue.arrayUnion(otherUserId),
+                });
+              }
+            }
+          }
+        }
+      } catch (trackingError) {
+        console.log('Invite tracking update failed (non-critical):', trackingError.message);
+      }
+
       return { success: true };
     } catch (error) {
       console.error('Error in onFriendRequestCreated:', error);
@@ -315,12 +347,28 @@ exports.onFriendRequestAccepted = functions.firestore
     const before = change.before.data();
     const after = change.after.data();
 
-    // Only send notification when status changes from pending to accepted
+    // Only process when status changes from pending to accepted
     if (before.status !== 'pending' || after.status !== 'accepted') {
       return null;
     }
 
     const { users, initiatedBy } = after;
+
+    // Increment friendCount for both users (server-side to avoid permission issues)
+    try {
+      const batch = db.batch();
+      for (const uid of users) {
+        const userRef = db.collection('users').doc(uid);
+        batch.update(userRef, {
+          friendCount: FieldValue.increment(1),
+        });
+      }
+      await batch.commit();
+      console.log('Friend counts incremented for:', users);
+    } catch (countError) {
+      console.error('Error incrementing friend counts:', countError);
+      // Don't fail the whole function - notification should still send
+    }
     // Notify the person who sent the request
     const senderId = initiatedBy;
 
@@ -386,6 +434,48 @@ exports.onFriendRequestAccepted = functions.firestore
       return null;
     }
   });
+
+/**
+ * Cloud Function: Decrement friend counts when a friend relationship is deleted
+ * Handles both unfriending and blocking (where doc is overwritten)
+ */
+exports.onFriendRemoved = functions.firestore
+  .document('friends/{friendId}')
+  .onDelete(async (snap, context) => {
+    const data = snap.data();
+
+    // Only decrement if they were actually friends (accepted status)
+    if (data.status !== 'accepted') {
+      return null;
+    }
+
+    const { users } = data;
+    if (!users || !Array.isArray(users) || users.length !== 2) {
+      return null;
+    }
+
+    try {
+      const batch = db.batch();
+      for (const uid of users) {
+        if (isValidUserId(uid)) {
+          const userRef = db.collection('users').doc(uid);
+          batch.update(userRef, {
+            friendCount: FieldValue.increment(-1),
+          });
+        }
+      }
+      await batch.commit();
+      console.log('Friend counts decremented for:', users);
+    } catch (error) {
+      console.error('Error decrementing friend counts:', error);
+    }
+
+    return null;
+  });
+
+// Note: onFriendBlocked is no longer needed. Blocking now deletes the existing
+// friend doc (triggering onFriendRemoved for count decrement) then creates a
+// new blocked doc. The onFriendRemoved handler handles the friendCount decrement.
 
 /**
  * Callable function: Rate-limited invite code lookup

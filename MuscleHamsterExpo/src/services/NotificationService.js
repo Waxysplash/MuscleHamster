@@ -225,6 +225,12 @@ export const enableNotifications = async () => {
       _preferences.userEnabled = true;
       await saveNotificationPreferences(_preferences);
       await rescheduleNotifications();
+
+      // Re-register push token so Cloud Functions can send push notifications again
+      if (_currentUserId) {
+        await registerForPushNotifications(_currentUserId);
+      }
+
       notifyListeners();
     }
     return true;
@@ -239,6 +245,12 @@ export const disableNotifications = async () => {
     await saveNotificationPreferences(_preferences);
   }
   await cancelAllNotifications();
+
+  // Clear push token from Firestore so Cloud Functions stop sending push notifications
+  if (_currentUserId) {
+    await clearPushToken(_currentUserId);
+  }
+
   notifyListeners();
 };
 
@@ -465,6 +477,19 @@ export const toggleFriendNudges = async (enabled) => {
   if (_preferences) {
     _preferences.friendNudgesEnabled = enabled;
     await saveNotificationPreferences(_preferences);
+
+    // Sync preference to Firestore so Cloud Functions respect it
+    if (_currentUserId && isFirebaseInitialized() && db) {
+      try {
+        const userRef = doc(db, 'users', _currentUserId);
+        await updateDoc(userRef, {
+          friendNudgesEnabled: enabled,
+        });
+      } catch (error) {
+        Logger.warn('NotificationService: Failed to sync friend nudges preference:', error.message);
+      }
+    }
+
     notifyListeners();
   }
 };

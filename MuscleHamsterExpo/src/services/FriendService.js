@@ -21,9 +21,6 @@ import {
   onSnapshot,
   serverTimestamp,
   Timestamp,
-  writeBatch,
-  arrayUnion,
-  increment,
   runTransaction,
 } from 'firebase/firestore';
 import {
@@ -350,18 +347,7 @@ class FriendService {
         }
       }
 
-      // Record that this code was used (non-blocking - analytics only)
-      // Note: With hardened Firestore rules, only the invite owner can update
-      // This may fail silently, which is fine - tracking is optional
-      try {
-        const inviteRef = doc(db, COLLECTIONS.INVITES, code.toUpperCase().trim());
-        await updateDoc(inviteRef, {
-          usedBy: arrayUnion(currentUserId),
-        });
-      } catch (trackingError) {
-        // Tracking failed - not critical, continue with friend request
-        Logger.debug('Invite tracking update failed (expected with hardened rules):', trackingError.code);
-      }
+      // Invite usage tracking is handled server-side by onFriendRequestCreated Cloud Function
 
       // Send friend request
       return this.sendFriendRequest(currentUserId, inviteInfo.ownerId);
@@ -549,17 +535,26 @@ class FriendService {
       );
 
       const snapshot = await getDocs(requestsQuery);
-      return snapshot.docs.map(docSnap => {
+      const requests = [];
+
+      for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         const receiverId = data.users.find(id => id !== userId);
-        return createFriendRequest({
-          id: docSnap.id,
-          senderId: userId,
-          receiverId: receiverId,
-          status: FriendRequestStatus.PENDING,
-          sentAt: data.createdAt?.toDate?.() || new Date(),
+        const receiverProfile = await this._getFriendProfile(receiverId);
+
+        requests.push({
+          request: createFriendRequest({
+            id: docSnap.id,
+            senderId: userId,
+            receiverId: receiverId,
+            status: FriendRequestStatus.PENDING,
+            sentAt: data.createdAt?.toDate?.() || new Date(),
+          }),
+          receiverProfile: receiverProfile ? createFriendProfile(receiverProfile) : null,
         });
-      });
+      }
+
+      return requests;
     } catch (error) {
       Logger.error('Error fetching sent requests:', error);
       return [];
@@ -670,17 +665,11 @@ class FriendService {
       }
 
       // Update to accepted
+      // Note: friendCount increment is handled server-side by Cloud Function
+      // (onFriendRequestAccepted) to avoid cross-user permission issues
       transaction.update(friendRef, {
         status: FriendRelationshipStatus.ACCEPTED,
         acceptedAt: serverTimestamp(),
-      });
-
-      // Update friend counts for both users within the same transaction
-      data.users.forEach(uid => {
-        const userRef = doc(db, COLLECTIONS.USERS, uid);
-        transaction.update(userRef, {
-          friendCount: increment(1),
-        });
       });
 
       return {
@@ -737,17 +726,9 @@ class FriendService {
     const friendDocId = getFriendDocId(userId, friendId);
     const friendRef = doc(db, COLLECTIONS.FRIENDS, friendDocId);
 
+    // Note: friendCount decrement is handled server-side by Cloud Function
+    // (onFriendRemoved) to avoid cross-user permission issues
     await deleteDoc(friendRef);
-
-    // Decrement friend counts
-    const batch = writeBatch(db);
-    [userId, friendId].forEach(uid => {
-      const userRef = doc(db, COLLECTIONS.USERS, uid);
-      batch.update(userRef, {
-        friendCount: increment(-1),
-      });
-    });
-    await batch.commit();
   }
 
   /**
@@ -773,25 +754,24 @@ class FriendService {
     const wasFriends = existingDoc.exists() &&
       existingDoc.data().status === FriendRelationshipStatus.ACCEPTED;
 
-    // Set status to blocked
+    // Delete existing relationship first (if any), then create blocked entry
+    // This avoids Firestore update rule requiring immutable fields (initiatedBy, createdAt)
+    if (existingDoc.exists()) {
+      await deleteDoc(friendRef);
+    }
+
+    // Create blocked relationship (uses create rule: initiatedBy == auth.uid)
     await setDoc(friendRef, {
       users: [blockerId, blockedId].sort(),
       status: FriendRelationshipStatus.BLOCKED,
+      initiatedBy: blockerId,
       blockedBy: blockerId,
       blockedAt: serverTimestamp(),
-    }, { merge: false });
+      createdAt: serverTimestamp(),
+    });
 
-    // If they were friends, decrement counts
-    if (wasFriends) {
-      const batch = writeBatch(db);
-      [blockerId, blockedId].forEach(uid => {
-        const userRef = doc(db, COLLECTIONS.USERS, uid);
-        batch.update(userRef, {
-          friendCount: increment(-1),
-        });
-      });
-      await batch.commit();
-    }
+    // Note: friendCount decrement is handled server-side by Cloud Function
+    // (onFriendRemoved) to avoid cross-user permission issues
 
     return createBlockedUser({
       id: friendDocId,
@@ -1147,10 +1127,14 @@ class FriendService {
       return;
     }
 
-    const nudgeRef = doc(db, COLLECTIONS.NUDGES, nudgeId);
-    await updateDoc(nudgeRef, {
-      read: true,
-    });
+    try {
+      const nudgeRef = doc(db, COLLECTIONS.NUDGES, nudgeId);
+      await updateDoc(nudgeRef, {
+        read: true,
+      });
+    } catch (error) {
+      Logger.warn('Failed to mark nudge as read:', error.message);
+    }
   }
 
   // ============================================
