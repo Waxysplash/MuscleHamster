@@ -57,8 +57,12 @@ export default function HomeScreen({ navigation }) {
     currentWeekStart,
     currentWeekSchedule,
     hasScheduleThisWeek,
+    todaySchedule,
     loadCurrentWeek,
   } = useSchedule();
+
+  // Check if today is a scheduled workout day
+  const isTodayWorkoutDay = todaySchedule?.type === 'workout';
 
   // Responsive layout
   const { isTablet, spacing, contentMaxWidth } = useResponsive();
@@ -198,7 +202,9 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.actionInfo}>
           <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
           <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
-          <Text style={styles.actionSubtitle}>Complete your daily exercise</Text>
+          <Text style={styles.actionSubtitle}>
+            {isTodayWorkoutDay ? "It's a workout day — let's go!" : 'Complete your daily exercise'}
+          </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#fff" />
       </TouchableOpacity>

@@ -169,12 +169,38 @@ export const NotificationContent = {
       body: "Just a gentle nudge - your streak is waiting! Even a short workout counts.",
     },
   ],
+  workoutDayReminderMessages: [
+    {
+      title: "It's workout day!",
+      body: "Have you logged your workout today? Your hamster is ready to cheer you on!",
+    },
+    {
+      title: 'Workout day reminder',
+      body: "Hey! Today's a workout day — have you gotten moving yet? Log it in the app!",
+    },
+    {
+      title: 'Time to move!',
+      body: "You scheduled today as a workout day. Even a quick one counts — let's go!",
+    },
+    {
+      title: 'Your hamster is stretching!',
+      body: "It's a workout day! Have you exercised today? Open the app to log it!",
+    },
+    {
+      title: "Don't forget!",
+      body: "Today's on your workout schedule. Your hamster believes in you!",
+    },
+  ],
   getRandomDailyReminder: () => {
     const messages = NotificationContent.dailyReminderMessages;
     return messages[Math.floor(Math.random() * messages.length)];
   },
   getRandomStreakAtRisk: () => {
     const messages = NotificationContent.streakAtRiskMessages;
+    return messages[Math.floor(Math.random() * messages.length)];
+  },
+  getRandomWorkoutDayReminder: () => {
+    const messages = NotificationContent.workoutDayReminderMessages;
     return messages[Math.floor(Math.random() * messages.length)];
   },
 };

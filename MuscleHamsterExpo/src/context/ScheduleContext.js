@@ -22,6 +22,7 @@ import {
   createRestDay,
 } from '../services/ScheduleService';
 import Logger from '../services/LoggerService';
+import { rescheduleNotifications } from '../services/NotificationService';
 
 // AsyncStorage keys
 const SCHEDULE_STORAGE_KEY = '@muscle_hamster_schedule';
@@ -320,7 +321,9 @@ export function ScheduleProvider({ children }) {
         // Optionally pre-fill current week with preferences
         if (applyToCurrentWeek) {
           await ScheduleService.applyPreferencesToWeek(userId);
-          await loadCurrentWeek();
+          // Force reload to pick up the new schedule data
+          const currentWeek = ScheduleService.getCurrentWeekStart();
+          await loadWeekSchedule(currentWeek, true);
         }
 
         Logger.info('ScheduleContext: Saved preferences');
@@ -335,7 +338,7 @@ export function ScheduleProvider({ children }) {
     } finally {
       setIsSaving(false);
     }
-  }, [userId, loadCurrentWeek]);
+  }, [userId, loadWeekSchedule]);
 
   // Complete initial setup
   const completeSetup = useCallback(async (setupPrefs) => {
@@ -705,6 +708,9 @@ export function ScheduleProvider({ children }) {
 
     // Save preferences and apply to current week
     savePreferences(newPrefs, true);
+
+    // Reschedule notifications so workout day reminders match the new days
+    rescheduleNotifications(workoutDays);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, profile?.workoutDays]);
 

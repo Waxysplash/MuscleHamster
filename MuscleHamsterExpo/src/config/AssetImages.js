@@ -26,6 +26,9 @@ export const HamsterWearingAccessory = {
   'acc-1': require('../../assets/images/hamster_wearing_sunglasses.png'),
   'acc-3': require('../../assets/images/hamster_wearing_crown.png'),
   'acc-5': require('../../assets/images/hamster_wearing_flower_crown.png'),
+  'acc-6': require('../../assets/images/hamster_wearing_water_bottle.png'),
+  'acc-7': require('../../assets/images/hamster_wearing_celery_barbell.png'),
+  'acc-8': require('../../assets/images/hamster_wearing_carrot_dumbbells.png'),
 };
 
 // Outfit images (standalone items for shop display)
@@ -40,6 +43,9 @@ export const AccessoryImages = {
   'acc-1': require('../../assets/images/accessory_sunglasses.png'),
   'acc-3': require('../../assets/images/accessory_crown.png'),
   'acc-5': require('../../assets/images/accessory_flower_crown.png'),
+  'acc-6': require('../../assets/images/accessory_water_bottle.png'),
+  'acc-7': require('../../assets/images/accessory_celery_barbell.png'),
+  'acc-8': require('../../assets/images/accessory_carrot_dumbbells.png'),
 };
 
 // Enclosure item images

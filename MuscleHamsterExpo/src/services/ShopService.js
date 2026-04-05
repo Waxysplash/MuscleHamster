@@ -102,6 +102,36 @@ const createSeedShopItems = () => {
     previewImageName: 'acc-5',
   }));
 
+  items.push(createShopItem({
+    id: 'acc-6',
+    name: 'Water Bottle',
+    description: 'Stay hydrated, stay strong!',
+    category: ShopItemCategory.ACCESSORIES,
+    rarity: ShopItemRarity.COMMON,
+    price: 50,
+    previewImageName: 'acc-6',
+  }));
+
+  items.push(createShopItem({
+    id: 'acc-7',
+    name: 'Celery Barbell',
+    description: 'Lifting veggies for gains!',
+    category: ShopItemCategory.ACCESSORIES,
+    rarity: ShopItemRarity.COMMON,
+    price: 50,
+    previewImageName: 'acc-7',
+  }));
+
+  items.push(createShopItem({
+    id: 'acc-8',
+    name: 'Carrot Dumbbells',
+    description: 'The healthiest weights around!',
+    category: ShopItemCategory.ACCESSORIES,
+    rarity: ShopItemRarity.COMMON,
+    price: 50,
+    previewImageName: 'acc-8',
+  }));
+
   return items;
 };
 

@@ -301,8 +301,19 @@ const getAdjustedHourForQuietHours = (hour, prefs) => {
   return prefs.quietHoursEnd;
 };
 
+// Map day names to weekday numbers (Sunday=1 for iOS/expo-notifications)
+const DAY_NAME_TO_WEEKDAY = {
+  sunday: 1,
+  monday: 2,
+  tuesday: 3,
+  wednesday: 4,
+  thursday: 5,
+  friday: 6,
+  saturday: 7,
+};
+
 // Reschedule all notifications based on current preferences
-export const rescheduleNotifications = async () => {
+export const rescheduleNotifications = async (workoutDays = null) => {
   // First, cancel all existing notifications
   await cancelAllNotifications();
 
@@ -322,6 +333,11 @@ export const rescheduleNotifications = async () => {
   // Schedule streak at risk reminder if enabled
   if (prefs.streakReminderEnabled) {
     await scheduleStreakAtRiskReminder(prefs, computed.streakReminderHour);
+  }
+
+  // Schedule workout day reminders if we have workout days
+  if (workoutDays && workoutDays.length > 0) {
+    await scheduleWorkoutDayReminders(prefs, workoutDays);
   }
 };
 
@@ -407,6 +423,43 @@ const scheduleStreakAtRiskReminder = async (prefs, streakReminderHour) => {
     Logger.debug(`NotificationService: Scheduled streak at risk reminder for ${finalHour}:00`);
   } catch (error) {
     Logger.error('NotificationService: Failed to schedule streak at risk reminder:', error);
+  }
+};
+
+// Schedule workout day reminders (only on selected workout days, midday)
+const scheduleWorkoutDayReminders = async (prefs, workoutDays) => {
+  const middayHour = 12; // Noon
+  const adjustedHour = getAdjustedHourForQuietHours(middayHour, prefs);
+
+  for (const dayName of workoutDays) {
+    const weekday = DAY_NAME_TO_WEEKDAY[dayName];
+    if (!weekday) continue;
+
+    const content = NotificationContent.getRandomWorkoutDayReminder();
+
+    const trigger = {
+      type: 'weekly',
+      weekday,
+      hour: adjustedHour,
+      minute: 0,
+    };
+
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: content.title,
+          body: content.body,
+          sound: true,
+          badge: 1,
+        },
+        trigger,
+        identifier: `workout_day_${dayName}`,
+      });
+
+      Logger.debug(`NotificationService: Scheduled workout day reminder for ${dayName} at ${adjustedHour}:00`);
+    } catch (error) {
+      Logger.error(`NotificationService: Failed to schedule workout day reminder for ${dayName}:`, error);
+    }
   }
 };
 
