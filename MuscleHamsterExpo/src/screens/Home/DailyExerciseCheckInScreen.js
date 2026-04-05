@@ -14,7 +14,7 @@ import {
 const CompletedWorkoutImage = require('../../../assets/images/completed_workout.png');
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
-import { getExerciseDisplayPrompt, FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
+import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 
 const CheckInState = {
   READY: 'ready',
@@ -171,11 +171,22 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
           <Ionicons name={exercise.icon} size={44} color="#FF9500" />
         </View>
 
-        {/* Exercise name & prompt */}
-        <Text style={styles.exercisePrompt}>
-          {getExerciseDisplayPrompt(exercise)}
+        {/* Exercise name */}
+        <Text style={styles.exerciseName}>
+          {exercise.name}
         </Text>
-        <Text style={styles.exerciseInstruction}>
+
+        {/* Suggested amount */}
+        <Text style={styles.exerciseSuggested}>
+          {exercise.repType === 'seconds'
+            ? `Suggested: ${exercise.repCount} seconds — or do as many as you can`
+            : exercise.repType === 'breath'
+            ? 'Take as many deep breaths as you need'
+            : `Suggested: ${exercise.repCount} reps — or do as many as you can`}
+        </Text>
+
+        {/* How to do it */}
+        <Text style={styles.exerciseTip}>
           {exercise.instruction}
         </Text>
       </View>
@@ -232,18 +243,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 32,
   },
-  exercisePrompt: {
+  exerciseName: {
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#4A3728',
     marginBottom: 12,
   },
-  exerciseInstruction: {
+  exerciseSuggested: {
     fontSize: 16,
+    color: '#8B5A2B',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 24,
+  },
+  exerciseTip: {
+    fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     paddingHorizontal: 24,
+    lineHeight: 20,
+    fontStyle: 'italic',
   },
   iDidItButton: {
     marginHorizontal: 24,

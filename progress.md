@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.4 (Build 55) - Submitted to App Store | Hardening for v1.0.5
-**Version:** 1.0.4 (Build 55) - Notification Fix + Daily 36 Exercises
-**Last Updated:** Mar 24, 2026 (Session 86)
+**Status:** v1.0.5 (Build 58) - Submitting to App Store
+**Version:** 1.0.5 (Build 58) - Friends tab removed, check-in UI redesign, schedule sync fix
+**Last Updated:** Apr 5, 2026 (Session 88)
 
 ---
 
@@ -12,9 +12,9 @@
 |-------|-------|
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
-| Live Version | 1.0.3 (Build 53) |
-| Pending Review | 1.0.4 (Build 55) |
-| Previous Version | 1.0.0 (Build 26) |
+| Live Version | 1.0.4 (Build 55) |
+| Building | 1.0.5 (Build 58) |
+| Previous Version | 1.0.3 (Build 53) |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
 | App Store Connect | https://appstoreconnect.apple.com/apps/6759973700 |
@@ -121,8 +121,9 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.4 (Build 55) | Mar 24, 2026 | **Submitted** | Notification fix + Daily 36 exercises |
-| v1.0.3 (Build 53) | Mar 23, 2026 | **LIVE** | Security hardening + Cloud Functions upgrade |
+| v1.0.5 (Build 58) | Apr 5, 2026 | **Submitting** | Friends tab removed, check-in UI redesign, schedule sync fix |
+| v1.0.4 (Build 55) | Mar 24, 2026 | **LIVE** | Notification fix + Daily 36 exercises |
+| v1.0.3 (Build 53) | Mar 23, 2026 | Superseded | Security hardening + Cloud Functions upgrade |
 | v1.0.3 (Build 56) | Mar 21, 2026 | Superseded | Individual workout checkboxes + delete account fix |
 | v1.0.3 (Build 48) | Mar 21, 2026 | Superseded | Friends tab: hamster images + nudge buttons |
 | v1.0.3 (Build 47) | Mar 20, 2026 | TestFlight | Workout persistence layer + delete account fix |
@@ -142,6 +143,28 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 88 (Apr 5, 2026)
+**Friends Tab Removed + Check-In UI Redesign + Schedule Sync Fix**
+
+- **Removed Friends tab** — Disabled `socialFeatures` feature flag (hides tab + privacy settings)
+- **Redesigned Daily Check-In screen layout:**
+  - Bold exercise name at top (was combined with rep count)
+  - "Suggested: X reps — or do as many as you can" below the name
+  - Italic instruction tip at the bottom explaining how to do the exercise
+- **Fixed workout days sync between Settings and Workouts tab:**
+  - Profile workout day changes now properly update the week strip
+  - Fixed bug where deselecting all days wouldn't sync
+  - Completed days are now preserved when preferences change
+  - Days with scheduled workouts are preserved when re-syncing
+
+**Files Changed:**
+- `src/config/FeatureFlags.js` — socialFeatures: false
+- `src/screens/Home/DailyExerciseCheckInScreen.js` — New check-in layout
+- `src/context/ScheduleContext.js` — Fixed empty workoutDays sync
+- `src/services/ScheduleService.js` — Smart merge in applyPreferencesToWeek
+
+---
 
 ### Session 85 (Mar 24, 2026)
 **v1.0.4 Submitted to App Store**

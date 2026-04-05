@@ -684,7 +684,7 @@ export function ScheduleProvider({ children }) {
   // Sync profile.workoutDays to schedule when they change
   // Note: We intentionally exclude savePreferences from deps since we use the ref guard
   useEffect(() => {
-    if (!userId || !profile?.workoutDays || profile.workoutDays.length === 0) return;
+    if (!userId || !profile?.workoutDays) return;
 
     const workoutDays = profile.workoutDays;
     const daysKey = [...workoutDays].sort().join(',');

@@ -695,11 +695,27 @@ export const applyPreferencesToWeek = async (userId, weekStart = null) => {
       return false;
     }
 
+    // Load existing schedule so we can preserve completed days
+    const existingSchedule = await getWeekSchedule(userId, week);
+    const existingDays = existingSchedule?.days || {};
+
     const days = {};
     DAYS_OF_WEEK.forEach((day) => {
+      const existing = existingDays[day];
+
+      // Preserve completed days regardless of preference changes
+      if (existing && existing.completed) {
+        days[day] = existing;
+        return;
+      }
+
       if (prefs.preferredDays.includes(day)) {
-        // Workout day without specific workout chosen yet
-        days[day] = createWorkoutDay(null, null, null);
+        // Keep existing workout day data if it already has workouts scheduled
+        if (existing && existing.type === DAY_TYPES.WORKOUT && existing.workoutId) {
+          days[day] = existing;
+        } else {
+          days[day] = createWorkoutDay(null, null, null);
+        }
       } else {
         days[day] = createEmptyDay();
       }

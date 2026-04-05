@@ -6,7 +6,7 @@ export default {
   expo: {
     name: "Muscle Hamster",
     slug: "MuscleHamsterExpo",
-    version: "1.0.4",
+    version: "1.0.5",
     orientation: "portrait",
     icon: "./assets/branding/icon.png",
     userInterfaceStyle: "light",
@@ -24,7 +24,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.musclehamster.app",
-      buildNumber: "57",
+      buildNumber: "58",
       usesAppleSignIn: true,
       googleServicesFile: process.env.GOOGLE_SERVICES_PLIST || "./GoogleService-Info.plist",
       infoPlist: {

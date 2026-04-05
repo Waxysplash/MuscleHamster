@@ -5,7 +5,7 @@ export const FeatureFlags = {
   // DEFERRED TO v1.2 (Social update)
 
   // Social features: friends, friend streaks, nudges, blocking, privacy controls
-  socialFeatures: true,
+  socialFeatures: false,
 
   // Full workout library with browse, filter, recommendations, workout player
   workoutLibrary: true,
