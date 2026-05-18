@@ -6,10 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { PointsConfig } from '../../models/Activity';
+import { StatIcons } from '../../config/AssetImages';
 
 const FreezeState = {
   PROMPT: 'prompt',
@@ -115,7 +117,7 @@ export default function StreakFreezeScreen({ navigation }) {
           </Text>
 
           <View style={styles.costBadge}>
-            <Ionicons name="star" size={20} color="#FF9500" />
+            <Image source={StatIcons.points} style={{ width: 22, height: 22 }} resizeMode="contain" />
             <Text style={styles.costText}>-{result.pointsSpent} points</Text>
           </View>
 
@@ -198,7 +200,7 @@ export default function StreakFreezeScreen({ navigation }) {
               <View style={styles.costRow}>
                 <Text style={styles.costLabel}>Cost:</Text>
                 <View style={styles.costBadge}>
-                  <Ionicons name="star" size={16} color="#FF9500" />
+                  <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
                   <Text style={styles.costText}>{PointsConfig.streakFreezeCost}</Text>
                 </View>
               </View>

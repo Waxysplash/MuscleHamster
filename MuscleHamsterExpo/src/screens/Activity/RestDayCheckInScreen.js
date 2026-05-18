@@ -6,10 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { RestDayActivity, RestDayActivityInfo } from '../../models/Activity';
+import { StatIcons } from '../../config/AssetImages';
 
 const CheckInState = {
   SELECTION: 'selection',
@@ -103,7 +105,7 @@ export default function RestDayCheckInScreen({ navigation }) {
           <Text style={styles.successTitle}>Rest Day Complete!</Text>
 
           <View style={styles.rewardBadge}>
-            <Ionicons name="star" size={24} color="#FF9500" />
+            <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
             <Text style={styles.rewardText}>+{result.pointsEarned} points</Text>
           </View>
 
@@ -112,7 +114,7 @@ export default function RestDayCheckInScreen({ navigation }) {
           </View>
 
           <View style={styles.streakInfo}>
-            <Ionicons name="flame" size={24} color="#FF3B30" />
+            <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
             <Text style={styles.streakText}>{result.newStreak} day streak maintained!</Text>
           </View>
         </View>
@@ -154,7 +156,7 @@ export default function RestDayCheckInScreen({ navigation }) {
                 <Text style={styles.activityName}>{info.displayName}</Text>
                 <Text style={styles.activityDescription}>{info.description}</Text>
                 <View style={styles.pointsBadge}>
-                  <Ionicons name="star" size={14} color="#FF9500" />
+                  <Image source={StatIcons.points} style={{ width: 16, height: 16 }} resizeMode="contain" />
                   <Text style={styles.pointsText}>+{info.pointsAwarded}</Text>
                 </View>
               </TouchableOpacity>
@@ -182,7 +184,7 @@ export default function RestDayCheckInScreen({ navigation }) {
                 <Text style={styles.activityRowDescription}>{info.description}</Text>
               </View>
               <View style={styles.activityRowPoints}>
-                <Ionicons name="star" size={16} color="#FF9500" />
+                <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
                 <Text style={styles.pointsText}>+{info.pointsAwarded}</Text>
               </View>
             </TouchableOpacity>

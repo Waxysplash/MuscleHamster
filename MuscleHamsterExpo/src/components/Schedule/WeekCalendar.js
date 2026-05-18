@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DayCell from './DayCell';
+import { StatIcons } from '../../config/AssetImages';
 import {
   DAYS_OF_WEEK,
   getTodayName,
@@ -101,7 +103,7 @@ function WeekSummary({ schedule }) {
   return (
     <View style={styles.summaryContainer}>
       <View style={styles.summaryItem}>
-        <Ionicons name="barbell" size={14} color="#8B5A2B" />
+        <Image source={StatIcons.workout} style={{ width: 16, height: 16 }} resizeMode="contain" />
         <Text style={styles.summaryText}>
           {completedCount}/{scheduledCount + restDayCount} done
         </Text>

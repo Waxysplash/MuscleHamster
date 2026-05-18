@@ -5,9 +5,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_TYPES, DAY_LABELS } from '../../services/ScheduleService';
+import { StatIcons } from '../../config/AssetImages';
 
 /**
  * DayCell Component
@@ -110,7 +112,7 @@ export default function DayCell({
         // Workout day without specific workout
         return (
           <View style={[styles.iconContainer, styles.workoutDayIcon]}>
-            <Ionicons name="fitness" size={18} color="#FF9500" />
+            <Image source={StatIcons.workout} style={{ width: 20, height: 20 }} resizeMode="contain" />
           </View>
         );
       }

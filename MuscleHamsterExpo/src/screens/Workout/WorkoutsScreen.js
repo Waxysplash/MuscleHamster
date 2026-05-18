@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { StatIcons } from '../../config/AssetImages';
 import { useSchedule } from '../../context/ScheduleContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import { useActivity } from '../../context/ActivityContext';
@@ -412,7 +413,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                   // AT GYM
                   <>
                     <View style={styles.browseHeader}>
-                      <Ionicons name="barbell" size={20} color="#FF9500" />
+                      <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
                       <Text style={styles.browseTitle}>Choose Body Part</Text>
                     </View>
                     <Text style={styles.browseSubtitle}>

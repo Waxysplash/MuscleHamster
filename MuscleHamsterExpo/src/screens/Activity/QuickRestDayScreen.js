@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { RestDayActivity, RestDayActivityInfo } from '../../models/Activity';
-import { HamsterImages } from '../../config/AssetImages';
+import { HamsterImages, StatIcons } from '../../config/AssetImages';
 
 const motivationalMessages = [
   "Rest days are important! Your muscles grow while you recover. I'm proud of you for listening to your body!",
@@ -119,7 +119,7 @@ export default function QuickRestDayScreen({ navigation }) {
           <Text style={styles.successTitle}>Rest Day Logged!</Text>
 
           <View style={styles.rewardBadge}>
-            <Ionicons name="star" size={24} color="#FF9500" />
+            <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
             <Text style={styles.rewardText}>+{result?.pointsEarned || 2} points</Text>
           </View>
 
@@ -129,7 +129,7 @@ export default function QuickRestDayScreen({ navigation }) {
 
           {result?.newStreak > 0 && (
             <View style={styles.streakInfo}>
-              <Ionicons name="flame" size={24} color="#FF3B30" />
+              <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
               <Text style={styles.streakText}>{result.newStreak} day streak maintained!</Text>
             </View>
           )}
@@ -158,7 +158,7 @@ export default function QuickRestDayScreen({ navigation }) {
         </Text>
 
         <View style={styles.pointsPreview}>
-          <Ionicons name="star" size={20} color="#FF9500" />
+          <Image source={StatIcons.points} style={{ width: 22, height: 22 }} resizeMode="contain" />
           <Text style={styles.pointsPreviewText}>Earn 2 points</Text>
         </View>
 

@@ -18,12 +18,14 @@ import {
   Platform,
   Modal,
   TextInput,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import Logger from '../../services/LoggerService';
 import { useFocusEffect } from '@react-navigation/native';
+import { StatIcons } from '../../config/AssetImages';
 import {
   enableNotifications,
   disableNotifications,
@@ -447,7 +449,7 @@ export default function NotificationSettingsScreen({ navigation }) {
 
             {/* Streak at Risk */}
             <View style={styles.reminderTypeRow}>
-              <Ionicons name="flame" size={22} color="#FF3B30" />
+              <Image source={StatIcons.streak} style={{ width: 26, height: 26 }} resizeMode="contain" />
               <View style={styles.reminderTypeInfo}>
                 <Text style={styles.reminderTypeLabel}>Streak at Risk</Text>
                 <Text style={styles.reminderTypeDescription}>

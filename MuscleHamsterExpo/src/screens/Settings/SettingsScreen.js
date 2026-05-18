@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Platform, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Platform, Linking, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import { StatIcons } from '../../config/AssetImages';
 import { useAuth } from '../../context/AuthContext';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 import FeatureFlags from '../../config/FeatureFlags';
+
+const APP_VERSION = Constants.expoConfig?.version || '';
 
 export default function SettingsScreen({ navigation }) {
   const { currentUser, signOut } = useAuth();
@@ -86,7 +90,7 @@ export default function SettingsScreen({ navigation }) {
             accessibilityRole="button"
           >
             <View style={[styles.iconBox, { backgroundColor: 'rgba(255,149,0,0.1)' }]}>
-              <Ionicons name="star" size={22} color="#FF9500" />
+              <Image source={StatIcons.points} style={{ width: 24, height: 24 }} resizeMode="contain" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Points History</Text>
@@ -220,7 +224,7 @@ export default function SettingsScreen({ navigation }) {
       {/* Version */}
       <View style={styles.versionContainer}>
         <Text style={styles.versionText}>Muscle Hamster</Text>
-        <Text style={styles.versionNumber}>Version 1.0.0</Text>
+        <Text style={styles.versionNumber}>Version {APP_VERSION}</Text>
       </View>
     </ScrollView>
   );

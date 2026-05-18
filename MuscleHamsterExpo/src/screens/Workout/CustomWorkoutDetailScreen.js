@@ -8,12 +8,14 @@ import {
   StyleSheet,
   SafeAreaView,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
 import FavoriteButton from '../../components/FavoriteButton';
+import { StatIcons } from '../../config/AssetImages';
 
 const TYPE_INFO = {
   strength: { icon: 'barbell-outline', label: 'Strength', color: '#4ECDC4' },
@@ -236,7 +238,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
                   )}
 
                   <View style={styles.historyPoints}>
-                    <Ionicons name="star" size={14} color="#FF9500" />
+                    <Image source={StatIcons.points} style={{ width: 16, height: 16 }} resizeMode="contain" />
                     <Text style={styles.historyPointsText}>+{entry.pointsEarned} points</Text>
                   </View>
                 </View>

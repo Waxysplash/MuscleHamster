@@ -5,9 +5,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_TYPES, DAY_LABELS } from '../../services/ScheduleService';
+import { StatIcons } from '../../config/AssetImages';
 
 /**
  * SliderDayItem Component
@@ -79,7 +81,7 @@ export default function SliderDayItem({
         // Workout day without specific workout
         return (
           <View style={[styles.iconContainer, styles.plannedWorkoutIcon]}>
-            <Ionicons name="fitness" size={20} color="#FF9500" />
+            <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
           </View>
         );
       }

@@ -10,8 +10,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StatIcons } from '../../config/AssetImages';
 
 /**
  * SaveRoutineModal Component
@@ -92,7 +94,7 @@ export default function SaveRoutineModal({
 
           {/* Workout count */}
           <View style={styles.workoutPreview}>
-            <Ionicons name="fitness" size={20} color="#8B5A2B" />
+            <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
             <Text style={styles.workoutCount}>
               {workouts.length} workout{workouts.length !== 1 ? 's' : ''} will be saved
             </Text>

@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { ShopService } from '../../services/ShopService';
 import Logger from '../../services/LoggerService';
+import { StatIcons } from '../../config/AssetImages';
 import { useActivity } from '../../context/ActivityContext';
 import { useAlert } from '../../context/AlertContext';
 import { getShopItemImage } from '../../config/AssetImages';
@@ -113,7 +114,7 @@ export default function ShopScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Shop</Text>
         <View style={styles.pointsBadge}>
-          <Ionicons name="star" size={16} color="#FF9500" />
+          <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
           <Text style={styles.pointsText}>{totalPoints}</Text>
         </View>
       </View>

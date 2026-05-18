@@ -14,10 +14,12 @@ import {
   StyleSheet,
   RefreshControl,
   Modal,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { ShopService } from '../../services/ShopService';
+import { StatIcons } from '../../config/AssetImages';
 import { useActivity } from '../../context/ActivityContext';
 import { useAlert } from '../../context/AlertContext';
 import {
@@ -282,7 +284,7 @@ function CategoryItemCard({ item, isOwned, onPress }) {
         </View>
       ) : (
         <View style={styles.priceRow}>
-          <Ionicons name="star" size={16} color="#FF9500" />
+          <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
           <Text style={styles.priceText}>{item.price}</Text>
         </View>
       )}
@@ -342,7 +344,7 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
 
           <View style={styles.priceSection}>
             <View style={styles.priceLarge}>
-              <Ionicons name="star" size={24} color="#FF9500" />
+              <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
               <Text style={styles.priceLargeText}>{item.price}</Text>
             </View>
             <Text style={styles.balanceText}>

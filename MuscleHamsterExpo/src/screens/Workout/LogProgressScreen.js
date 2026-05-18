@@ -10,10 +10,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
+import { StatIcons } from '../../config/AssetImages';
 
 export default function LogProgressScreen({ route, navigation }) {
   const { workoutId, workoutName } = route.params;
@@ -107,7 +109,7 @@ export default function LogProgressScreen({ route, navigation }) {
         >
           {/* Workout Name */}
           <View style={styles.workoutInfo}>
-            <Ionicons name="fitness" size={20} color="#FF9500" />
+            <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
             <Text style={styles.workoutName}>{workoutName}</Text>
           </View>
 

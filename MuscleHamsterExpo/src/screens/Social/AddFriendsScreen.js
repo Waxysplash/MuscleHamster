@@ -19,8 +19,10 @@ import {
   Keyboard,
   Platform,
   Clipboard,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StatIcons } from '../../config/AssetImages';
 import { useNavigation } from '@react-navigation/native';
 import { useFriends } from '../../context/FriendContext';
 import { useUserProfile } from '../../context/UserProfileContext';
@@ -338,7 +340,7 @@ export default function AddFriendsScreen() {
 
             <View style={styles.howItWorksItem}>
               <View style={styles.howItWorksIcon}>
-                <Ionicons name="flame" size={20} color="#FF9500" />
+                <Image source={StatIcons.streak} style={{ width: 24, height: 24 }} resizeMode="contain" />
               </View>
               <View style={styles.howItWorksContent}>
                 <Text style={styles.howItWorksTitle}>Build Streaks Together</Text>

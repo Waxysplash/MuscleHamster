@@ -5,9 +5,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_TYPES, DAY_LABELS } from '../../services/ScheduleService';
+import { StatIcons } from '../../config/AssetImages';
 
 /**
  * TodayWorkoutCard Component
@@ -90,7 +92,7 @@ export default function TodayWorkoutCard({
       <View style={styles.pickWorkoutCard}>
         <View style={styles.pickWorkoutHeader}>
           <View style={styles.pickWorkoutIcon}>
-            <Ionicons name="fitness" size={24} color="#FF9500" />
+            <Image source={StatIcons.workout} style={{ width: 28, height: 28 }} resizeMode="contain" />
           </View>
           <View style={styles.pickWorkoutInfo}>
             <Text style={styles.pickWorkoutTitle}>
@@ -141,7 +143,7 @@ export default function TodayWorkoutCard({
                 activeOpacity={0.7}
               >
                 <View style={styles.workoutListIcon}>
-                  <Ionicons name="barbell" size={16} color="#8B5A2B" />
+                  <Image source={StatIcons.workout} style={{ width: 18, height: 18 }} resizeMode="contain" />
                 </View>
                 <Text style={styles.workoutListName} numberOfLines={1}>
                   {w.workoutName}

@@ -15,6 +15,7 @@ const CompletedWorkoutImage = require('../../../assets/images/completed_workout.
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
+import { StatIcons } from '../../config/AssetImages';
 
 const CheckInState = {
   READY: 'ready',
@@ -127,11 +128,11 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
           {/* Points & Streak */}
           <View style={styles.rewardCard}>
             <View style={styles.rewardRow}>
-              <Ionicons name="star" size={24} color="#FF9500" />
+              <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
               <Text style={styles.rewardText}>+{result.pointsEarned} points</Text>
             </View>
             <View style={styles.rewardRow}>
-              <Ionicons name="flame" size={24} color="#FF3B30" />
+              <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
               <Text style={styles.streakText}>{result.newStreak} day streak!</Text>
             </View>
           </View>

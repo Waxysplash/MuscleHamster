@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   AppState,
   Animated,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StatIcons } from '../../config/AssetImages';
 import { useActivity } from '../../context/ActivityContext';
 import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
@@ -300,11 +302,11 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           {completionResult && (
             <View style={styles.rewardsContainer}>
               <View style={styles.rewardItem}>
-                <Ionicons name="star" size={24} color="#FF9500" />
+                <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
                 <Text style={styles.rewardText}>+{completionResult.pointsEarned} points</Text>
               </View>
               <View style={styles.rewardItem}>
-                <Ionicons name="flame" size={24} color="#FF3B30" />
+                <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
                 <Text style={styles.rewardText}>{completionResult.newStreak} day streak</Text>
               </View>
             </View>

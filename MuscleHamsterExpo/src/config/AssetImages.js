@@ -58,6 +58,13 @@ export const EnclosureItemImages = {
 // Enclosure background
 export const EnclosureBackground = require('../../assets/images/enclosure_bg_default.png');
 
+// Home screen stat card icons
+export const StatIcons = {
+  streak: require('../../assets/images/icon_streak.png'),
+  workout: require('../../assets/images/icon_workout.png'),
+  points: require('../../assets/images/icon_points.png'),
+};
+
 // Helper to get shop item image by ID (for shop/inventory display)
 export const getShopItemImage = (itemId) => {
   if (OutfitImages[itemId]) return OutfitImages[itemId];

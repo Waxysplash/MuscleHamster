@@ -14,10 +14,12 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { StatIcons } from '../../config/AssetImages';
 import Logger from '../../services/LoggerService';
 import { useActivity } from '../../context/ActivityContext';
 import ErrorView from '../../components/ErrorView';
@@ -171,7 +173,7 @@ export default function PointsHistoryScreen({ navigation }) {
     return (
       <View style={styles.balanceSection}>
         <View style={styles.balanceContainer}>
-          <Ionicons name="star" size={32} color="#FF9500" />
+          <Image source={StatIcons.points} style={{ width: 36, height: 36 }} resizeMode="contain" />
           <Text style={styles.balanceAmount}>{formatNumber(totalPoints)}</Text>
         </View>
         <Text style={styles.balanceLabel}>Total Points</Text>

@@ -1,6 +1,6 @@
 // Daily Exercise Model
-// "The Daily 36" — a balanced mix of strength, cardio, and mobility exercises
-// One random exercise per day, deterministic per user
+// "The Daily 33" — a balanced mix of strength, cardio, and mobility exercises
+// One exercise per day, deterministic per user, cycles through the whole pool before repeating
 
 // djb2 hash — stable across runs (unlike JS's Math.random)
 const djb2Hash = (str) => {
@@ -11,14 +11,15 @@ const djb2Hash = (str) => {
   return hash;
 };
 
-// Get day-of-year (1-based)
-const dayOfYear = (date = new Date()) => {
-  const start = new Date(date.getFullYear(), 0, 0);
-  const diff = date - start;
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+// Local YYYY-MM-DD key for the user's timezone
+export const getLocalDateKey = (date = new Date()) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 };
 
-// Exercise pool — "The Daily 36"
+// Exercise pool — "The Daily 33"
 // A balanced mix of strength, cardio, mobility, and breathing exercises
 export const dailyExercisePool = [
   {
@@ -335,15 +336,42 @@ export const FINAL_STRETCH_PROMPT = {
   icon: 'sunny',
 };
 
-// Get today's exercise for a user (deterministic)
-export const getTodaysExercise = (userId) => {
-  const now = new Date();
-  const doy = dayOfYear(now);
-  const year = now.getFullYear();
-  const seed = `${userId}-${doy}-${year}`;
-  const hash = djb2Hash(seed);
-  const index = hash % dailyExercisePool.length;
-  return dailyExercisePool[index];
+// Pure picker: given a user, date, and prior cycle state, decide today's exercise.
+// Cycles through every exercise before repeating. Deterministic per (userId, dateKey).
+//
+// state: { shownIds: string[], lastAssignment: { dateKey, exerciseId } | null }
+// returns: { exercise, nextState }
+export const pickExerciseForDate = ({ userId, dateKey, state }) => {
+  const shownIds = state?.shownIds || [];
+  const lastAssignment = state?.lastAssignment || null;
+
+  // Same day: return the already-assigned exercise without mutating state
+  if (lastAssignment && lastAssignment.dateKey === dateKey) {
+    const existing = dailyExercisePool.find((e) => e.id === lastAssignment.exerciseId);
+    if (existing) {
+      return { exercise: existing, nextState: state };
+    }
+    // Fall through if the stored exercise was removed from the pool
+  }
+
+  // Pick from exercises not yet shown in this cycle; reset when the cycle is exhausted
+  let available = dailyExercisePool.filter((e) => !shownIds.includes(e.id));
+  let baseShown = shownIds;
+  if (available.length === 0) {
+    available = dailyExercisePool;
+    baseShown = [];
+  }
+
+  const hash = djb2Hash(`${userId}-${dateKey}`);
+  const picked = available[hash % available.length];
+
+  return {
+    exercise: picked,
+    nextState: {
+      shownIds: [...baseShown, picked.id],
+      lastAssignment: { dateKey, exerciseId: picked.id },
+    },
+  };
 };
 
 // Computed display prompt based on rep type

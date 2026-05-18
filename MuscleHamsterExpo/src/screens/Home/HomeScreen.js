@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ImageBackground,
+  Image,
   SafeAreaView,
   Platform,
 } from 'react-native';
@@ -21,8 +22,8 @@ import LoadingView from '../../components/LoadingView';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { MiniWeekStrip } from '../../components/Schedule';
 import { useInventory } from '../../context/InventoryContext';
-import { EnclosureBackground } from '../../config/AssetImages';
-import { getTodaysExercise } from '../../models/DailyExercise';
+import { EnclosureBackground, StatIcons } from '../../config/AssetImages';
+import { getTodaysExercise } from '../../services/DailyExerciseService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
@@ -74,8 +75,16 @@ export default function HomeScreen({ navigation }) {
   const [error, setError] = useState(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
-  // Get today's exercise (deterministic per user per day)
-  const todaysExercise = getTodaysExercise(currentUser?.id || 'guest');
+  // Get today's exercise (cycles through the pool before repeating, persisted per user)
+  const [todaysExercise, setTodaysExercise] = useState(null);
+  const userIdForExercise = currentUser?.id || 'guest';
+  useEffect(() => {
+    let cancelled = false;
+    getTodaysExercise(userIdForExercise).then((exercise) => {
+      if (!cancelled) setTodaysExercise(exercise);
+    });
+    return () => { cancelled = true; };
+  }, [userIdForExercise]);
 
   // Reload stats, inventory, and schedule when screen comes into focus
   useFocusEffect(
@@ -193,7 +202,10 @@ export default function HomeScreen({ navigation }) {
     return (
       <TouchableOpacity
         style={styles.actionCard}
-        onPress={() => navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise })}
+        onPress={() => {
+          if (!todaysExercise) return;
+          navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise });
+        }}
         activeOpacity={0.9}
       >
         <View style={styles.actionIconWrapper}>
@@ -245,7 +257,11 @@ export default function HomeScreen({ navigation }) {
               {/* Points Badge - Right */}
               <View style={styles.topBarRight}>
                 <View style={styles.pointsBadge}>
-                  <Ionicons name="star" size={isTablet ? 18 : 16} color="#FF9500" />
+                  <Image
+                    source={StatIcons.points}
+                    style={{ width: isTablet ? 20 : 18, height: isTablet ? 20 : 18 }}
+                    resizeMode="contain"
+                  />
                   <Text style={[styles.pointsText, isTablet && { fontSize: 17 }]}>{totalPoints}</Text>
                 </View>
               </View>
@@ -309,21 +325,21 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.statsRow}>
             {/* Streak Card */}
             <View style={[styles.statCard, styles.streakCard]}>
-              <Ionicons name={streakInfo.icon} size={28} color={streakInfo.color} />
+              <Image source={StatIcons.streak} style={styles.statIcon} resizeMode="contain" />
               <Text style={[styles.statNumber, { color: streakInfo.color }]}>{currentStreak}</Text>
               <Text style={styles.statLabel}>day streak</Text>
             </View>
 
             {/* Workouts Card */}
             <View style={styles.statCard}>
-              <Ionicons name="barbell" size={28} color="#8B5A2B" />
+              <Image source={StatIcons.workout} style={styles.statIcon} resizeMode="contain" />
               <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
               <Text style={styles.statLabel}>workouts</Text>
             </View>
 
             {/* Points Card */}
             <View style={styles.statCard}>
-              <Ionicons name="star" size={28} color="#FF9500" />
+              <Image source={StatIcons.points} style={styles.statIcon} resizeMode="contain" />
               <Text style={styles.statNumber}>{totalPoints}</Text>
               <Text style={styles.statLabel}>points</Text>
             </View>
@@ -759,6 +775,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF8F0',
     borderWidth: 1,
     borderColor: 'rgba(255,59,48,0.2)',
+  },
+  statIcon: {
+    width: 36,
+    height: 36,
   },
   statNumber: {
     fontSize: 24,
