@@ -1,8 +1,8 @@
 # Muscle Hamster — Progress
 
-**Status:** v1.0.5 (Build 58) - Submitting to App Store
-**Version:** 1.0.5 (Build 58) - Friends tab removed, check-in UI redesign, schedule sync fix
-**Last Updated:** Apr 5, 2026 (Session 88)
+**Status:** v1.0.6 (Build 59) - Submitted to TestFlight (processing)
+**Version:** 1.0.6 (Build 59) - Daily exercise cycling, dynamic version, custom art refresh
+**Last Updated:** Apr 24, 2026 (Session 89)
 
 ---
 
@@ -23,22 +23,11 @@
 
 ## What's Next
 
-### Immediate
-- [x] Build v1.0.1 (Google Sign-In fix)
-- [x] Submit via EAS
-- [ ] Create version 1.0.1 in App Store Connect
-- [ ] Add release notes and submit for review
-- [ ] v1.0.1 approved
-
-### Post v1.0.1
-- [x] App approved and live on App Store (v1.0.0)
+### iOS
+- [ ] v1.0.5 (Build 58) — Waiting for Review
 - [ ] Monitor user feedback and reviews
-- [ ] Plan v1.2 features (Social, etc.)
-- [x] Android build completed (AAB ready)
-- [x] Set up Google Play Developer account
-- [ ] Submit Android to Google Play
 
-### Google Play Submission (In Progress)
+### Google Play (In Progress)
 - [x] Created Google Play Developer account
 - [x] Uploaded AAB (v1.0.1, version code 4)
 - [x] Added app icon and feature graphic
@@ -48,6 +37,13 @@
 - [ ] Wait 14 days of closed testing
 - [ ] Apply for Production access
 - [ ] Submit to Production
+
+### v1.2 Planning
+- [ ] Transaction history
+- [ ] Advanced notifications
+- [ ] Audio system
+- [ ] Exercise illustrations
+- [ ] Monetization (premium shop items, tip jar, etc.)
 
 ### Session 86: Full App Hardening Audit
 - [x] Fixed accept friend request (insufficient permissions — friendCount moved to Cloud Function)
@@ -63,12 +59,12 @@
 
 ### Implemented in v1.1
 - [x] Social features (friends, nudges, friend streaks, invite codes)
-- [x] Friends tab in navigation
+- [x] Friends tab in navigation (later disabled in v1.0.5 via feature flag)
 - [x] Push notifications for nudges and friend requests
+- [x] Workout library (At Home: 5 categories, At Gym: 6 body parts / 90+ exercises, My Workouts)
+- [x] Rest day check-ins (quick rest, pet hamster, stretching, meditation, etc.)
 
 ### Deferred to v1.2+
-- Workout library + player (browse workouts)
-- Rest day check-ins
 - Transaction history
 - Advanced notifications
 - Audio system
@@ -121,7 +117,9 @@ eas submit --platform ios                         # Submit to App Store
 
 | Build | Date | Status | Notes |
 |-------|------|--------|-------|
-| v1.0.5 (Build 58) | Apr 5, 2026 | **Submitting** | Friends tab removed, check-in UI redesign, schedule sync fix |
+| v1.0.6 (Build 59) | Apr 24, 2026 | **Submitted** | Daily 33 cycling, dynamic version in Settings, custom art refresh across app + shop |
+| v1.0.5 (Build 58) | Apr 23, 2026 | Superseded | Submission blocked by duplicate build # from prior session |
+| v1.0.5 (Build 58) | Apr 5, 2026 | Superseded | Friends tab removed, check-in UI redesign, schedule sync fix |
 | v1.0.4 (Build 55) | Mar 24, 2026 | **LIVE** | Notification fix + Daily 36 exercises |
 | v1.0.3 (Build 53) | Mar 23, 2026 | Superseded | Security hardening + Cloud Functions upgrade |
 | v1.0.3 (Build 56) | Mar 21, 2026 | Superseded | Individual workout checkboxes + delete account fix |
@@ -143,6 +141,40 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 89 (Apr 23, 2026)
+**Daily Exercise Cycling + Dynamic Version + Custom Art Refresh**
+
+- **Daily check-in now cycles through all 33 exercises** before repeating
+  - `DailyExercise.js` renamed "Daily 36" → "Daily 33" (pool has 33 items)
+  - New `pickExerciseForDate()` pure picker filters out already-shown IDs; resets when cycle exhausts
+  - New `DailyExerciseService.js` persists `{ shownIds, lastAssignment }` per user in AsyncStorage
+  - `HomeScreen.js` loads today's exercise async and guards tap while loading
+- **Settings version now reads from `app.config.js`** via `expo-constants` — no more hardcoded "Version 1.0.0"
+- **Custom stat icons** (points/streak/workout PNGs from `App Icons` folder) applied across 18 files:
+  - Points: Home points badge, check-in rewards, rest day rewards, streak freeze cost, shop header, shop price rows/modal, points history, settings row, custom workout history, workout player reward
+  - Streak: all reward screens (`+streak`), notification settings "Streak at Risk", add friends explainer
+  - Workout: day cells, today workout card, week calendar summary, slider day item, workouts browse header, save routine modal, log progress header
+  - Intentionally skipped: tab bar (needs tint), white-on-colored buttons, 10px friend badges, category fallbacks, grey broken-streak hero
+- **Refreshed shop / hamster / category art** (38 images total):
+  - 21 shop items: 3 outfits, 6 accessories (standalone + "hamster wearing"), 3 enclosure items
+  - 3 hamster states (happy / hungry / rest)
+  - 1 completed-workout celebration image
+  - 5 at-home categories (Core, Desk, Upper/Lower Body, Quick Sweats)
+  - 8 gym body parts (Arms, Back, Cardio, Chest, Class, Core, Legs, Shoulders)
+- **Build 58 assigned by EAS** (remote versioning — `app.config.js` buildNumber is advisory only)
+
+**Files Changed:**
+- `src/models/DailyExercise.js` — "Daily 33" + `pickExerciseForDate`, `getLocalDateKey`
+- `src/services/DailyExerciseService.js` — NEW — AsyncStorage cycle state + async `getTodaysExercise`
+- `src/screens/Home/HomeScreen.js` — async exercise load, StatIcons on stats row + top badge
+- `src/screens/Settings/SettingsScreen.js` — dynamic version via Constants, points icon
+- `src/config/AssetImages.js` — `StatIcons` export
+- 18 screens/components updated to use `StatIcons` images in place of Ionicons
+- `app.config.js` — buildNumber reverted to 57 (remote versioning ignores this field)
+- `assets/images/` — 38 PNGs refreshed
+
+---
 
 ### Session 88 (Apr 5, 2026)
 **Friends Tab Removed + Check-In UI Redesign + Schedule Sync Fix**
