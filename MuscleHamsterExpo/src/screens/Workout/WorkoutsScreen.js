@@ -75,8 +75,7 @@ export default function WorkoutsScreen({ navigation, route }) {
   const cardWidth = (effectiveWidth - (spacing.horizontal * 2) - (12 * (numColumns - 1))) / numColumns;
 
   // State
-  const [activeTab, setActiveTab] = useState('plan'); // 'plan' or 'browse'
-  const [browseSubTab, setBrowseSubTab] = useState('home'); // 'home', 'gym', or 'myworkouts'
+  const [activeTab, setActiveTab] = useState('plan'); // 'plan', 'home', or 'gym'
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDay, setSelectedDay] = useState(getTodayName()); // Default to today
 
@@ -150,28 +149,14 @@ export default function WorkoutsScreen({ navigation, route }) {
   // Handle multiple workout selection
   const handleSelectWorkouts = async (workoutsArray) => {
     if (modalDayName && workoutsArray.length > 0) {
-      console.log('[WorkoutsScreen] Saving workouts for', modalDayName, {
-        workoutCount: workoutsArray.length,
-        workouts: workoutsArray.map(w => w.workoutName),
-      });
-
       // Store the day we're saving to before closing modal
       const savedDay = modalDayName;
 
       const success = await scheduleWorkout(savedDay, workoutsArray);
 
-      console.log('[WorkoutsScreen] After save:', {
-        success,
-        savedDay,
-        selectedDay,
-      });
-
       if (success) {
-        console.log('[WorkoutsScreen] Workouts saved successfully for', savedDay);
         // Ensure we're showing the day we just saved to
         setSelectedDay(savedDay);
-      } else {
-        console.warn('[WorkoutsScreen] Failed to save workouts for', savedDay);
       }
 
       // Close modal after ensuring selectedDay is set
@@ -247,20 +232,13 @@ export default function WorkoutsScreen({ navigation, route }) {
   // Get selected day data
   const selectedDayData = currentWeekSchedule?.days?.[selectedDay] || {};
 
-  // Debug logging - this runs on every render
-  console.log('[WorkoutsScreen] RENDER:', {
-    selectedDay,
-    hasSchedule: !!currentWeekSchedule,
-    weekStart: currentWeekSchedule?.weekStart,
-    selectedDayType: selectedDayData?.type,
-    selectedDayWorkouts: selectedDayData?.workouts?.length || 0,
-    selectedDayWorkoutNames: selectedDayData?.workouts?.map(w => w.workoutName) || [],
-    allDaysWithData: currentWeekSchedule?.days
-      ? Object.entries(currentWeekSchedule.days)
-          .filter(([k, v]) => v?.type && v.type !== 'empty')
-          .map(([k, v]) => `${k}:${v.type}`)
-      : [],
-  });
+  if (__DEV__) {
+    console.log('[WorkoutsScreen] RENDER:', {
+      selectedDay,
+      selectedDayType: selectedDayData?.type,
+      selectedDayWorkouts: selectedDayData?.workouts?.length || 0,
+    });
+  }
 
   if (isScheduleLoading && !currentWeekSchedule) {
     return <LoadingView message="Loading your plan..." />;
@@ -269,7 +247,7 @@ export default function WorkoutsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Tab Selector - 2 tabs */}
+        {/* Tab Selector - 3 flat tabs */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'plan' && styles.tabActive]}
@@ -277,7 +255,7 @@ export default function WorkoutsScreen({ navigation, route }) {
           >
             <Ionicons
               name="calendar"
-              size={18}
+              size={16}
               color={activeTab === 'plan' ? '#FFF8F0' : '#6B5D52'}
             />
             <Text style={[styles.tabText, activeTab === 'plan' && styles.tabTextActive]}>
@@ -285,16 +263,29 @@ export default function WorkoutsScreen({ navigation, route }) {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'browse' && styles.tabActive]}
-            onPress={() => setActiveTab('browse')}
+            style={[styles.tab, activeTab === 'home' && styles.tabActive]}
+            onPress={() => setActiveTab('home')}
           >
             <Ionicons
-              name="search"
-              size={18}
-              color={activeTab === 'browse' ? '#FFF8F0' : '#6B5D52'}
+              name="home-outline"
+              size={16}
+              color={activeTab === 'home' ? '#FFF8F0' : '#6B5D52'}
             />
-            <Text style={[styles.tabText, activeTab === 'browse' && styles.tabTextActive]}>
-              Browse
+            <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>
+              At Home
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'gym' && styles.tabActive]}
+            onPress={() => setActiveTab('gym')}
+          >
+            <Ionicons
+              name="barbell-outline"
+              size={16}
+              color={activeTab === 'gym' ? '#FFF8F0' : '#6B5D52'}
+            />
+            <Text style={[styles.tabText, activeTab === 'gym' && styles.tabTextActive]}>
+              At Gym
             </Text>
           </TouchableOpacity>
         </View>
@@ -314,7 +305,7 @@ export default function WorkoutsScreen({ navigation, route }) {
             isTablet && { maxWidth: contentMaxWidth + 48, width: '100%' }
           ]}>
             {activeTab === 'plan' ? (
-              // MY PLAN TAB - New horizontal slider design
+              // MY PLAN TAB
               <View style={styles.section}>
                 {/* Horizontal Day Slider */}
                 <HorizontalDaySlider
@@ -323,7 +314,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                   onDaySelect={handleDaySelect}
                 />
 
-                {/* Day Detail Expander - key changes when day data changes to force re-render */}
+                {/* Day Detail Expander */}
                 <DayDetailExpander
                   key={`${selectedDay}-${selectedDayData?.type || 'empty'}-${selectedDayData?.workouts?.length || 0}-${(selectedDayData?.workouts || []).filter(w => w.completed).length}`}
                   dayName={selectedDay}
@@ -333,122 +324,95 @@ export default function WorkoutsScreen({ navigation, route }) {
                   onAddWorkout={handleOpenAddWorkout}
                   onLogRestDay={handleLogRestDay}
                 />
+
+                {/* My Custom Workouts link */}
+                {customWorkouts && customWorkouts.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.myWorkoutsLink}
+                    onPress={() => setActiveTab('myworkouts')}
+                  >
+                    <Ionicons name="person-outline" size={18} color="#8B5A2B" />
+                    <Text style={styles.myWorkoutsLinkText}>My Custom Workouts</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#8B5A2B" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ) : activeTab === 'home' ? (
+              // AT HOME TAB
+              <View style={styles.section}>
+                <View style={styles.browseHeader}>
+                  <Ionicons name="home" size={20} color="#FF9500" />
+                  <Text style={styles.browseTitle}>Choose Category</Text>
+                </View>
+                <Text style={styles.browseSubtitle}>
+                  No equipment needed - workout anywhere
+                </Text>
+
+                <View style={styles.bodyPartGrid}>
+                  {HOME_CATEGORIES.map((category) => (
+                    <TouchableOpacity
+                      key={category.id}
+                      style={[styles.bodyPartCard, { width: cardWidth }]}
+                      onPress={() => navigateToHomeCategory(category)}
+                      accessibilityLabel={`${category.name} workouts`}
+                    >
+                      <Image
+                        source={HomeCategoryImages[category.id]}
+                        style={styles.bodyPartImage}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.bodyPartName}>{category.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : activeTab === 'gym' ? (
+              // AT GYM TAB
+              <View style={styles.section}>
+                <View style={styles.browseHeader}>
+                  <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
+                  <Text style={styles.browseTitle}>Choose Body Part</Text>
+                </View>
+                <Text style={styles.browseSubtitle}>
+                  Target specific muscle groups
+                </Text>
+
+                <View style={styles.bodyPartGrid}>
+                  {GYM_BODY_PARTS.map((part) => (
+                    <TouchableOpacity
+                      key={part.id}
+                      style={[styles.bodyPartCard, { width: cardWidth }]}
+                      onPress={() => navigateToBodyPart(part)}
+                      accessibilityLabel={`${part.name} workouts`}
+                    >
+                      <Image
+                        source={GymBodyPartImages[part.id]}
+                        style={[
+                          styles.bodyPartImage,
+                          part.id === 'shoulders' && styles.bodyPartImageSmaller
+                        ]}
+                        resizeMode="contain"
+                      />
+                      <Text style={styles.bodyPartName}>{part.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             ) : (
-              // BROWSE TAB - Now with 3 sub-tabs
+              // MY WORKOUTS (accessed via link from plan tab)
               <View style={styles.section}>
-                {/* Sub-tabs: At Home / At Gym / My Workouts */}
-                <View style={styles.subTabContainer}>
-                  <TouchableOpacity
-                    style={[styles.subTab, browseSubTab === 'home' && styles.subTabActive]}
-                    onPress={() => setBrowseSubTab('home')}
-                  >
-                    <Ionicons
-                      name="home-outline"
-                      size={16}
-                      color={browseSubTab === 'home' ? '#8B5A2B' : '#6B5D52'}
-                    />
-                    <Text style={[styles.subTabText, browseSubTab === 'home' && styles.subTabTextActive]}>
-                      At Home
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.subTab, browseSubTab === 'gym' && styles.subTabActive]}
-                    onPress={() => setBrowseSubTab('gym')}
-                  >
-                    <Ionicons
-                      name="barbell-outline"
-                      size={16}
-                      color={browseSubTab === 'gym' ? '#8B5A2B' : '#6B5D52'}
-                    />
-                    <Text style={[styles.subTabText, browseSubTab === 'gym' && styles.subTabTextActive]}>
-                      At Gym
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.subTab, browseSubTab === 'myworkouts' && styles.subTabActive]}
-                    onPress={() => setBrowseSubTab('myworkouts')}
-                  >
-                    <Ionicons
-                      name="person-outline"
-                      size={16}
-                      color={browseSubTab === 'myworkouts' ? '#8B5A2B' : '#6B5D52'}
-                    />
-                    <Text style={[styles.subTabText, browseSubTab === 'myworkouts' && styles.subTabTextActive]}>
-                      My Workouts
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {browseSubTab === 'home' ? (
-                  // AT HOME
-                  <>
-                    <View style={styles.browseHeader}>
-                      <Ionicons name="home" size={20} color="#FF9500" />
-                      <Text style={styles.browseTitle}>Choose Category</Text>
-                    </View>
-                    <Text style={styles.browseSubtitle}>
-                      No equipment needed - workout anywhere
-                    </Text>
-
-                    <View style={styles.bodyPartGrid}>
-                      {HOME_CATEGORIES.map((category) => (
-                        <TouchableOpacity
-                          key={category.id}
-                          style={[styles.bodyPartCard, { width: cardWidth }]}
-                          onPress={() => navigateToHomeCategory(category)}
-                          accessibilityLabel={`${category.name} workouts`}
-                        >
-                          <Image
-                            source={HomeCategoryImages[category.id]}
-                            style={styles.bodyPartImage}
-                            resizeMode="contain"
-                          />
-                          <Text style={styles.bodyPartName}>{category.name}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </>
-                ) : browseSubTab === 'gym' ? (
-                  // AT GYM
-                  <>
-                    <View style={styles.browseHeader}>
-                      <Image source={StatIcons.workout} style={{ width: 22, height: 22 }} resizeMode="contain" />
-                      <Text style={styles.browseTitle}>Choose Body Part</Text>
-                    </View>
-                    <Text style={styles.browseSubtitle}>
-                      Target specific muscle groups
-                    </Text>
-
-                    <View style={styles.bodyPartGrid}>
-                      {GYM_BODY_PARTS.map((part) => (
-                        <TouchableOpacity
-                          key={part.id}
-                          style={[styles.bodyPartCard, { width: cardWidth }]}
-                          onPress={() => navigateToBodyPart(part)}
-                          accessibilityLabel={`${part.name} workouts`}
-                        >
-                          <Image
-                            source={GymBodyPartImages[part.id]}
-                            style={[
-                              styles.bodyPartImage,
-                              part.id === 'shoulders' && styles.bodyPartImageSmaller
-                            ]}
-                            resizeMode="contain"
-                          />
-                          <Text style={styles.bodyPartName}>{part.name}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </>
-                ) : (
-                  // MY WORKOUTS
-                  <MyWorkoutsSection
-                    customWorkouts={customWorkouts}
-                    onAddWorkout={navigateToAddWorkout}
-                    onWorkoutPress={navigateToCustomWorkout}
-                  />
-                )}
+                <TouchableOpacity
+                  style={styles.backToplanLink}
+                  onPress={() => setActiveTab('plan')}
+                >
+                  <Ionicons name="arrow-back" size={18} color="#8B5A2B" />
+                  <Text style={styles.myWorkoutsLinkText}>Back to My Plan</Text>
+                </TouchableOpacity>
+                <MyWorkoutsSection
+                  customWorkouts={customWorkouts}
+                  onAddWorkout={navigateToAddWorkout}
+                  onWorkoutPress={navigateToCustomWorkout}
+                />
               </View>
             )}
           </View>
@@ -492,16 +456,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     backgroundColor: '#FFF8F0',
-    gap: 6,
+    gap: 5,
   },
   tabActive: {
     backgroundColor: '#8B5A2B',
   },
   tabText: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '600',
     color: '#6B5D52',
   },
@@ -520,33 +484,28 @@ const styles = StyleSheet.create({
   section: {
     paddingHorizontal: 16,
   },
-  subTabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 4,
-    marginBottom: 16,
-  },
-  subTab: {
-    flex: 1,
+  myWorkoutsLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 8,
-    gap: 4,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(139,90,43,0.06)',
   },
-  subTabActive: {
-    backgroundColor: '#FFF8F0',
-  },
-  subTabText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#6B5D52',
-  },
-  subTabTextActive: {
-    color: '#8B5A2B',
+  myWorkoutsLinkText: {
+    flex: 1,
+    fontSize: 14,
     fontWeight: '600',
+    color: '#8B5A2B',
+  },
+  backToplanLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
   },
   browseHeader: {
     flexDirection: 'row',

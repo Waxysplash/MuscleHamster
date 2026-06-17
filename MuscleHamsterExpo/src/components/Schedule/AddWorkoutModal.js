@@ -269,21 +269,13 @@ export default function AddWorkoutModal({
   // Handle save button
   const handleSave = () => {
     if (selectedWorkouts.length > 0) {
-      console.log('AddWorkoutModal: Saving workouts', {
-        dayName,
-        workoutCount: selectedWorkouts.length,
-        workouts: selectedWorkouts.map((w) => w.workoutName),
-      });
       onSelectWorkouts?.(selectedWorkouts);
-    } else {
-      console.warn('AddWorkoutModal: No workouts selected');
     }
   };
 
   // Handle using a saved routine
   // Uses native Alert.alert because ThemedAlert renders behind this Modal
   const handleUseRoutine = async (routine) => {
-    console.log('AddWorkoutModal: Using routine', routine.name);
     const result = await useRoutine(routine.id);
 
     if (result.success) {
@@ -489,10 +481,7 @@ export default function AddWorkoutModal({
                               styles.routineDeleteButton,
                               pressed && styles.routineDeleteButtonPressed,
                             ]}
-                            onPress={() => {
-                              console.log('Delete button pressed for:', routine.name);
-                              handleDeleteRoutine(routine);
-                            }}
+                            onPress={() => handleDeleteRoutine(routine)}
                             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                           >
                             <Ionicons name="close-circle" size={24} color="#8B5A2B" />

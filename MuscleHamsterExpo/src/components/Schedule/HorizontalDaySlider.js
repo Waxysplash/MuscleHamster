@@ -11,7 +11,7 @@ import SliderDayItem from './SliderDayItem';
 import { DAYS_OF_WEEK, getTodayName } from '../../services/ScheduleService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const ITEM_WIDTH = 56; // Width of each day item
+const ITEM_WIDTH = 64; // Width of each day item
 const ITEM_SPACING = 4;
 const TOTAL_ITEM_WIDTH = ITEM_WIDTH + ITEM_SPACING;
 
@@ -73,14 +73,6 @@ export default function HorizontalDaySlider({
     const dayData = schedule?.days?.[dayName] || {};
     const isToday = dayName === todayName;
     const isSelected = dayName === selectedDay;
-
-    // Debug log for each day
-    if (dayData?.type && dayData.type !== 'empty') {
-      console.log(`[HorizontalDaySlider] ${dayName}:`, {
-        type: dayData.type,
-        workouts: dayData.workouts?.length || 0
-      });
-    }
 
     return (
       <SliderDayItem

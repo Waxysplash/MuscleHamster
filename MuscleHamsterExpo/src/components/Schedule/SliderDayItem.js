@@ -101,6 +101,7 @@ export default function SliderDayItem({
       ]}
       onPress={() => onPress?.(dayName, dayData)}
       activeOpacity={0.7}
+      hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
       accessibilityLabel={`${DAY_LABELS[dayName]} - ${dayType === DAY_TYPES.EMPTY ? 'No workout' : dayType}`}
     >
       {/* Day label */}
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 6,
-    minWidth: 52,
+    minWidth: 60,
   },
   selectedContainer: {
     // Selected state handled by iconWrapper
@@ -161,9 +162,9 @@ const styles = StyleSheet.create({
     borderColor: '#FFD9A8',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: 'center',
     justifyContent: 'center',
   },

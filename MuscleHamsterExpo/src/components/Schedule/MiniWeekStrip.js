@@ -31,11 +31,12 @@ import {
 export default function MiniWeekStrip({
   weekStart,
   schedule,
+  isEmpty,
   onPress,
 }) {
   const todayName = getTodayName();
-  const isThisWeek = isCurrentWeek(weekStart);
-  const days = schedule?.days || {};
+  const isThisWeek = isEmpty ? true : isCurrentWeek(weekStart);
+  const days = isEmpty ? {} : (schedule?.days || {});
 
   // Get indicator for a day
   const getDayIndicator = (dayName) => {
@@ -77,7 +78,7 @@ export default function MiniWeekStrip({
     >
       <View style={styles.header}>
         <Text style={styles.headerText}>This Week</Text>
-        <Text style={styles.viewPlanText}>View Plan →</Text>
+        <Text style={styles.viewPlanText}>{isEmpty ? 'Plan your week →' : 'View Plan →'}</Text>
       </View>
 
       <View style={styles.daysRow}>
@@ -173,14 +174,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   indicatorContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   todayIndicatorContainer: {
-    backgroundColor: 'rgba(255,149,0,0.1)',
+    backgroundColor: 'rgba(255,149,0,0.2)',
   },
   indicator: {
     fontSize: 18,

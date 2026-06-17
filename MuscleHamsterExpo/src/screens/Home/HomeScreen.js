@@ -312,98 +312,126 @@ export default function HomeScreen({ navigation }) {
           {/* Today's Action Card - Schedule-aware */}
           {renderTodayActionCard()}
 
-          {/* Mini Week Strip - Only show if user has a schedule */}
-          {hasScheduleThisWeek && (
-            <MiniWeekStrip
-              weekStart={currentWeekStart}
-              schedule={currentWeekSchedule}
-              onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
-            />
-          )}
+          {/* Mini Week Strip - Always visible */}
+          <MiniWeekStrip
+            weekStart={currentWeekStart}
+            schedule={currentWeekSchedule}
+            isEmpty={!hasScheduleThisWeek}
+            onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
+          />
 
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            {/* Streak Card */}
-            <View style={[styles.statCard, styles.streakCard]}>
-              <Image source={StatIcons.streak} style={styles.statIcon} resizeMode="contain" />
-              <Text style={[styles.statNumber, { color: streakInfo.color }]}>{currentStreak}</Text>
-              <Text style={styles.statLabel}>day streak</Text>
-            </View>
+          {/* YOUR PROGRESS Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>YOUR PROGRESS</Text>
 
-            {/* Workouts Card */}
-            <View style={styles.statCard}>
-              <Image source={StatIcons.workout} style={styles.statIcon} resizeMode="contain" />
-              <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
-              <Text style={styles.statLabel}>workouts</Text>
-            </View>
-
-            {/* Points Card */}
-            <View style={styles.statCard}>
-              <Image source={StatIcons.points} style={styles.statIcon} resizeMode="contain" />
-              <Text style={styles.statNumber}>{totalPoints}</Text>
-              <Text style={styles.statLabel}>points</Text>
-            </View>
-          </View>
-
-          {/* Streak Status Message */}
-          {streakStatus?.status === StreakStatus.AT_RISK && (
-            <View style={styles.streakWarning}>
-              <Ionicons name="alert-circle" size={20} color="#FF9500" />
-              <Text style={styles.streakWarningText}>{streakInfo.text}</Text>
-            </View>
-          )}
-
-          {/* Restore Streak Option */}
-          {previousBrokenStreak && previousBrokenStreak > 0 && (
-            <TouchableOpacity
-              style={styles.restoreCard}
-              onPress={() => navigation.navigate('StreakFreeze')}
-            >
-              <Ionicons name="snow" size={24} color="#5AC8FA" />
-              <View style={styles.restoreInfo}>
-                <Text style={styles.restoreTitle}>Streak Freeze Available</Text>
-                <Text style={styles.restoreSubtitle}>Restore your {previousBrokenStreak} day streak</Text>
+            {/* Stats Row */}
+            <View style={styles.statsRow}>
+              {/* Streak Card */}
+              <View style={[
+                styles.statCard,
+                currentStreak > 0 && { borderLeftWidth: 3, borderLeftColor: streakInfo.color },
+              ]}>
+                <Image source={StatIcons.streak} style={styles.statIcon} resizeMode="contain" />
+                <Text style={[styles.statNumber, { color: streakInfo.color }]}>{currentStreak}</Text>
+                <Text style={styles.statLabel}>day streak</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
-            </TouchableOpacity>
-          )}
 
-          {/* Shop, Customize & Rest Day Buttons Row */}
-          <View style={styles.actionButtonsRow}>
-            {/* Shop Button */}
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Shop')}
-            >
-              <Ionicons name="bag" size={20} color="#FF9500" />
-              <Text style={styles.actionButtonText}>Shop</Text>
-            </TouchableOpacity>
+              {/* Workouts Card */}
+              <View style={styles.statCard}>
+                <Image source={StatIcons.workout} style={styles.statIcon} resizeMode="contain" />
+                <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
+                <Text style={styles.statLabel}>workouts</Text>
+              </View>
 
-            {/* Customize Button */}
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Inventory')}
-            >
-              <Ionicons name="sparkles" size={20} color="#8B5A2B" />
-              <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Customize</Text>
-            </TouchableOpacity>
+              {/* Points Card */}
+              <View style={styles.statCard}>
+                <Image source={StatIcons.points} style={styles.statIcon} resizeMode="contain" />
+                <Text style={styles.statNumber}>{totalPoints}</Text>
+                <Text style={styles.statLabel}>points</Text>
+              </View>
+            </View>
 
-            {/* Rest Day Button */}
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('QuickRestDay')}
-            >
-              <Ionicons name="bed" size={20} color="#8B5A2B" />
-              <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Rest Day</Text>
-            </TouchableOpacity>
+            {/* Longest Streak - inside progress section */}
+            {stats?.longestStreak > 0 && (
+              <View style={styles.longestStreakRow}>
+                <Image source={StatIcons.streak} style={{ width: 16, height: 16 }} resizeMode="contain" />
+                <Text style={styles.longestStreak}>
+                  Personal best: {stats.longestStreak} day streak
+                </Text>
+              </View>
+            )}
+
+            {/* Streak Status Message */}
+            {streakStatus?.status === StreakStatus.AT_RISK && (
+              <View style={styles.streakWarning}>
+                <Ionicons name="alert-circle" size={20} color="#FF9500" />
+                <Text style={styles.streakWarningText}>{streakInfo.text}</Text>
+              </View>
+            )}
+
+            {/* Restore Streak Option */}
+            {previousBrokenStreak && previousBrokenStreak > 0 && (
+              <TouchableOpacity
+                style={styles.restoreCard}
+                onPress={() => navigation.navigate('StreakFreeze')}
+              >
+                <Ionicons name="snow" size={24} color="#5AC8FA" />
+                <View style={styles.restoreInfo}>
+                  <Text style={styles.restoreTitle}>Streak Freeze Available</Text>
+                  <Text style={styles.restoreSubtitle}>Restore your {previousBrokenStreak} day streak</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
+              </TouchableOpacity>
+            )}
           </View>
 
-          {/* Longest Streak */}
-          {stats?.longestStreak > 0 && (
-            <Text style={styles.longestStreak}>
-              Personal best: {stats.longestStreak} day streak
-            </Text>
-          )}
+          {/* QUICK ACTIONS Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>QUICK ACTIONS</Text>
+
+            {/* Rest Day Card - separate from Shop/Customize, hidden after check-in */}
+            {!hasCheckedInToday && !hasLoggedRestDayToday && (
+              <TouchableOpacity
+                style={styles.restDayActionCard}
+                onPress={() => navigation.navigate('QuickRestDay')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.restDayActionIcon}>
+                  <Ionicons name="bed" size={22} color="#8B5A2B" />
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.restDayActionTitle}>Take a Rest Day</Text>
+                  <Text style={styles.restDayActionSubtitle}>Rest days count toward your streak</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+              </TouchableOpacity>
+            )}
+
+            {/* Shop & Customize Buttons */}
+            <View style={styles.actionButtonsRow}>
+              {/* Shop Button */}
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('Shop')}
+              >
+                <View style={styles.shopIconBg}>
+                  <Ionicons name="bag" size={18} color="#FF9500" />
+                </View>
+                <Text style={styles.actionButtonText}>Shop</Text>
+              </TouchableOpacity>
+
+              {/* Customize Button */}
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('Inventory')}
+              >
+                <View style={styles.customizeIconBg}>
+                  <Ionicons name="sparkles" size={18} color="#8B5A2B" />
+                </View>
+                <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Customize</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           </View>
         </ScrollView>
       </View>
@@ -532,14 +560,14 @@ const styles = StyleSheet.create({
   contentSection: {
     flex: 1,
     backgroundColor: '#FFF8F0',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: -20,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    marginTop: -24,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.06,
         shadowRadius: 6,
       },
       android: {
@@ -612,7 +640,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(52,199,89,0.12)',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 20,
   },
@@ -747,18 +775,31 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
+  // Section grouping
+  section: {
+    marginBottom: 8,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6B5D52',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
   // Stats Row
   statsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(139,90,43,0.06)',
     ...Platform.select({
       ios: {
         shadowColor: '#8B5A2B',
@@ -771,17 +812,12 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  streakCard: {
-    backgroundColor: '#FFF8F0',
-    borderWidth: 1,
-    borderColor: 'rgba(255,59,48,0.2)',
-  },
   statIcon: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#4A3728',
     marginTop: 6,
@@ -792,14 +828,21 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: '500',
   },
+  longestStreakRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 12,
+  },
   // Streak Warning
   streakWarning: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,149,0,0.12)',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 12,
     gap: 8,
   },
   streakWarningText: {
@@ -831,21 +874,52 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
   },
+  // Rest Day Action Card
+  restDayActionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F0EB',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(139,90,43,0.12)',
+  },
+  restDayActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(139,90,43,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  restDayActionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#4A3728',
+  },
+  restDayActionSubtitle: {
+    fontSize: 12,
+    color: '#6B5D52',
+    marginTop: 2,
+  },
   // Shop & Customize Buttons Row
   actionButtonsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 4,
   },
   actionButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFF8F0',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
     gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(139,90,43,0.06)',
     ...Platform.select({
       ios: {
         shadowColor: '#8B5A2B',
@@ -858,6 +932,22 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  shopIconBg: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255,149,0,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  customizeIconBg: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(139,90,43,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   actionButtonText: {
     fontSize: 15,
     fontWeight: '600',
@@ -868,6 +958,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     color: '#6B5D52',
-    marginTop: 8,
   },
 });

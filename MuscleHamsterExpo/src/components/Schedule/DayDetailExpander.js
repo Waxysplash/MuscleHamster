@@ -55,15 +55,9 @@ export default function DayDetailExpander({
   // Only show day-level completed state for rest days that have been logged
   const isRestDayCompleted = dayData?.completed === true && dayType === DAY_TYPES.REST;
 
-  // Debug logging
-  console.log('[DayDetailExpander] Rendering:', {
-    dayName,
-    dayType,
-    workoutCount,
-    completedWorkoutCount,
-    isRestDayCompleted,
-    rawDayData: dayData,
-  });
+  if (__DEV__) {
+    console.log('[DayDetailExpander] Rendering:', { dayName, dayType, workoutCount });
+  }
 
   // Animate layout changes
   React.useEffect(() => {
@@ -187,20 +181,22 @@ export default function DayDetailExpander({
           })}
         </View>
 
-        {/* Show completion progress if some workouts are done */}
+        {/* Progress bar when some workouts are done */}
         {completedWorkoutCount > 0 && completedWorkoutCount < workoutCount && (
           <View style={styles.progressRow}>
-            <Ionicons name="fitness-outline" size={16} color="#6B5D52" />
+            <View style={styles.progressBarTrack}>
+              <View style={[styles.progressBarFill, { width: `${(completedWorkoutCount / workoutCount) * 100}%` }]} />
+            </View>
             <Text style={styles.progressText}>
-              {completedWorkoutCount} of {workoutCount} done
+              {completedWorkoutCount} of {workoutCount}
             </Text>
           </View>
         )}
 
-        {/* Show celebration when all workouts are done */}
+        {/* Celebration when all workouts are done */}
         {completedWorkoutCount === workoutCount && workoutCount > 0 && (
           <View style={styles.allDoneRow}>
-            <Ionicons name="checkmark-circle" size={18} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={20} color="#34C759" />
             <Text style={styles.allDoneText}>All workouts done!</Text>
           </View>
         )}
@@ -230,10 +226,13 @@ const styles = StyleSheet.create({
 
   // Empty state
   emptyCard: {
-    backgroundColor: '#F5F0EB',
+    backgroundColor: '#FFF8F0',
     borderRadius: 16,
-    padding: 20,
+    padding: 24,
     alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(139,90,43,0.2)',
+    borderStyle: 'dashed',
   },
   emptyText: {
     fontSize: 15,
@@ -359,9 +358,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 12,
     gap: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#8B5A2B',
     shadowColor: '#4A3728',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -404,12 +405,23 @@ const styles = StyleSheet.create({
   progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 12,
-    gap: 6,
+    gap: 10,
+  },
+  progressBarTrack: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#E5DDD5',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#34C759',
   },
   progressText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#6B5D52',
     fontWeight: '500',
   },
@@ -418,14 +430,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 12,
-    gap: 6,
-    backgroundColor: '#E8F5E9',
-    borderRadius: 10,
-    paddingVertical: 10,
+    gap: 8,
+    backgroundColor: 'rgba(52,199,89,0.1)',
+    borderRadius: 12,
+    paddingVertical: 12,
     paddingHorizontal: 16,
   },
   allDoneText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: '#34C759',
   },

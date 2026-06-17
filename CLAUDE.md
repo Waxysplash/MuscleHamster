@@ -8,10 +8,13 @@ A self-care fitness app where users complete daily exercises to earn points and 
 
 ## Current Status
 
-**🚀 BUILD 37 READY TO SUBMIT**
+**Current release line: v1.0.6**
 
-- **Version**: 1.0.3 (Build 37)
+> ⚠️ For the live build/version and what's in flight, **always read `progress.md`** — it is the source of truth. Do not trust a hardcoded build number in this file.
+
+- **Version**: 1.0.6 (see `progress.md` for current build number)
 - **App ID**: 6759973700
+- **Bundle ID**: com.musclehamster.app
 - **App Store Connect**: https://appstoreconnect.apple.com/apps/6759973700
 
 ---
@@ -59,7 +62,7 @@ Muscle Hmaster/
 ## Quick Commands
 
 ```bash
-cd "C:\Users\kamal\Downloads\Muscle Hmaster\Muscle Hmaster\MuscleHamsterExpo"
+cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main\MuscleHamsterExpo"
 npx expo start                                    # Run locally
 eas build --platform ios --profile production     # Production build
 eas submit --platform ios                         # Submit to App Store

@@ -1,6 +1,6 @@
 # Muscle Hamster — Session Context
 
-**Status:** 🚀 v1.0.3 (Build 37) ready to submit to App Store
+**Status:** v1.0.6 — see `progress.md` for the current build number and what's in flight
 
 ---
 
@@ -49,7 +49,7 @@ Muscle Hmaster/
 ## Key Commands
 
 ```bash
-cd "C:\Users\kamal\Downloads\Muscle Hmaster\Muscle Hmaster\MuscleHamsterExpo"
+cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main\MuscleHamsterExpo"
 npx expo start                                    # Run locally
 eas build --platform ios --profile production     # Production build
 eas submit --platform ios                         # Submit to App Store
@@ -78,7 +78,7 @@ eas submit --platform ios                         # Submit to App Store
 1. Update `progress.md` with what you did
 2. Push to GitHub:
    ```bash
-   cd "C:\Users\kamal\Downloads\Muscle Hmaster\Muscle Hmaster\MuscleHamsterExpo"
+   cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main"
    git add . && git commit -m "Session N: <summary>" && git push
    ```
 
