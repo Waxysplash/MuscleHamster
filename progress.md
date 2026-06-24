@@ -13,7 +13,7 @@
 | App ID | 6759973700 |
 | Bundle ID | com.musclehamster.app |
 | Live Version | 1.0.4 (Build 55) |
-| Building | 1.0.5 (Build 58) |
+| In Review | 1.0.6 (Build 59) |
 | Previous Version | 1.0.3 (Build 53) |
 | Privacy Policy | https://waxysplash.github.io/MuscleHamster/privacy-policy.html |
 | Terms of Service | https://waxysplash.github.io/MuscleHamster/terms-of-service.html |
@@ -24,7 +24,7 @@
 ## What's Next
 
 ### iOS
-- [ ] v1.0.5 (Build 58) — Waiting for Review
+- [ ] v1.0.6 (Build 59) — Submitted to TestFlight / awaiting App Store review
 - [ ] Monitor user feedback and reviews
 
 ### Google Play (In Progress)
