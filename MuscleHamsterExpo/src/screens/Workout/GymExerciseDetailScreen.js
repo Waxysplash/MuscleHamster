@@ -9,11 +9,13 @@ import {
   SafeAreaView,
   TextInput,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAlert } from '../../context/AlertContext';
 import { JournalService } from '../../services/JournalService';
 import Logger from '../../services/LoggerService';
+import { ExerciseIcon } from '../../config/AssetImages';
 
 export default function GymExerciseDetailScreen({ route, navigation }) {
   const { exercise, bodyPart } = route.params;
@@ -166,7 +168,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
           {/* Exercise Icon & Name */}
           <View style={styles.heroSection}>
             <View style={[styles.iconCircle, { backgroundColor: bodyPart?.color + '20' || '#FF950020' }]}>
-              <Ionicons name="barbell" size={48} color={bodyPart?.color || '#FF9500'} />
+              <Image source={ExerciseIcon} style={{ width: 48, height: 48 }} resizeMode="contain" />
             </View>
             <Text style={styles.exerciseName}>{exercise.name}</Text>
             {exercise.target && (

@@ -92,6 +92,9 @@ export const getGymCategoryImage = (id) => GymCategoryImages[id] || null;
 // Helper to get an at-home category image by id
 export const getHomeCategoryImage = (id) => HomeCategoryImages[id] || null;
 
+// Generic exercise icon (used on exercise detail headers)
+export const ExerciseIcon = require('../../assets/images/exercise_icon.png');
+
 // Helper to get shop item image by ID (for shop/inventory display)
 export const getShopItemImage = (itemId) => {
   if (OutfitImages[itemId]) return OutfitImages[itemId];
