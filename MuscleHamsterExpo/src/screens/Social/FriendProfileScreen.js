@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -27,7 +28,26 @@ import {
   getStreakStatusIcon,
   FriendStreakStatus,
   NudgeMessages,
+  HamsterState,
 } from '../../models/Friend';
+import { getHamsterImage } from '../../config/AssetImages';
+
+// Map HamsterState to image state name (mirrors SocialScreen)
+const mapHamsterStateToImageState = (state) => {
+  switch (state) {
+    case HamsterState.HUNGRY:
+      return 'hungry';
+    case HamsterState.CHILLIN:
+    case HamsterState.RESTED:
+    case 'rested':
+      return 'rest';
+    case HamsterState.HAPPY:
+    case HamsterState.EXCITED:
+    case HamsterState.PROUD:
+    default:
+      return 'happy';
+  }
+};
 
 export default function FriendProfileScreen() {
   const navigation = useNavigation();
@@ -124,6 +144,11 @@ export default function FriendProfileScreen() {
     }
   };
 
+  const friendImageState = profile.isRestingToday
+    ? 'rest'
+    : mapHamsterStateToImageState(profile.hamsterState);
+  const hamsterImage = getHamsterImage(friendImageState);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -147,7 +172,7 @@ export default function FriendProfileScreen() {
         {/* Hamster Header */}
         <View style={styles.hamsterHeader}>
           <View style={[styles.avatarLarge, { backgroundColor: `${stateColor}33` }]}>
-            <Ionicons name="paw" size={50} color={stateColor} />
+            <Image source={hamsterImage} style={styles.avatarImage} resizeMode="contain" />
           </View>
 
           <Text style={styles.displayName}>{profile.displayName}</Text>
@@ -480,6 +505,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
   },
   displayName: {
     fontSize: 24,

@@ -65,6 +65,33 @@ export const StatIcons = {
   points: require('../../assets/images/icon_points.png'),
 };
 
+// Gym workout category art (keys match workout type ids)
+export const GymCategoryImages = {
+  arms: require('../../assets/images/gym_arms.png'),
+  legs: require('../../assets/images/gym_legs.png'),
+  shoulders: require('../../assets/images/gym_shoulders.png'),
+  chest: require('../../assets/images/gym_chest.png'),
+  back: require('../../assets/images/gym_back.png'),
+  core: require('../../assets/images/gym_core.png'),
+  cardio: require('../../assets/images/gym_cardio.png'),
+  class: require('../../assets/images/gym_class.png'),
+};
+
+// At-home workout category art
+export const HomeCategoryImages = {
+  quick_sweats: require('../../assets/images/home_quick_sweats.png'),
+  upper_body: require('../../assets/images/home_upper_body.png'),
+  lower_body: require('../../assets/images/home_lower_body.png'),
+  core: require('../../assets/images/home_core.png'),
+  desk: require('../../assets/images/home_desk.png'),
+};
+
+// Helper to get a gym category image by type id (arms, cardio, class, ...)
+export const getGymCategoryImage = (id) => GymCategoryImages[id] || null;
+
+// Helper to get an at-home category image by id
+export const getHomeCategoryImage = (id) => HomeCategoryImages[id] || null;
+
 // Helper to get shop item image by ID (for shop/inventory display)
 export const getShopItemImage = (itemId) => {
   if (OutfitImages[itemId]) return OutfitImages[itemId];

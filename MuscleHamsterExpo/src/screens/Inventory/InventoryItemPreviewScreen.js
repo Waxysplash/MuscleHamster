@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Modal,
   Animated,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +18,12 @@ import { ShopService } from '../../services/ShopService';
 import Logger from '../../services/LoggerService';
 import { ShopItemCategory, ShopItemCategoryInfo, ShopItemRarityInfo } from '../../models/ShopItem';
 import LoadingView from '../../components/LoadingView';
+import {
+  getShopItemImage,
+  getHamsterImage,
+  HamsterWearingOutfit,
+  HamsterWearingAccessory,
+} from '../../config/AssetImages';
 
 export default function InventoryItemPreviewScreen({ route, navigation }) {
   const item = route.params?.item;
@@ -272,6 +279,14 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
     navigation.goBack();
   };
 
+  // Prefer the hamster wearing the item; fall back to standalone item art, then a paw
+  const previewImage =
+    category === ShopItemCategory.OUTFITS && HamsterWearingOutfit[item.id]
+      ? HamsterWearingOutfit[item.id]
+      : category === ShopItemCategory.ACCESSORIES && HamsterWearingAccessory[item.id]
+        ? HamsterWearingAccessory[item.id]
+        : getShopItemImage(item.id);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -281,7 +296,11 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
             {/* Hamster with item */}
             <View style={styles.hamsterPreview}>
               <View style={styles.hamsterCircle}>
-                <Ionicons name="paw" size={60} color="rgba(255,255,255,0.9)" />
+                {previewImage ? (
+                  <Image source={previewImage} style={styles.previewImage} resizeMode="contain" />
+                ) : (
+                  <Ionicons name="paw" size={60} color="rgba(255,255,255,0.9)" />
+                )}
               </View>
             </View>
 
@@ -369,7 +388,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
             {/* Hamster reaction */}
             <View style={styles.reactionContainer}>
               <View style={styles.reactionHamster}>
-                <Ionicons name="paw" size={30} color="#FF9500" />
+                <Image source={getHamsterImage('happy')} style={styles.reactionImage} resizeMode="contain" />
               </View>
               <Text style={styles.reactionText}>"{hamsterReaction}"</Text>
             </View>
@@ -459,6 +478,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  previewImage: {
+    width: 120,
+    height: 120,
   },
   inUseBadge: {
     position: 'absolute',
@@ -614,6 +637,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
+    overflow: 'hidden',
+  },
+  reactionImage: {
+    width: 52,
+    height: 52,
   },
   reactionText: {
     fontSize: 15,

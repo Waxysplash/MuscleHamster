@@ -9,6 +9,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +20,7 @@ import { ShopItemCategory, ShopItemCategoryInfo, ShopItemRarityInfo } from '../.
 import LoadingView from '../../components/LoadingView';
 import EmptyStateView from '../../components/EmptyStateView';
 import ErrorView from '../../components/ErrorView';
+import { getShopItemImage } from '../../config/AssetImages';
 
 export default function InventoryCategoryScreen({ route, navigation }) {
   const { category } = route.params;
@@ -203,6 +205,7 @@ export default function InventoryCategoryScreen({ route, navigation }) {
 // Item Card Component
 function InventoryItemCard({ item, isInUse, gradientColors, onPress }) {
   const rarityInfo = ShopItemRarityInfo[item.rarity];
+  const itemImage = getShopItemImage(item.id);
 
   const getInUseIcon = () => {
     switch (item.category) {
@@ -237,7 +240,11 @@ function InventoryItemCard({ item, isInUse, gradientColors, onPress }) {
     >
       {/* Preview */}
       <LinearGradient colors={gradientColors} style={styles.itemPreview}>
-        <Ionicons name="paw" size={40} color="rgba(255,255,255,0.9)" />
+        {itemImage ? (
+          <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
+        ) : (
+          <Ionicons name="paw" size={40} color="rgba(255,255,255,0.9)" />
+        )}
 
         {/* In-use badge */}
         {isInUse && (
@@ -333,6 +340,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+  },
+  itemImage: {
+    width: 76,
+    height: 76,
   },
   inUseBadge: {
     position: 'absolute',

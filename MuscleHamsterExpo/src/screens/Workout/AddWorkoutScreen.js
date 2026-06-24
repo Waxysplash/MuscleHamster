@@ -10,10 +10,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
+import { getGymCategoryImage } from '../../config/AssetImages';
 
 const WORKOUT_TYPES = [
   { id: 'arms', name: 'Arms', icon: 'hand-left-outline' },
@@ -125,28 +127,35 @@ export default function AddWorkoutScreen({ navigation }) {
           <View style={styles.section}>
             <Text style={styles.label}>Type</Text>
             <View style={styles.typeGrid}>
-              {WORKOUT_TYPES.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.typeButton,
-                    type === item.id && styles.typeButtonSelected,
-                  ]}
-                  onPress={() => setType(item.id)}
-                >
-                  <Ionicons
-                    name={item.icon}
-                    size={24}
-                    color={type === item.id ? '#FFF8F0' : '#6B5D52'}
-                  />
-                  <Text style={[
-                    styles.typeButtonText,
-                    type === item.id && styles.typeButtonTextSelected,
-                  ]}>
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {WORKOUT_TYPES.map((item) => {
+                const categoryImg = getGymCategoryImage(item.id);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.typeButton,
+                      type === item.id && styles.typeButtonSelected,
+                    ]}
+                    onPress={() => setType(item.id)}
+                  >
+                    {categoryImg ? (
+                      <Image source={categoryImg} style={styles.typeImage} resizeMode="contain" />
+                    ) : (
+                      <Ionicons
+                        name={item.icon}
+                        size={24}
+                        color={type === item.id ? '#FFF8F0' : '#6B5D52'}
+                      />
+                    )}
+                    <Text style={[
+                      styles.typeButtonText,
+                      type === item.id && styles.typeButtonTextSelected,
+                    ]}>
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
 
@@ -304,6 +313,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E8DFD5',
     gap: 8,
+  },
+  typeImage: {
+    width: 24,
+    height: 24,
   },
   typeButtonSelected: {
     backgroundColor: '#8B5A2B',
