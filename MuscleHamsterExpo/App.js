@@ -15,6 +15,7 @@ import {
   initializeNotificationService,
   setNotificationTapHandler,
 } from './src/services/NotificationService';
+import { initializeAudioService } from './src/services/AudioService';
 import { navigationRef, navigateToHome } from './src/services/NavigationService';
 import { NotificationType } from './src/models/NotificationPreferences';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
@@ -31,6 +32,9 @@ function NotificationInitializer({ children }) {
   useEffect(() => {
     // Initialize the notification service
     initializeNotificationService();
+
+    // Initialize the audio service (loads prefs + configures the audio session)
+    initializeAudioService();
 
     // Set up the notification tap handler
     // This is called when user taps a notification
