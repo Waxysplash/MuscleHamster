@@ -16,19 +16,20 @@ import {
   MusicTrackInfo,
 } from '../models/AudioPreferences';
 
-// Audio file mappings (placeholders - actual assets need to be added)
-// These should be require() statements pointing to actual audio files
+// Audio file mappings. Files live in the project-root assets/ (same place as
+// assets/images), so the path is ../../assets/sounds/ from here.
+// null = not yet sourced — playSFX no-ops gracefully for those.
 const SOUND_EFFECT_FILES = {
-  [SoundEffect.BUTTON_TAP]: null, // require('../assets/sounds/button_tap.wav')
+  [SoundEffect.BUTTON_TAP]: require('../../assets/sounds/button_tap.wav'),
   [SoundEffect.WORKOUT_START]: null,
   [SoundEffect.WORKOUT_COMPLETE]: null,
-  [SoundEffect.EXERCISE_TRANSITION]: null,
+  [SoundEffect.EXERCISE_TRANSITION]: require('../../assets/sounds/exercise_transition.wav'),
   [SoundEffect.CELEBRATION]: null,
   [SoundEffect.POINTS_EARNED]: null,
-  [SoundEffect.STREAK_INCREMENT]: null,
+  [SoundEffect.STREAK_INCREMENT]: require('../../assets/sounds/streak_increment.wav'),
   [SoundEffect.HAMSTER_HAPPY]: null,
   [SoundEffect.HAMSTER_EXCITED]: null,
-  [SoundEffect.PURCHASE]: null,
+  [SoundEffect.PURCHASE]: require('../../assets/sounds/purchase.wav'),
   [SoundEffect.LEVEL_UP]: null,
 };
 
