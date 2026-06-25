@@ -11,6 +11,8 @@ import { ShopScreen, ShopCategoryScreen } from '../screens/Shop';
 import { RestDayCheckInScreen, StreakFreezeScreen, QuickRestDayScreen } from '../screens/Activity';
 import { useFriends } from '../context/FriendContext';
 import FeatureFlags, { showSocialTab } from '../config/FeatureFlags';
+import { playSFX } from '../services/AudioService';
+import { SoundEffect } from '../models/AudioPreferences';
 
 // Settings screens
 import {
@@ -418,6 +420,11 @@ export default function MainTabNavigator() {
         tabBarStyle: {
           backgroundColor: '#FFF8F0',
           borderTopColor: 'rgba(139,90,43,0.1)',
+        },
+      }}
+      screenListeners={{
+        tabPress: () => {
+          playSFX(SoundEffect.BUTTON_TAP);
         },
       }}
       initialRouteName="Home"

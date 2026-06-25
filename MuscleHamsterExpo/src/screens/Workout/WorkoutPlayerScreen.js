@@ -17,6 +17,8 @@ import Logger from '../../services/LoggerService';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
 import { useResponsive, getTimerSize, getActionButtonSize } from '../../utils/responsive';
+import { playSFX } from '../../services/AudioService';
+import { SoundEffect } from '../../models/AudioPreferences';
 
 const PlayerState = {
   LOADING: 'loading',
@@ -151,6 +153,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       // Workout complete
       completeWorkout(completed);
     } else {
+      playSFX(SoundEffect.EXERCISE_TRANSITION);
       const nextIndex = currentExerciseIndex + 1;
       setCurrentExerciseIndex(nextIndex);
       setTimeRemaining(workout.exercises[nextIndex].duration);

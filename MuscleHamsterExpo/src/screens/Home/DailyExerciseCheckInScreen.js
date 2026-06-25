@@ -16,6 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 import { StatIcons } from '../../config/AssetImages';
+import { playSFX } from '../../services/AudioService';
+import { SoundEffect } from '../../models/AudioPreferences';
 
 const CheckInState = {
   READY: 'ready',
@@ -55,6 +57,9 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     try {
       const checkInResult = await recordDailyCheckIn(exercise);
       if (checkInResult.success) {
+        // Daily check-in bumps the streak. (When workout_complete / points_earned
+        // sounds are sourced, add them here too.)
+        playSFX(SoundEffect.STREAK_INCREMENT);
         setResult(checkInResult);
         setState(CheckInState.SUCCESS);
       } else {

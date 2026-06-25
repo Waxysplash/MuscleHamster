@@ -20,6 +20,8 @@ import { ShopService } from '../../services/ShopService';
 import Logger from '../../services/LoggerService';
 import { StatIcons } from '../../config/AssetImages';
 import { useActivity } from '../../context/ActivityContext';
+import { playSFX } from '../../services/AudioService';
+import { SoundEffect } from '../../models/AudioPreferences';
 import { useAlert } from '../../context/AlertContext';
 import { getShopItemImage } from '../../config/AssetImages';
 import LoadingView from '../../components/LoadingView';
@@ -86,6 +88,7 @@ export default function ShopScreen({ navigation }) {
       const result = await ShopService.purchaseItem(item.id, totalPoints);
 
       if (result.success) {
+        playSFX(SoundEffect.PURCHASE);
         await recordShopPurchase(item.id, item.name, result.pointsSpent);
         setOwnedItemIds((prev) => new Set([...prev, item.id]));
 

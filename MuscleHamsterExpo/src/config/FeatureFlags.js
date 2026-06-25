@@ -23,7 +23,7 @@ export const FeatureFlags = {
   advancedNotifications: false,
 
   // Audio system (SFX, music, volume controls)
-  audioSystem: false,
+  audioSystem: true,
 
   // Tips rotation on home screen
   tipsRotation: false,
