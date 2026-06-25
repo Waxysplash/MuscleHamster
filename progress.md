@@ -2,7 +2,7 @@
 
 **Status:** v1.0.6 (Build 59) - Submitted to TestFlight (processing)
 **Version:** 1.0.6 (Build 59) - Daily exercise cycling, dynamic version, custom art refresh
-**Last Updated:** Apr 24, 2026 (Session 89)
+**Last Updated:** Jun 23, 2026 (Session 91)
 
 ---
 
@@ -141,6 +141,27 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 91 (Jun 23, 2026)
+**OneDrive data-loss recovery + art audit fixes + audio scaffolding**
+
+- **Recovered from a OneDrive data-loss event.** OneDrive Files On-Demand evicted the local source (`src`/`assets`/`.git` became empty placeholders) and its cloud could not rehydrate them. Re-cloned from GitHub (`Waxysplash/MuscleHamster`, current through Session 90) to **`C:\dev\MuscleHamster`** — now OUTSIDE OneDrive (permanent fix). `npm install` restored node_modules. **Work from `C:\dev\MuscleHamster` going forward; the old OneDrive copy is dead.**
+- **Stock-art audit** — replaced generic Ionicons that were standing in for art the app already shipped (no new artwork):
+  - Inventory grid + item preview: actual item / hamster-wearing-item art (was a generic `paw`)
+  - Friend profile: the friend's real hamster (matches the friends list)
+  - Add-Workout type picker: gym category art instead of plain icons
+  - Exercise detail headers (home + gym): `exercise_icon.png` instead of `fitness`/`barbell`
+  - `AssetImages.js`: registered gym + at-home category art (incl. previously-unregistered cardio/class)
+  - **Still needs NEW art:** the milestone-celebration hamster in `GrowthCelebrationView`
+- **Audio system prep** — created `assets/sounds/` + `assets/music/` with a labeled drop-in manifest (`assets/sounds/README.md`). `AudioService.js` already scaffolded; `FeatureFlags.audioSystem` stays off until the audio files are added.
+
+**Files Changed:**
+- `src/config/AssetImages.js`, `src/screens/Inventory/InventoryCategoryScreen.js`, `InventoryItemPreviewScreen.js`
+- `src/screens/Social/FriendProfileScreen.js`, `src/screens/Workout/AddWorkoutScreen.js`, `HomeExerciseDetailScreen.js`, `GymExerciseDetailScreen.js`
+- `assets/sounds/` + `assets/music/` (NEW) + manifest README
+- `progress.md` — App Store table / iOS reconciled to Build 59
+
+---
 
 ### Session 89 (Apr 23, 2026)
 **Daily Exercise Cycling + Dynamic Version + Custom Art Refresh**
