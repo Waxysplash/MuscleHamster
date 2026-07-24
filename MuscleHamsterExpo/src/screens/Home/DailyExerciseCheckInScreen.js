@@ -18,6 +18,7 @@ import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 import { StatIcons } from '../../config/AssetImages';
 import { playSFX } from '../../services/AudioService';
 import { SoundEffect } from '../../models/AudioPreferences';
+import { logDailyCheckIn } from '../../services/AnalyticsService';
 
 const CheckInState = {
   READY: 'ready',
@@ -60,6 +61,10 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
         // Daily check-in bumps the streak. (When workout_complete / points_earned
         // sounds are sourced, add them here too.)
         playSFX(SoundEffect.STREAK_INCREMENT);
+        logDailyCheckIn({
+          pointsEarned: checkInResult.pointsEarned,
+          newStreak: checkInResult.newStreak,
+        });
         setResult(checkInResult);
         setState(CheckInState.SUCCESS);
       } else {

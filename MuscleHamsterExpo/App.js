@@ -16,6 +16,7 @@ import {
   setNotificationTapHandler,
 } from './src/services/NotificationService';
 import { initializeAudioService } from './src/services/AudioService';
+import { initializeAnalytics } from './src/services/AnalyticsService';
 import { navigationRef, navigateToHome } from './src/services/NavigationService';
 import { NotificationType } from './src/models/NotificationPreferences';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
@@ -35,6 +36,10 @@ function NotificationInitializer({ children }) {
 
     // Initialize the audio service (loads prefs + configures the audio session)
     initializeAudioService();
+
+    // Initialize analytics (Firebase auto-logs first_open/session_start, which
+    // powers the D1/D7/D30 retention cohorts). NOTE: never log health/step data.
+    initializeAnalytics();
 
     // Set up the notification tap handler
     // This is called when user taps a notification

@@ -19,6 +19,7 @@ import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../mo
 import { useResponsive, getTimerSize, getActionButtonSize } from '../../utils/responsive';
 import { playSFX } from '../../services/AudioService';
 import { SoundEffect } from '../../models/AudioPreferences';
+import { logWorkoutComplete } from '../../services/AnalyticsService';
 
 const PlayerState = {
   LOADING: 'loading',
@@ -215,6 +216,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         durationSeconds: totalTimeElapsed,
       });
       setCompletionResult(result);
+      logWorkoutComplete({ workoutId: workout.id, exercisesCompleted: completed });
     } catch (e) {
       Logger.error('Failed to record completion:', e);
       setCompletionResult({

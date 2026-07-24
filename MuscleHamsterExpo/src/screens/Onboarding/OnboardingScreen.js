@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 import { useResponsive } from '../../utils/responsive';
+import { logOnboardingComplete } from '../../services/AnalyticsService';
 import {
   FitnessLevel,
   FitnessLevelInfo,
@@ -119,6 +120,7 @@ export default function OnboardingScreen({ navigation }) {
           profileVersion: 2,
         };
         await completeOnboarding(finalProfile);
+        logOnboardingComplete();
         // Navigation is handled automatically by RootNavigator
       } catch (e) {
         showAlert('Oops!', 'Something went wrong. Please try again.');
