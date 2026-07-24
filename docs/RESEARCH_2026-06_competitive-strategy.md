@@ -92,3 +92,89 @@ These are circulating publicly and sound authoritative. All failed verification:
 ---
 
 *Full raw report with per-claim evidence, vote records, and source list was produced by the deep-research workflow run `wf_caf8cce1-c08`.*
+
+---
+---
+
+# ASO / Growth — Second Focused Pass (June 2026)
+
+**Method:** re-run restricted to Apple primary documentation. **Result: 18 of 25 claims confirmed** (vs 6/25 in pass 1). Restricting to first-party sources is what made the difference.
+
+## ✅ VERIFIED MECHANICS (Apple's own docs — rely on these)
+
+### Indexed fields
+Apple: *"Search results are based on a number of factors, **including** text relevance (matches for your app's **title, subtitle, keywords, and primary category**), as well as user behavior (downloads, ratings and reviews...)."*
+- ⚠️ "including" = **non-exhaustive**. These four are Apple-confirmed; it is NOT proof they're the only ones.
+- **Description indexing is OPEN** — Apple never confirms or denies it, only warns against stuffing it.
+
+### Character limits (App Store Connect Help, verbatim)
+| Field | Limit |
+|---|---|
+| App Name | **2–30** chars |
+| Subtitle | **30** chars |
+| Keyword field | **100** chars total |
+| Promotional text | **170** chars |
+
+⚠️ 30 is the **entry** limit, not the **display** limit — search/home-screen truncate far earlier (~10 chars in some contexts). **Front-load distinctive words.**
+
+### Keyword field syntax (Apple, verbatim)
+- *"terms separated by commas and **no spaces**"*; spaces only **within** a phrase (`Property,House,Real Estate`)
+- *"**Don't repeat any words** included in your app name, subtitle, or category."*
+- Avoid, to save characters: plurals of words already present in singular · the word "app" · category names · duplicates · special characters (*"Special characters don't carry extra weight"*)
+- These are Apple's **optimization guidance**, not validation-enforced.
+
+### 🚨 Rejection risk (enforced policy, not guidance)
+Apple: *"Improper use of keywords is a **common reason for App Store rejections**."* Disallowed: trademarked/celebrity/protected terms · irrelevant terms · **competing app names** · offensive terms.
+→ **Do not put "Finch", "Tamagotchi", or rival app names in the keyword field.** That's a documented rejection trigger, not a growth hack.
+
+### Promotional text
+Apple: *"promotional text **doesn't affect your app's search ranking** so it should not be used to display keywords."*
+→ It's a **conversion** field, and it updates **without submitting a new build** — ideal for a seasonal hook ("new outfit drop"), not keywords.
+
+### Ratings & reviews
+Apple states in two places that ratings *"can influence how your app ranks in App Store search"* — but publishes **no magnitude, threshold, or mechanism**. Verified as an acknowledged input only; do not upgrade this into "ratings are a weighted ranking factor."
+
+### Review prompt rules (StoreKit / expo-store-review)
+- System-controlled: *"isn't appropriate to call requestReview() ... in response to a button tap"*
+- Max **three prompts per 365-day period**; developer cannot count, customize, or detect them
+- Guideline 3.2.2(x): cannot **gate functionality** behind rating/reviewing
+- Sanctioned alternative: a real "Rate us" link → product page URL with `?action=write-review`
+- ⚠️ **Gotcha:** the prompt is **suppressed in TestFlight** but **always shows in dev builds** — you cannot validate real behavior via TestFlight.
+
+### Product Page Optimization (PPO)
+- Tests **visual creative ONLY** — app icon, screenshots, app previews. **Title, subtitle, keywords, description CANNOT be A/B tested.**
+- Max 3 treatments; one test at a time; 90-day cap; iOS 15+; sticky assignment
+- Winning **screenshots/previews auto-apply**; a winning **icon does not** (needs a new version)
+- Cannot be combined with Custom Product Pages
+
+### ⚠️ PPO is structurally unusable at our traffic
+Apple recommends acting only at **≥90% confidence**, and ships a **"Likely to be Inconclusive"** status for tests that can't gather enough data in 90 days. The binding constraint is **impressions × baseline conversion rate**. At near-zero traffic, **do not start a PPO test blind** — open Apple's duration estimator first.
+
+### Custom Product Pages (CPP)
+Keywords can be assigned so the CPP is served instead of the default page for those queries — but keywords must come *"from your latest approved app version"*.
+→ **CPPs redirect which page is shown; they do NOT expand the indexed keyword pool or add ranking.**
+
+## ❌ STILL UNEVIDENCED (after TWO passes)
+- **Cold start**: 0 → first few hundred organic downloads
+- **Referral / social-sharing loops** in pet & habit apps
+- **Underserved keyword space** in the virtual-pet + fitness niche
+
+Failure modes: ASO-vendor blogs restating each other with no underlying measurement; indie case studies that are survivorship-biased single anecdotes (the launches that *failed* are never written up); keyword-volume figures from proprietary models with undisclosed methodology.
+
+**Correct conclusion: not "these probably work" — but "no available source supports any specific cold-start or referral tactic here."** Treat any such plan as an untested hypothesis with an explicit kill criterion.
+
+> 💡 The one real, free, trustworthy data source is **App Store Connect's own search-term impression/conversion reporting for your app** — use that over third-party volume estimates.
+
+## 🔑 Highest-leverage OPEN question
+**Do additional localizations (e.g. English UK/AU) give extra independent 100-char keyword fields that US users can match against?** No claim survived. If true it would multiply keyword characters at near-zero cost — worth resolving before other ASO effort.
+
+Also unresolved: is the description indexed? Are **in-app purchase names** indexed (relevant — our cosmetic shop could name IAPs searchably)?
+
+## 📋 WEEKEND CHECKLIST (verified mechanics only — no ranking promises)
+1. **Audit the 100-char keyword field** — strip words already in name/subtitle/category, plurals of present singulars, "app", category names, special chars; re-comma with no spaces; **remove any competitor/trademarked name** (rejection risk).
+2. **Fill Name + Subtitle to 30 chars** with distinct, non-overlapping words; front-load the distinctive ones.
+3. **Move keywords out of promotional text**; use its 170 chars for a current hook (updates without a build).
+4. **Ship a compliant review prompt** — `StoreReview.requestReview()` at a genuine success moment (streak milestone / first cosmetic unlock), never from a button, never gated; plus a separate "Rate us" link with `?action=write-review`. Test on a real device, not TestFlight.
+5. **Don't start PPO blind** — check Apple's duration estimator; expect "Likely to be Inconclusive" at current traffic.
+
+*Produced by deep-research workflow run `wf_94931241-17f`.*
