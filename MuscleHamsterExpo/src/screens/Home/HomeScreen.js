@@ -26,6 +26,7 @@ import { EnclosureBackground, StatIcons } from '../../config/AssetImages';
 import { getTodaysExercise } from '../../services/DailyExerciseService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
+import StepsCard from '../../components/StepsCard';
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
@@ -311,6 +312,9 @@ export default function HomeScreen({ navigation }) {
           ]}>
           {/* Today's Action Card - Schedule-aware */}
           {renderTodayActionCard()}
+
+          {/* Steps - iOS only; renders nothing where unsupported */}
+          <StepsCard hamsterName={hamsterName} />
 
           {/* Mini Week Strip - Always visible */}
           <MiniWeekStrip

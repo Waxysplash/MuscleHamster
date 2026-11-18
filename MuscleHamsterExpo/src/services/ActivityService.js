@@ -14,6 +14,7 @@ import {
   createRestDayCheckIn,
   createTransaction,
   RestDayActivityInfo,
+  StepMilestones,
 } from '../models/Activity';
 
 const STORAGE_KEY_PREFIX = '@MuscleHamster:userStats';
@@ -410,6 +411,59 @@ export const ActivityService = {
       hamsterReaction: exercise.encouragement,
       stats: updatedStats,
     };
+  },
+
+  // Award bonus points for today's step milestones (each pays once per day).
+  // Steps add points and make the hamster happy, but do NOT count toward the streak —
+  // the daily check-in stays the streak action.
+  // Only the milestone IDs are saved; the raw step count never leaves the device.
+  async recordStepMilestones(todaySteps) {
+    const stats = await loadStats();
+    const now = new Date();
+    const today = now.toDateString();
+
+    const alreadyAwarded =
+      stats.stepMilestones?.date === today ? stats.stepMilestones.awarded || [] : [];
+
+    const newlyReached = StepMilestones.filter(
+      (m) => todaySteps >= m.steps && !alreadyAwarded.includes(m.id)
+    );
+
+    if (newlyReached.length === 0) {
+      return { success: true, awarded: [], pointsEarned: 0, stats };
+    }
+
+    let balance = stats.totalPoints;
+    const newTransactions = newlyReached.map((m) => {
+      balance += m.points;
+      return createTransaction({
+        id: generateTransactionId(TransactionType.EARN, TransactionCategory.STEPS, m.id, now),
+        type: TransactionType.EARN,
+        category: TransactionCategory.STEPS,
+        amount: m.points,
+        description: `Steps: ${m.label}`,
+        timestamp: now.toISOString(),
+        entityId: m.id,
+        balanceAfter: balance,
+      });
+    });
+    const pointsEarned = balance - stats.totalPoints;
+
+    const updatedStats = {
+      ...stats,
+      totalPoints: balance,
+      lastActivityDate: now.toISOString(),
+      stepMilestones: {
+        date: today,
+        awarded: [...alreadyAwarded, ...newlyReached.map((m) => m.id)],
+      },
+      transactions: [...newTransactions.reverse(), ...stats.transactions].slice(0, 500),
+    };
+    updatedStats.hamsterState = calculateHamsterState(updatedStats);
+
+    await saveStats(updatedStats);
+
+    return { success: true, awarded: newlyReached, pointsEarned, stats: updatedStats };
   },
 
   async recordRestDayCheckIn(activity) {

@@ -41,7 +41,9 @@ export default {
         foregroundImage: "./assets/branding/adaptive-icon.png",
         backgroundColor: "#FFF8F0"
       },
-      edgeToEdgeEnabled: true
+      edgeToEdgeEnabled: true,
+      // Step counter is iOS-only for now; keep expo-sensors' pedometer permission out of the Android build.
+      blockedPermissions: ["android.permission.ACTIVITY_RECOGNITION"]
     },
     web: {
       favicon: "./assets/branding/favicon.png"
@@ -50,6 +52,14 @@ export default {
       "expo-web-browser",
       "expo-apple-authentication",
       "expo-secure-store",
+      // Step counter (iOS Motion & Fitness / CMPedometer).
+      // Apple §5.1.3(i): step data is used only to reward the user — never sent to analytics.
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Muscle Hamster counts your steps so walking can earn points and keep your hamster fed. Your step count stays on your phone."
+        }
+      ],
       // Push notifications - REQUIRED for iOS APNs entitlements and Android channels
       [
         "expo-notifications",

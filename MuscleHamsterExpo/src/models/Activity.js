@@ -186,6 +186,7 @@ export const TransactionCategory = {
   STREAK_FREEZE: 'streakFreeze',
   SHOP_PURCHASE: 'shopPurchase',
   AD_REWARD: 'adReward',
+  STEPS: 'steps',
 };
 
 export const TransactionCategoryInfo = {
@@ -194,7 +195,16 @@ export const TransactionCategoryInfo = {
   [TransactionCategory.STREAK_FREEZE]: { displayName: 'Streak Freeze', icon: 'snow', color: '#5AC8FA' },
   [TransactionCategory.SHOP_PURCHASE]: { displayName: 'Shop', icon: 'bag', color: '#FF9500' },
   [TransactionCategory.AD_REWARD]: { displayName: 'Bonus', icon: 'gift', color: '#FF2D55' },
+  [TransactionCategory.STEPS]: { displayName: 'Steps', icon: 'walk', color: '#30B0C7' },
 };
+
+// Daily step milestones. Each one pays out once per day.
+// Step data is health data (Apple §5.1.3(i)): never pass it to analytics.
+export const StepMilestones = [
+  { id: 'stroll', steps: 2500, points: 5, label: 'Little stroll' },
+  { id: 'walk', steps: 5000, points: 10, label: 'Good walk' },
+  { id: 'adventure', steps: 10000, points: 15, label: 'Big adventure' },
+];
 
 // Points calculation config
 export const PointsConfig = {

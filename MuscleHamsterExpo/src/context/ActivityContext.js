@@ -111,6 +111,19 @@ export const ActivityProvider = ({ children }) => {
     }
   }, []);
 
+  const recordStepMilestones = useCallback(async (todaySteps) => {
+    try {
+      const result = await ActivityService.recordStepMilestones(todaySteps);
+      if (result.awarded?.length && result.stats) {
+        setStats(result.stats);
+      }
+      return result;
+    } catch (e) {
+      Logger.warn('Failed to record step milestones');
+      throw e;
+    }
+  }, []);
+
   const recordFeedback = useCallback(async (workoutId, feedback) => {
     try {
       const result = await ActivityService.recordFeedback(workoutId, feedback);
@@ -183,6 +196,7 @@ export const ActivityProvider = ({ children }) => {
     recordWorkoutCompletion,
     recordDailyCheckIn,
     recordRestDayCheckIn,
+    recordStepMilestones,
     recordFeedback,
     restoreStreak,
     acknowledgeStreakReset,
@@ -196,6 +210,7 @@ export const ActivityProvider = ({ children }) => {
     recordWorkoutCompletion,
     recordDailyCheckIn,
     recordRestDayCheckIn,
+    recordStepMilestones,
     recordFeedback,
     restoreStreak,
     acknowledgeStreakReset,

@@ -143,12 +143,19 @@ eas submit --platform ios                         # Submit to App Store
 ## Session Log
 
 ### Session 92 (Nov 17, 2026)
-**Restart after break: fresh checkout + Expo patch updates**
+**Restart after break: fresh checkout + Expo patch updates + step counter**
 
 - Fresh clone of `Waxysplash/musclehamster` at **`C:\dev\musclehamster`** (the `C:\dev\MuscleHamster` copy from Session 91 no longer exists). Secrets copied in from `OneDrive\MuscleHamster-Secrets` (all git-ignored).
 - Updated Expo SDK 54 packages to expected patch versions: `expo` 54.0.38, `expo-auth-session`, `expo-crypto`, `expo-dev-client`, `expo-notifications`, `expo-web-browser`.
 - `npm dedupe` removed a duplicate `expo-constants`; `expo-doctor` now passes 18/18. iOS JS bundle exports cleanly.
 - Fixed stale working-folder paths in `A1-new-session-instructions.md` and `CLAUDE.md`.
+- **Step counter (iOS)** — new `StepsCard` on Home under Today's Action. Reads today's steps via `expo-sensors` Pedometer (CMPedometer), live while Home is open.
+  - Bonus points per day: 2,500 steps +5 ("Little stroll"), 5,000 +10 ("Good walk"), 10,000 +15 ("Big adventure"). Max 30/day. Steps make the hamster happy but do **not** count toward the streak.
+  - Only milestone IDs are saved (`userStats.stepMilestones`); raw step counts never leave the device or reach analytics (§5.1.3(i)).
+  - New: `src/services/StepService.js`, `src/components/StepsCard.js`; `ActivityService.recordStepMilestones`; `TransactionCategory.STEPS`; `FeatureFlags.stepCounter`.
+  - `NSMotionUsageDescription` set via the `expo-sensors` plugin; Android build blocks `ACTIVITY_RECOGNITION` (Android = Health Connect, later).
+  - Privacy policy (`docs/` + `MuscleHamsterExpo/docs/`) gained section 2.3.1 Step Count.
+  - **Before release:** new dev build to test on a real iPhone; update App Privacy label in App Store Connect (Health & Fitness → app functionality, not linked to tracking).
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

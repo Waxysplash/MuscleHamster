@@ -55,6 +55,10 @@ export const FeatureFlags = {
   // Basic notifications (daily reminder on/off)
   basicNotifications: true,
 
+  // Step counter: daily steps on Home + bonus points at step milestones.
+  // iOS only for now (expo-sensors CMPedometer). Android needs Health Connect — separate milestone.
+  stepCounter: true,
+
   // NAVIGATION
 
   // Use tab bar navigation (false = hub navigation from Home)
