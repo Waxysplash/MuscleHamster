@@ -62,7 +62,7 @@ Muscle Hmaster/
 ## Quick Commands
 
 ```bash
-cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main\MuscleHamsterExpo"
+cd "C:\dev\musclehamster\MuscleHamsterExpo"
 npx expo start                                    # Run locally
 eas build --platform ios --profile production     # Production build
 eas submit --platform ios                         # Submit to App Store

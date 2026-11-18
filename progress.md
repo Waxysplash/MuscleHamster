@@ -2,7 +2,7 @@
 
 **Status:** v1.0.6 (Build 59) - Submitted to TestFlight (processing)
 **Version:** 1.0.6 (Build 59) - Daily exercise cycling, dynamic version, custom art refresh
-**Last Updated:** Jun 23, 2026 (Session 91)
+**Last Updated:** Nov 17, 2026 (Session 92)
 
 ---
 
@@ -141,6 +141,17 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 92 (Nov 17, 2026)
+**Restart after break: fresh checkout + Expo patch updates**
+
+- Fresh clone of `Waxysplash/musclehamster` at **`C:\dev\musclehamster`** (the `C:\dev\MuscleHamster` copy from Session 91 no longer exists). Secrets copied in from `OneDrive\MuscleHamster-Secrets` (all git-ignored).
+- Updated Expo SDK 54 packages to expected patch versions: `expo` 54.0.38, `expo-auth-session`, `expo-crypto`, `expo-dev-client`, `expo-notifications`, `expo-web-browser`.
+- `npm dedupe` removed a duplicate `expo-constants`; `expo-doctor` now passes 18/18. iOS JS bundle exports cleanly.
+- Fixed stale working-folder paths in `A1-new-session-instructions.md` and `CLAUDE.md`.
+- Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
+
+---
 
 ### Session 91 (Jun 23, 2026)
 **OneDrive data-loss recovery + art audit fixes + audio scaffolding**

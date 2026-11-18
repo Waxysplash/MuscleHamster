@@ -49,7 +49,7 @@ Muscle Hmaster/
 ## Key Commands
 
 ```bash
-cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main\MuscleHamsterExpo"
+cd "C:\dev\musclehamster\MuscleHamsterExpo"
 npx expo start                                    # Run locally
 eas build --platform ios --profile production     # Production build
 eas submit --platform ios                         # Submit to App Store
@@ -78,7 +78,7 @@ eas submit --platform ios                         # Submit to App Store
 1. Update `progress.md` with what you did
 2. Push to GitHub:
    ```bash
-   cd "C:\Users\kamal\OneDrive\Documents\MuscleHamster-main (1)\MuscleHamster-main"
+   cd "C:\dev\musclehamster"
    git add . && git commit -m "Session N: <summary>" && git push
    ```
 
