@@ -29,6 +29,7 @@ import { RestDayActivity, TrainingSource, TrainingRewards } from '../../models/A
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 import { describeReward } from '../../utils/rewardMessage';
+import SuggestedWorkoutsRow from '../../components/SuggestedWorkoutsRow';
 import Logger from '../../services/LoggerService';
 import { getTodayName } from '../../services/ScheduleService';
 import { findExerciseById } from '../../services/WorkoutLibrary';
@@ -99,7 +100,7 @@ export default function WorkoutsScreen({ navigation, route }) {
   const { customWorkouts, isLoading: customLoading, refreshData: refreshCustom } = useCustomWorkouts();
 
   // Activity context for logging rest day
-  const { recordRestDayCheckIn, recordTraining } = useActivity();
+  const { recordRestDayCheckIn, recordTraining, stats } = useActivity();
   const { profile } = useUserProfile();
   const { showAlert } = useAlert();
 
@@ -330,6 +331,15 @@ export default function WorkoutsScreen({ navigation, route }) {
             styles.contentWrapper,
             isTablet && { maxWidth: contentMaxWidth + 48, width: '100%' }
           ]}>
+            {/* Suggested guided workouts (Phase 2) - quick path for anyone unsure what to do */}
+            {(activeTab === 'plan' || activeTab === 'home') && (
+              <SuggestedWorkoutsRow
+                profile={profile}
+                stats={stats}
+                onOpen={(workout) => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
+              />
+            )}
+
             {activeTab === 'plan' ? (
               // MY PLAN TAB
               <View style={styles.section}>

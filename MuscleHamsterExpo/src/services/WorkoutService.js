@@ -6,6 +6,7 @@ import { FitnessLevel, FitnessIntent } from '../models/UserProfile';
 import {
   WorkoutType,
   DurationBucket,
+  DurationBucketInfo,
   BodyFocus,
   Equipment,
   ExerciseType,
@@ -40,25 +41,38 @@ const generateExercises = (workoutType, difficulty, duration) => {
                        duration === DurationBucket.SHORT ? 5 :
                        duration === DurationBucket.MEDIUM ? 7 : 9;
 
-  for (let i = 0; i < Math.min(numExercises, workExercises.length); i++) {
-    exercises.push(createExercise({
-      id: `ex-${id++}`,
-      name: workExercises[i].name,
-      instructions: workExercises[i].instructions,
-      duration: workExercises[i].duration,
-      type: ExerciseType.WORK,
-    }));
+  // Repeat the exercise list in rounds until the workout matches its labelled length
+  // (DurationBucketInfo minutes). Before, a "20-30 min" workout really took ~9 minutes.
+  const circuit = workExercises.slice(0, Math.min(numExercises, workExercises.length));
+  const restSeconds = difficulty === FitnessLevel.BEGINNER ? 30 : 20;
+  const targetSeconds = (DurationBucketInfo[duration]?.minutes || 15) * 60 - 120; // minus warm-up + cool-down
+  let workSeconds = 0;
+  let round = 1;
 
-    // Add rest between exercises (not after last one)
-    if (i < numExercises - 1) {
+  while (circuit.length > 0) {
+    for (let i = 0; i < circuit.length; i++) {
+      const ex = circuit[i];
+      exercises.push(createExercise({
+        id: `ex-${id++}`,
+        name: round > 1 ? `${ex.name} (round ${round})` : ex.name,
+        instructions: ex.instructions,
+        duration: ex.duration,
+        type: ExerciseType.WORK,
+      }));
+      workSeconds += ex.duration;
+      if (workSeconds >= targetSeconds) break;
+
       exercises.push(createExercise({
         id: `ex-${id++}`,
         name: 'Rest',
         instructions: 'Take a breather',
-        duration: difficulty === FitnessLevel.BEGINNER ? 30 : 20,
+        duration: restSeconds,
         type: ExerciseType.REST,
       }));
+      workSeconds += restSeconds;
     }
+    if (workSeconds >= targetSeconds) break;
+    round += 1;
   }
 
   // Cooldown
@@ -591,6 +605,9 @@ const getSeedWorkouts = () => {
   }
   return seedWorkouts;
 };
+
+// Synchronous access to the built-in guided workouts (used by SuggestionService)
+export const getBuiltInWorkouts = () => getSeedWorkouts();
 
 // Helper to get intersection of two arrays
 const arrayIntersection = (arr1, arr2) => arr1.filter(x => arr2.includes(x));

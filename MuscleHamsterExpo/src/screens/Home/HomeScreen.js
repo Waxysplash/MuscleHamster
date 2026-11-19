@@ -27,6 +27,8 @@ import { getTodaysExercise } from '../../services/DailyExerciseService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import StepsCard from '../../components/StepsCard';
+import SuggestedWorkoutCard from '../../components/SuggestedWorkoutCard';
+import { scaleDailyExercise } from '../../models/DailyExercise';
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
@@ -80,13 +82,15 @@ export default function HomeScreen({ navigation }) {
   // Get today's exercise (cycles through the pool before repeating, persisted per user)
   const [todaysExercise, setTodaysExercise] = useState(null);
   const userIdForExercise = currentUser?.id || 'guest';
+  const fitnessLevel = profile?.fitnessLevel;
   useEffect(() => {
     let cancelled = false;
     getTodaysExercise(userIdForExercise).then((exercise) => {
-      if (!cancelled) setTodaysExercise(exercise);
+      // Scale the amount to the user's level (beginners get half) and attach an easier version
+      if (!cancelled) setTodaysExercise(scaleDailyExercise(exercise, fitnessLevel));
     });
     return () => { cancelled = true; };
-  }, [userIdForExercise]);
+  }, [userIdForExercise, fitnessLevel]);
 
   // Reload stats, inventory, and schedule when screen comes into focus
   useFocusEffect(
@@ -217,7 +221,9 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
           <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
           <Text style={styles.actionSubtitle}>
-            {isTodayWorkoutDay ? "It's a workout day — let's go!" : 'Complete your daily exercise'}
+            {todaysExercise
+              ? `${todaysExercise.name} · ${todaysExercise.repCount} ${todaysExercise.repType === 'seconds' ? 'seconds' : 'reps'}`
+              : 'Complete your daily exercise'}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={24} color="#fff" />
@@ -314,10 +320,19 @@ export default function HomeScreen({ navigation }) {
           {/* Today's Action Card - Schedule-aware */}
           {renderTodayActionCard()}
 
+          {/* Suggested guided workout - from level, goals and time (Phase 2) */}
+          <SuggestedWorkoutCard
+            profile={profile}
+            stats={stats}
+            onStart={(workout) => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
+            onRest={() => navigation.navigate('QuickRestDay')}
+            showRestOption={!hasCheckedInToday && !hasLoggedRestDayToday}
+          />
+
           {/* Steps - iOS only; renders nothing where unsupported */}
           <StepsCard hamsterName={hamsterName} />
 
-          {/* Mini Week Strip - Always visible */}
+          {/* Mini Week Strip - tap to plan the week */}
           <MiniWeekStrip
             weekStart={currentWeekStart}
             schedule={currentWeekSchedule}
@@ -325,38 +340,8 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
           />
 
-          {/* YOUR PROGRESS Section */}
+          {/* THIS WEEK - weekly goal + streak in one line each (full stats live in the Me tab) */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>YOUR PROGRESS</Text>
-
-            {/* Stats Row */}
-            <View style={styles.statsRow}>
-              {/* Streak Card */}
-              <View style={[
-                styles.statCard,
-                currentStreak > 0 && { borderLeftWidth: 3, borderLeftColor: streakInfo.color },
-              ]}>
-                <Image source={StatIcons.streak} style={styles.statIcon} resizeMode="contain" />
-                <Text style={[styles.statNumber, { color: streakInfo.color }]}>{currentStreak}</Text>
-                <Text style={styles.statLabel}>day streak</Text>
-              </View>
-
-              {/* Workouts Card */}
-              <View style={styles.statCard}>
-                <Image source={StatIcons.workout} style={styles.statIcon} resizeMode="contain" />
-                <Text style={styles.statNumber}>{stats?.totalWorkoutsCompleted || 0}</Text>
-                <Text style={styles.statLabel}>workouts</Text>
-              </View>
-
-              {/* Points Card */}
-              <View style={styles.statCard}>
-                <Image source={StatIcons.points} style={styles.statIcon} resizeMode="contain" />
-                <Text style={styles.statNumber}>{totalPoints}</Text>
-                <Text style={styles.statLabel}>points</Text>
-              </View>
-            </View>
-
-            {/* Weekly goal - active days this week vs. target */}
             {weeklyProgress && (
               <View
                 style={styles.weeklyRow}
@@ -379,13 +364,10 @@ export default function HomeScreen({ navigation }) {
               </View>
             )}
 
-            {/* Longest Streak - inside progress section */}
-            {stats?.longestStreak > 0 && (
+            {currentStreak > 0 && (
               <View style={styles.longestStreakRow}>
                 <Image source={StatIcons.streak} style={{ width: 16, height: 16 }} resizeMode="contain" />
-                <Text style={styles.longestStreak}>
-                  Personal best: {stats.longestStreak} day streak
-                </Text>
+                <Text style={styles.longestStreak}>{currentStreak} day streak</Text>
               </View>
             )}
 
@@ -411,54 +393,6 @@ export default function HomeScreen({ navigation }) {
                 <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
               </TouchableOpacity>
             )}
-          </View>
-
-          {/* QUICK ACTIONS Section */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>QUICK ACTIONS</Text>
-
-            {/* Rest Day Card - separate from Shop/Customize, hidden after check-in */}
-            {!hasCheckedInToday && !hasLoggedRestDayToday && (
-              <TouchableOpacity
-                style={styles.restDayActionCard}
-                onPress={() => navigation.navigate('QuickRestDay')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.restDayActionIcon}>
-                  <Ionicons name="bed" size={22} color="#8B5A2B" />
-                </View>
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text style={styles.restDayActionTitle}>Take a Rest Day</Text>
-                  <Text style={styles.restDayActionSubtitle}>Rest days count toward your streak</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-              </TouchableOpacity>
-            )}
-
-            {/* Shop & Customize Buttons */}
-            <View style={styles.actionButtonsRow}>
-              {/* Shop Button */}
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('Shop')}
-              >
-                <View style={styles.shopIconBg}>
-                  <Ionicons name="bag" size={18} color="#FF9500" />
-                </View>
-                <Text style={styles.actionButtonText}>Shop</Text>
-              </TouchableOpacity>
-
-              {/* Customize Button */}
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('Inventory')}
-              >
-                <View style={styles.customizeIconBg}>
-                  <Ionicons name="sparkles" size={18} color="#8B5A2B" />
-                </View>
-                <Text style={[styles.actionButtonText, { color: '#8B5A2B' }]}>Customize</Text>
-              </TouchableOpacity>
-            </View>
           </View>
           </View>
         </ScrollView>

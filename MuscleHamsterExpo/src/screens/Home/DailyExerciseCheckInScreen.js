@@ -196,6 +196,17 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
             : `Suggested: ${exercise.repCount} reps — or do as many as you can`}
         </Text>
 
+        {/* Easier version - nobody should open the app to something they can't do */}
+        {exercise.easier && (
+          <View style={styles.easierBox} accessible accessibilityLabel={`Easier version: ${exercise.easier}`}>
+            <Ionicons name="leaf" size={16} color="#34C759" />
+            <Text style={styles.easierText}>
+              <Text style={styles.easierLabel}>Easier version: </Text>
+              {exercise.easier}
+            </Text>
+          </View>
+        )}
+
         {/* How to do it */}
         <Text style={styles.exerciseTip}>
           {exercise.instruction}
@@ -260,6 +271,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#4A3728',
     marginBottom: 12,
+  },
+  easierBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    backgroundColor: 'rgba(52,199,89,0.08)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 12,
+    marginHorizontal: 8,
+  },
+  easierText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#4A3728',
+    lineHeight: 21,
+  },
+  easierLabel: {
+    fontWeight: '700',
   },
   exerciseSuggested: {
     fontSize: 16,

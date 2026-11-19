@@ -374,13 +374,85 @@ export const pickExerciseForDate = ({ userId, dateKey, state }) => {
   };
 };
 
+// ============================================
+// SCALING BY FITNESS LEVEL (Phase 2)
+// Beginners get half the amount, advanced a little more. Gentle mobility/breathing moves
+// don't scale. Every exercise has an easier version so nobody opens the app to a wall.
+// ============================================
+const NO_SCALE = new Set([
+  'catCowFlow', 'standingQuadStretch', 'boxBreathing', 'balanceTest', 'wristCircles',
+  'ankleCircles', 'threadTheNeedle', 'calfStretchWall', 'doorwayLatStretch', 'childsPose',
+]);
+
+export const EASIER_VERSIONS = {
+  classicPushUps: 'Knee push-ups, or push-ups against a wall',
+  airSquats: 'Sit down onto a chair and stand back up',
+  forearmPlank: 'Plank with your knees on the floor',
+  bicycleCrunches: 'Keep your feet on the floor and twist slowly',
+  wallSit: 'Slide only halfway down the wall',
+  catCowFlow: 'Do it sitting in a chair',
+  jumpingJacks: 'Step side to side instead of jumping',
+  highKnees: 'March in place',
+  standingQuadStretch: 'Hold a wall or chair for balance',
+  buttKicks: 'Walk in place, bringing your heels up gently',
+  skaterJumps: 'Step side to side instead of hopping',
+  sealJacks: 'Step out instead of jumping',
+  sprintingInPlace: 'Jog or march in place',
+  goodMornings: 'A smaller bend, hands on your thighs',
+  standingSideCrunches: 'Go slower with a smaller movement',
+  tricepFloorDips: 'Keep knees bent and feet close to you',
+  plankShoulderTaps: 'Do the taps with your knees down',
+  wallAngels: 'Stand one step away from the wall',
+  diverPushUps: 'Knee push-ups instead',
+  proneYRaise: 'Lift one arm at a time',
+  handMarches: 'Do it with your knees down',
+  shoulderProtraction: 'Do it standing, hands on a wall',
+  cobraPulses: 'Stay on your forearms (sphinx pose)',
+  boxBreathing: 'Count to 3 instead of 4',
+  balanceTest: 'Lightly hold a wall or chair',
+  wristCircles: 'Smaller, slower circles',
+  ankleCircles: 'Do it sitting down',
+  threadTheNeedle: 'A smaller twist',
+  deepSquatHold: 'Hold a doorframe, or squat onto a low step',
+  calfStretchWall: 'Take a shorter step back',
+  doorwayLatStretch: 'A smaller reach',
+  airPunchesSpeed: 'Punch at a steady pace',
+  childsPose: 'Put a pillow under your chest or hips',
+};
+
+const roundAmount = (n, repType) => {
+  if (repType === 'seconds') return Math.max(15, Math.round(n / 5) * 5);
+  if (n >= 10) return Math.max(5, Math.round(n / 5) * 5);
+  return Math.max(3, Math.round(n));
+};
+
+// Returns the exercise with repCount adjusted for the user's level, plus an `easier` tip.
+export const scaleDailyExercise = (exercise, fitnessLevel) => {
+  if (!exercise) return exercise;
+  const easier = EASIER_VERSIONS[exercise.id] || null;
+  if (NO_SCALE.has(exercise.id) || exercise.repType === 'breath') {
+    return { ...exercise, easier, baseRepCount: exercise.repCount };
+  }
+  const factor = fitnessLevel === 'advanced' ? 1.25 : fitnessLevel === 'intermediate' ? 1 : 0.5;
+  return {
+    ...exercise,
+    easier,
+    baseRepCount: exercise.repCount,
+    repCount: factor === 1 ? exercise.repCount : roundAmount(exercise.repCount * factor, exercise.repType),
+  };
+};
+
 // Computed display prompt based on rep type
 export const getExerciseDisplayPrompt = (exercise) => {
   const { repCount, repType, name } = exercise;
 
+  if (/breathing/i.test(name)) {
+    return `${repCount} slow rounds of ${name}`;
+  }
+
   switch (repType) {
     case 'seconds':
-      return `Hold for ${repCount} Seconds`;
+      return `${name} for ${repCount} seconds`;
     case 'minutes':
       return `Do for ${repCount} Minute${repCount > 1 ? 's' : ''}`;
     case 'breath':

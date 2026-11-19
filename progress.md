@@ -165,6 +165,15 @@ eas submit --platform ios                         # Submit to App Store
   - Real points shown everywhere (custom log no longer claims 15; player has no made-up fallback). Rest-day pet/treat 10→3, quick rest 2→5.
   - New users start with a happy hamster.
   - Logic verified with a 16-check stubbed test; not yet tested on device.
+- **Phase 2: suggestions + simpler navigation** (not in Build 62)
+  - **Tabs are now Today · Workouts · Hamster · Me.** Route names `Home`/`Workouts` unchanged (notification taps still go to `Home`). Hamster tab = new `screens/Hamster/HamsterScreen.js` hub + Shop/Inventory stack. Me tab = new `screens/Me/MeScreen.js` (stats, weekly goal, profile, points history, reminders, all settings). Duplicate Settings screens removed from the Home stack.
+  - `services/SuggestionService.js`: picks a guided workout from fitness level (beginners: beginner only, no HIIT for first 10 workouts), goals (type mapping), time (~8 / ~15 / 25+ min by REAL length), and recovery (no repeat within 3 days, no same body focus as yesterday, gentle workout after 3 days in a row). Same pick all day; Shuffle moves on.
+  - Today: Feed card now names the exercise and amount; new `SuggestedWorkoutCard` (time chips, Start, Something else, I'm resting today) opens WorkoutDetail -> WorkoutPlayer (the player was unreachable before). Stat tiles and Shop/Customize buttons moved to Me/Hamster tabs.
+  - Workouts tab: `SuggestedWorkoutsRow` (quick / medium / longer) on My Plan and At Home.
+  - Built-in workouts now really last as long as their label (rounds repeat) — e.g. "Beginner Full Body" 7 -> 16 min.
+  - Daily exercise scales by level (beginner x0.5, advanced x1.25, mobility/breathing unchanged) and every one of the 33 shows an easier version.
+  - 21-check suggestion/scaling test passes; Phase 1 tests still pass. Not tested on device.
+  - Still open from the beginner review: picked workout days don't put anything on the plan.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

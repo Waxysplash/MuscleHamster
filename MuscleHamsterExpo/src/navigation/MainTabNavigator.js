@@ -42,6 +42,10 @@ import {
   InventoryItemPreviewScreen,
 } from '../screens/Inventory';
 
+// Phase 2 tabs
+import HamsterScreen from '../screens/Hamster/HamsterScreen';
+import MeScreen from '../screens/Me/MeScreen';
+
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
 const WorkoutsStack = createNativeStackNavigator();
@@ -68,51 +72,6 @@ function HomeStackScreen() {
         options={{
           headerShown: false,
         }}
-      />
-      <HomeStack.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: 'Settings' }}
-      />
-      <HomeStack.Screen
-        name="AccountSettings"
-        component={AccountSettingsScreen}
-        options={{ title: 'Account' }}
-      />
-      <HomeStack.Screen
-        name="ProfileSettings"
-        component={ProfileSettingsScreen}
-        options={{ title: 'My Profile' }}
-      />
-      <HomeStack.Screen
-        name="NotificationSettings"
-        component={NotificationSettingsScreen}
-        options={{ title: 'Reminders' }}
-      />
-      <HomeStack.Screen
-        name="AudioSettings"
-        component={AudioSettingsScreen}
-        options={{ title: 'Audio Settings' }}
-      />
-      <HomeStack.Screen
-        name="PrivacySettings"
-        component={PrivacySettingsScreen}
-        options={{ title: 'Privacy' }}
-      />
-      <HomeStack.Screen
-        name="ProfileVisibility"
-        component={ProfileVisibilityScreen}
-        options={{ title: 'Profile Visibility' }}
-      />
-      <HomeStack.Screen
-        name="PointsHistory"
-        component={PointsHistoryScreen}
-        options={{ title: 'Points History' }}
-      />
-      <HomeStack.Screen
-        name="BlockedUsers"
-        component={BlockedUsersScreen}
-        options={{ headerShown: false }}
       />
       <HomeStack.Screen
         name="RestDayCheckIn"
@@ -149,46 +108,20 @@ function HomeStackScreen() {
           presentation: 'modal',
         }}
       />
+      {/* Suggested workouts open straight from Today */}
       <HomeStack.Screen
-        name="Shop"
-        component={ShopScreen}
+        name="WorkoutDetail"
+        component={WorkoutDetailScreen}
+        options={{ title: 'Workout', headerBackTitle: 'Today' }}
+      />
+      <HomeStack.Screen
+        name="WorkoutPlayer"
+        component={WorkoutPlayerScreen}
         options={{
-          title: 'Shop',
-          headerBackTitle: 'Home',
-        }}
-      />
-      <HomeStack.Screen
-        name="ShopCategory"
-        component={ShopCategoryScreen}
-        options={({ route }) => ({
-          title: route.params?.category
-            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
-            : 'Category',
-        })}
-      />
-      <HomeStack.Screen
-        name="Inventory"
-        component={InventoryScreen}
-        options={{
-          title: 'My Collection',
-          presentation: 'modal',
-        }}
-      />
-      <HomeStack.Screen
-        name="InventoryCategory"
-        component={InventoryCategoryScreen}
-        options={({ route }) => ({
-          title: route.params?.category
-            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
-            : 'Items',
-        })}
-      />
-      <HomeStack.Screen
-        name="InventoryItemPreview"
-        component={InventoryItemPreviewScreen}
-        options={{
-          title: 'Preview',
-          presentation: 'modal',
+          title: '',
+          headerShown: false,
+          presentation: 'fullScreenModal',
+          gestureEnabled: false,
         }}
       />
     </HomeStack.Navigator>
@@ -275,6 +208,52 @@ function WorkoutsStackScreen() {
   );
 }
 
+const HamsterStack = createNativeStackNavigator();
+
+function HamsterStackScreen() {
+  return (
+    <HamsterStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: '#FFF8F0' },
+        headerTintColor: '#4A3728',
+        headerTitleStyle: { color: '#4A3728', fontWeight: '600' },
+        headerShadowVisible: false,
+      }}
+    >
+      <HamsterStack.Screen name="HamsterMain" component={HamsterScreen} options={{ headerShown: false }} />
+      <HamsterStack.Screen name="Shop" component={ShopScreen} options={{ title: 'Shop', headerBackTitle: 'Hamster' }} />
+      <HamsterStack.Screen
+        name="ShopCategory"
+        component={ShopCategoryScreen}
+        options={({ route }) => ({
+          title: route.params?.category
+            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
+            : 'Category',
+        })}
+      />
+      <HamsterStack.Screen
+        name="Inventory"
+        component={InventoryScreen}
+        options={{ title: 'My Collection', presentation: 'modal' }}
+      />
+      <HamsterStack.Screen
+        name="InventoryCategory"
+        component={InventoryCategoryScreen}
+        options={({ route }) => ({
+          title: route.params?.category
+            ? route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)
+            : 'Items',
+        })}
+      />
+      <HamsterStack.Screen
+        name="InventoryItemPreview"
+        component={InventoryItemPreviewScreen}
+        options={{ title: 'Preview', presentation: 'modal' }}
+      />
+    </HamsterStack.Navigator>
+  );
+}
+
 function SocialStackScreen() {
   return (
     <SocialStack.Navigator
@@ -338,10 +317,10 @@ function SocialTabIcon({ color, size }) {
   );
 }
 
-// Settings stack for tab
+// Me tab: progress + all settings
 const SettingsStack = createNativeStackNavigator();
 
-function SettingsStackScreen() {
+function MeStackScreen() {
   return (
     <SettingsStack.Navigator
       screenOptions={{
@@ -356,6 +335,11 @@ function SettingsStackScreen() {
         headerShadowVisible: false,
       }}
     >
+      <SettingsStack.Screen
+        name="MeMain"
+        component={MeScreen}
+        options={{ title: 'Me' }}
+      />
       <SettingsStack.Screen
         name="SettingsMain"
         component={SettingsScreen}
@@ -433,10 +417,11 @@ export default function MainTabNavigator() {
         name="Home"
         component={HomeStackScreen}
         options={{
+          title: 'Today',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="sunny" size={size} color={color} />
           ),
-          tabBarAccessibilityLabel: 'Home tab',
+          tabBarAccessibilityLabel: 'Today tab',
         }}
       />
       <Tab.Screen
@@ -462,13 +447,23 @@ export default function MainTabNavigator() {
         />
       )}
       <Tab.Screen
-        name="Settings"
-        component={SettingsStackScreen}
+        name="Hamster"
+        component={HamsterStackScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" size={size} color={color} />
+            <Ionicons name="paw" size={size} color={color} />
           ),
-          tabBarAccessibilityLabel: 'Settings tab',
+          tabBarAccessibilityLabel: 'Hamster tab: shop and dress up',
+        }}
+      />
+      <Tab.Screen
+        name="Me"
+        component={MeStackScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle" size={size} color={color} />
+          ),
+          tabBarAccessibilityLabel: 'Me tab: progress and settings',
         }}
       />
     </Tab.Navigator>
