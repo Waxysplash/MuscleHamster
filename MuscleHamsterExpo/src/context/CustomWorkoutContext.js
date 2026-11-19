@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { CustomWorkoutService, setCustomWorkoutUserId } from '../services/CustomWorkoutService';
 import { FavoritesService, setFavoritesUserId } from '../services/FavoritesService';
 import { useAuth } from './AuthContext';
+import { TrainingSource } from '../models/Activity';
 import { useActivity } from './ActivityContext';
 import Logger from '../services/LoggerService';
 
@@ -18,7 +19,7 @@ export const useCustomWorkouts = () => {
 
 export const CustomWorkoutProvider = ({ children }) => {
   const { currentUser } = useAuth();
-  const { recordWorkoutCompletion } = useActivity();
+  const { recordTraining } = useActivity();
   const [customWorkouts, setCustomWorkouts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -106,19 +107,26 @@ export const CustomWorkoutProvider = ({ children }) => {
           prev.map(w => w.id === workoutId ? result.workout : w)
         );
 
-        // Also record in ActivityService for points
+        // Points come from the shared training reward path (effort = sets or minutes)
         try {
           const workout = customWorkouts.find(w => w.id === workoutId);
-          await recordWorkoutCompletion({
-            workoutId,
-            workoutName: workout?.name || 'Custom Workout',
-            exercisesCompleted: 1,
-            totalExercises: 1,
-            durationSeconds: (metrics.duration || 0) * 60,
+          const reward = await recordTraining({
+            source: TrainingSource.CUSTOM,
+            sourceId: workoutId,
+            name: workout?.name || 'Custom Workout',
+            exercises: 1,
+            sets: metrics.sets || 0,
+            minutes: metrics.duration || 0,
           });
+          if (result.completion?.id) {
+            CustomWorkoutService.setCompletionPoints(result.completion.id, reward.pointsEarned)
+              .catch(e => Logger.warn('Failed to store completion points:', e));
+          }
+          return { ...result, pointsEarned: reward.pointsEarned, reward };
         } catch (activityError) {
           Logger.warn('Failed to record in activity:', activityError);
           // Don't fail the whole operation if activity recording fails
+          return { ...result, pointsEarned: 0 };
         }
       }
       return result;
@@ -126,7 +134,7 @@ export const CustomWorkoutProvider = ({ children }) => {
       Logger.warn('Failed to record progress:', e);
       throw e;
     }
-  }, [customWorkouts, recordWorkoutCompletion]);
+  }, [customWorkouts, recordTraining]);
 
   const getCompletionHistory = useCallback(async (workoutId) => {
     try {

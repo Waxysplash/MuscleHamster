@@ -90,7 +90,7 @@ export const RestDayActivityInfo = {
     displayName: 'Rest Day',
     description: 'Take a well-deserved rest!',
     icon: 'bed',
-    pointsAwarded: 2,
+    pointsAwarded: 5,
     hamsterReaction: "Rest days are important! Your muscles grow while you recover. I'm proud of you for listening to your body!",
     isQuickInteraction: true,
   },
@@ -98,7 +98,7 @@ export const RestDayActivityInfo = {
     displayName: 'Pet Your Hamster',
     description: 'Show your hamster some love!',
     icon: 'heart',
-    pointsAwarded: 10,
+    pointsAwarded: 3,
     hamsterReaction: "Aww, that feels nice! *happy squeaks*",
     isQuickInteraction: true,
   },
@@ -106,7 +106,7 @@ export const RestDayActivityInfo = {
     displayName: 'Give a Treat',
     description: 'Share a yummy snack',
     icon: 'nutrition',
-    pointsAwarded: 10,
+    pointsAwarded: 3,
     hamsterReaction: "Mmm, delicious! You're the best!",
     isQuickInteraction: true,
   },
@@ -206,28 +206,70 @@ export const StepMilestones = [
   { id: 'adventure', steps: 10000, points: 15, label: 'Big adventure' },
 ];
 
+// ============================================
+// TRAINING REWARDS (Phase 1 redesign, Nov 2026)
+// Every kind of training earns points through ONE path (ActivityService.recordTraining):
+// daily exercise, workout player, custom workouts, journal sets, planned-workout ticks.
+// - First training of the day earns a bonus and counts for the streak.
+// - Effort points scale with what was actually done (exercises, sets or minutes).
+// - Training points are capped per day so they can't be farmed.
+// - No penalty for stopping early: you earn for what you did.
+// - Weekly goal: train on N different days this week for a one-time bonus.
+// ============================================
+export const TrainingSource = {
+  WORKOUT: 'workout',   // guided workout player
+  CUSTOM: 'custom',     // logged custom workout
+  JOURNAL: 'journal',   // sets logged for one exercise
+  PLANNED: 'planned',   // ticked off a planned workout
+};
+
+export const TrainingRewards = {
+  firstSessionBonus: 20,
+  pointsPerExercise: 5,
+  pointsPerSet: 3,
+  pointsPerMinute: 1,
+  plannedWorkoutPoints: 10,
+  maxEffortPointsPerSession: 40,
+  maxPointsPerExercisePerDay: 15, // journal: same exercise logged several times in a day
+  dailyTrainingCap: 80,           // all training points in one day (steps + rest days are separate)
+  weeklyGoalBonus: 25,
+  defaultWeeklyTarget: 3,
+};
+
+// Effort points for one session. Uses the strongest measure rather than adding them up,
+// so one workout isn't counted twice (e.g. exercises AND minutes).
+export const calculateEffortPoints = ({ exercises = 0, sets = 0, minutes = 0 } = {}) => {
+  const byExercises = Math.max(0, exercises) * TrainingRewards.pointsPerExercise;
+  const bySets = Math.max(0, sets) * TrainingRewards.pointsPerSet;
+  const byMinutes = Math.max(0, Math.floor(minutes)) * TrainingRewards.pointsPerMinute;
+  return Math.min(Math.max(byExercises, bySets, byMinutes), TrainingRewards.maxEffortPointsPerSession);
+};
+
+// Weekly target = number of workout days picked in onboarding (1-7), else 3.
+export const getWeeklyTarget = (profile) => {
+  const days = profile?.workoutDays?.length || 0;
+  if (days >= 1 && days <= 7) return days;
+  return TrainingRewards.defaultWeeklyTarget;
+};
+
+// Local Monday of the week, as YYYY-MM-DD (local time, not UTC).
+export const getLocalWeekKey = (date = new Date()) => {
+  const d = new Date(date);
+  const diff = d.getDay() === 0 ? 6 : d.getDay() - 1;
+  d.setDate(d.getDate() - diff);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
 // Points calculation config
 export const PointsConfig = {
-  baseWorkoutPoints: 50,
-  pointsPerExercise: 5,
+  dailyExercisePoints: 10,
   streakFreezeCost: 100,
-  maxStreakMultiplier: 2.0,
   restDayMaxMultiplier: 1.5,
 
-  calculateWorkoutPoints: (exercisesCompleted, currentStreak, wasPartial = false) => {
-    let points = PointsConfig.baseWorkoutPoints + (exercisesCompleted * PointsConfig.pointsPerExercise);
-
-    // Streak multiplier: 1x at 0, up to 2x at 7+ days
-    const streakMultiplier = Math.min(1 + (currentStreak * 0.14), PointsConfig.maxStreakMultiplier);
-    points = Math.round(points * streakMultiplier);
-
-    // Partial completion penalty
-    if (wasPartial) {
-      points = Math.round(points * 0.7);
-    }
-
-    return points;
-  },
+  // Kept for the guided workout player: effort only, no streak multiplier, no early-stop penalty.
+  calculateWorkoutPoints: (exercisesCompleted) =>
+    calculateEffortPoints({ exercises: exercisesCompleted }),
 
   calculateRestDayPoints: (basePoints, currentStreak) => {
     const streakMultiplier = Math.min(1 + (currentStreak * 0.07), PointsConfig.restDayMaxMultiplier);
@@ -245,7 +287,7 @@ export const createDefaultUserStats = () => ({
   lastActivityDate: null,
   lastCheckInDate: null,
   previousBrokenStreak: null,
-  hamsterState: HamsterState.HUNGRY,
+  hamsterState: HamsterState.HAPPY, // new friends start happy, not hungry
   workoutHistory: [],
   restDayHistory: [],
   workoutFeedback: {},

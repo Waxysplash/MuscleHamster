@@ -15,12 +15,15 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAlert } from '../../context/AlertContext';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { describeReward } from '../../utils/rewardMessage';
 import { StatIcons } from '../../config/AssetImages';
 
 export default function LogProgressScreen({ route, navigation }) {
   const { workoutId, workoutName } = route.params;
   const { recordProgress } = useCustomWorkouts();
   const { showAlert } = useAlert();
+  const { profile } = useUserProfile();
 
   const [sets, setSets] = useState('');
   const [reps, setReps] = useState('');
@@ -65,7 +68,9 @@ export default function LogProgressScreen({ route, navigation }) {
       if (result.success) {
         showAlert(
           'Progress Logged!',
-          `Great job! You earned ${result.pointsEarned} points.`,
+          result.reward
+            ? describeReward(result.reward, profile?.hamsterName || 'your hamster')
+            : 'Great job! Your session is saved.',
           [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
       }

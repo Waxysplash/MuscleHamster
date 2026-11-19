@@ -1,9 +1,10 @@
 // Activity Context - Phase 05-06 (with Firestore)
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { ActivityService, setActivityUserId } from '../services/ActivityService';
+import { ActivityService, setActivityUserId, setActivityWeeklyTarget } from '../services/ActivityService';
 import { setJournalUserId } from '../services/JournalService';
 import { useAuth } from './AuthContext';
-import { HamsterState, createDefaultUserStats } from '../models/Activity';
+import { useUserProfile } from './UserProfileContext';
+import { HamsterState, createDefaultUserStats, getWeeklyTarget, getLocalWeekKey } from '../models/Activity';
 import Logger from '../services/LoggerService';
 
 const ActivityContext = createContext(null);
@@ -111,6 +112,20 @@ export const ActivityProvider = ({ children }) => {
     }
   }, []);
 
+  // One reward path for every kind of training (planned, journal, custom, player).
+  const recordTraining = useCallback(async (training) => {
+    try {
+      const result = await ActivityService.recordTraining(training);
+      if (result.stats && !result.alreadyRecorded) {
+        setStats(result.stats);
+      }
+      return result;
+    } catch (e) {
+      Logger.warn('Failed to record training:', e);
+      throw e;
+    }
+  }, []);
+
   const recordStepMilestones = useCallback(async (todaySteps) => {
     try {
       const result = await ActivityService.recordStepMilestones(todaySteps);
@@ -178,6 +193,22 @@ export const ActivityProvider = ({ children }) => {
     ) || false;
   }, [stats.restDayHistory]);
 
+  // Weekly goal: train on N different days this week (N = workout days picked in onboarding)
+  const { profile } = useUserProfile();
+  const weeklyTarget = getWeeklyTarget(profile);
+  useEffect(() => {
+    setActivityWeeklyTarget(weeklyTarget);
+  }, [weeklyTarget]);
+
+  const weeklyProgress = useMemo(() => {
+    const thisWeek = stats.weeklyGoal?.weekKey === getLocalWeekKey();
+    return {
+      daysDone: thisWeek ? stats.weeklyGoal.activeDays.length : 0,
+      target: weeklyTarget,
+      reached: thisWeek && !!stats.weeklyGoal.bonusAwarded,
+    };
+  }, [stats.weeklyGoal, weeklyTarget]);
+
   // Memoized context value to prevent unnecessary re-renders
   const value = useMemo(() => ({
     stats,
@@ -190,6 +221,7 @@ export const ActivityProvider = ({ children }) => {
     hasCheckedInToday: stats.lastCheckInDate &&
       new Date(stats.lastCheckInDate).toDateString() === new Date().toDateString(),
     hasLoggedRestDayToday,
+    weeklyProgress,
     canRestoreStreak: stats.previousBrokenStreak > 0 &&
       stats.totalPoints >= 100,
     loadStats,
@@ -197,6 +229,7 @@ export const ActivityProvider = ({ children }) => {
     recordDailyCheckIn,
     recordRestDayCheckIn,
     recordStepMilestones,
+    recordTraining,
     recordFeedback,
     restoreStreak,
     acknowledgeStreakReset,
@@ -206,11 +239,13 @@ export const ActivityProvider = ({ children }) => {
     isLoading,
     streakStatus,
     hasLoggedRestDayToday,
+    weeklyProgress,
     loadStats,
     recordWorkoutCompletion,
     recordDailyCheckIn,
     recordRestDayCheckIn,
     recordStepMilestones,
+    recordTraining,
     recordFeedback,
     restoreStreak,
     acknowledgeStreakReset,

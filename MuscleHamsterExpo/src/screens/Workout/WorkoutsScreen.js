@@ -25,7 +25,11 @@ import {
 } from '../../components/Schedule';
 import LoadingView from '../../components/LoadingView';
 import { useResponsive } from '../../utils/responsive';
-import { RestDayActivity } from '../../models/Activity';
+import { RestDayActivity, TrainingSource, TrainingRewards } from '../../models/Activity';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { useAlert } from '../../context/AlertContext';
+import { describeReward } from '../../utils/rewardMessage';
+import Logger from '../../services/LoggerService';
 import { getTodayName } from '../../services/ScheduleService';
 import { findExerciseById } from '../../services/WorkoutLibrary';
 
@@ -95,7 +99,9 @@ export default function WorkoutsScreen({ navigation, route }) {
   const { customWorkouts, isLoading: customLoading, refreshData: refreshCustom } = useCustomWorkouts();
 
   // Activity context for logging rest day
-  const { recordRestDayCheckIn } = useActivity();
+  const { recordRestDayCheckIn, recordTraining } = useActivity();
+  const { profile } = useUserProfile();
+  const { showAlert } = useAlert();
 
   // Modals
   const [showAddWorkoutModal, setShowAddWorkoutModal] = useState(false);
@@ -215,8 +221,28 @@ export default function WorkoutsScreen({ navigation, route }) {
 
   // Mark a specific workout as complete (toggles individual workout)
   const handleMarkWorkoutComplete = async (workoutId) => {
-    if (selectedDay) {
-      await markWorkoutComplete(selectedDay, workoutId);
+    if (!selectedDay) return;
+    const planned = currentWeekSchedule?.days?.[selectedDay]?.workouts?.find(
+      (w) => w.workoutId === workoutId
+    );
+    const wasCompleted = !!planned?.completed;
+    const saved = await markWorkoutComplete(selectedDay, workoutId);
+
+    // Only ticking ON a workout planned for TODAY earns points (once per day per workout)
+    if (saved && !wasCompleted && selectedDay === getTodayName()) {
+      try {
+        const reward = await recordTraining({
+          source: TrainingSource.PLANNED,
+          sourceId: workoutId,
+          name: planned?.workoutName || 'Workout',
+          flatPoints: TrainingRewards.plannedWorkoutPoints,
+        });
+        if (!reward.alreadyRecorded) {
+          showAlert('Workout done!', describeReward(reward, profile?.hamsterName || 'your hamster'));
+        }
+      } catch (e) {
+        Logger.warn('Failed to award planned workout points');
+      }
     }
   };
 

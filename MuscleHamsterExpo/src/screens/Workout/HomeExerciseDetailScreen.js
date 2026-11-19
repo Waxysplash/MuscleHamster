@@ -14,12 +14,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAlert } from '../../context/AlertContext';
 import { JournalService } from '../../services/JournalService';
+import { useActivity } from '../../context/ActivityContext';
+import { useUserProfile } from '../../context/UserProfileContext';
+import { TrainingSource } from '../../models/Activity';
+import { describeReward } from '../../utils/rewardMessage';
 import Logger from '../../services/LoggerService';
 import { ExerciseIcon } from '../../config/AssetImages';
 
 export default function HomeExerciseDetailScreen({ route, navigation }) {
   const { exercise, category } = route.params;
   const { showAlert } = useAlert();
+  const { recordTraining } = useActivity();
+  const { profile } = useUserProfile();
 
   // Journal state
   const [entries, setEntries] = useState([]);
@@ -81,6 +87,21 @@ export default function HomeExerciseDetailScreen({ route, navigation }) {
         category?.name || 'home',
         { sets: validSets, notes: notes.trim() }
       );
+
+      // Logged sets feed the hamster (shared training reward path)
+      if (validSets.length > 0) {
+        try {
+          const reward = await recordTraining({
+            source: TrainingSource.JOURNAL,
+            sourceId: `${category?.name || 'home'}:${exercise.name}`,
+            name: exercise.name,
+            sets: validSets.length,
+          });
+          showAlert('Logged!', describeReward(reward, profile?.hamsterName || 'your hamster'));
+        } catch (rewardError) {
+          Logger.warn('Failed to award journal points');
+        }
+      }
 
       // Reset form and reload
       setSets([{ weight: '', reps: '' }]);

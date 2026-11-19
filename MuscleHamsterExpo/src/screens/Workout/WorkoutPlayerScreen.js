@@ -220,9 +220,9 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
     } catch (e) {
       Logger.error('Failed to record completion:', e);
       setCompletionResult({
-        success: true,
-        pointsEarned: 50,
-        newStreak: 1,
+        success: false,
+        pointsEarned: 0,
+        newStreak: null,
         hamsterState: 'happy',
       });
     }
@@ -306,14 +306,18 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 
           {completionResult && (
             <View style={styles.rewardsContainer}>
-              <View style={styles.rewardItem}>
-                <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
-                <Text style={styles.rewardText}>+{completionResult.pointsEarned} points</Text>
-              </View>
-              <View style={styles.rewardItem}>
-                <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
-                <Text style={styles.rewardText}>{completionResult.newStreak} day streak</Text>
-              </View>
+              {completionResult.pointsEarned > 0 && (
+                <View style={styles.rewardItem}>
+                  <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                  <Text style={styles.rewardText}>+{completionResult.pointsEarned} points</Text>
+                </View>
+              )}
+              {completionResult.newStreak > 0 && (
+                <View style={styles.rewardItem}>
+                  <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
+                  <Text style={styles.rewardText}>{completionResult.newStreak} day streak</Text>
+                </View>
+              )}
             </View>
           )}
 

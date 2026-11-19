@@ -45,6 +45,7 @@ export default function HomeScreen({ navigation }) {
     previousBrokenStreak,
     hasCheckedInToday,
     hasLoggedRestDayToday,
+    weeklyProgress,
     loadStats,
   } = useActivity();
 
@@ -354,6 +355,29 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.statLabel}>points</Text>
               </View>
             </View>
+
+            {/* Weekly goal - active days this week vs. target */}
+            {weeklyProgress && (
+              <View
+                style={styles.weeklyRow}
+                accessible
+                accessibilityLabel={`This week: ${Math.min(weeklyProgress.daysDone, weeklyProgress.target)} of ${weeklyProgress.target} active days${weeklyProgress.reached ? '. Weekly goal reached!' : ''}`}
+              >
+                <View style={styles.weeklyDots}>
+                  {Array.from({ length: weeklyProgress.target }).map((_, i) => (
+                    <View
+                      key={i}
+                      style={[styles.weeklyDot, i < weeklyProgress.daysDone && styles.weeklyDotDone]}
+                    />
+                  ))}
+                </View>
+                <Text style={styles.weeklyText}>
+                  {weeklyProgress.reached
+                    ? `Weekly goal reached! ${hamsterName} is proud of you`
+                    : `This week: ${weeklyProgress.daysDone} of ${weeklyProgress.target} active days`}
+                </Text>
+              </View>
+            )}
 
             {/* Longest Streak - inside progress section */}
             {stats?.longestStreak > 0 && (
@@ -831,6 +855,33 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
     marginTop: 2,
     fontWeight: '500',
+  },
+  weeklyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  weeklyDots: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  weeklyDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#34C759',
+    backgroundColor: 'transparent',
+  },
+  weeklyDotDone: {
+    backgroundColor: '#34C759',
+  },
+  weeklyText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4A3728',
   },
   longestStreakRow: {
     flexDirection: 'row',

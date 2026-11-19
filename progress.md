@@ -156,6 +156,15 @@ eas submit --platform ios                         # Submit to App Store
   - `NSMotionUsageDescription` set via the `expo-sensors` plugin; Android build blocks `ACTIVITY_RECOGNITION` (Android = Health Connect, later).
   - Privacy policy (`docs/` + `MuscleHamsterExpo/docs/`) gained section 2.3.1 Step Count.
   - **Before release:** new dev build to test on a real iPhone; update App Privacy label in App Store Connect (Health & Fitness → app functionality, not linked to tracking).
+- **v1.0.8 (Build 62)** built and auto-submitted to TestFlight. Dev build profile now uses the `production` EAS environment (Firebase secrets live there). App is under the **KAMAL CHIOUA (Individual)** Apple team, not 17023073 Canada Inc.
+- **Redesign review** — 4 persona reviewers (designer, gym owner, beginner, experienced lifter). Plan: Phase 1 rewards, Phase 2 suggestions + simpler Home/tabs (Today · Workouts · Hamster · Me), Phase 3 visual system, Phase 4 content safety + gym logger.
+- **Phase 1: every workout counts** (not in Build 62)
+  - One reward path `ActivityService.recordTraining({ source, sourceId, name, exercises, sets, minutes, flatPoints })` used by the workout player, custom workout logs, journal sets (gym + home exercise detail), and ticking a planned workout for today.
+  - Rules in `models/Activity.js` `TrainingRewards`: +20 first training of the day; effort = max(5/exercise, 3/set, 1/min) capped 40 per session; journal max 15/exercise/day; **80 training points/day cap**; no early-stop penalty; streak multiplier removed. Daily exercise stays 10, steps separate.
+  - **Weekly goal** alongside the daily streak: active days this week vs. onboarding `workoutDays` count (default 3); +25 once per week. Shown on Home under YOUR PROGRESS.
+  - Real points shown everywhere (custom log no longer claims 15; player has no made-up fallback). Rest-day pet/treat 10→3, quick rest 2→5.
+  - New users start with a happy hamster.
+  - Logic verified with a 16-check stubbed test; not yet tested on device.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

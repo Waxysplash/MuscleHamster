@@ -237,10 +237,12 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
                     <Text style={styles.historyNotes}>{entry.notes}</Text>
                   )}
 
-                  <View style={styles.historyPoints}>
-                    <Image source={StatIcons.points} style={{ width: 16, height: 16 }} resizeMode="contain" />
-                    <Text style={styles.historyPointsText}>+{entry.pointsEarned} points</Text>
-                  </View>
+                  {entry.pointsEarned > 0 && (
+                    <View style={styles.historyPoints}>
+                      <Image source={StatIcons.points} style={{ width: 16, height: 16 }} resizeMode="contain" />
+                      <Text style={styles.historyPointsText}>+{entry.pointsEarned} points</Text>
+                    </View>
+                  )}
                 </View>
               ))
             )}

@@ -15,6 +15,10 @@ import {
   createTransaction,
   RestDayActivityInfo,
   StepMilestones,
+  TrainingSource,
+  TrainingRewards,
+  calculateEffortPoints,
+  getLocalWeekKey,
 } from '../models/Activity';
 
 const STORAGE_KEY_PREFIX = '@MuscleHamster:userStats';
@@ -57,6 +61,12 @@ export const setActivityUserId = (userId) => {
     cleanupOldSharedData();
     completionKeys.clear();
   }
+};
+
+// Weekly goal target (days per week), set from the user's profile by ActivityContext
+let weeklyTarget = TrainingRewards.defaultWeeklyTarget;
+export const setActivityWeeklyTarget = (target) => {
+  if (Number.isInteger(target) && target >= 1 && target <= 7) weeklyTarget = target;
 };
 
 // Helper functions for date comparison
@@ -218,9 +228,53 @@ const calculateHamsterState = (stats) => {
     return HamsterState.HAPPY;
   }
 
+  // Brand-new friend: nothing to be hungry about yet
+  if (!lastActivity && !stats.totalWorkoutsCompleted) {
+    return HamsterState.HAPPY;
+  }
+
   // No recent activity
   return HamsterState.HUNGRY;
 };
+
+// Shared bookkeeping for any training day: streak and weekly goal.
+// Returns the new streak, the updated weekly-goal record, and any weekly bonus earned.
+const applyTrainingDay = (stats, now) => {
+  const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;
+  let newStreak = stats.currentStreak || 0;
+  if (!lastCheckIn || !isSameDay(lastCheckIn, now)) {
+    newStreak = !lastCheckIn || isYesterday(lastCheckIn) ? newStreak + 1 : 1;
+  }
+
+  const weekKey = getLocalWeekKey(now);
+  const dayKey = now.toDateString();
+  const current = stats.weeklyGoal?.weekKey === weekKey
+    ? stats.weeklyGoal
+    : { weekKey, activeDays: [], bonusAwarded: false };
+  const activeDays = current.activeDays.includes(dayKey)
+    ? current.activeDays
+    : [...current.activeDays, dayKey];
+  const target = weeklyTarget;
+  const earnsBonus = !current.bonusAwarded && activeDays.length >= target;
+
+  return {
+    newStreak,
+    weeklyGoal: { weekKey, activeDays, target, bonusAwarded: current.bonusAwarded || earnsBonus },
+    weeklyBonus: earnsBonus ? TrainingRewards.weeklyGoalBonus : 0,
+  };
+};
+
+const weeklyBonusTransaction = (now, balanceAfter) =>
+  createTransaction({
+    id: generateTransactionId(TransactionType.EARN, 'weeklyGoal', getLocalWeekKey(now), now),
+    type: TransactionType.EARN,
+    category: TransactionCategory.WORKOUT,
+    amount: TrainingRewards.weeklyGoalBonus,
+    description: 'Weekly goal reached!',
+    timestamp: now.toISOString(),
+    entityId: getLocalWeekKey(now),
+    balanceAfter,
+  });
 
 // Calculate streak status
 const calculateStreakStatus = (stats) => {
@@ -253,97 +307,151 @@ export const ActivityService = {
     return { ...stats };
   },
 
-  async recordWorkoutCompletion({
-    workoutId,
-    workoutName,
-    exercisesCompleted,
-    totalExercises,
-    durationSeconds,
+  // ONE reward path for every kind of training (see TrainingRewards in models/Activity.js).
+  // source: TrainingSource.*; sourceId: workout/exercise id; effort: exercises, sets or minutes.
+  async recordTraining({
+    source,
+    sourceId,
+    name,
+    exercises = 0,
+    sets = 0,
+    minutes = 0,
+    flatPoints = null,
   }) {
     const stats = await loadStats();
     const now = new Date();
-    const completionKey = `${workoutId}-${now.toDateString()}`;
+    const today = now.toDateString();
+    const sourceKey = `${source}:${sourceId || 'none'}`;
 
-    // Idempotency check
-    if (completionKeys.has(completionKey)) {
+    const ledger = stats.trainingToday?.date === today
+      ? stats.trainingToday
+      : { date: today, points: 0, sessions: 0, perSource: {} };
+    const earnedFromSource = ledger.perSource[sourceKey];
+
+    // A workout / custom workout / planned item pays once per day.
+    // Journal entries can add up for the same exercise until its per-day limit.
+    if (source !== TrainingSource.JOURNAL && earnedFromSource !== undefined) {
       return {
         success: true,
         alreadyRecorded: true,
+        pointsEarned: 0,
+        sessionPoints: 0,
+        weeklyBonus: 0,
+        newStreak: stats.currentStreak,
+        previousStreak: stats.currentStreak,
+        hamsterState: stats.hamsterState,
+        weeklyGoal: stats.weeklyGoal,
         stats,
       };
     }
 
-    const wasPartial = exercisesCompleted < totalExercises;
-    const points = PointsConfig.calculateWorkoutPoints(
-      exercisesCompleted,
-      stats.currentStreak,
-      wasPartial
-    );
+    const effort = flatPoints ?? calculateEffortPoints({ exercises, sets, minutes });
+    const bonus = ledger.sessions === 0 ? TrainingRewards.firstSessionBonus : 0;
+    let sessionPoints = effort + bonus;
+    if (source === TrainingSource.JOURNAL) {
+      const exerciseRoom = Math.max(0, TrainingRewards.maxPointsPerExercisePerDay - (earnedFromSource || 0));
+      sessionPoints = Math.min(effort, exerciseRoom) + bonus;
+    }
+    const dayRoom = Math.max(0, TrainingRewards.dailyTrainingCap - ledger.points);
+    sessionPoints = Math.min(sessionPoints, dayRoom);
+    const capReached = ledger.points + sessionPoints >= TrainingRewards.dailyTrainingCap;
 
-    // Update streak
-    const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;
-    let newStreak = stats.currentStreak;
+    const { newStreak, weeklyGoal, weeklyBonus } = applyTrainingDay(stats, now);
 
-    if (!lastCheckIn || !isSameDay(lastCheckIn, now)) {
-      if (!lastCheckIn || isYesterday(lastCheckIn)) {
-        newStreak = stats.currentStreak + 1;
-      } else {
-        newStreak = 1;
-      }
+    const newTransactions = [];
+    let balance = stats.totalPoints;
+    if (sessionPoints > 0) {
+      balance += sessionPoints;
+      newTransactions.push(createTransaction({
+        id: `${generateTransactionId(TransactionType.EARN, TransactionCategory.WORKOUT, sourceKey, now)}-${Date.now()}`,
+        type: TransactionType.EARN,
+        category: TransactionCategory.WORKOUT,
+        amount: sessionPoints,
+        description: source === TrainingSource.JOURNAL ? `Logged ${name}` : `Completed ${name}`,
+        timestamp: now.toISOString(),
+        entityId: sourceId || null,
+        balanceAfter: balance,
+      }));
+    }
+    if (weeklyBonus > 0) {
+      balance += weeklyBonus;
+      newTransactions.push(weeklyBonusTransaction(now, balance));
     }
 
-    // Create completion record
-    const completion = createWorkoutCompletion({
-      id: `wc-${Date.now()}`,
-      workoutId,
-      workoutName,
-      completedAt: now.toISOString(),
-      exercisesCompleted,
-      totalExercises,
-      durationSeconds,
-      pointsEarned: points,
-      wasPartial,
-    });
+    // "Workouts" count: every workout/custom/planned item; journal logging counts once per day.
+    const journalCountedToday = Object.keys(ledger.perSource)
+      .some((k) => k.startsWith(`${TrainingSource.JOURNAL}:`));
+    const countsAsWorkout = source !== TrainingSource.JOURNAL || !journalCountedToday;
 
-    // Create transaction
-    const transaction = createTransaction({
-      id: generateTransactionId(TransactionType.EARN, TransactionCategory.WORKOUT, workoutId, now),
-      type: TransactionType.EARN,
-      category: TransactionCategory.WORKOUT,
-      amount: points,
-      description: `Completed ${workoutName}`,
-      timestamp: now.toISOString(),
-      entityId: workoutId,
-      balanceAfter: stats.totalPoints + points,
-    });
+    const history = [...(stats.workoutHistory || [])];
+    if (source === TrainingSource.WORKOUT || source === TrainingSource.CUSTOM) {
+      history.unshift(createWorkoutCompletion({
+        id: `wc-${Date.now()}`,
+        workoutId: sourceId,
+        workoutName: name,
+        completedAt: now.toISOString(),
+        exercisesCompleted: exercises,
+        totalExercises: exercises,
+        durationSeconds: Math.round(minutes * 60),
+        pointsEarned: sessionPoints,
+        wasPartial: false,
+      }));
+    }
 
-    // Update stats
     const updatedStats = {
       ...stats,
-      totalPoints: stats.totalPoints + points,
+      totalPoints: balance,
       currentStreak: newStreak,
-      longestStreak: Math.max(stats.longestStreak, newStreak),
-      totalWorkoutsCompleted: stats.totalWorkoutsCompleted + 1,
+      longestStreak: Math.max(stats.longestStreak || 0, newStreak),
+      totalWorkoutsCompleted: (stats.totalWorkoutsCompleted || 0) + (countsAsWorkout ? 1 : 0),
       lastActivityDate: now.toISOString(),
       lastCheckInDate: now.toISOString(),
       previousBrokenStreak: null,
-      workoutHistory: [completion, ...stats.workoutHistory].slice(0, 100),
-      transactions: [transaction, ...stats.transactions].slice(0, 500),
+      weeklyGoal,
+      trainingToday: {
+        date: today,
+        points: ledger.points + sessionPoints,
+        sessions: ledger.sessions + 1,
+        perSource: { ...ledger.perSource, [sourceKey]: (earnedFromSource || 0) + sessionPoints },
+      },
+      workoutHistory: history.slice(0, 100),
+      transactions: [...newTransactions.reverse(), ...(stats.transactions || [])].slice(0, 500),
     };
-
     updatedStats.hamsterState = calculateHamsterState(updatedStats);
-    completionKeys.add(completionKey);
+    if (source === TrainingSource.WORKOUT || source === TrainingSource.CUSTOM) {
+      completionKeys.add(`${sourceId}-${today}`);
+    }
     await saveStats(updatedStats);
 
     return {
       success: true,
       alreadyRecorded: false,
-      pointsEarned: points,
+      pointsEarned: sessionPoints + weeklyBonus,
+      sessionPoints,
+      weeklyBonus,
+      capReached,
       newStreak,
       previousStreak: stats.currentStreak,
       hamsterState: updatedStats.hamsterState,
+      weeklyGoal,
       stats: updatedStats,
     };
+  },
+
+  // Guided workout player. Earns for the exercises actually done — no early-stop penalty.
+  async recordWorkoutCompletion({
+    workoutId,
+    workoutName,
+    exercisesCompleted,
+    durationSeconds,
+  }) {
+    return this.recordTraining({
+      source: TrainingSource.WORKOUT,
+      sourceId: workoutId,
+      name: workoutName,
+      exercises: exercisesCompleted,
+      minutes: (durationSeconds || 0) / 60,
+    });
   },
 
   // Record daily exercise check-in (simplified MVP)
@@ -360,23 +468,10 @@ export const ActivityService = {
       };
     }
 
-    // Flat 10 points per daily check-in
-    const points = 10;
+    const points = PointsConfig.dailyExercisePoints;
+    const { newStreak, weeklyGoal, weeklyBonus } = applyTrainingDay(stats, now);
 
-    // Update streak
-    const lastCheckIn = stats.lastCheckInDate ? new Date(stats.lastCheckInDate) : null;
-    let newStreak = stats.currentStreak;
-
-    if (!lastCheckIn || !isSameDay(lastCheckIn, now)) {
-      if (!lastCheckIn || isYesterday(lastCheckIn)) {
-        newStreak = stats.currentStreak + 1;
-      } else {
-        newStreak = 1;
-      }
-    }
-
-    // Create transaction
-    const transaction = createTransaction({
+    const newTransactions = [createTransaction({
       id: generateTransactionId(TransactionType.EARN, 'dailyExercise', exercise.id, now),
       type: TransactionType.EARN,
       category: 'dailyExercise',
@@ -385,20 +480,23 @@ export const ActivityService = {
       timestamp: now.toISOString(),
       entityId: exercise.id,
       balanceAfter: stats.totalPoints + points,
-    });
+    })];
+    if (weeklyBonus > 0) {
+      newTransactions.push(weeklyBonusTransaction(now, stats.totalPoints + points + weeklyBonus));
+    }
 
-    // Update stats
     const updatedStats = {
       ...stats,
-      totalPoints: stats.totalPoints + points,
+      totalPoints: stats.totalPoints + points + weeklyBonus,
       currentStreak: newStreak,
-      longestStreak: Math.max(stats.longestStreak, newStreak),
-      totalWorkoutsCompleted: stats.totalWorkoutsCompleted + 1,
+      longestStreak: Math.max(stats.longestStreak || 0, newStreak),
+      totalWorkoutsCompleted: (stats.totalWorkoutsCompleted || 0) + 1,
       lastActivityDate: now.toISOString(),
       lastCheckInDate: now.toISOString(),
       previousBrokenStreak: null,
       hamsterState: HamsterState.HAPPY,
-      transactions: [transaction, ...stats.transactions].slice(0, 500),
+      weeklyGoal,
+      transactions: [...newTransactions.reverse(), ...(stats.transactions || [])].slice(0, 500),
     };
 
     completionKeys.add(completionKey);
@@ -406,8 +504,10 @@ export const ActivityService = {
 
     return {
       success: true,
-      pointsEarned: points,
+      pointsEarned: points + weeklyBonus,
+      weeklyBonus,
       newStreak,
+      weeklyGoal,
       hamsterReaction: exercise.encouragement,
       stats: updatedStats,
     };

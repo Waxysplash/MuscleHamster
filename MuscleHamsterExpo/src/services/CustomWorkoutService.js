@@ -223,8 +223,9 @@ export const CustomWorkoutService = {
       return { success: false, error: 'Workout not found' };
     }
 
-    // Points earned for completing custom workout
-    const pointsEarned = 15;
+    // Points are awarded by ActivityService.recordTraining (see CustomWorkoutContext);
+    // the real amount is filled in on the completion record afterwards.
+    const pointsEarned = 0;
 
     // Create completion record
     const completionRecord = {
@@ -264,6 +265,18 @@ export const CustomWorkoutService = {
       pointsEarned,
       workout: updatedWorkouts[workoutIndex],
     };
+  },
+
+  // Store the real points awarded on a completion record (set after ActivityService awards them)
+  async setCompletionPoints(completionId, pointsEarned) {
+    const data = await loadData();
+    const updatedData = {
+      ...data,
+      completionHistory: data.completionHistory.map(c =>
+        c.id === completionId ? { ...c, pointsEarned } : c
+      ),
+    };
+    await saveData(updatedData);
   },
 
   // Get completion history for a specific workout

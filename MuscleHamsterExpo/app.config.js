@@ -6,7 +6,7 @@ export default {
   expo: {
     name: "Muscle Hamster",
     slug: "MuscleHamsterExpo",
-    version: "1.0.7",
+    version: "1.0.8",
     orientation: "portrait",
     icon: "./assets/branding/icon.png",
     userInterfaceStyle: "light",
