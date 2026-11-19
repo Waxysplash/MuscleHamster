@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 import { StatIcons } from '../../config/AssetImages';
+import HoldTimer from '../../components/HoldTimer';
 import { playSFX } from '../../services/AudioService';
 import { SoundEffect } from '../../models/AudioPreferences';
 import { logDailyCheckIn } from '../../services/AnalyticsService';
@@ -171,12 +172,17 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     <View style={styles.container}>
       {/* Close button */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.closeButton}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        >
           <Ionicons name="close" size={28} color="#8B5A2B" />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.readyContent}>
+      <ScrollView contentContainerStyle={styles.readyContent}>
         {/* Exercise icon */}
         <View style={styles.exerciseCircle}>
           <Ionicons name={exercise.icon} size={44} color="#FF9500" />
@@ -187,18 +193,20 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
           {exercise.name}
         </Text>
 
-        {/* Suggested amount */}
+        {/* Suggested amount, in plain words */}
         <Text style={styles.exerciseSuggested}>
           {exercise.repType === 'seconds'
-            ? `Suggested: ${exercise.repCount} seconds — stop early whenever you need to`
+            ? `Aim for ${exercise.repCount} seconds. Stop early whenever you need to.`
             : exercise.repType === 'breath'
-            ? 'Take as many deep breaths as you need'
-            : `Suggested: ${exercise.repCount} reps — or do as many as you can`}
+            ? 'Take as many slow breaths as you need'
+            : /breathing/i.test(exercise.name)
+            ? `Aim for ${exercise.repCount} slow rounds`
+            : `Aim for ${exercise.repCount} times. Any number counts!`}
         </Text>
 
-        {/* Safety line (beginner review) */}
-        <Text style={styles.safetyText} accessibilityRole="text">
-          Some effort is good. Sharp pain, dizziness or chest tightness: stop and rest.
+        {/* How to do it - first, readable (beginner review) */}
+        <Text style={styles.exerciseTip}>
+          {exercise.instruction}
         </Text>
 
         {/* Easier version - nobody should open the app to something they can't do */}
@@ -212,11 +220,14 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
           </View>
         )}
 
-        {/* How to do it */}
-        <Text style={styles.exerciseTip}>
-          {exercise.instruction}
+        {/* Countdown for timed moves, so nobody has to count in their head */}
+        {exercise.repType === 'seconds' && <HoldTimer seconds={exercise.repCount} />}
+
+        {/* Safety line */}
+        <Text style={styles.safetyText}>
+          Some effort is good. Sharp pain, dizziness or chest tightness: stop and rest.
         </Text>
-      </View>
+      </ScrollView>
 
       {/* I Did It! button */}
       <TouchableOpacity
@@ -256,10 +267,11 @@ const styles = StyleSheet.create({
     color: '#FF9500',
   },
   readyContent: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   exerciseCircle: {
     width: 100,
@@ -312,17 +324,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   exerciseTip: {
-    fontSize: 14,
-    color: '#6B5D52',
+    fontSize: 16,
+    color: '#4A3728',
     textAlign: 'center',
     paddingHorizontal: 24,
-    lineHeight: 20,
-    fontStyle: 'italic',
+    lineHeight: 23,
+    marginTop: 12,
   },
   iDidItButton: {
     marginHorizontal: 24,
     marginBottom: 40,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
@@ -349,7 +361,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 12,
   },
   retryButtonText: {
@@ -423,7 +435,7 @@ const styles = StyleSheet.create({
   doneButton: {
     marginHorizontal: 20,
     marginBottom: 40,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

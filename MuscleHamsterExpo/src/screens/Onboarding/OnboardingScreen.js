@@ -38,7 +38,7 @@ const STEP_TITLES = {
   ageGate: 'Before we begin...',
   fitnessLevel: "What's your fitness level?",
   goals: 'What are your goals?',
-  workoutDays: 'When do you work out?',
+  workoutDays: 'Which days could you try?',
   hamsterName: 'Name your hamster!',
 };
 
@@ -46,7 +46,7 @@ const STEP_DESCRIPTIONS = {
   ageGate: 'Muscle Hamster is designed for users 9 years and older.',
   fitnessLevel: "No judgment! This helps us find the right workouts for you.",
   goals: 'Select all that apply. You can change these anytime.',
-  workoutDays: 'Which days do you usually work out? Tap to select.',
+  workoutDays: 'Pick the days you might move. Any number is fine, and you can change them later.',
   hamsterName: 'What should we call your new fitness buddy?',
 };
 
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 3,
   },
   progressText: {
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   checkboxSelected: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderColor: '#FF9500',
   },
   ageGateText: {
@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   dayCardSelected: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderColor: '#FF9500',
   },
   dayLetter: {
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   continueButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

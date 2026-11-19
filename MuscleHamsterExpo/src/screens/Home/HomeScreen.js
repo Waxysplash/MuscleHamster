@@ -29,6 +29,9 @@ import ErrorBanner from '../../components/ErrorBanner';
 import StepsCard from '../../components/StepsCard';
 import SuggestedWorkoutCard from '../../components/SuggestedWorkoutCard';
 import { scaleDailyExercise } from '../../models/DailyExercise';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getSuggestion } from '../../services/SuggestionService';
+import { getTodayName } from '../../services/ScheduleService';
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
@@ -64,6 +67,7 @@ export default function HomeScreen({ navigation }) {
     hasScheduleThisWeek,
     todaySchedule,
     loadCurrentWeek,
+    scheduleWorkout,
   } = useSchedule();
 
   // Check if today is a scheduled workout day
@@ -108,15 +112,38 @@ export default function HomeScreen({ navigation }) {
     }, [loadStats, loadInventory, loadCurrentWeek])
   );
 
+  // Beginner review: the days picked in onboarding should mean something.
+  // If this week's plan is empty, put a suggested guided workout on each picked day
+  // from today onward. Runs once per week per user; never overwrites a plan.
+  const pickedDays = profile?.workoutDays;
+  useEffect(() => {
+    if (!currentUser?.id || !currentWeekStart || hasScheduleThisWeek || !pickedDays?.length) return;
+    const key = `@MuscleHamster:autoPlan:${currentUser.id}:${currentWeekStart}`;
+    (async () => {
+      try {
+        if (await AsyncStorage.getItem(key)) return;
+        await AsyncStorage.setItem(key, '1');
+        const order = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const todayIdx = order.indexOf(getTodayName());
+        const days = order.filter((d, i) => i >= todayIdx && pickedDays.includes(d));
+        // Keep going even after the first save re-renders this screen (the key stops repeats)
+        for (let i = 0; i < days.length; i++) {
+          const s = getSuggestion({ profile, stats, shuffle: i });
+          if (s) await scheduleWorkout(days[i], s.workout.id, 'guided', s.workout.name);
+        }
+      } catch (e) {
+        Logger.warn('Auto-plan failed');
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id, currentWeekStart, hasScheduleThisWeek, pickedDays]);
+
   // Show streak freeze if needed
   useEffect(() => {
-    if (
-      previousBrokenStreak &&
-      previousBrokenStreak > 0 &&
-      !hasShownStreakFreeze
-    ) {
+    // Beginner review: no automatic "streak ended" pop-up when someone comes back.
+    // The gentle "Welcome back" card on Today offers it instead.
+    if (previousBrokenStreak && previousBrokenStreak > 0 && !hasShownStreakFreeze) {
       setHasShownStreakFreeze(true);
-      navigation.navigate('StreakFreeze');
     }
   }, [previousBrokenStreak, hasShownStreakFreeze, navigation]);
 
@@ -195,9 +222,9 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.completedCard}>
           <Ionicons name="checkmark-circle" size={32} color="#34C759" />
           <View style={styles.completedInfo}>
-            <Text style={styles.completedTitle}>All done for today!</Text>
+            <Text style={styles.completedTitle}>{hamsterName} is fed for today!</Text>
             <Text style={styles.completedSubtitle}>
-              {hasCompletedWorkoutToday ? 'Workout completed' : 'Daily exercise done'}
+              {hasCompletedWorkoutToday ? 'Workout done. Lovely work!' : 'Want a bonus? Try the workout below.'}
             </Text>
           </View>
         </View>
@@ -218,11 +245,11 @@ export default function HomeScreen({ navigation }) {
           <Ionicons name="fitness" size={28} color="#fff" />
         </View>
         <View style={styles.actionInfo}>
-          <Text style={styles.actionLabel}>TODAY'S ACTION</Text>
+          <Text style={styles.actionLabel}>Today's exercise</Text>
           <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
           <Text style={styles.actionSubtitle}>
             {todaysExercise
-              ? `${todaysExercise.name} · ${todaysExercise.repCount} ${todaysExercise.repType === 'seconds' ? 'seconds' : 'reps'}`
+              ? `${todaysExercise.name} · ${todaysExercise.repCount} ${todaysExercise.repType === 'seconds' ? 'seconds' : /breathing/i.test(todaysExercise.name) ? 'slow rounds' : 'times'}`
               : 'Complete your daily exercise'}
           </Text>
         </View>
@@ -387,8 +414,8 @@ export default function HomeScreen({ navigation }) {
               >
                 <Ionicons name="snow" size={24} color="#5AC8FA" />
                 <View style={styles.restoreInfo}>
-                  <Text style={styles.restoreTitle}>Streak Freeze Available</Text>
-                  <Text style={styles.restoreSubtitle}>Restore your {previousBrokenStreak} day streak</Text>
+                  <Text style={styles.restoreTitle}>Welcome back! {hamsterName} missed you</Text>
+                  <Text style={styles.restoreSubtitle}>Want to bring back your {previousBrokenStreak}-day streak?</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
               </TouchableOpacity>
@@ -515,7 +542,7 @@ const styles = StyleSheet.create({
     }),
   },
   stateText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
   },
   // CONTENT SECTION (Scrollable)
@@ -552,7 +579,7 @@ const styles = StyleSheet.create({
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 20,
     padding: 18,
     marginBottom: 20,
@@ -581,10 +608,9 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   actionLabel: {
-    fontSize: 10,
+    fontSize: 14,
     fontWeight: '700',
-    color: 'rgba(255,255,255,0.8)',
-    letterSpacing: 1,
+    color: '#FFFFFF',
   },
   actionTitle: {
     fontSize: 18,
@@ -593,8 +619,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   actionSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.9)',
+    fontSize: 15,
+    color: '#FFFFFF',
     marginTop: 2,
   },
   // Completed Card
@@ -945,7 +971,7 @@ const styles = StyleSheet.create({
   // Longest Streak
   longestStreak: {
     textAlign: 'center',
-    fontSize: 13,
+    fontSize: 14,
     color: '#6B5D52',
   },
 });

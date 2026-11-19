@@ -14,6 +14,7 @@ import {
   createExercise,
 } from '../models/Workout';
 import { FitnessGoal } from '../models/UserProfile';
+import { getMoveGuide } from '../models/MoveGuide';
 
 // Simulate network delay (randomized like Swift version)
 const delay = (minMs = 300, maxMs = 800) => {
@@ -21,168 +22,124 @@ const delay = (minMs = 300, maxMs = 800) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
+// ============================================
+// MOVE LISTS (beginner reviews, Nov 2026)
+// Beginners get their own low-impact lists (no jumping, chair/wall versions).
+// Upper- and lower-body workouts get their own moves instead of the full-body list.
+// Every move's plain how-to + easier version comes from models/MoveGuide.js.
+// ============================================
+const MOVES = {
+  [WorkoutType.STRENGTH]: ['Push-Ups', 'Squats', 'Lunges', 'Plank', 'Dips', 'Glute Bridges', 'Superman', 'Wall Sit', 'Mountain Climbers'],
+  [WorkoutType.CARDIO]: ['Jumping Jacks', 'High Knees', 'Butt Kicks', 'Burpees', 'Skaters', 'Jump Squats', 'Running in Place', 'Box Steps', 'Seal Jacks'],
+  [WorkoutType.HIIT]: ['Burpees', 'Jump Squats', 'Mountain Climbers', 'High Knees', 'Tuck Jumps', 'Push-Up Jacks', 'Speed Skaters', 'Plank Jacks', 'Split Jumps'],
+  [WorkoutType.YOGA]: ['Cat-Cow', 'Downward Dog', 'Warrior I', 'Warrior II', 'Tree Pose', "Child's Pose", 'Cobra', 'Triangle Pose', 'Pigeon Pose'],
+  [WorkoutType.STRETCHING]: ['Neck Rolls', 'Shoulder Stretch', 'Tricep Stretch', 'Quad Stretch', 'Hamstring Stretch', 'Hip Flexor Stretch', 'Calf Stretch', 'Spinal Twist', 'Figure Four Stretch'],
+  [WorkoutType.PILATES]: ['The Hundred', 'Roll Up', 'Single Leg Circles', 'Rolling Like a Ball', 'Single Leg Stretch', 'Double Leg Stretch', 'Scissors', 'Criss Cross', 'Teaser'],
+  [WorkoutType.MOBILITY]: ['Arm Circles', 'Hip Circles', 'Leg Swings', 'Ankle Rotations', 'Cat-Cow', 'Thread the Needle', "World's Greatest Stretch", '90/90 Stretch', 'Thoracic Rotations'],
+  [WorkoutType.CIRCUIT]: ['Push-Ups', 'Squats', 'Plank Hold', 'Jumping Jacks', 'Lunges', 'Mountain Climbers', 'Bicycle Crunches', 'Burpees', 'High Knees'],
+};
+
+const BEGINNER_MOVES = {
+  [WorkoutType.STRENGTH]: ['Wall Push-Ups', 'Chair Squats', 'Glute Bridges', 'Knee Plank', 'Bird Dog', 'Reverse Lunges', 'Calf Raises', 'Superman', 'Wall Sit'],
+  [WorkoutType.CARDIO]: ['Marching in Place', 'Step Jacks', 'Standing Knee Lifts', 'Side Steps', 'Shadow Boxing', 'Butt Kicks', 'Box Steps', 'Running in Place'],
+  [WorkoutType.HIIT]: ['Marching in Place', 'Chair Squats', 'Shadow Boxing', 'Step Jacks', 'Standing Knee Lifts', 'Wall Push-Ups', 'Side Steps', 'Glute Bridges', 'Box Steps'],
+  [WorkoutType.CIRCUIT]: ['Wall Push-Ups', 'Chair Squats', 'Knee Plank', 'Step Jacks', 'Reverse Lunges', 'Glute Bridges', 'Dead Bug', 'Marching in Place', 'Bird Dog'],
+  [WorkoutType.PILATES]: ['Dead Bug', 'Bird Dog', 'Knee Plank', 'Glute Bridges', 'Heel Taps', 'Side-Lying Leg Raises', 'Superman', 'Single Leg Circles', 'Cat-Cow'],
+  [WorkoutType.YOGA]: MOVES[WorkoutType.YOGA],
+  [WorkoutType.STRETCHING]: MOVES[WorkoutType.STRETCHING],
+  [WorkoutType.MOBILITY]: MOVES[WorkoutType.MOBILITY],
+};
+
+const FOCUS_MOVES = {
+  upper: {
+    beginner: ['Wall Push-Ups', 'Knee Push-Ups', 'Superman', 'Arm Circles', 'Knee Plank', 'Bird Dog', 'Shoulder Stretch'],
+    intermediate: ['Push-Ups', 'Dips', 'Plank Shoulder Taps', 'Superman', 'Plank', 'Knee Push-Ups', 'Arm Circles'],
+    advanced: ['Push-Ups', 'Pike Push-Ups', 'Dips', 'Plank Shoulder Taps', 'Superman', 'Side Plank', 'Plank', 'Arm Circles', 'Push-Up Jacks'],
+  },
+  lower: {
+    beginner: ['Chair Squats', 'Glute Bridges', 'Reverse Lunges', 'Calf Raises', 'Side-Lying Leg Raises', 'Wall Sit', 'Box Steps'],
+    intermediate: ['Squats', 'Reverse Lunges', 'Glute Bridges', 'Wall Sit', 'Calf Raises', 'Side-Lying Leg Raises', 'Lunges'],
+    advanced: ['Squats', 'Lunges', 'Jump Squats', 'Glute Bridges', 'Wall Sit', 'Split Jumps', 'Calf Raises', 'Side-Lying Leg Raises', 'Box Steps'],
+  },
+};
+
+const getFocus = (bodyFocus = []) => {
+  if (bodyFocus.includes(BodyFocus.UPPER_BODY)) return 'upper';
+  if (bodyFocus.includes(BodyFocus.LOWER_BODY)) return 'lower';
+  return null;
+};
+
+const getMoveNames = (type, difficulty, bodyFocus) => {
+  const focus = type === WorkoutType.STRENGTH ? getFocus(bodyFocus) : null;
+  if (focus) return FOCUS_MOVES[focus][difficulty] || FOCUS_MOVES[focus].intermediate;
+  if (difficulty === FitnessLevel.BEGINNER) return BEGINNER_MOVES[type] || BEGINNER_MOVES[WorkoutType.STRENGTH];
+  return MOVES[type] || MOVES[WorkoutType.STRENGTH];
+};
+
+const getMoveSeconds = (type, difficulty) => {
+  if (type === WorkoutType.YOGA) return 45;
+  if (type === WorkoutType.STRETCHING || type === WorkoutType.MOBILITY) return 30;
+  if (type === WorkoutType.HIIT) return difficulty === FitnessLevel.BEGINNER ? 30 : 20;
+  return difficulty === FitnessLevel.BEGINNER ? 30 : difficulty === FitnessLevel.INTERMEDIATE ? 40 : 45;
+};
+
+const makeMove = (id, name, duration, type, extra = {}) => {
+  const guide = getMoveGuide(name);
+  return {
+    ...createExercise({ id, name, instructions: guide.how || '', duration, type }),
+    how: guide.how || '',
+    easier: guide.easier || null,
+    ...extra,
+  };
+};
+
 // Generate exercises for a workout
-const generateExercises = (workoutType, difficulty, duration) => {
+const generateExercises = (workoutType, difficulty, duration, bodyFocus = []) => {
   const exercises = [];
   let id = 1;
 
-  // Warmup
-  exercises.push(createExercise({
-    id: `ex-${id++}`,
-    name: 'Warm Up',
-    instructions: 'Get your body ready with light movement',
-    duration: 60,
-    type: ExerciseType.WARMUP,
-  }));
+  exercises.push(makeMove(`ex-${id++}`, 'Warm Up', 60, ExerciseType.WARMUP));
 
-  // Work exercises based on type
-  const workExercises = getWorkExercisesForType(workoutType, difficulty);
+  const names = getMoveNames(workoutType, difficulty, bodyFocus);
   const numExercises = duration === DurationBucket.QUICK ? 3 :
                        duration === DurationBucket.SHORT ? 5 :
                        duration === DurationBucket.MEDIUM ? 7 : 9;
-
-  // Repeat the exercise list in rounds until the workout matches its labelled length
-  // (DurationBucketInfo minutes). Before, a "20-30 min" workout really took ~9 minutes.
-  const circuit = workExercises.slice(0, Math.min(numExercises, workExercises.length));
+  const circuit = names.slice(0, Math.min(numExercises, names.length));
+  const moveSeconds = getMoveSeconds(workoutType, difficulty);
   const restSeconds = difficulty === FitnessLevel.BEGINNER ? 30 : 20;
+
+  // Repeat the moves in rounds until the workout matches its labelled length
   const targetSeconds = (DurationBucketInfo[duration]?.minutes || 15) * 60 - 120; // minus warm-up + cool-down
   let workSeconds = 0;
   let round = 1;
 
   while (circuit.length > 0) {
     for (let i = 0; i < circuit.length; i++) {
-      const ex = circuit[i];
-      exercises.push(createExercise({
-        id: `ex-${id++}`,
-        name: round > 1 ? `${ex.name} (round ${round})` : ex.name,
-        instructions: ex.instructions,
-        duration: ex.duration,
-        type: ExerciseType.WORK,
-      }));
-      workSeconds += ex.duration;
+      exercises.push(makeMove(`ex-${id++}`, circuit[i], moveSeconds, ExerciseType.WORK, { round }));
+      workSeconds += moveSeconds;
       if (workSeconds >= targetSeconds) break;
 
-      exercises.push(createExercise({
-        id: `ex-${id++}`,
-        name: 'Rest',
-        instructions: 'Take a breather',
-        duration: restSeconds,
-        type: ExerciseType.REST,
-      }));
+      exercises.push({
+        ...createExercise({
+          id: `ex-${id++}`,
+          name: 'Rest',
+          instructions: 'Breathe and shake out your arms and legs.',
+          duration: restSeconds,
+          type: ExerciseType.REST,
+        }),
+        round,
+      });
       workSeconds += restSeconds;
     }
     if (workSeconds >= targetSeconds) break;
     round += 1;
   }
 
-  // Cooldown
-  exercises.push(createExercise({
-    id: `ex-${id++}`,
-    name: 'Cool Down',
-    instructions: 'Slow your heart rate and stretch',
-    duration: 60,
-    type: ExerciseType.COOLDOWN,
-  }));
+  exercises.push(makeMove(`ex-${id++}`, 'Cool Down', 60, ExerciseType.COOLDOWN));
 
-  return exercises;
-};
-
-const getWorkExercisesForType = (type, difficulty) => {
-  const baseDuration = difficulty === FitnessLevel.BEGINNER ? 30 :
-                       difficulty === FitnessLevel.INTERMEDIATE ? 40 : 45;
-
-  const exerciseLibrary = {
-    [WorkoutType.STRENGTH]: [
-      { name: 'Push-Ups', instructions: 'Keep your core tight', duration: baseDuration },
-      { name: 'Squats', instructions: 'Knees over toes', duration: baseDuration },
-      { name: 'Lunges', instructions: 'Alternate legs', duration: baseDuration },
-      { name: 'Plank', instructions: 'Hold steady', duration: baseDuration },
-      { name: 'Dips', instructions: 'Use a chair or bench', duration: baseDuration },
-      { name: 'Glute Bridges', instructions: 'Squeeze at the top', duration: baseDuration },
-      { name: 'Superman', instructions: 'Lift arms and legs', duration: baseDuration },
-      { name: 'Wall Sit', instructions: 'Back against wall', duration: baseDuration },
-      { name: 'Mountain Climbers', instructions: 'Quick feet!', duration: baseDuration },
-    ],
-    [WorkoutType.CARDIO]: [
-      { name: 'Jumping Jacks', instructions: 'Full range of motion', duration: baseDuration },
-      { name: 'High Knees', instructions: 'Drive those knees up', duration: baseDuration },
-      { name: 'Butt Kicks', instructions: 'Quick feet', duration: baseDuration },
-      { name: 'Burpees', instructions: 'Go at your pace', duration: baseDuration },
-      { name: 'Skaters', instructions: 'Side to side', duration: baseDuration },
-      { name: 'Jump Squats', instructions: 'Land softly', duration: baseDuration },
-      { name: 'Running in Place', instructions: 'Stay light', duration: baseDuration },
-      { name: 'Box Steps', instructions: 'Use a step or stair', duration: baseDuration },
-      { name: 'Seal Jacks', instructions: 'Arms out wide', duration: baseDuration },
-    ],
-    [WorkoutType.HIIT]: [
-      { name: 'Burpees', instructions: 'Maximum effort!', duration: 20 },
-      { name: 'Jump Squats', instructions: 'Explode up!', duration: 20 },
-      { name: 'Mountain Climbers', instructions: 'Fast as you can!', duration: 20 },
-      { name: 'High Knees', instructions: 'Sprint pace!', duration: 20 },
-      { name: 'Tuck Jumps', instructions: 'Bring knees to chest', duration: 20 },
-      { name: 'Push-Up Jacks', instructions: 'Push-up with leg spread', duration: 20 },
-      { name: 'Speed Skaters', instructions: 'Side to side fast!', duration: 20 },
-      { name: 'Plank Jacks', instructions: 'Feet in and out', duration: 20 },
-      { name: 'Split Jumps', instructions: 'Alternate lunge jumps', duration: 20 },
-    ],
-    [WorkoutType.YOGA]: [
-      { name: 'Cat-Cow', instructions: 'Flow with your breath', duration: 45 },
-      { name: 'Downward Dog', instructions: 'Press heels down', duration: 45 },
-      { name: 'Warrior I', instructions: 'Strong front leg', duration: 45 },
-      { name: 'Warrior II', instructions: 'Gaze over front hand', duration: 45 },
-      { name: 'Tree Pose', instructions: 'Find your balance', duration: 45 },
-      { name: 'Child\'s Pose', instructions: 'Rest and breathe', duration: 45 },
-      { name: 'Cobra', instructions: 'Open your chest', duration: 45 },
-      { name: 'Triangle Pose', instructions: 'Reach and extend', duration: 45 },
-      { name: 'Pigeon Pose', instructions: 'Hip opener', duration: 45 },
-    ],
-    [WorkoutType.STRETCHING]: [
-      { name: 'Neck Rolls', instructions: 'Slow and controlled', duration: 30 },
-      { name: 'Shoulder Stretch', instructions: 'Cross body pull', duration: 30 },
-      { name: 'Tricep Stretch', instructions: 'Elbow to ceiling', duration: 30 },
-      { name: 'Quad Stretch', instructions: 'Pull heel to glute', duration: 30 },
-      { name: 'Hamstring Stretch', instructions: 'Reach for toes', duration: 30 },
-      { name: 'Hip Flexor Stretch', instructions: 'Lunge and lean', duration: 30 },
-      { name: 'Calf Stretch', instructions: 'Press heel down', duration: 30 },
-      { name: 'Spinal Twist', instructions: 'Look over shoulder', duration: 30 },
-      { name: 'Figure Four Stretch', instructions: 'Ankle on knee', duration: 30 },
-    ],
-    [WorkoutType.PILATES]: [
-      { name: 'The Hundred', instructions: 'Pump arms, breathe', duration: baseDuration },
-      { name: 'Roll Up', instructions: 'Articulate spine', duration: baseDuration },
-      { name: 'Single Leg Circles', instructions: 'Stable hips', duration: baseDuration },
-      { name: 'Rolling Like a Ball', instructions: 'Tuck and roll', duration: baseDuration },
-      { name: 'Single Leg Stretch', instructions: 'Alternate legs', duration: baseDuration },
-      { name: 'Double Leg Stretch', instructions: 'Extend and circle', duration: baseDuration },
-      { name: 'Scissors', instructions: 'Switch legs', duration: baseDuration },
-      { name: 'Criss Cross', instructions: 'Elbow to knee', duration: baseDuration },
-      { name: 'Teaser', instructions: 'V-sit balance', duration: baseDuration },
-    ],
-    [WorkoutType.MOBILITY]: [
-      { name: 'Arm Circles', instructions: 'Gradually increase size', duration: 30 },
-      { name: 'Hip Circles', instructions: 'Hands on hips', duration: 30 },
-      { name: 'Leg Swings', instructions: 'Front to back', duration: 30 },
-      { name: 'Ankle Rotations', instructions: 'Both directions', duration: 30 },
-      { name: 'Cat-Cow', instructions: 'Spinal mobility', duration: 30 },
-      { name: 'Thread the Needle', instructions: 'Rotate through spine', duration: 30 },
-      { name: 'World\'s Greatest Stretch', instructions: 'Multi-joint opener', duration: 45 },
-      { name: '90/90 Stretch', instructions: 'Hip mobility', duration: 45 },
-      { name: 'Thoracic Rotations', instructions: 'Upper back movement', duration: 30 },
-    ],
-    [WorkoutType.CIRCUIT]: [
-      { name: 'Push-Ups', instructions: 'Go at your pace', duration: baseDuration },
-      { name: 'Squats', instructions: 'Full depth', duration: baseDuration },
-      { name: 'Plank Hold', instructions: 'Stay strong', duration: baseDuration },
-      { name: 'Jumping Jacks', instructions: 'Keep moving', duration: baseDuration },
-      { name: 'Lunges', instructions: 'Alternate sides', duration: baseDuration },
-      { name: 'Mountain Climbers', instructions: 'Drive those knees', duration: baseDuration },
-      { name: 'Bicycle Crunches', instructions: 'Touch elbow to knee', duration: baseDuration },
-      { name: 'Burpees', instructions: 'Full body burn', duration: baseDuration },
-      { name: 'High Knees', instructions: 'Quick feet finish!', duration: baseDuration },
-    ],
-  };
-
-  return exerciseLibrary[type] || exerciseLibrary[WorkoutType.STRENGTH];
+  // Tell every item how many rounds there are (the player shows "Round 2 of 3")
+  const totalRounds = round;
+  return exercises.map((e) => ({ ...e, totalRounds }));
 };
 
 // Seed workout data
@@ -601,7 +558,11 @@ let seedWorkouts = null;
 
 const getSeedWorkouts = () => {
   if (!seedWorkouts) {
-    seedWorkouts = createSeedWorkouts();
+    // Rebuild each workout's moves with its body focus (upper/lower-body workouts get their own moves)
+    seedWorkouts = createSeedWorkouts().map((w) => {
+      const exercises = generateExercises(w.category, w.difficulty, w.duration, w.bodyFocus);
+      return { ...w, exercises, totalDurationSeconds: exercises.reduce((sum, ex) => sum + ex.duration, 0) };
+    });
   }
   return seedWorkouts;
 };

@@ -401,11 +401,11 @@ export default function AddWorkoutModal({
         {/* Header */}
         <View style={styles.header}>
           {step === 2 ? (
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <TouchableOpacity style={styles.backButton} onPress={handleBack} accessibilityRole="button" accessibilityLabel="Go back">
               <Ionicons name="arrow-back" size={24} color="#4A3728" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
               <Ionicons name="close" size={24} color="#4A3728" />
             </TouchableOpacity>
           )}

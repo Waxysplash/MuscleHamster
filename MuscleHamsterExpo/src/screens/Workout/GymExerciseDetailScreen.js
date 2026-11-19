@@ -174,8 +174,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back">
             <Ionicons name="arrow-back" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Exercise Details</Text>
@@ -269,8 +268,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
                       {sets.length > 1 && (
                         <TouchableOpacity
                           style={styles.removeSetButton}
-                          onPress={() => removeSet(index)}
-                        >
+                          onPress={() => removeSet(index)} accessibilityRole="button" accessibilityLabel="Delete">
                           <Ionicons name="trash-outline" size={18} color="#FF3B30" />
                         </TouchableOpacity>
                       )}
@@ -330,8 +328,7 @@ export default function GymExerciseDetailScreen({ route, navigation }) {
                       <Text style={styles.entryDate}>{formatDate(entry.date)}</Text>
                       <TouchableOpacity
                         onPress={() => deleteEntry(entry.id)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      >
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Delete">
                         <Ionicons name="trash-outline" size={18} color="#A0968E" />
                       </TouchableOpacity>
                     </View>

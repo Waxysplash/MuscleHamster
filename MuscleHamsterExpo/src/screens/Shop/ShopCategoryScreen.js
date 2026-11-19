@@ -309,7 +309,7 @@ function ItemDetailModal({ item, isOwned, userPoints, isPurchasing, onPurchase, 
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalHeader}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityRole="button" accessibilityLabel="Close">
             <Ionicons name="close" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.modalTitle}>Item Details</Text>

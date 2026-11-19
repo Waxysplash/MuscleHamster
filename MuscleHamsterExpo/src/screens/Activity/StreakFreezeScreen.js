@@ -170,21 +170,23 @@ export default function StreakFreezeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleDone} style={styles.closeButton}>
+        <TouchableOpacity
+          onPress={handleDone}
+          style={styles.closeButton}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        >
           <Ionicons name="close" size={28} color="#6B5D52" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.promptContent}>
         <View style={styles.brokenStreakIcon}>
-          <Ionicons name="flame" size={60} color="#6B5D52" />
-          <View style={styles.breakMark}>
-            <Ionicons name="close-circle" size={24} color="#FF3B30" />
-          </View>
+          <Ionicons name="heart" size={60} color="#FF9500" />
         </View>
 
-        <Text style={styles.title}>Streak Broken</Text>
-        <Text style={styles.streakInfo}>Your {streakDays}-day streak has ended</Text>
+        <Text style={styles.title}>Welcome back!</Text>
+        <Text style={styles.streakInfo}>Your hamster missed you. Your {streakDays}-day streak took a break, and that's okay.</Text>
         <Text style={styles.message}>{getMessage()}</Text>
 
         {canAfford ? (
@@ -234,7 +236,7 @@ export default function StreakFreezeScreen({ navigation }) {
         )}
 
         <TouchableOpacity style={styles.declineButton} onPress={handleDecline}>
-          <Text style={styles.declineButtonText}>Start Fresh Instead</Text>
+          <Text style={styles.declineButtonText}>Start fresh (free)</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -429,7 +431,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 12,
   },
   retryButtonText: {

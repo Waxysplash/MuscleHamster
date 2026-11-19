@@ -122,8 +122,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
+              onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back">
               <Ionicons name="arrow-back" size={24} color="#4A3728" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Loading...</Text>
@@ -143,8 +142,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back">
             <Ionicons name="arrow-back" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.headerTitle} numberOfLines={1}>{workout.name}</Text>
@@ -252,8 +250,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
           <View style={styles.actionsSection}>
             <TouchableOpacity
               style={styles.deleteButton}
-              onPress={handleDelete}
-            >
+              onPress={handleDelete} accessibilityRole="button" accessibilityLabel="Delete">
               <Ionicons name="trash-outline" size={20} color="#FF3B30" />
               <Text style={styles.deleteButtonText}>Delete Workout</Text>
             </TouchableOpacity>

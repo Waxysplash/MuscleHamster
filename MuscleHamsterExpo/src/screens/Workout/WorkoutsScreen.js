@@ -198,7 +198,10 @@ export default function WorkoutsScreen({ navigation, route }) {
     // Try to find the exercise in the workout library
     const libraryResult = findExerciseById(workoutId);
 
-    if (libraryResult?.type === 'gym') {
+    if (workoutType === 'guided' || /^w-\d+$/.test(workoutId)) {
+      // A guided workout (e.g. one we planned from onboarding) opens the follow-along player
+      navigation.navigate('WorkoutDetail', { workoutId });
+    } else if (libraryResult?.type === 'gym') {
       // Navigate to gym exercise detail with progress journal
       navigation.navigate('GymExerciseDetail', {
         exercise: libraryResult.exercise,
@@ -439,8 +442,7 @@ export default function WorkoutsScreen({ navigation, route }) {
               <View style={styles.section}>
                 <TouchableOpacity
                   style={styles.backToplanLink}
-                  onPress={() => setActiveTab('plan')}
-                >
+                  onPress={() => setActiveTab('plan')} accessibilityRole="button" accessibilityLabel="Go back">
                   <Ionicons name="arrow-back" size={18} color="#8B5A2B" />
                   <Text style={styles.myWorkoutsLinkText}>Back to My Plan</Text>
                 </TouchableOpacity>

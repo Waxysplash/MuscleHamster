@@ -9,7 +9,7 @@ import { useActivity } from '../context/ActivityContext';
 import { StepMilestones } from '../models/Activity';
 import StepService, { StepPermission } from '../services/StepService';
 
-const ACCENT = '#30B0C7';
+const ACCENT = '#1A7F91'; // darker teal: readable as text and behind white
 
 const formatSteps = (n) => (n || 0).toLocaleString('en-US');
 
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#6B5D52',
     marginTop: 4,
   },
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     color: '#4A3728',
   },
   stepsLabel: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#6B5D52',
   },
   track: {
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     borderColor: ACCENT,
   },
   chipText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: ACCENT,
   },

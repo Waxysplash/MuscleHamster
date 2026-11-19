@@ -11,8 +11,9 @@ import {
   defaultTimeChoice,
 } from '../services/SuggestionService';
 import { WorkoutTypeInfo } from '../models/Workout';
+import { PLAIN_CATEGORY } from '../models/MoveGuide';
 
-const ACCENT = '#FF9500';
+const ACCENT = '#B85A00'; // buttonOrange: readable with white text (config/theme.js)
 
 export default function SuggestedWorkoutCard({
   profile,
@@ -71,7 +72,7 @@ export default function SuggestedWorkoutCard({
         </View>
         <View style={styles.workoutText}>
           <Text style={styles.workoutName}>{workout.name}</Text>
-          <Text style={styles.reason}>{reason}</Text>
+          <Text style={styles.reason}>{PLAIN_CATEGORY[workout.category] ? `${PLAIN_CATEGORY[workout.category]} · ` : ''}{reason}</Text>
         </View>
         <View style={styles.startButton}>
           <Text style={styles.startText}>Start</Text>
@@ -123,8 +124,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 8,
-    minHeight: 36,
-    borderRadius: 18,
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: 'rgba(139,90,43,0.25)',
   },
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
   },
   workoutText: { flex: 1, marginLeft: 12, marginRight: 8 },
   workoutName: { fontSize: 17, fontWeight: '700', color: '#4A3728' },
-  reason: { fontSize: 13, color: '#6B5D52', marginTop: 2 },
+  reason: { fontSize: 14, color: '#6B5D52', marginTop: 2 },
   startButton: {
     backgroundColor: ACCENT,
     borderRadius: 20,
@@ -152,6 +154,6 @@ const styles = StyleSheet.create({
   },
   startText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
-  footerButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, minHeight: 36 },
+  footerButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, minHeight: 44 },
   footerText: { fontSize: 14, fontWeight: '600', color: '#8B5A2B' },
 });

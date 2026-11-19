@@ -145,7 +145,7 @@ export default function QuickRestDayScreen({ navigation }) {
   // Idle state - Show rest day prompt
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleDone} style={styles.closeButton}>
+      <TouchableOpacity onPress={handleDone} style={styles.closeButton} accessibilityRole="button" accessibilityLabel="Close">
         <Ionicons name="close" size={28} color="#6B5D52" />
       </TouchableOpacity>
 
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   doneButton: {
     marginHorizontal: 24,
     marginBottom: 40,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 12,
   },
   retryButtonText: {
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   popupButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 12,

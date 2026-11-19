@@ -150,8 +150,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
+              onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back">
               <Ionicons name="arrow-back" size={24} color="#4A3728" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Error</Text>
@@ -221,8 +220,7 @@ export default function GymBodyPartScreen({ route, navigation }) {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back">
             <Ionicons name="arrow-back" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{bodyPart.name}</Text>

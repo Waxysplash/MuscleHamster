@@ -72,7 +72,7 @@ export default function PendingRequestsScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back">
           <Ionicons name="arrow-back" size={24} color="#8B5A2B" />
         </TouchableOpacity>
         <Text style={styles.title}>Friend Requests</Text>

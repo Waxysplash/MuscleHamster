@@ -54,7 +54,7 @@ export const GYM_WORKOUTS = {
     { id: 'gym-arms-12', name: 'Close-Grip Bench Press', duration: 'medium', difficulty: 'intermediate', target: 'Triceps', description: '1. Lie flat; grip bar at shoulder-width. 2. Lower to mid-chest. 3. Keep elbows tucked to sides. 4. Press up explosively.' },
     { id: 'gym-arms-13', name: 'Spider Curls', duration: 'short', difficulty: 'intermediate', target: 'Bicep Peak', description: '1. Lie face-down on an incline bench. 2. Let arms hang straight down. 3. Curl weights toward your forehead. 4. Focuses on the "peak" of the bicep.' },
     { id: 'gym-arms-14', name: 'Wrist Curls', duration: 'short', difficulty: 'beginner', target: 'Forearms', description: '1. Rest forearms on a bench, palms up. 2. Let weight roll to fingertips, then curl wrist upward. 3. Squeeze forearms. 4. Lower slowly.' },
-    { id: 'gym-arms-15', name: 'Diamond Push-Ups', duration: 'short', difficulty: 'beginner', target: 'Triceps', description: '1. Get in push-up position with hands forming a "diamond" shape. 2. Lower chest to your hands. 3. Push back up. 4. Keep elbows close to your body.' },
+    { id: 'gym-arms-15', name: 'Diamond Push-Ups', duration: 'short', difficulty: 'intermediate', target: 'Triceps', description: '1. Get in push-up position with hands forming a "diamond" shape. 2. Lower chest to your hands. 3. Push back up. 4. Keep elbows close to your body.' },
   ],
   back: [
     { id: 'gym-back-1', name: 'Pull-Ups', duration: 'short', difficulty: 'advanced', target: 'Lat Width', description: '1. Grip bar overhand, wider than shoulders. 2. Pull chest toward bar by driving elbows down. 3. Squeeze shoulder blades at the top. 4. Lower with control.' },
@@ -127,41 +127,43 @@ export const GYM_WORKOUTS = {
 };
 
 // Home exercises by category
+// Plain-language how-tos with an easier version (beginner reviews, Nov 2026).
+// Each list starts with its gentlest move. IDs are unchanged so saved plans still work.
 export const HOME_EXERCISES = {
   quick_sweats: [
-    { id: 'home-qs-1', name: 'Jumping Jacks', description: 'Do 30 standard jumping jacks (step out one leg at a time if needed).' },
-    { id: 'home-qs-2', name: 'High Knees', description: 'Run in place, bringing knees to hip height for 30 seconds.' },
-    { id: 'home-qs-3', name: 'Burpees', description: 'Squat down, jump feet back, do a push-up, jump feet forward, then jump up. 8 reps.' },
-    { id: 'home-qs-4', name: 'Speed Skaters', description: 'Leap sideways, landing on one foot, then leap to the other side. 20 total.' },
-    { id: 'home-qs-5', name: 'Squat Jumps', description: 'Squat low then explode upward. 12 reps.' },
+    { id: 'home-qs-1', name: 'Jumping Jacks', description: 'Jump your feet out wide while raising your arms overhead, then jump back together. Do 30. Easier: step one foot out at a time instead of jumping.' },
+    { id: 'home-qs-2', name: 'High Knees', description: 'Run on the spot, bringing your knees up toward hip height, for 30 seconds. Easier: march in place, lifting your knees.' },
+    { id: 'home-qs-4', name: 'Speed Skaters', description: 'Hop sideways onto one foot, swinging the other leg behind you, then hop to the other side. Do 20 in total. Easier: step side to side instead of hopping.' },
+    { id: 'home-qs-5', name: 'Squat Jumps', description: 'Do a squat, then jump up lightly and land softly into the next squat. Do 12. Easier: do a normal squat and rise onto your toes instead of jumping.' },
+    { id: 'home-qs-3', name: 'Burpees', description: 'Squat down and put your hands on the floor, step or jump your feet back, bring them back in, then stand up. Do 8. Easier: step your feet back one at a time and skip the jump. This one is hard, so go at your own pace.' },
   ],
   lower_body: [
-    { id: 'home-lb-1', name: 'Bodyweight Squats', description: 'Standard squats with bodyweight. 15 reps.' },
-    { id: 'home-lb-2', name: 'Lunges', description: 'Alternating forward lunges. 12 each leg.' },
-    { id: 'home-lb-3', name: 'Glute Bridges', description: 'Lie on back, drive hips up, squeeze glutes. 15 reps.' },
-    { id: 'home-lb-4', name: 'Calf Raises', description: 'Stand on one foot, raise onto toes. 15 each leg.' },
-    { id: 'home-lb-5', name: 'Wall Sit', description: 'Hold a seated position against a wall for 30 seconds.' },
+    { id: 'home-lb-1', name: 'Bodyweight Squats', description: 'Stand with feet hip-width apart. Push your hips back and bend your knees like sitting into a chair, keeping your chest up, then stand. Do 15. Easier: sit down onto a chair and stand back up.' },
+    { id: 'home-lb-3', name: 'Glute Bridges', description: 'Lie on your back with knees bent and feet flat. Squeeze your bottom and lift your hips, then lower slowly. Do 15. Easier: lift only halfway.' },
+    { id: 'home-lb-4', name: 'Calf Raises', description: 'Stand holding a wall or chair. Rise up onto your toes, pause, then lower slowly. Do 15. Easier: use both feet and go up only a little way.' },
+    { id: 'home-lb-2', name: 'Lunges', description: 'Take a big step forward and bend both knees until your back knee is near the floor, then push back. Do 12 on each leg. Easier: step backwards instead, holding a chair.' },
+    { id: 'home-lb-5', name: 'Wall Sit', description: 'Lean your back against a wall and slide down until your knees are bent. Hold for 30 seconds. Easier: slide only halfway down.' },
   ],
   upper_body: [
-    { id: 'home-ub-1', name: 'Push-Ups', description: 'Standard push-ups. 12 reps (modify as needed).' },
-    { id: 'home-ub-2', name: 'Tricep Dips', description: 'Use a chair or step. 12 reps.' },
-    { id: 'home-ub-3', name: 'Pike Push-Ups', description: 'Push-up with hips high to target shoulders. 10 reps.' },
-    { id: 'home-ub-4', name: 'Diamond Push-Ups', description: 'Hands close together under chest. 10 reps.' },
-    { id: 'home-ub-5', name: 'Arm Circles', description: 'Large circles forward and backward. 20 each direction.' },
+    { id: 'home-ub-5', name: 'Arm Circles', description: 'Hold your arms out to the sides and draw circles, slowly making them bigger. Do 20 forward, then 20 backward. Easier: keep the circles small.' },
+    { id: 'home-ub-1', name: 'Push-Ups', description: 'On hands and toes, hands under your shoulders, lower your chest toward the floor and push back up. Do 12. Easier: knees on the floor, or push against a wall.' },
+    { id: 'home-ub-2', name: 'Tricep Dips', description: 'Sit on the edge of a sturdy chair, hands on the seat beside your hips. Slide off, bend your elbows a little to lower, then push back up. Do 12. Easier: keep feet close and lower only a little. Skip if your shoulders hurt.' },
+    { id: 'home-ub-3', name: 'Pike Push-Ups', description: 'On hands and feet with your hips high like an upside-down V, bend your elbows to bring your head toward the floor, then push back. Do 10. Easier: do knee push-ups instead. This one is harder.' },
+    { id: 'home-ub-4', name: 'Diamond Push-Ups', description: 'A push-up with your hands close together under your chest. Do 10. Easier: knee push-ups. This one is hard, so save it for later.' },
   ],
   core: [
-    { id: 'home-core-1', name: 'Plank Hold', description: 'Hold a forearm plank for 30 seconds.' },
-    { id: 'home-core-2', name: 'Crunches', description: 'Standard crunches. 20 reps.' },
-    { id: 'home-core-3', name: 'Leg Raises', description: 'Lie flat, raise legs to 90 degrees. 12 reps.' },
-    { id: 'home-core-4', name: 'Russian Twists', description: 'Seated, rotate torso side to side. 20 total.' },
-    { id: 'home-core-5', name: 'Dead Bug', description: 'Alternate lowering opposite arm and leg. 10 each side.' },
+    { id: 'home-core-5', name: 'Dead Bug', description: 'Lie on your back, arms up and knees bent over your hips. Slowly lower one arm and the opposite leg, then switch. Do 10 on each side. Easier: keep your feet on the floor and move only your arms.' },
+    { id: 'home-core-1', name: 'Plank Hold', description: 'Rest on your forearms and toes with your body in a straight line. Hold for 30 seconds while breathing normally. Easier: knees on the floor.' },
+    { id: 'home-core-2', name: 'Crunches', description: 'Lie on your back with knees bent. Gently lift your head and shoulders off the floor, then lower. Do 20. Easier: lift only your head.' },
+    { id: 'home-core-4', name: 'Russian Twists', description: 'Sit with knees bent and lean back a little. Turn your upper body side to side. Do 20 in total. Easier: keep your feet on the floor and sit taller.' },
+    { id: 'home-core-3', name: 'Leg Raises', description: 'Lie flat and slowly lift your straight legs up, then lower them slowly. Do 12. Easier: bend your knees. Stop if your lower back hurts.' },
   ],
   desk: [
-    { id: 'home-desk-1', name: 'Seated Leg Raises', description: 'Sit tall, extend legs straight out. 12 reps.' },
-    { id: 'home-desk-2', name: 'Chair Squats', description: 'Stand up from chair, sit back down slowly. 10 reps.' },
-    { id: 'home-desk-3', name: 'Desk Push-Ups', description: 'Push-ups against your desk. 10 reps.' },
-    { id: 'home-desk-4', name: 'Shoulder Rolls', description: 'Roll shoulders forward then backward. 10 each.' },
-    { id: 'home-desk-5', name: 'Neck Stretches', description: 'Gently tilt head side to side. Hold 10 seconds each.' },
+    { id: 'home-desk-4', name: 'Shoulder Rolls', description: 'Sit tall and roll your shoulders forward 10 times, then backward 10 times. Easier: make the circles smaller.' },
+    { id: 'home-desk-5', name: 'Neck Stretches', description: 'Gently tilt your head toward one shoulder and hold for 10 seconds, then switch. Never push. Easier: tilt only a little.' },
+    { id: 'home-desk-1', name: 'Seated Leg Raises', description: 'Sit tall and straighten one leg out in front of you, then lower it. Do 12, switching legs. Easier: lift your foot only a little.' },
+    { id: 'home-desk-2', name: 'Chair Squats', description: 'Stand up from your chair, then sit back down slowly. Do 10. Easier: use your hands on your thighs to help.' },
+    { id: 'home-desk-3', name: 'Desk Push-Ups', description: 'Put your hands on the edge of a sturdy desk, step back, and bend your elbows to bring your chest toward it, then push back. Do 10. Easier: stand closer to the desk.' },
   ],
 };
 

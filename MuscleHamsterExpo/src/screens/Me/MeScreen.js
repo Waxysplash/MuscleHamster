@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   statIcon: { width: 26, height: 26 },
   statValue: { fontSize: 22, fontWeight: '700', color: '#4A3728', marginTop: 4 },
-  statLabel: { fontSize: 13, color: '#6B5D52' },
+  statLabel: { fontSize: 14, color: '#6B5D52' },
   card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, ...shadow },
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#4A3728' },
   cardText: { fontSize: 15, color: '#4A3728', marginTop: 8 },
@@ -152,5 +152,5 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   rowTitle: { fontSize: 16, fontWeight: '600', color: '#4A3728' },
-  rowSubtitle: { fontSize: 13, color: '#6B5D52', marginTop: 2 },
+  rowSubtitle: { fontSize: 14, color: '#6B5D52', marginTop: 2 },
 });

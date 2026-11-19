@@ -87,8 +87,7 @@ export default function AddWorkoutScreen({ navigation }) {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Close">
             <Ionicons name="close" size={24} color="#4A3728" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Add Workout</Text>

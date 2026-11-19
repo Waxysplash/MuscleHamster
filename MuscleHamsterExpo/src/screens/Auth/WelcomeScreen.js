@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   primaryButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',

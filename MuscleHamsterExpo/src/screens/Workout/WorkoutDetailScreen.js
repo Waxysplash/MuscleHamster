@@ -18,6 +18,7 @@ import {
   Equipment,
 } from '../../models/Workout';
 import { FitnessLevelInfo, FitnessGoalInfo } from '../../models/UserProfile';
+import { PLAIN_CATEGORY } from '../../models/MoveGuide';
 
 export default function WorkoutDetailScreen({ route, navigation }) {
   const { workoutId } = route.params;
@@ -72,6 +73,10 @@ export default function WorkoutDetailScreen({ route, navigation }) {
   }
 
   const typeInfo = WorkoutTypeInfo[workout.category];
+  const uniqueMoves = workout.exercises
+    .filter((e) => e.type === 'work')
+    .filter((e, i, arr) => arr.findIndex((x) => x.name === e.name) === i);
+  const rounds = workout.exercises[0]?.totalRounds || 1;
   const difficultyInfo = FitnessLevelInfo[workout.difficulty];
   const durationInfo = DurationBucketInfo[workout.duration];
   const hasNoEquipment = workout.equipment.includes(Equipment.NONE) && workout.equipment.length === 1;
@@ -88,7 +93,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <View style={[styles.iconContainer, { backgroundColor: typeInfo.color }]}>
             <Ionicons name={typeInfo.icon} size={40} color="#fff" />
           </View>
-          <Text style={styles.category}>{typeInfo.displayName}</Text>
+          <Text style={styles.category}>{typeInfo.displayName}{PLAIN_CATEGORY[workout.category] ? ` · ${PLAIN_CATEGORY[workout.category]}` : ''}</Text>
           <Text style={styles.title}>{workout.name}</Text>
         </View>
 
@@ -165,25 +170,25 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Exercise Preview */}
+        {/* The moves, once each, with a plain how-to (beginner review) */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
-          {workout.exercises.slice(0, 5).map((exercise, index) => (
-            <View key={exercise.id} style={styles.exerciseItem}>
+          <Text style={styles.sectionTitle}>
+            The moves{rounds > 1 ? ` · ${rounds} rounds` : ''}
+          </Text>
+          {uniqueMoves.map((exercise, index) => (
+            <View key={exercise.name} style={styles.exerciseItem}>
               <View style={styles.exerciseNumber}>
                 <Text style={styles.exerciseNumberText}>{index + 1}</Text>
               </View>
               <View style={styles.exerciseInfo}>
-                <Text style={styles.exerciseName}>{exercise.name}</Text>
-                <Text style={styles.exerciseDuration}>{exercise.duration}s</Text>
+                <Text style={styles.exerciseName}>{exercise.name} · {exercise.duration}s</Text>
+                {exercise.how ? <Text style={styles.exerciseHow}>{exercise.how}</Text> : null}
               </View>
             </View>
           ))}
-          {workout.exercises.length > 5 && (
-            <Text style={styles.moreExercises}>
-              +{workout.exercises.length - 5} more exercises
-            </Text>
-          )}
+          <Text style={styles.moreExercises}>
+            Starts with a 1-minute warm-up and ends with a 1-minute cool-down. Rests in between.
+          </Text>
         </View>
 
         <View style={styles.bottomPadding} />
@@ -205,6 +210,12 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  exerciseHow: {
+    fontSize: 14,
+    color: '#4A3728',
+    marginTop: 2,
+    lineHeight: 20,
+  },
   safetyText: {
     fontSize: 14,
     color: '#6B5D52',
@@ -381,8 +392,7 @@ const styles = StyleSheet.create({
   },
   exerciseInfo: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
     marginLeft: 12,
   },
   exerciseName: {
@@ -417,7 +427,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32', // readable green with white text
     paddingVertical: 16,
     borderRadius: 12,
   },

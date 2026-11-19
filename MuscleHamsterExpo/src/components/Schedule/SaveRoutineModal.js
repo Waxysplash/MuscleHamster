@@ -85,7 +85,7 @@ export default function SaveRoutineModal({
         <View style={styles.modalBox}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
               <Ionicons name="close" size={24} color="#6B5D52" />
             </TouchableOpacity>
             <Text style={styles.title}>Save as Routine</Text>

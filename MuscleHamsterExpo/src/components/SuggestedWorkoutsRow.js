@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from '
 import { Ionicons } from '@expo/vector-icons';
 import { getSuggestionList } from '../services/SuggestionService';
 import { WorkoutTypeInfo } from '../models/Workout';
+import { PLAIN_CATEGORY } from '../models/MoveGuide';
 
 export default function SuggestedWorkoutsRow({ profile, stats, onOpen }) {
   const list = useMemo(
@@ -33,7 +34,7 @@ export default function SuggestedWorkoutsRow({ profile, stats, onOpen }) {
                 <Ionicons name={info?.icon || 'fitness'} size={22} color={info?.color || '#FF9500'} />
               </View>
               <Text style={styles.name} numberOfLines={2}>{workout.name}</Text>
-              <Text style={styles.meta}>{minutes} min · {info?.displayName}</Text>
+              <Text style={styles.meta}>{minutes} min · {PLAIN_CATEGORY[workout.category] || info?.displayName}</Text>
             </TouchableOpacity>
           );
         })}
@@ -58,5 +59,5 @@ const styles = StyleSheet.create({
   },
   icon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   name: { fontSize: 15, fontWeight: '700', color: '#4A3728', marginTop: 10, minHeight: 40 },
-  meta: { fontSize: 13, color: '#6B5D52', marginTop: 4 },
+  meta: { fontSize: 14, color: '#6B5D52', marginTop: 4 },
 });

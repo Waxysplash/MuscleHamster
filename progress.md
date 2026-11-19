@@ -173,7 +173,17 @@ eas submit --platform ios                         # Submit to App Store
   - Built-in workouts now really last as long as their label (rounds repeat) — e.g. "Beginner Full Body" 7 -> 16 min.
   - Daily exercise scales by level (beginner x0.5, advanced x1.25, mobility/breathing unchanged) and every one of the 33 shows an easier version.
   - 21-check suggestion/scaling test passes; Phase 1 tests still pass. Not tested on device.
-  - Still open from the beginner review: picked workout days don't put anything on the plan.
+- **Fixes found by the beginner re-review** (in Build 63): workout player looped on move 2 (stale state in setInterval -> refs); WorkoutDetail crashed for every guided workout (seed workouts used removed FitnessGoal values); safety line; "Earn 2 points" copy.
+- **Beginner-first pass** (branch `beginner-first`)
+  - `models/MoveGuide.js`: plain 2-3 sentence how-to + easier version for every guided-workout move (~80), impact flag, plain category labels (`PLAIN_CATEGORY`).
+  - `WorkoutService`: beginners get their own low-impact move lists (no jumping); upper/lower-body workouts get their own moves; moves carry `how`, `easier`, `round`, `totalRounds` (no more "(round 2)" in names).
+  - Player: plain how-to + easier version for each move, "Round X of Y", "Next up" during rests, 3-2-1 vibration cue.
+  - Daily check-in: how-to first at 16px, "Aim for N times", countdown timer for timed moves (`components/HoldTimer.js`), safety line.
+  - At Home library rewritten in plain words with an easier version; gentlest move first; Diamond Push-Ups no longer tagged beginner.
+  - No automatic "Streak Broken" pop-up; "Welcome back!" copy instead; "Start fresh (free)".
+  - Onboarding: "Which days could you try?"; picked days now fill an empty week's plan with suggested guided workouts (once per week, never overwrites).
+  - Readability: `config/theme.js` tokens; orange buttons with white text use #B85A00 (4.7:1); green start #2E7D32; teal steps #1A7F91; key text raised to >=14px; tab labels 12px; 26 icon buttons got screen-reader labels; 44pt tap targets on the suggestion card.
+  - Tests: rewards 16/16, suggestions 21/21, moves 7/7, detail lookups 30/30. Not tested on device.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

@@ -8,6 +8,8 @@ import {
   AppState,
   Animated,
   Image,
+  ScrollView,
+  Vibration,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatIcons } from '../../config/AssetImages';
@@ -147,7 +149,12 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       elapsedRef.current += 1;
       setTotalTimeElapsed(elapsedRef.current);
       remainingRef.current -= 1;
+      // 3-2-1 cue so nobody has to watch the screen: short buzz each second, longer at the switch
+      if (remainingRef.current > 0 && remainingRef.current <= 3) {
+        Vibration.vibrate(60);
+      }
       if (remainingRef.current <= 0) {
+        Vibration.vibrate(300);
         setTimeRemaining(0);
         advanceToNextExercise({ finished: true });
       } else {
@@ -382,18 +389,28 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   // Active or Paused state
   const isPaused = playerState === PlayerState.PAUSED;
   const exerciseTypeInfo = ExerciseTypeInfo[currentExercise.type];
+  const nextMove = workout.exercises
+    .slice(currentExerciseIndex + 1)
+    .find((e) => e.type !== 'rest');
   const exerciseColor = getExerciseTypeColor(currentExercise.type);
 
   return (
     <View style={[styles.container, { backgroundColor: exerciseColor + '15' }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={endWorkoutEarly} style={styles.closeButton}>
+        <TouchableOpacity
+          onPress={endWorkoutEarly}
+          style={styles.closeButton}
+          accessibilityRole="button"
+          accessibilityLabel="End workout"
+        >
           <Ionicons name="close" size={28} color="#FF3B30" />
         </TouchableOpacity>
         <View style={styles.progressInfo}>
           <Text style={styles.progressText}>
-            {currentExerciseIndex + 1} / {workout.exercises.length}
+            {currentExercise.totalRounds > 1 && currentExercise.round
+              ? `Round ${currentExercise.round} of ${currentExercise.totalRounds}`
+              : `${currentExerciseIndex + 1} / ${workout.exercises.length}`}
           </Text>
         </View>
       </View>
@@ -423,8 +440,21 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           </Text>
         </View>
 
-        <Text style={styles.exerciseName}>{currentExercise.name}</Text>
-        <Text style={styles.exerciseInstructions}>{currentExercise.instructions}</Text>
+        <Text style={styles.exerciseName} accessibilityRole="header">{currentExercise.name}</Text>
+        {currentExercise.type === 'rest' ? (
+          <Text style={styles.exerciseInstructions}>
+            {nextMove ? `Next up: ${nextMove.name}` : currentExercise.instructions}
+          </Text>
+        ) : (
+          <ScrollView style={styles.howScroll} contentContainerStyle={{ alignItems: 'center' }}>
+            <Text style={styles.exerciseInstructions}>{currentExercise.how || currentExercise.instructions}</Text>
+            {currentExercise.easier && (
+              <Text style={styles.easierText}>
+                <Text style={{ fontWeight: '700' }}>Easier: </Text>{currentExercise.easier}
+              </Text>
+            )}
+          </ScrollView>
+        )}
 
         {/* Timer Circle */}
         <View style={styles.timerContainer}>
@@ -492,6 +522,18 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  howScroll: {
+    maxHeight: 150,
+    marginHorizontal: 24,
+    marginBottom: 20,
+  },
+  easierText: {
+    fontSize: 16,
+    color: '#4A3728',
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 22,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF8F0',
@@ -529,7 +571,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
     borderRadius: 12,
   },
   errorButtonText: {
@@ -609,10 +651,11 @@ const styles = StyleSheet.create({
     color: '#4A3728',
   },
   exerciseInstructions: {
-    fontSize: 18,
-    color: '#6B5D52',
+    fontSize: 17,
+    color: '#4A3728',
     textAlign: 'center',
-    marginBottom: 32,
+    lineHeight: 24,
+    marginBottom: 8,
   },
   timerContainer: {
     marginTop: 20,
@@ -663,7 +706,7 @@ const styles = StyleSheet.create({
   },
   controlLabel: {
     marginTop: 4,
-    fontSize: 12,
+    fontSize: 14,
     color: '#6B5D52',
   },
   mainControlButton: {

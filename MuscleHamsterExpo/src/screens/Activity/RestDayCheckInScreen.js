@@ -130,7 +130,7 @@ export default function RestDayCheckInScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeButton} accessibilityRole="button" accessibilityLabel="Close">
           <Ionicons name="close" size={28} color="#6B5D52" />
         </TouchableOpacity>
       </View>
