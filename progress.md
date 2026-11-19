@@ -184,6 +184,15 @@ eas submit --platform ios                         # Submit to App Store
   - Onboarding: "Which days could you try?"; picked days now fill an empty week's plan with suggested guided workouts (once per week, never overwrites).
   - Readability: `config/theme.js` tokens; orange buttons with white text use #B85A00 (4.7:1); green start #2E7D32; teal steps #1A7F91; key text raised to >=14px; tab labels 12px; 26 icon buttons got screen-reader labels; 44pt tap targets on the suggestion card.
   - Tests: rewards 16/16, suggestions 21/21, moves 7/7, detail lookups 30/30. Not tested on device.
+- **Expo SDK 54 -> 58 upgrade** (branch `sdk-58`, worktree `C:\dev\mh-sdk58`; based on main, without the Storybook design)
+  - expo 58.0.26, React Native 0.88.1, React 19.3. All expo-* packages aligned with `npx expo install --fix`.
+  - expo-av (removed in SDK 55) -> expo-audio in `services/AudioService.js` (createAudioPlayer / setAudioModeAsync).
+  - @react-native-firebase 23 -> **26.4.2** (not 27: v27 is SPM-only and needs useFrameworks "dynamic" + has a Google Sign-In App Check caveat). Crashlytics moved to the modular API (namespaced removed in v26). `@expo/config-plugins@~58` added because RNFB 26 plugins still import it (expo-doctor flags this; expected).
+  - Google Sign-In kept on **16.2.0** (17.0.0 was 3 weeks old).
+  - Added @expo/vector-icons (no longer bundled), expo-font, expo-asset, expo-system-ui.
+  - App config: removed `android.edgeToEdgeEnabled` (edge-to-edge is mandatory); `expo-build-properties android.enableMinifyInReleaseBuilds: false` (SDK 58 turns R8 on by default; untested with Firebase/Google Sign-In reflection).
+  - Notifications: shouldShowAlert -> shouldShowBanner + shouldShowList. 16 screens: SafeAreaView now from react-native-safe-area-context (RN's is deprecated); SafeAreaProvider at the root.
+  - Checked: expo-doctor 19/20 (the expected config-plugins note), iOS + Android bundles, Android prebuild (permissions, Firebase plugins). iOS native project not checked locally (Windows) — first EAS build is the test. Needs a NEW development build: the SDK 54 dev build cannot load SDK 58 code.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

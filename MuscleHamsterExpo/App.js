@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, useAuth, AuthState } from './src/context/AuthContext';
@@ -106,6 +107,7 @@ function RootNavigator() {
 
 export default function App() {
   return (
+    <SafeAreaProvider>
     <ErrorBoundary>
       <NotificationInitializer>
         <AuthProvider>
@@ -132,5 +134,6 @@ export default function App() {
         </AuthProvider>
       </NotificationInitializer>
     </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }

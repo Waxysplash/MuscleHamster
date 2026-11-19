@@ -41,7 +41,6 @@ export default {
         foregroundImage: "./assets/branding/adaptive-icon.png",
         backgroundColor: "#FFF8F0"
       },
-      edgeToEdgeEnabled: true,
       // Step counter is iOS-only for now; keep expo-sensors' pedometer permission out of the Android build.
       blockedPermissions: ["android.permission.ACTIVITY_RECOGNITION"]
     },
@@ -74,6 +73,11 @@ export default {
       [
         "expo-build-properties",
         {
+          android: {
+            // SDK 58 turns on R8 code shrinking for release builds by default.
+            // Keep it off until Firebase + Google Sign-In have been tested with it (they use reflection).
+            enableMinifyInReleaseBuilds: false
+          },
           ios: {
             useFrameworks: "static",
             // Build React Native from source to fix Firebase modular header errors

@@ -9,11 +9,11 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Image,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { DAY_LABELS, DAY_TYPES } from '../../services/ScheduleService';
 import { useCustomWorkouts } from '../../context/CustomWorkoutContext';

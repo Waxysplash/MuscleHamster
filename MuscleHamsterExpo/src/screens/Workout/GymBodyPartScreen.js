@@ -6,9 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutService } from '../../services/WorkoutService';
 import LoadingView from '../../components/LoadingView';

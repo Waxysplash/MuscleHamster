@@ -2,9 +2,9 @@
 // Ported from Swift AudioManager.swift
 // Phase 08.1: Audio Experience and Settings
 //
-// Uses expo-av for audio playback on React Native/Expo
+// Uses expo-audio (expo-av was removed in Expo SDK 55)
 
-import { Audio } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import Logger from './LoggerService';
 import {
   loadAudioPreferences,
@@ -91,19 +91,13 @@ const configureAudioSession = async () => {
   try {
     const prefs = _preferences || createDefaultAudioPreferences();
 
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      staysActiveInBackground: false,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: prefs.mixWithOthers,
-      playThroughEarpieceAndroid: false,
-      // Mix with other apps if preference is set
-      interruptionModeIOS: prefs.mixWithOthers
-        ? Audio.INTERRUPTION_MODE_IOS_MIX_WITH_OTHERS
-        : Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-      interruptionModeAndroid: prefs.mixWithOthers
-        ? Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS
-        : Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+    await setAudioModeAsync({
+      allowsRecording: false,
+      shouldPlayInBackground: false,
+      playsInSilentMode: true,
+      shouldRouteThroughEarpiece: false,
+      // Mix with other apps (music, podcasts) if the preference is set
+      interruptionMode: prefs.mixWithOthers ? 'mixWithOthers' : 'doNotMix',
     });
 
     _isAudioSessionConfigured = true;
@@ -160,34 +154,20 @@ export const playSFX = async (soundEffect) => {
   }
 
   try {
-    // Check for cached player
+    // Reuse a cached player: rewind and play again
     if (_sfxPlayers[soundEffect]) {
       const player = _sfxPlayers[soundEffect];
-      await player.setVolumeAsync(computed.effectiveSFXVolume);
-      await player.setPositionAsync(0);
-      await player.playAsync();
+      player.volume = computed.effectiveSFXVolume;
+      await player.seekTo(0);
+      player.play();
       return;
     }
 
-    // Create new player
-    const { sound } = await Audio.Sound.createAsync(
-      soundFile,
-      {
-        volume: computed.effectiveSFXVolume,
-        shouldPlay: true,
-      }
-    );
-
-    _sfxPlayers[soundEffect] = sound;
-
-    // Set up callback to handle when sound finishes
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.didJustFinish) {
-        // Optional: unload to free memory
-        // sound.unloadAsync();
-        // delete _sfxPlayers[soundEffect];
-      }
-    });
+    // Create a new player
+    const player = createAudioPlayer(soundFile);
+    player.volume = computed.effectiveSFXVolume;
+    _sfxPlayers[soundEffect] = player;
+    player.play();
   } catch (error) {
     Logger.error(`AudioService: Failed to play SFX '${soundEffect}':`, error);
   }
@@ -213,27 +193,24 @@ export const playMusic = async (track, loop = true) => {
   }
 
   try {
-    const { sound } = await Audio.Sound.createAsync(
-      musicFile,
-      {
-        volume: computed.effectiveMusicVolume,
-        isLooping: loop,
-        shouldPlay: true,
-      }
-    );
+    const player = createAudioPlayer(musicFile);
+    player.volume = computed.effectiveMusicVolume;
+    player.loop = loop;
 
-    _musicPlayer = sound;
+    _musicPlayer = player;
     _currentMusicTrack = track;
     _isMusicPlaying = true;
 
-    // Handle playback status updates
-    sound.setOnPlaybackStatusUpdate((status) => {
+    // Handle the track finishing (non-looping only)
+    player.addListener('playbackStatusUpdate', (status) => {
       if (status.didJustFinish && !loop) {
         _isMusicPlaying = false;
         _currentMusicTrack = null;
         notifyListeners();
       }
     });
+
+    player.play();
 
     notifyListeners();
   } catch (error) {
@@ -245,8 +222,8 @@ export const playMusic = async (track, loop = true) => {
 export const stopMusic = async () => {
   if (_musicPlayer) {
     try {
-      await _musicPlayer.stopAsync();
-      await _musicPlayer.unloadAsync();
+      _musicPlayer.pause();
+      _musicPlayer.remove(); // releases the native player
     } catch (error) {
       Logger.error('AudioService: Error stopping music:', error);
     }
@@ -264,7 +241,7 @@ export const pauseMusic = async () => {
   }
 
   try {
-    await _musicPlayer.pauseAsync();
+    _musicPlayer.pause();
     _isMusicPlaying = false;
     notifyListeners();
   } catch (error) {
@@ -282,7 +259,7 @@ export const resumeMusic = async () => {
   }
 
   try {
-    await _musicPlayer.playAsync();
+    _musicPlayer.play();
     _isMusicPlaying = true;
     notifyListeners();
   } catch (error) {
@@ -295,8 +272,8 @@ export const stopAllAudio = async () => {
   // Stop all SFX players
   for (const key of Object.keys(_sfxPlayers)) {
     try {
-      await _sfxPlayers[key].stopAsync();
-      await _sfxPlayers[key].unloadAsync();
+      _sfxPlayers[key].pause();
+      _sfxPlayers[key].remove();
     } catch (error) {
       Logger.error(`AudioService: Error stopping SFX ${key}:`, error);
     }
@@ -315,16 +292,16 @@ const updateVolumes = async () => {
   // Update SFX volumes
   for (const player of Object.values(_sfxPlayers)) {
     try {
-      await player.setVolumeAsync(computed.effectiveSFXVolume);
+      player.volume = computed.effectiveSFXVolume;
     } catch (error) {
-      // Player might be unloaded
+      // Player might be released
     }
   }
 
   // Update music volume
   if (_musicPlayer) {
     try {
-      await _musicPlayer.setVolumeAsync(computed.effectiveMusicVolume);
+      _musicPlayer.volume = computed.effectiveMusicVolume;
     } catch (error) {
       Logger.error('AudioService: Failed to update music volume:', error);
     }
