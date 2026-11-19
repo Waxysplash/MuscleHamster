@@ -96,7 +96,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
             <Ionicons name="time" size={20} color="#6B5D52" />
-            <Text style={styles.statValue}>{durationInfo.range}</Text>
+            <Text style={styles.statValue}>{Math.max(1, Math.round((workout.totalDurationSeconds || 0) / 60))} min</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
@@ -106,7 +106,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Ionicons name="flash" size={20} color="#6B5D52" />
-            <Text style={styles.statValue}>{workout.exercises.length} exercises</Text>
+            <Text style={styles.statValue}>{workout.exercises.filter((e) => e.type === 'work').length} moves</Text>
           </View>
         </View>
 
@@ -125,8 +125,8 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <View style={styles.tagsContainer}>
             {workout.bodyFocus.map((focus) => (
               <View key={focus} style={styles.tag}>
-                <Ionicons name={BodyFocusInfo[focus].icon} size={16} color="#8B5A2B" />
-                <Text style={styles.tagText}>{BodyFocusInfo[focus].displayName}</Text>
+                <Ionicons name={BodyFocusInfo[focus]?.icon || 'body'} size={16} color="#8B5A2B" />
+                <Text style={styles.tagText}>{BodyFocusInfo[focus]?.displayName || focus}</Text>
               </View>
             ))}
           </View>
@@ -156,7 +156,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Great for</Text>
           <View style={styles.goalsContainer}>
-            {workout.fitnessGoals.map((goal) => (
+            {workout.fitnessGoals.filter((goal) => FitnessGoalInfo[goal]).map((goal) => (
               <View key={goal} style={styles.goalItem}>
                 <Ionicons name={FitnessGoalInfo[goal].icon} size={20} color="#5856D6" />
                 <Text style={styles.goalText}>{FitnessGoalInfo[goal].displayName}</Text>
