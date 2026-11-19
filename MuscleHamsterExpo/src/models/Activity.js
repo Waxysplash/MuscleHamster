@@ -36,7 +36,7 @@ export const HamsterStateInfo = {
     description: "I'm getting hungry... time for a workout?",
     greeting: "I'm feeling peckish! Let's earn some food!",
     icon: 'fast-food',
-    color: '#FF9500',
+    color: '#A65000',
   },
   [HamsterState.CHILLIN]: {
     displayName: 'Rested',
@@ -57,14 +57,14 @@ export const HamsterStateInfo = {
     description: 'Feeling good and well-fed!',
     greeting: "I'm feeling great today!",
     icon: 'happy',
-    color: '#34C759',
+    color: '#2E7D32',
   },
   [HamsterState.EXCITED]: {
     displayName: 'Excited',
     description: 'On a streak and loving it!',
     greeting: "We're on fire! Keep it up!",
     icon: 'flame',
-    color: '#FF3B30',
+    color: '#C0392B',
   },
   [HamsterState.PROUD]: {
     displayName: 'Proud',
@@ -190,11 +190,11 @@ export const TransactionCategory = {
 };
 
 export const TransactionCategoryInfo = {
-  [TransactionCategory.WORKOUT]: { displayName: 'Workout', icon: 'fitness', color: '#34C759' },
-  [TransactionCategory.REST_DAY]: { displayName: 'Rest Day', icon: 'cafe', color: '#5856D6' },
-  [TransactionCategory.STREAK_FREEZE]: { displayName: 'Streak Freeze', icon: 'snow', color: '#5AC8FA' },
-  [TransactionCategory.SHOP_PURCHASE]: { displayName: 'Shop', icon: 'bag', color: '#FF9500' },
-  [TransactionCategory.AD_REWARD]: { displayName: 'Bonus', icon: 'gift', color: '#FF2D55' },
+  [TransactionCategory.WORKOUT]: { displayName: 'Workout', icon: 'fitness', color: '#2E7D32' },
+  [TransactionCategory.REST_DAY]: { displayName: 'Rest Day', icon: 'cafe', color: '#8B5A2B' },
+  [TransactionCategory.STREAK_FREEZE]: { displayName: 'Streak Freeze', icon: 'snow', color: '#1A7F91' },
+  [TransactionCategory.SHOP_PURCHASE]: { displayName: 'Shop', icon: 'bag', color: '#A65000' },
+  [TransactionCategory.AD_REWARD]: { displayName: 'Bonus', icon: 'gift', color: '#C0392B' },
   [TransactionCategory.STEPS]: { displayName: 'Steps', icon: 'walk', color: '#30B0C7' },
 };
 

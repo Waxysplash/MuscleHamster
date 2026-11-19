@@ -16,11 +16,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   message: {
     marginTop: 16,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
 });

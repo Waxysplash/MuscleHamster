@@ -108,13 +108,13 @@ export default function ProfileVisibilityScreen({ navigation }) {
   const getLevelColor = (level) => {
     switch (level) {
       case ProfileVisibilityLevel.EVERYONE:
-        return '#34C759';
+        return '#2E7D32';
       case ProfileVisibilityLevel.FRIENDS_ONLY:
         return '#8B5A2B';
       case ProfileVisibilityLevel.PRIVATE:
         return '#FF9500';
       default:
-        return '#8E8E93';
+        return '#6B5D52';
     }
   };
 
@@ -235,7 +235,7 @@ export default function ProfileVisibilityScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   scrollView: {
     flex: 1,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   infoBanner: {
     flexDirection: 'row',
@@ -263,11 +263,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoBannerTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
   },
   infoBannerSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -275,10 +274,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -310,17 +307,16 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   optionLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   optionDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 3,
     lineHeight: 18,
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
@@ -337,11 +333,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   changePreviewTitle: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
   },
   changePreviewDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 4,
     lineHeight: 18,
@@ -352,7 +347,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#E5DDD5',
   },
@@ -363,11 +358,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#A89B8C',
   },
   saveButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
   savingOverlay: {
@@ -383,8 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   savingText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginTop: 16,
   },

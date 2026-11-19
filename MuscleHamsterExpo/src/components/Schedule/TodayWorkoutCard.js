@@ -45,7 +45,7 @@ export default function TodayWorkoutCard({
     return (
       <View style={styles.completedCard}>
         <View style={styles.completedIcon}>
-          <Ionicons name="checkmark-circle" size={32} color="#34C759" />
+          <Ionicons name="checkmark-circle" size={32} color="#2E7D32" />
         </View>
         <View style={styles.completedInfo}>
           <Text style={styles.completedTitle}>
@@ -214,13 +214,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   completedTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#2E7D32',
   },
   completedSubtitle: {
-    fontSize: 14,
-    color: '#4CAF50',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
+    color: '#2E7D32',
     marginTop: 2,
   },
 
@@ -248,12 +247,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   restDayTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   restDaySubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -267,8 +265,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logRestButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 
@@ -299,12 +296,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pickWorkoutTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   pickWorkoutSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -312,14 +308,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 12,
     paddingVertical: 14,
     gap: 8,
   },
   pickButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 
@@ -347,14 +342,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   workoutLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     color: 'rgba(255,255,255,0.7)',
     letterSpacing: 0.5,
   },
   workoutTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#fff',
     marginTop: 2,
   },
@@ -362,14 +355,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 12,
     paddingVertical: 14,
     gap: 8,
   },
   startButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 
@@ -391,27 +383,24 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     alignItems: 'center',
     justifyContent: 'center',
   },
   multiWorkoutBadgeText: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#fff',
   },
   multiWorkoutInfo: {
     flex: 1,
   },
   multiWorkoutLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     color: '#6B5D52',
     letterSpacing: 0.5,
   },
   multiWorkoutTitle: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 17,
     color: '#4A3728',
     marginTop: 2,
   },
@@ -421,7 +410,7 @@ const styles = StyleSheet.create({
   workoutListItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 10,
     padding: 12,
     gap: 10,
@@ -436,8 +425,7 @@ const styles = StyleSheet.create({
   },
   workoutListName: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   editButton: {
@@ -450,8 +438,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   editButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#8B5A2B',
   },
 });

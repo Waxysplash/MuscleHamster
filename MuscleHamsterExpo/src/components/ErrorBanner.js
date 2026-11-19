@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   message: {
     marginLeft: 8,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#4A3728',
     flex: 1,
   },
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   retryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -93,8 +93,7 @@ const styles = StyleSheet.create({
   },
   retryText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
   dismissButton: {
     padding: 4,

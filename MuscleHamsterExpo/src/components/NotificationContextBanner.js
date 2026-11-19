@@ -172,8 +172,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   message: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
     lineHeight: 22,
   },
@@ -185,8 +184,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#fff',
   },
   dismissButton: {

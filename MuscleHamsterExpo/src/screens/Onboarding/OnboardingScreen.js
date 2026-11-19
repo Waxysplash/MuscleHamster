@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { StoryButton } from '../../components/ui/Story';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
@@ -229,18 +230,15 @@ export default function OnboardingScreen({ navigation }) {
           isTablet && { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' },
         ]}
       >
-        <TouchableOpacity
-          style={[styles.continueButton, !canProceed() && styles.continueButtonDisabled]}
-          onPress={goNext}
-          disabled={!canProceed() || isSaving}
-          accessibilityLabel={getButtonText()}
-        >
-          {isSaving ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.continueButtonText}>{getButtonText()}</Text>
-          )}
-        </TouchableOpacity>
+        {isSaving ? (
+          <ActivityIndicator color="#4A3728" style={{ minHeight: 54 }} />
+        ) : (
+          <StoryButton
+            title={getButtonText()}
+            onPress={goNext}
+            disabled={!canProceed()}
+          />
+        )}
       </View>
     </KeyboardAvoidingView>
   );
@@ -451,7 +449,7 @@ function HamsterNameStep({ profile, updateProfile, nameError, setNameError }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   progressContainer: {
     paddingHorizontal: 20,
@@ -459,20 +457,21 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   progressBar: {
-    height: 6,
-    backgroundColor: '#E8DED4',
-    borderRadius: 3,
+    height: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 7,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
-    borderRadius: 3,
+    backgroundColor: '#FF9500',
   },
   progressText: {
     textAlign: 'center',
     marginTop: 8,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   backButton: {
@@ -483,8 +482,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     textAlign: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
@@ -505,7 +503,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   stepDescription: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -539,8 +537,7 @@ const styles = StyleSheet.create({
     borderColor: '#FF9500',
   },
   ageGateText: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   // Options
@@ -548,27 +545,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#FFF2E5',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   optionCardSelected: {
-    backgroundColor: 'rgba(255,149,0,0.1)',
-    borderColor: '#FF9500',
+    backgroundColor: '#FFE3B8',
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
   },
   optionTextContainer: {
     flex: 1,
     marginLeft: 12,
   },
   optionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   optionDescription: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -580,30 +579,32 @@ const styles = StyleSheet.create({
   },
   goalCard: {
     width: '48%',
-    backgroundColor: '#FFF2E5',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
     alignItems: 'center',
     padding: 16,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   goalCardSelected: {
-    backgroundColor: 'rgba(255,149,0,0.1)',
-    borderColor: '#FF9500',
+    backgroundColor: '#FFE3B8',
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
   },
   goalText: {
     marginTop: 8,
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
     textAlign: 'center',
   },
   goalTextSelected: {
-    color: '#FF9500',
+    color: '#A65000',
   },
   goalDescription: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 4,
@@ -617,32 +618,30 @@ const styles = StyleSheet.create({
   dayCard: {
     width: 44,
     height: 70,
-    backgroundColor: '#FFF2E5',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   dayCardSelected: {
-    backgroundColor: '#B85A00' /* buttonOrange: readable with white text */,
-    borderColor: '#FF9500',
+    backgroundColor: '#FF9500',
   },
   dayLetter: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#8B5A2B',
   },
   dayLetterSelected: {
-    color: '#fff',
+    color: '#4A3728',
   },
   dayName: {
-    fontSize: 11,
+    fontFamily: 'Nunito_400Regular', fontSize: 11,
     color: '#6B5D52',
     marginTop: 2,
   },
   dayNameSelected: {
-    color: 'rgba(255,255,255,0.8)',
+    color: '#4A3728',
   },
   dayCheck: {
     position: 'absolute',
@@ -657,40 +656,39 @@ const styles = StyleSheet.create({
   },
   daysMessage: {
     textAlign: 'center',
-    fontSize: 16,
-    color: '#34C759',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#2E7D32',
     marginBottom: 8,
   },
   daysCount: {
     textAlign: 'center',
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   // Name Input
   nameInput: {
-    fontSize: 24,
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     textAlign: 'center',
     padding: 16,
-    backgroundColor: '#FFF8F0',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#D4C4B0',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
     color: '#4A3728',
   },
   nameInputError: {
-    borderColor: '#FF3B30',
+    borderColor: '#C0392B',
   },
   characterCount: {
     textAlign: 'right',
     marginTop: 8,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   suggestionsLabel: {
     marginTop: 24,
     marginBottom: 12,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
   },
@@ -703,19 +701,23 @@ const styles = StyleSheet.create({
   suggestionChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#FFF2E5',
-    borderRadius: 16,
+    minHeight: 40,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 999,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
     margin: 4,
   },
   suggestionText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#8B5A2B',
   },
   errorText: {
-    color: '#FF3B30',
+    color: '#C0392B',
     textAlign: 'center',
     marginTop: 8,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
   },
   // Footer
   footer: {
@@ -733,7 +735,6 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
   },
 });

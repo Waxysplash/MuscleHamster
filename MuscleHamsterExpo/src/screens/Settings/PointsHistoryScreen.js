@@ -129,15 +129,15 @@ export default function PointsHistoryScreen({ navigation }) {
       case TransactionCategory.WORKOUT:
         return '#8B5A2B';
       case TransactionCategory.REST_DAY:
-        return '#34C759';
+        return '#2E7D32';
       case TransactionCategory.STREAK_FREEZE:
-        return '#AF52DE';
+        return '#8B5A2B';
       case TransactionCategory.SHOP_PURCHASE:
-        return '#FF2D55';
+        return '#C0392B';
       case TransactionCategory.AD_REWARD:
         return '#FF9500';
       default:
-        return '#8E8E93';
+        return '#6B5D52';
     }
   };
 
@@ -237,7 +237,7 @@ export default function PointsHistoryScreen({ navigation }) {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="sparkles" size={48} color="#8E8E93" />
+      <Ionicons name="sparkles" size={48} color="#6B5D52" />
       <Text style={styles.emptyTitle}>Your points journey starts here!</Text>
       <Text style={styles.emptyMessage}>
         Complete a workout to earn your first points.
@@ -291,16 +291,16 @@ export default function PointsHistoryScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   loadingText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 16,
   },
@@ -323,12 +323,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   balanceAmount: {
-    fontSize: 40,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 40,
     marginLeft: 8,
   },
   balanceLabel: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginBottom: 16,
   },
@@ -341,22 +340,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryEarned: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#34C759',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
+    color: '#2E7D32',
   },
   summarySpent: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
+    color: '#A65000',
   },
   summaryLabel: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     marginTop: 2,
   },
   noActivityText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   transactionRow: {
@@ -378,8 +375,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   transactionDescription: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
   },
   transactionMeta: {
     flexDirection: 'row',
@@ -387,26 +383,25 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   transactionCategory: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   transactionDot: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   transactionDate: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   transactionAmount: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
   earnAmount: {
-    color: '#34C759',
+    color: '#2E7D32',
   },
   spendAmount: {
-    color: '#FF9500',
+    color: '#A65000',
   },
   separator: {
     height: StyleSheet.hairlineWidth,
@@ -420,13 +415,12 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginTop: 16,
     textAlign: 'center',
   },
   emptyMessage: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',

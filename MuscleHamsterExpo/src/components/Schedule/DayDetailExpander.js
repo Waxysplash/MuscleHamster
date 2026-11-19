@@ -70,7 +70,7 @@ export default function DayDetailExpander({
       <View style={styles.container}>
         <View style={styles.completedCard}>
           <View style={styles.completedIcon}>
-            <Ionicons name="checkmark-circle" size={32} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={32} color="#2E7D32" />
           </View>
           <View style={styles.completedInfo}>
             <Text style={styles.completedTitle}>Rest day logged!</Text>
@@ -196,7 +196,7 @@ export default function DayDetailExpander({
         {/* Celebration when all workouts are done */}
         {completedWorkoutCount === workoutCount && workoutCount > 0 && (
           <View style={styles.allDoneRow}>
-            <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />
             <Text style={styles.allDoneText}>All workouts done!</Text>
           </View>
         )}
@@ -212,8 +212,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   dayTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginBottom: 12,
   },
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
 
   // Empty state
   emptyCard: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -235,7 +234,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   emptyText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginBottom: 12,
   },
@@ -250,8 +249,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 
@@ -276,13 +274,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   completedTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#2E7D32',
   },
   completedSubtitle: {
-    fontSize: 14,
-    color: '#4CAF50',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
+    color: '#2E7D32',
     marginTop: 2,
   },
 
@@ -310,12 +307,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   restDayTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   restDaySubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -329,8 +325,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logRestButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 
@@ -345,8 +340,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   editButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#8B5A2B',
   },
 
@@ -364,10 +358,12 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: '#8B5A2B',
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   checkboxButton: {
     padding: 4,
@@ -383,8 +379,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#34C759',
-    borderColor: '#34C759',
+    backgroundColor: '#2E7D32',
+    borderColor: '#2E7D32',
   },
   workoutNameButton: {
     flex: 1,
@@ -394,8 +390,7 @@ const styles = StyleSheet.create({
   },
   workoutListName: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   workoutListNameCompleted: {
@@ -418,12 +413,11 @@ const styles = StyleSheet.create({
   progressBarFill: {
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
   },
   progressText: {
-    fontSize: 12,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
     color: '#6B5D52',
-    fontWeight: '500',
   },
   allDoneRow: {
     flexDirection: 'row',
@@ -437,8 +431,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   allDoneText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#34C759',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#2E7D32',
   },
 });

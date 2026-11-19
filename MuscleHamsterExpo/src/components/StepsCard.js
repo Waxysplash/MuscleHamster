@@ -2,12 +2,14 @@
 // Renders nothing on devices that can't count steps (Android for now).
 // PRIVACY: never send step counts to analytics (Apple §5.1.3(i)).
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, AppState, Linking, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable, AppState, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../context/ActivityContext';
 import { StepMilestones } from '../models/Activity';
 import StepService, { StepPermission } from '../services/StepService';
+import { StoryCard, StoryButton, StoryIcon } from './ui/Story';
+import { Colors, Fonts, Outline, T } from '../config/theme';
 
 const ACCENT = '#1A7F91'; // darker teal: readable as text and behind white
 
@@ -105,45 +107,45 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
   // First time: invite them to turn it on.
   if (permission === StepPermission.UNDETERMINED) {
     return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={handleTurnOn}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityLabel="Turn on step counter"
-        accessibilityHint="Lets walking earn points for your hamster"
-      >
-        <View style={styles.iconWrap}>
-          <Ionicons name="walk" size={22} color={ACCENT} />
+      <StoryCard color={Colors.sky} containerStyle={styles.gap}>
+        <View style={styles.row}>
+          <StoryIcon name="walk" color={Colors.surface} />
+          <View style={styles.rowText}>
+            <Text style={T.heading}>Count your steps</Text>
+            <Text style={[T.small, { color: Colors.text }]}>Walking earns bonus points for {hamsterName}</Text>
+          </View>
         </View>
-        <View style={styles.inviteText}>
-          <Text style={styles.title}>Count your steps</Text>
-          <Text style={styles.subtitle}>Walking earns bonus points for {hamsterName}</Text>
-        </View>
-        <Text style={styles.turnOn}>Turn on</Text>
-      </TouchableOpacity>
+        <StoryButton
+          title="Turn on"
+          variant="secondary"
+          size="sm"
+          style={{ marginTop: 12 }}
+          accessibilityLabel="Turn on step counter"
+          accessibilityHint="Lets walking earn points for your hamster"
+          onPress={handleTurnOn}
+        />
+      </StoryCard>
     );
   }
 
   // Said no: gentle pointer to Settings, no pressure.
   if (permission === StepPermission.DENIED) {
     return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => Platform.OS === 'ios' && Linking.openSettings()}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityLabel="Step counter is off. Open Settings to turn on Motion and Fitness."
-      >
-        <View style={styles.iconWrap}>
-          <Ionicons name="walk" size={22} color="#8E8E93" />
-        </View>
-        <View style={styles.inviteText}>
-          <Text style={styles.title}>Step counter is off</Text>
-          <Text style={styles.subtitle}>Turn on Motion & Fitness in Settings anytime</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
-      </TouchableOpacity>
+      <StoryCard color={Colors.surface} containerStyle={styles.gap}>
+        <Pressable
+          style={styles.row}
+          onPress={() => Platform.OS === 'ios' && Linking.openSettings()}
+          accessibilityRole="button"
+          accessibilityLabel="Step counter is off. Open Settings to turn on Motion and Fitness."
+        >
+          <StoryIcon name="walk" color={Colors.sand} />
+          <View style={styles.rowText}>
+            <Text style={T.heading}>Step counter is off</Text>
+            <Text style={T.small}>Turn on Motion & Fitness in Settings anytime</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={Colors.ink} />
+        </Pressable>
+      </StoryCard>
     );
   }
 
@@ -156,27 +158,28 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
   const progress = next ? (current - prevSteps) / (next.steps - prevSteps) : 1;
 
   return (
-    <View
-      style={styles.card}
-      accessible
-      accessibilityLabel={`${formatSteps(current)} steps today. ${
-        next ? `${formatSteps(next.steps - current)} steps to ${next.label}.` : 'All step bonuses earned today.'
-      }`}
-    >
-      <View style={styles.iconWrap}>
-        <Ionicons name="walk" size={22} color={ACCENT} />
-      </View>
-      <View style={styles.body}>
-        <View style={styles.headerRow}>
-          <Text style={styles.stepsNumber}>{formatSteps(current)}</Text>
-          <Text style={styles.stepsLabel}>steps today</Text>
+    <StoryCard color={Colors.sky} containerStyle={styles.gap}>
+      <View
+        accessible
+        accessibilityLabel={`${formatSteps(current)} steps today. ${
+          next ? `${formatSteps(next.steps - current)} steps to ${next.label}.` : 'All step bonuses earned today.'
+        }`}
+      >
+        <View style={styles.row}>
+          <StoryIcon name="walk" color={Colors.surface} />
+          <View style={styles.rowText}>
+            <View style={styles.headerRow}>
+              <Text style={T.title}>{formatSteps(current)}</Text>
+              <Text style={[T.small, { color: Colors.text }]}>steps today</Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
         </View>
 
-        <Text style={styles.subtitle}>
+        <Text style={[T.small, { color: Colors.text, marginTop: 8 }]}>
           {celebration
             ? celebration
             : next
@@ -189,12 +192,8 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
             const done = awardedToday.includes(m.id) || current >= m.steps;
             return (
               <View key={m.id} style={[styles.chip, done && styles.chipDone]}>
-                <Ionicons
-                  name={done ? 'checkmark-circle' : 'ellipse-outline'}
-                  size={12}
-                  color={done ? '#fff' : ACCENT}
-                />
-                <Text style={[styles.chipText, done && styles.chipTextDone]}>
+                {done ? <Ionicons name="checkmark" size={14} color={Colors.ink} /> : null}
+                <Text style={styles.chipText}>
                   {m.steps >= 1000 ? `${m.steps / 1000}k` : m.steps}
                 </Text>
               </View>
@@ -202,114 +201,37 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
           })}
         </View>
       </View>
-    </View>
+    </StoryCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(48,176,199,0.18)',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-      },
-      android: { elevation: 2 },
-    }),
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(48,176,199,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-  },
-  inviteText: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  body: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#4A3728',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6B5D52',
-    marginTop: 4,
-  },
-  turnOn: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: ACCENT,
-    marginLeft: 8,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-  },
-  stepsNumber: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#4A3728',
-  },
-  stepsLabel: {
-    fontSize: 14,
-    color: '#6B5D52',
-  },
+  gap: { marginBottom: 14 },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  rowText: { flex: 1, marginLeft: 12 },
+  headerRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
   track: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(48,176,199,0.15)',
-    marginTop: 8,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
+    marginTop: 12,
     overflow: 'hidden',
   },
-  fill: {
-    height: '100%',
-    borderRadius: 4,
-    backgroundColor: ACCENT,
-  },
-  milestoneRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 8,
-  },
+  fill: { height: '100%', backgroundColor: Colors.brand },
+  milestoneRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(48,176,199,0.4)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
   },
-  chipDone: {
-    backgroundColor: ACCENT,
-    borderColor: ACCENT,
-  },
-  chipText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: ACCENT,
-  },
-  chipTextDone: {
-    color: '#fff',
-  },
+  chipDone: { backgroundColor: Colors.brand },
+  chipText: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.ink },
 });

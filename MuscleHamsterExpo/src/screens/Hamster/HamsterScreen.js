@@ -5,7 +5,7 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ImageBackground,
   Image,
   ScrollView,
@@ -21,6 +21,8 @@ import { HamsterStateInfo, getSimplifiedState } from '../../models/Activity';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { EnclosureBackground, StatIcons } from '../../config/AssetImages';
 import { getHamsterSize } from '../../utils/responsive';
+import { StoryCard, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 
 export default function HamsterScreen({ navigation }) {
   const { hamsterState, totalPoints, hasLoggedRestDayToday } = useActivity();
@@ -43,8 +45,8 @@ export default function HamsterScreen({ navigation }) {
         <SafeAreaView style={styles.enclosureInner}>
           <View style={styles.topRow}>
             <View style={styles.badge}>
-              <Ionicons name={hamsterInfo.icon} size={14} color={hamsterInfo.color} />
-              <Text style={[styles.badgeText, { color: hamsterInfo.color }]}>{hamsterInfo.displayName}</Text>
+              <Ionicons name={hamsterInfo.icon} size={14} color={Colors.ink} />
+              <Text style={styles.badgeText}>{hamsterInfo.displayName}</Text>
             </View>
             <View style={styles.badge} accessibilityLabel={`${totalPoints} points`}>
               <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
@@ -65,37 +67,37 @@ export default function HamsterScreen({ navigation }) {
       </ImageBackground>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <TouchableOpacity
-          style={styles.tile}
-          onPress={() => navigation.navigate('Shop')}
-          accessibilityRole="button"
-          accessibilityLabel="Shop. Spend your points on outfits and items"
-        >
-          <View style={[styles.tileIcon, { backgroundColor: 'rgba(255,149,0,0.12)' }]}>
-            <Ionicons name="bag" size={26} color="#FF9500" />
-          </View>
-          <View style={styles.tileText}>
-            <Text style={styles.tileTitle}>Shop</Text>
-            <Text style={styles.tileSubtitle}>Spend your points on outfits and treats</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={22} color="#8B5A2B" />
-        </TouchableOpacity>
+        <StoryCard color={Colors.peach} containerStyle={{ marginBottom: 14 }} padded={false}>
+          <Pressable
+            style={styles.tile}
+            onPress={() => navigation.navigate('Shop')}
+            accessibilityRole="button"
+            accessibilityLabel="Shop. Spend your points on outfits and items"
+          >
+            <StoryIcon name="bag" size={56} color={Colors.surface} />
+            <View style={styles.tileText}>
+              <Text style={T.title}>Shop</Text>
+              <Text style={[T.small, { color: Colors.text }]}>Spend your points on outfits and treats</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color={Colors.ink} />
+          </Pressable>
+        </StoryCard>
 
-        <TouchableOpacity
-          style={styles.tile}
-          onPress={() => navigation.navigate('Inventory')}
-          accessibilityRole="button"
-          accessibilityLabel={`Dress up ${hamsterName}. Choose what your hamster wears`}
-        >
-          <View style={[styles.tileIcon, { backgroundColor: 'rgba(139,90,43,0.12)' }]}>
-            <Ionicons name="sparkles" size={26} color="#8B5A2B" />
-          </View>
-          <View style={styles.tileText}>
-            <Text style={styles.tileTitle}>Dress up {hamsterName}</Text>
-            <Text style={styles.tileSubtitle}>Choose outfits and accessories you own</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={22} color="#8B5A2B" />
-        </TouchableOpacity>
+        <StoryCard color={Colors.mint} containerStyle={{ marginBottom: 14 }} padded={false}>
+          <Pressable
+            style={styles.tile}
+            onPress={() => navigation.navigate('Inventory')}
+            accessibilityRole="button"
+            accessibilityLabel={`Dress up ${hamsterName}. Choose what your hamster wears`}
+          >
+            <StoryIcon name="shirt" size={56} color={Colors.surface} />
+            <View style={styles.tileText}>
+              <Text style={T.title}>Dress up {hamsterName}</Text>
+              <Text style={[T.small, { color: Colors.text }]}>Choose outfits and accessories you own</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color={Colors.ink} />
+          </Pressable>
+        </StoryCard>
 
         <Text style={styles.hint}>
           Every workout, daily exercise and walk earns points for {hamsterName}.
@@ -105,14 +107,9 @@ export default function HamsterScreen({ navigation }) {
   );
 }
 
-const shadow = Platform.select({
-  ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6 },
-  android: { elevation: 2 },
-});
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF8F0' },
-  enclosure: { width: '100%' },
+  container: { flex: 1, backgroundColor: Colors.background },
+  enclosure: { width: '100%', borderBottomWidth: Outline.width, borderColor: Colors.ink },
   enclosureInner: { alignItems: 'center', paddingBottom: 16 },
   topRow: {
     width: '100%',
@@ -125,40 +122,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: Colors.surface,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
   },
-  badgeText: { fontSize: 14, fontWeight: '600' },
-  pointsText: { fontSize: 16, fontWeight: '700', color: '#4A3728' },
+  badgeText: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.ink },
+  pointsText: { fontFamily: Fonts.bodyHeavy, fontSize: 16, color: Colors.ink },
   nameBadge: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 16,
+    backgroundColor: Colors.surface,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    paddingHorizontal: 18,
     paddingVertical: 6,
     borderRadius: 16,
     marginTop: 4,
   },
-  name: { fontSize: 18, fontWeight: '700', color: '#4A3728' },
-  content: { padding: 16, gap: 12 },
-  tile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    minHeight: 72,
-    ...shadow,
-  },
-  tileIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  name: { fontFamily: Fonts.heading, fontSize: 20, color: Colors.ink },
+  content: { padding: 18 },
+  tile: { flexDirection: 'row', alignItems: 'center', padding: 16, minHeight: 88 },
   tileText: { flex: 1, marginLeft: 14 },
-  tileTitle: { fontSize: 17, fontWeight: '700', color: '#4A3728' },
-  tileSubtitle: { fontSize: 14, color: '#6B5D52', marginTop: 2 },
-  hint: { fontSize: 14, color: '#6B5D52', textAlign: 'center', marginTop: 8 },
+  hint: { fontFamily: Fonts.body, fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: 8 },
 });

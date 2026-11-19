@@ -25,7 +25,7 @@ export const NotificationBannerTypeInfo = {
   [NotificationBannerType.STREAK_SAFE]: {
     icon: 'checkmark-circle',
     backgroundColor: 'rgba(76, 175, 80, 0.15)', // green
-    iconColor: '#4CAF50',
+    iconColor: '#2E7D32',
     accessibilityLabel: 'Streak safe notification',
   },
   [NotificationBannerType.ACTION_NEEDED]: {

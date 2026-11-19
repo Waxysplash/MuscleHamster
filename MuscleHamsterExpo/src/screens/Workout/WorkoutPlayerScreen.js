@@ -16,6 +16,8 @@ import { StatIcons } from '../../config/AssetImages';
 import { useActivity } from '../../context/ActivityContext';
 import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
+import { Colors, Fonts, Outline } from '../../config/theme';
+import { StoryButton, StoryIcon } from '../../components/ui/Story';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
 import { useResponsive, getTimerSize, getActionButtonSize } from '../../utils/responsive';
@@ -305,7 +307,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   if (playerState === PlayerState.ERROR) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <Ionicons name="alert-circle" size={60} color="#FF3B30" />
+        <Ionicons name="alert-circle" size={60} color="#C0392B" />
         <Text style={styles.errorText}>Oops! Something went wrong.</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Go Back</Text>
@@ -319,7 +321,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       <View style={[styles.container, styles.completedContainer]}>
         <View style={styles.completedContent}>
           <View style={styles.celebrationIcon}>
-            <Ionicons name="trophy" size={60} color="#FFD700" />
+            <StoryIcon name="trophy" size={110} color={Colors.brand} />
           </View>
           <Text style={styles.completedTitle}>Amazing Work!</Text>
           <Text style={styles.completedSubtitle}>
@@ -357,7 +359,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
                     <Ionicons
                       name={WorkoutFeedbackInfo[fb].icon}
                       size={32}
-                      color={WorkoutFeedbackInfo[fb].isPositive ? '#34C759' : '#6B5D52'}
+                      color={WorkoutFeedbackInfo[fb].isPositive ? '#2E7D32' : '#6B5D52'}
                     />
                     <Text style={styles.feedbackButtonText}>
                       {WorkoutFeedbackInfo[fb].displayName}
@@ -379,9 +381,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           )}
         </View>
 
-        <TouchableOpacity style={styles.doneButton} onPress={finishAndExit}>
-          <Text style={styles.doneButtonText}>Done</Text>
-        </TouchableOpacity>
+        <StoryButton title="Done" onPress={finishAndExit} style={{ alignSelf: 'stretch', marginHorizontal: 20, marginBottom: 20 }} />
       </View>
     );
   }
@@ -395,7 +395,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   const exerciseColor = getExerciseTypeColor(currentExercise.type);
 
   return (
-    <View style={[styles.container, { backgroundColor: exerciseColor + '15' }]}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -404,7 +404,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           accessibilityRole="button"
           accessibilityLabel="End workout"
         >
-          <Ionicons name="close" size={28} color="#FF3B30" />
+          <Ionicons name="close" size={28} color="#C0392B" />
         </TouchableOpacity>
         <View style={styles.progressInfo}>
           <Text style={styles.progressText}>
@@ -421,7 +421,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           style={[
             styles.progressFill,
             {
-              backgroundColor: exerciseColor,
+              backgroundColor: Colors.brand,
               width: progressAnim.interpolate({
                 inputRange: [0, 1],
                 outputRange: ['0%', '100%'],
@@ -433,9 +433,9 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 
       {/* Exercise Content */}
       <View style={styles.exerciseContent}>
-        <View style={[styles.typeBadge, { backgroundColor: exerciseColor + '30' }]}>
-          <Ionicons name={exerciseTypeInfo?.icon || 'flash'} size={16} color={exerciseColor} />
-          <Text style={[styles.typeBadgeText, { color: exerciseColor }]}>
+        <View style={styles.typeBadge}>
+          <Ionicons name={exerciseTypeInfo?.icon || 'flash'} size={16} color={Colors.ink} />
+          <Text style={styles.typeBadgeText}>
             {exerciseTypeInfo?.displayName || 'Exercise'}
           </Text>
         </View>
@@ -450,7 +450,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
             <Text style={styles.exerciseInstructions}>{currentExercise.how || currentExercise.instructions}</Text>
             {currentExercise.easier && (
               <Text style={styles.easierText}>
-                <Text style={{ fontWeight: '700' }}>Easier: </Text>{currentExercise.easier}
+                <Text style={{ fontFamily: 'Nunito_700Bold' }}>Easier: </Text>{currentExercise.easier}
               </Text>
             )}
           </ScrollView>
@@ -460,7 +460,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         <View style={styles.timerContainer}>
           <View style={[
             styles.timerCircle,
-            { borderColor: exerciseColor, width: timerSize, height: timerSize, borderRadius: timerSize / 2 }
+            { width: timerSize, height: timerSize, borderRadius: timerSize / 2 }
           ]}>
             <Text style={[styles.timerText, isTablet && { fontSize: 56 }]}>{formatTime(timeRemaining)}</Text>
             <Text style={[styles.timerLabel, isTablet && { fontSize: 18 }]}>remaining</Text>
@@ -489,7 +489,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         <TouchableOpacity
           style={[
             styles.mainControlButton,
-            { backgroundColor: exerciseColor, width: buttonSizes.primary, height: buttonSizes.primary, borderRadius: buttonSizes.primary / 2 }
+            { width: buttonSizes.primary, height: buttonSizes.primary, borderRadius: buttonSizes.primary / 2 }
           ]}
           onPress={isPaused ? resumeWorkout : pauseWorkout}
           accessibilityLabel={isPaused ? 'Resume' : 'Pause'}
@@ -497,7 +497,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           <Ionicons
             name={isPaused ? 'play' : 'pause'}
             size={isTablet ? 48 : 40}
-            color="#fff"
+            color={Colors.ink}
           />
         </TouchableOpacity>
 
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   easierText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     textAlign: 'center',
     marginTop: 10,
@@ -536,14 +536,14 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.background,
   },
   centerContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#6B5D52',
     marginBottom: 20,
   },
@@ -551,8 +551,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   errorText: {
-    fontSize: 18,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
+    color: '#C0392B',
     marginTop: 16,
   },
   errorContainer: {
@@ -562,8 +562,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#4A3728',
     marginTop: 16,
   },
@@ -575,8 +574,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   errorButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   backButton: {
@@ -588,8 +586,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   header: {
     flexDirection: 'row',
@@ -606,15 +603,16 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   progressText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   progressBar: {
-    height: 4,
-    backgroundColor: '#E5DDD5',
-    marginHorizontal: 16,
-    borderRadius: 2,
+    height: 14,
+    marginHorizontal: 20,
+    borderRadius: 7,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
     overflow: 'hidden',
   },
   progressFill: {
@@ -633,25 +631,27 @@ const styles = StyleSheet.create({
   typeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    gap: 6,
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 999,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.peach,
+    marginBottom: 12,
   },
   typeBadgeText: {
-    marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: Fonts.bodyBold, fontSize: 14,
+    color: Colors.ink,
   },
   exerciseName: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 32,
     textAlign: 'center',
     marginBottom: 8,
     color: '#4A3728',
   },
   exerciseInstructions: {
-    fontSize: 17,
+    fontFamily: 'Nunito_400Regular', fontSize: 17,
     color: '#4A3728',
     textAlign: 'center',
     lineHeight: 24,
@@ -661,19 +661,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   timerCircle: {
-    // width, height, borderRadius set dynamically
     borderWidth: 6,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.8)',
   },
   timerText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#4A3728',
+    fontFamily: Fonts.heading, fontSize: 48,
+    color: Colors.ink,
   },
   timerLabel: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginTop: 4,
   },
@@ -688,8 +687,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.9)',
   },
   pausedText: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#6B5D52',
     marginTop: 12,
   },
@@ -706,16 +704,18 @@ const styles = StyleSheet.create({
   },
   controlLabel: {
     marginTop: 4,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   mainControlButton: {
-    // width, height, borderRadius set dynamically
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.brand,
+    borderWidth: 3,
+    borderColor: Colors.ink,
   },
   completedContainer: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     padding: 24,
   },
   completedContent: {
@@ -724,22 +724,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   celebrationIcon: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255,215,0,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   completedTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 32,
     marginBottom: 8,
     color: '#4A3728',
   },
   completedSubtitle: {
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -753,15 +748,14 @@ const styles = StyleSheet.create({
   rewardItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 12,
   },
   rewardText: {
     marginLeft: 8,
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   feedbackSection: {
@@ -769,8 +763,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   feedbackTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginBottom: 16,
     color: '#4A3728',
   },
@@ -781,37 +774,36 @@ const styles = StyleSheet.create({
   feedbackButton: {
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 12,
     minWidth: 90,
   },
   feedbackButtonText: {
     marginTop: 8,
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
   },
   skipFeedbackText: {
     marginTop: 16,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#8B5A2B',
   },
   hamsterReaction: {
     marginTop: 24,
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     fontStyle: 'italic',
-    color: '#FF9500',
+    color: '#A65000',
     textAlign: 'center',
   },
   doneButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 40,
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
 });

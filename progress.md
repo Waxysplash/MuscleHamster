@@ -184,6 +184,13 @@ eas submit --platform ios                         # Submit to App Store
   - Onboarding: "Which days could you try?"; picked days now fill an empty week's plan with suggested guided workouts (once per week, never overwrites).
   - Readability: `config/theme.js` tokens; orange buttons with white text use #B85A00 (4.7:1); green start #2E7D32; teal steps #1A7F91; key text raised to >=14px; tab labels 12px; 26 icon buttons got screen-reader labels; 44pt tap targets on the suggestion card.
   - Tests: rewards 16/16, suggestions 21/21, moves 7/7, detail lookups 30/30. Not tested on device.
+- **Phase 3: "Storybook" visual redesign** (branch `storybook-design`; user picked direction A of three mockups)
+  - Look: warm paper background `#FFF4E6`, chunky ink-brown outlines (2.5px `#4A3728`), solid offset "sticker" shadows, Quicksand headings + Nunito text, sentence case, warm colours only.
+  - `config/theme.js` = design tokens (Colors, Fonts, Type, Outline, Radius, Space, text presets `T`). `components/ui/Story.js` = StoryCard, StoryButton (sinks into its shadow when pressed), StoryChip, StoryIcon.
+  - Fonts via `@expo-google-fonts/quicksand` + `nunito`, loaded in `App.js` with `useFonts` (app still opens if they fail).
+  - App-wide passes: 667 text styles -> brand fonts (fontWeight removed, family carries weight); 8 ALL CAPS removed; ~264 cold Apple colours -> warm equivalents; orange text -> `#A65000` (readable); 31 soft-shadow cards -> outline + sticker shadow; page backgrounds unified.
+  - Hand-restyled: tab bar (ink top line, peach active pill), headers, Today (exercise card + Feed button, suggestion card, steps card, this-week card, welcome back), daily exercise check-in + success, HoldTimer, workout detail, player (+ finish), Hamster tab, Me tab, Workouts switcher, Welcome, onboarding.
+  - Still generic: stock icons (custom art list in `Documents\Claude Code\Muscle Hamster - Icons To Make`), Shop/Settings/gym screens only got the automatic passes. Not seen on a device yet.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

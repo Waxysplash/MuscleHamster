@@ -207,7 +207,7 @@ export default function LogProgressScreen({ route, navigation }) {
 
           {/* Tips */}
           <View style={styles.tipsSection}>
-            <Ionicons name="trending-up" size={20} color="#34C759" />
+            <Ionicons name="trending-up" size={20} color="#2E7D32" />
             <Text style={styles.tipsText}>
               Tracking your progress helps you see improvement over time. Even small gains add up!
             </Text>
@@ -221,11 +221,11 @@ export default function LogProgressScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -240,8 +240,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
   },
   saveButton: {
@@ -254,8 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4B5A8',
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#FFF8F0',
   },
   saveButtonTextDisabled: {
@@ -276,12 +274,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   workoutName: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -298,8 +295,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
     marginBottom: 8,
   },
@@ -308,7 +304,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     borderWidth: 1,
     borderColor: '#E8DFD5',
@@ -328,7 +324,7 @@ const styles = StyleSheet.create({
   },
   tipsText: {
     flex: 1,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     lineHeight: 20,
   },

@@ -208,7 +208,7 @@ function PendingRequestsRow({ count, onPress }) {
         <Text style={styles.friendName}>Friend Requests</Text>
         <Text style={styles.friendSubtitle}>{count} pending</Text>
       </View>
-      <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={16} color="#A89B8C" />
     </TouchableOpacity>
   );
 }
@@ -273,7 +273,7 @@ function FriendRow({ friend, streak, onPress, onNudge }) {
           {friend.currentStreak > 0 && (
             <View style={styles.streakBadge}>
               <Ionicons name="flame" size={10} color="#FF9500" />
-              <Text style={[styles.badgeText2, { color: '#FF9500' }]}>{friend.currentStreak}</Text>
+              <Text style={[styles.badgeText2, { color: '#A65000' }]}>{friend.currentStreak}</Text>
             </View>
           )}
 
@@ -284,12 +284,12 @@ function FriendRow({ friend, streak, onPress, onNudge }) {
               { backgroundColor: streak.status === FriendStreakStatus.AT_RISK ? 'rgba(255, 149, 0, 0.15)' : 'rgba(175, 82, 222, 0.1)' }
             ]}>
               <View style={styles.streakIconContainer}>
-                <Ionicons name="people" size={10} color={streak.status === FriendStreakStatus.AT_RISK ? '#FF9500' : '#AF52DE'} />
+                <Ionicons name="people" size={10} color={streak.status === FriendStreakStatus.AT_RISK ? '#FF9500' : '#8B5A2B'} />
                 {streak.status === FriendStreakStatus.AT_RISK && (
                   <Ionicons name="warning" size={6} color="#FFCC00" style={styles.warningIcon} />
                 )}
               </View>
-              <Text style={[styles.badgeText2, { color: streak.status === FriendStreakStatus.AT_RISK ? '#FF9500' : '#AF52DE' }]}>
+              <Text style={[styles.badgeText2, { color: streak.status === FriendStreakStatus.AT_RISK ? '#FF9500' : '#8B5A2B' }]}>
                 {streak.currentStreak}
               </Text>
             </View>
@@ -312,11 +312,11 @@ function FriendRow({ friend, streak, onPress, onNudge }) {
         <Ionicons
           name={isNudging ? 'hourglass' : 'notifications'}
           size={18}
-          color={isNudging ? '#C7C7CC' : '#FF9500'}
+          color={isNudging ? '#A89B8C' : '#FF9500'}
         />
       </TouchableOpacity>
 
-      <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={16} color="#A89B8C" />
     </TouchableOpacity>
   );
 }
@@ -324,7 +324,7 @@ function FriendRow({ friend, streak, onPress, onNudge }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -333,11 +333,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   title: {
-    fontSize: 34,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 34,
     color: '#4A3728',
   },
   addButton: {
@@ -348,7 +347,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -358,8 +357,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
   },
   listContent: {
     paddingBottom: 100,
@@ -375,10 +373,8 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#8E8E93',
-    textTransform: 'uppercase',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
+    color: '#6B5D52',
     letterSpacing: 0.5,
   },
   pendingRow: {
@@ -389,11 +385,13 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 12,
     borderRadius: 12,
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   friendRow: {
     position: 'relative',
@@ -404,11 +402,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     padding: 12,
     borderRadius: 12,
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   restingBadge: {
     position: 'absolute',
@@ -424,8 +424,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   restingBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 10,
     color: '#fff',
   },
   avatar: {
@@ -452,13 +451,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   friendName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   friendSubtitle: {
-    fontSize: 13,
-    color: '#8E8E93',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
+    color: '#6B5D52',
     marginTop: 2,
   },
   friendBadges: {
@@ -489,12 +487,10 @@ const styles = StyleSheet.create({
     right: -4,
   },
   badgeText2: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
   },
   stateText: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     textTransform: 'capitalize',
   },
   stateBadge: {
@@ -528,14 +524,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emptyTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 22,
     marginBottom: 12,
     color: '#4A3728',
   },
   emptyMessage: {
-    fontSize: 16,
-    color: '#8E8E93',
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
+    color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
@@ -543,7 +538,7 @@ const styles = StyleSheet.create({
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 14,
@@ -551,8 +546,7 @@ const styles = StyleSheet.create({
   },
   ctaButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   pendingLink: {
     flexDirection: 'row',
@@ -562,6 +556,6 @@ const styles = StyleSheet.create({
   },
   pendingLinkText: {
     color: '#8B5A2B',
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
   },
 });

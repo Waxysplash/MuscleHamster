@@ -12,7 +12,7 @@ export default function WheelPreview() {
   return (
     <SafeAreaView style={styles.safe}>
       <LinearGradient
-        colors={['#87CEEB', '#4ECDC4', '#A8E6CF']}
+        colors={['#7FB7C2', '#5E9E4F', '#A8E6CF']}
         style={styles.background}
       >
         <Text style={styles.title}>MuscleHamster</Text>
@@ -20,7 +20,7 @@ export default function WheelPreview() {
 
         <View style={styles.enclosure}>
           <LinearGradient
-            colors={['#87CEEB', '#B8E6F0', '#A8E6CF']}
+            colors={['#7FB7C2', '#B8E6F0', '#A8E6CF']}
             style={styles.enclosureBg}
           >
             <WheelRunningView size={260} />
@@ -53,13 +53,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#2D2D2D',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#555',
     marginBottom: 24,
   },
@@ -68,12 +67,14 @@ const styles = StyleSheet.create({
     height: 340,
     borderRadius: 24,
     overflow: 'hidden',
-    backgroundColor: '#87CEEB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    backgroundColor: '#7FB7C2',
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   enclosureBg: {
     flex: 1,
@@ -93,19 +94,18 @@ const styles = StyleSheet.create({
   },
   badge: {
     marginTop: 20,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
   },
   badgeText: {
     color: '#fff',
-    fontWeight: '600',
-    fontSize: 14,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
   caption: {
     marginTop: 12,
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#555',
     fontStyle: 'italic',
     textAlign: 'center',

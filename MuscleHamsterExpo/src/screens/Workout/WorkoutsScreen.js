@@ -55,21 +55,21 @@ const HomeCategoryImages = {
 
 // Body part categories for gym workouts
 const GYM_BODY_PARTS = [
-  { id: 'legs', name: 'Legs', color: '#FF6B6B' },
-  { id: 'arms', name: 'Arms', color: '#4ECDC4' },
-  { id: 'back', name: 'Back', color: '#45B7D1' },
-  { id: 'chest', name: 'Chest', color: '#F39C12' },
-  { id: 'shoulders', name: 'Shoulders', color: '#9B59B6' },
-  { id: 'core', name: 'Core', color: '#E74C3C' },
+  { id: 'legs', name: 'Legs', color: '#E0703D' },
+  { id: 'arms', name: 'Arms', color: '#5E9E4F' },
+  { id: 'back', name: 'Back', color: '#1A7F91' },
+  { id: 'chest', name: 'Chest', color: '#D98A1E' },
+  { id: 'shoulders', name: 'Shoulders', color: '#8B5A2B' },
+  { id: 'core', name: 'Core', color: '#C0392B' },
 ];
 
 // Home workout categories
 const HOME_CATEGORIES = [
-  { id: 'quick_sweats', name: 'Quick Sweats', icon: 'flash-outline', color: '#FF9500' },
-  { id: 'lower_body', name: 'Lower Body', icon: 'footsteps-outline', color: '#FF6B6B' },
-  { id: 'upper_body', name: 'Upper Body', icon: 'body-outline', color: '#4ECDC4' },
-  { id: 'core', name: 'Core', icon: 'ellipse-outline', color: '#E74C3C' },
-  { id: 'desk', name: 'Desk Workouts', icon: 'desktop-outline', color: '#45B7D1' },
+  { id: 'quick_sweats', name: 'Quick Sweats', icon: 'flash-outline', color: '#A65000' },
+  { id: 'lower_body', name: 'Lower Body', icon: 'footsteps-outline', color: '#E0703D' },
+  { id: 'upper_body', name: 'Upper Body', icon: 'body-outline', color: '#5E9E4F' },
+  { id: 'core', name: 'Core', icon: 'ellipse-outline', color: '#C0392B' },
+  { id: 'desk', name: 'Desk Workouts', icon: 'desktop-outline', color: '#1A7F91' },
 ];
 
 export default function WorkoutsScreen({ navigation, route }) {
@@ -286,7 +286,7 @@ export default function WorkoutsScreen({ navigation, route }) {
             <Ionicons
               name="calendar"
               size={16}
-              color={activeTab === 'plan' ? '#FFF8F0' : '#6B5D52'}
+              color="#4A3728"
             />
             <Text style={[styles.tabText, activeTab === 'plan' && styles.tabTextActive]}>
               My Plan
@@ -299,7 +299,7 @@ export default function WorkoutsScreen({ navigation, route }) {
             <Ionicons
               name="home-outline"
               size={16}
-              color={activeTab === 'home' ? '#FFF8F0' : '#6B5D52'}
+              color="#4A3728"
             />
             <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>
               At Home
@@ -312,7 +312,7 @@ export default function WorkoutsScreen({ navigation, route }) {
             <Ionicons
               name="barbell-outline"
               size={16}
-              color={activeTab === 'gym' ? '#FFF8F0' : '#6B5D52'}
+              color="#4A3728"
             />
             <Text style={[styles.tabText, activeTab === 'gym' && styles.tabTextActive]}>
               At Gym
@@ -477,11 +477,11 @@ export default function WorkoutsScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -494,21 +494,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: '#FFF8F0',
+    minHeight: 44,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
+    backgroundColor: '#FFFFFF',
     gap: 5,
   },
   tabActive: {
-    backgroundColor: '#8B5A2B',
+    backgroundColor: '#FF9500',
   },
   tabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B5D52',
+    fontFamily: 'Nunito_700Bold', fontSize: 14,
+    color: '#4A3728',
   },
   tabTextActive: {
-    color: '#FFF8F0',
+    color: '#4A3728',
   },
   scrollView: {
     flex: 1,
@@ -535,8 +537,7 @@ const styles = StyleSheet.create({
   },
   myWorkoutsLinkText: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#8B5A2B',
   },
   backToplanLink: {
@@ -551,13 +552,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   browseTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginLeft: 8,
     color: '#4A3728',
   },
   browseSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 16,
     marginLeft: 28,
@@ -574,10 +574,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   bodyPartImage: {
     width: 80,
@@ -589,8 +591,7 @@ const styles = StyleSheet.create({
     height: 65,
   },
   bodyPartName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
 });

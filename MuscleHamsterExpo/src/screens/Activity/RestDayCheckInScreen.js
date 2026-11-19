@@ -83,7 +83,7 @@ export default function RestDayCheckInScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <Ionicons name="alert-circle" size={60} color="#FF3B30" />
+          <Ionicons name="alert-circle" size={60} color="#C0392B" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
@@ -100,7 +100,7 @@ export default function RestDayCheckInScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.successContent}>
           <View style={styles.celebrationIcon}>
-            <Ionicons name="checkmark-circle" size={80} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={80} color="#2E7D32" />
           </View>
           <Text style={styles.successTitle}>Rest Day Complete!</Text>
 
@@ -151,7 +151,7 @@ export default function RestDayCheckInScreen({ navigation }) {
                 accessibilityLabel={info.displayName}
               >
                 <View style={[styles.activityIcon, { backgroundColor: '#FFE0E0' }]}>
-                  <Ionicons name={info.icon} size={32} color="#FF6B6B" />
+                  <Ionicons name={info.icon} size={32} color="#E0703D" />
                 </View>
                 <Text style={styles.activityName}>{info.displayName}</Text>
                 <Text style={styles.activityDescription}>{info.description}</Text>
@@ -198,7 +198,7 @@ export default function RestDayCheckInScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -210,14 +210,13 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     textAlign: 'center',
     marginTop: 8,
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -229,8 +228,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginBottom: 12,
     color: '#4A3728',
   },
@@ -254,13 +252,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   activityName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     textAlign: 'center',
     color: '#4A3728',
   },
   activityDescription: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 4,
@@ -276,9 +273,8 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     marginLeft: 4,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
+    color: '#A65000',
   },
   activityRow: {
     flexDirection: 'row',
@@ -300,12 +296,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   activityRowName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   activityRowDescription: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -321,17 +316,16 @@ const styles = StyleSheet.create({
   },
   confirmingText: {
     marginTop: 16,
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#8B5A2B',
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     marginTop: 16,
-    color: '#FF3B30',
+    color: '#C0392B',
   },
   errorText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -340,12 +334,11 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 12,
   },
   retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   successContent: {
@@ -358,8 +351,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   successTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     marginBottom: 16,
     color: '#4A3728',
   },
@@ -374,9 +366,8 @@ const styles = StyleSheet.create({
   },
   rewardText: {
     marginLeft: 8,
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
+    color: '#A65000',
   },
   speechBubble: {
     backgroundColor: 'rgba(139,90,43,0.08)',
@@ -386,7 +377,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   hamsterReaction: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     color: '#6B5D52',
@@ -397,21 +388,19 @@ const styles = StyleSheet.create({
   },
   streakText: {
     marginLeft: 8,
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
+    color: '#C0392B',
   },
   doneButton: {
     marginHorizontal: 20,
     marginBottom: 40,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
 });

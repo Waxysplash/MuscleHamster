@@ -158,10 +158,10 @@ export default function GymBodyPartScreen({ route, navigation }) {
           </View>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <Ionicons name="alert-circle-outline" size={48} color="#FF9500" />
-            <Text style={{ fontSize: 18, color: '#4A3728', marginTop: 16, textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'Nunito_400Regular', fontSize: 18, color: '#4A3728', marginTop: 16, textAlign: 'center' }}>
               Oops! Something went wrong.
             </Text>
-            <Text style={{ fontSize: 14, color: '#6B5D52', marginTop: 8, textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'Nunito_400Regular', fontSize: 14, color: '#6B5D52', marginTop: 8, textAlign: 'center' }}>
               Please go back and try again.
             </Text>
           </View>
@@ -192,11 +192,11 @@ export default function GymBodyPartScreen({ route, navigation }) {
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case 'beginner':
-        return '#34C759';
+        return '#2E7D32';
       case 'intermediate':
         return '#FF9500';
       case 'advanced':
-        return '#FF3B30';
+        return '#C0392B';
       default:
         return '#6B5D52';
     }
@@ -289,11 +289,11 @@ export default function GymBodyPartScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -308,8 +308,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
   },
   placeholder: {
@@ -343,7 +342,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   exerciseCount: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
   },
   workoutCard: {
@@ -354,10 +353,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   workoutIcon: {
     width: 52,
@@ -375,19 +376,17 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   workoutName: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginBottom: 2,
   },
   workoutTarget: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
+    color: '#A65000',
     marginBottom: 4,
   },
   workoutDescription: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 8,
   },
@@ -403,7 +402,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   workoutDifficulty: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   emptyState: {
@@ -411,7 +410,7 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   emptyText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },

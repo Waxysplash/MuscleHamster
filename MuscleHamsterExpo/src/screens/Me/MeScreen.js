@@ -8,37 +8,38 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { StatIcons } from '../../config/AssetImages';
+import { StoryCard, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 
-const Row = ({ icon, title, subtitle, onPress }) => (
+const Row = ({ icon, title, subtitle, onPress, last = false }) => (
   <TouchableOpacity
-    style={styles.row}
+    style={[styles.row, last && { borderBottomWidth: 0 }]}
     onPress={onPress}
     accessibilityRole="button"
     accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
   >
-    <View style={styles.rowIcon}>
-      <Ionicons name={icon} size={20} color="#8B5A2B" />
-    </View>
+    <StoryIcon name={icon} size={40} color={Colors.peach} />
     <View style={{ flex: 1 }}>
       <Text style={styles.rowTitle}>{title}</Text>
       {subtitle ? <Text style={styles.rowSubtitle}>{subtitle}</Text> : null}
     </View>
-    <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
+    <Ionicons name="chevron-forward" size={22} color={Colors.ink} />
   </TouchableOpacity>
 );
 
 const Stat = ({ icon, value, label }) => (
-  <View style={styles.stat} accessible accessibilityLabel={`${value} ${label}`}>
-    <Image source={icon} style={styles.statIcon} resizeMode="contain" />
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </View>
+  <StoryCard containerStyle={{ flex: 1 }} style={{ alignItems: 'center', paddingVertical: 14, paddingHorizontal: 6 }}>
+    <View accessible accessibilityLabel={`${value} ${label}`} style={{ alignItems: 'center' }}>
+      <Image source={icon} style={styles.statIcon} resizeMode="contain" />
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  </StoryCard>
 );
 
 export default function MeScreen({ navigation }) {
@@ -57,8 +58,8 @@ export default function MeScreen({ navigation }) {
       </View>
 
       {weeklyProgress && (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>This week</Text>
+        <StoryCard color={Colors.sand} containerStyle={{ marginBottom: 16 }}>
+          <Text style={T.label}>This week</Text>
           <View style={styles.weeklyDots}>
             {Array.from({ length: weeklyProgress.target }).map((_, i) => (
               <View key={i} style={[styles.dot, i < weeklyProgress.daysDone && styles.dotDone]} />
@@ -72,11 +73,11 @@ export default function MeScreen({ navigation }) {
           {stats?.longestStreak > 0 && (
             <Text style={styles.cardSubtle}>Personal best: {stats.longestStreak} day streak</Text>
           )}
-        </View>
+        </StoryCard>
       )}
 
       <Text style={styles.heading}>You</Text>
-      <View style={styles.group}>
+      <StoryCard padded={false} style={{ overflow: 'hidden' }}>
         <Row
           icon="person-circle"
           title="Profile & goals"
@@ -97,60 +98,37 @@ export default function MeScreen({ navigation }) {
           icon="settings"
           title="All settings"
           subtitle="Account, sound, privacy"
+          last
           onPress={() => navigation.navigate('SettingsMain')}
         />
-      </View>
+      </StoryCard>
     </ScrollView>
   );
 }
 
-const shadow = Platform.select({
-  ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
-  android: { elevation: 2 },
-});
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF8F0' },
-  content: { padding: 16, paddingBottom: 32 },
-  heading: { fontSize: 20, fontWeight: '700', color: '#4A3728', marginTop: 8, marginBottom: 12 },
-  statsRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 14,
-    ...shadow,
-  },
-  statIcon: { width: 26, height: 26 },
-  statValue: { fontSize: 22, fontWeight: '700', color: '#4A3728', marginTop: 4 },
-  statLabel: { fontSize: 14, color: '#6B5D52' },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 12, ...shadow },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#4A3728' },
-  cardText: { fontSize: 15, color: '#4A3728', marginTop: 8 },
-  cardSubtle: { fontSize: 14, color: '#6B5D52', marginTop: 4 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 18, paddingBottom: 32 },
+  heading: { fontFamily: Fonts.heading, fontSize: 22, color: Colors.ink, marginTop: 8, marginBottom: 12 },
+  statsRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  statIcon: { width: 28, height: 28 },
+  statValue: { fontFamily: Fonts.heading, fontSize: 24, color: Colors.ink, marginTop: 4 },
+  statLabel: { fontFamily: Fonts.bodySemi, fontSize: 14, color: Colors.textSecondary },
+  cardText: { fontFamily: Fonts.bodyBold, fontSize: 16, color: Colors.ink, marginTop: 8 },
+  cardSubtle: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
   weeklyDots: { flexDirection: 'row', gap: 6, marginTop: 10 },
-  dot: { width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: '#34C759' },
-  dotDone: { backgroundColor: '#34C759' },
-  group: { backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', ...shadow },
+  dot: { width: 20, height: 20, borderRadius: 10, borderWidth: Outline.width, borderColor: Colors.ink, backgroundColor: Colors.surface },
+  dotDone: { backgroundColor: Colors.brand },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    minHeight: 56,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'rgba(139,90,43,0.15)',
+    minHeight: 64,
+    borderBottomWidth: Outline.width,
+    borderBottomColor: Colors.ink,
   },
-  rowIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(139,90,43,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  rowTitle: { fontSize: 16, fontWeight: '600', color: '#4A3728' },
-  rowSubtitle: { fontSize: 14, color: '#6B5D52', marginTop: 2 },
+  rowTitle: { fontFamily: Fonts.bodyBold, fontSize: 16, color: Colors.ink },
+  rowSubtitle: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
 });

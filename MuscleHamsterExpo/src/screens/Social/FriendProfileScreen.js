@@ -210,7 +210,7 @@ export default function FriendProfileScreen() {
               value={profile.totalWorkoutsCompleted}
               label="Workouts"
               icon="fitness"
-              color="#34C759"
+              color="#2E7D32"
             />
           </View>
         </View>
@@ -260,7 +260,7 @@ export default function FriendProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.nudgeSentModal}>
             <View style={styles.nudgeSentIcon}>
-              <Ionicons name="hand-left" size={36} color="#34C759" />
+              <Ionicons name="hand-left" size={36} color="#2E7D32" />
             </View>
             <Text style={styles.nudgeSentTitle}>Encouragement Sent!</Text>
             <Text style={styles.nudgeSentMessage}>{nudgeMessage}</Text>
@@ -289,8 +289,8 @@ export default function FriendProfileScreen() {
                 handleRemoveFriend();
               }}
             >
-              <Ionicons name="person-remove" size={20} color="#FF3B30" />
-              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Remove Friend</Text>
+              <Ionicons name="person-remove" size={20} color="#C0392B" />
+              <Text style={[styles.menuItemText, { color: '#C0392B' }]}>Remove Friend</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
             <TouchableOpacity
@@ -300,8 +300,8 @@ export default function FriendProfileScreen() {
                 handleBlockUser();
               }}
             >
-              <Ionicons name="ban" size={20} color="#FF3B30" />
-              <Text style={[styles.menuItemText, { color: '#FF3B30' }]}>Block User</Text>
+              <Ionicons name="ban" size={20} color="#C0392B" />
+              <Text style={[styles.menuItemText, { color: '#C0392B' }]}>Block User</Text>
             </TouchableOpacity>
             <View style={styles.menuDivider} />
             <TouchableOpacity
@@ -388,10 +388,10 @@ function NudgeCard({ eligibility, friendName, isNudging, onNudge }) {
     if (!eligibility) return '#8B5A2B';
     switch (eligibility.eligibility) {
       case 'canNudge': return '#8B5A2B';
-      case 'recipientAlreadyCheckedIn': return '#34C759';
+      case 'recipientAlreadyCheckedIn': return '#2E7D32';
       case 'senderNotCheckedIn': return '#FF9500';
       case 'cooldownActive': return '#6B5D52';
-      case 'dailyLimitReached': return '#FF2D55';
+      case 'dailyLimitReached': return '#C0392B';
       default: return '#6B5D52';
     }
   };
@@ -451,7 +451,7 @@ function NudgeCard({ eligibility, friendName, isNudging, onNudge }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -460,14 +460,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   menuButton: {
@@ -491,7 +490,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   readOnlyText: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
   },
   hamsterHeader: {
@@ -512,13 +511,12 @@ const styles = StyleSheet.create({
     height: 100,
   },
   displayName: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     marginBottom: 4,
     color: '#4A3728',
   },
   hamsterName: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginBottom: 12,
   },
@@ -532,8 +530,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusBadgeText: {
-    fontSize: 13,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     textTransform: 'capitalize',
   },
   section: {
@@ -541,8 +538,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginBottom: 12,
     color: '#4A3728',
   },
@@ -563,12 +559,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#4A3728',
   },
   statLabel: {
-    fontSize: 11,
+    fontFamily: 'Nunito_400Regular', fontSize: 11,
     color: '#6B5D52',
     marginTop: 4,
     textAlign: 'center',
@@ -580,14 +575,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noStreakTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginTop: 12,
     marginBottom: 8,
     color: '#4A3728',
   },
   noStreakMessage: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
   },
@@ -608,11 +602,10 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   streakNumber: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 36,
   },
   streakDays: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   streakStatusBadge: {
@@ -621,8 +614,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   streakStatusText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
   },
   bestTogether: {
     flexDirection: 'row',
@@ -630,16 +622,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   bestTogetherLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   bestTogetherValue: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#4A3728',
   },
   streakMessage: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
   },
@@ -664,12 +655,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   nudgeTitle: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#4A3728',
   },
   nudgeSubtitle: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -684,8 +674,7 @@ const styles = StyleSheet.create({
   },
   nudgeButtonText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
   nudgeHint: {
     flexDirection: 'row',
@@ -699,8 +688,8 @@ const styles = StyleSheet.create({
   },
   nudgeHintText: {
     flex: 1,
-    fontSize: 12,
-    color: '#FF9500',
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
+    color: '#A65000',
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -716,7 +705,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   modalOverlay: {
@@ -742,13 +731,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   nudgeSentTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 22,
     marginBottom: 8,
     color: '#4A3728',
   },
   nudgeSentMessage: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -761,8 +749,7 @@ const styles = StyleSheet.create({
   },
   nudgeSentButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   menuOverlay: {
     flex: 1,
@@ -783,7 +770,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   menuItemText: {
-    fontSize: 17,
+    fontFamily: 'Nunito_400Regular', fontSize: 17,
   },
   menuDivider: {
     height: 1,

@@ -122,7 +122,7 @@ function WeekSummary({ schedule }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 16,
     padding: 12,
     shadowColor: '#4A3728',
@@ -136,8 +136,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   weekText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   daysContainer: {
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   summaryText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
 });

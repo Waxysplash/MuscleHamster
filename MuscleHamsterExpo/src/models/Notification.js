@@ -53,7 +53,7 @@ export const BannerType = {
 export const BannerTypeInfo = {
   [BannerType.STREAK_SAFE]: {
     icon: 'checkmark-circle',
-    iconColor: '#34C759',
+    iconColor: '#2E7D32',
     backgroundColor: 'rgba(52, 199, 89, 0.12)',
     accessibilityLabel: 'Streak is safe',
   },
@@ -65,7 +65,7 @@ export const BannerTypeInfo = {
   },
   [BannerType.GENTLE_NUDGE]: {
     icon: 'happy',
-    iconColor: '#5AC8FA',
+    iconColor: '#1A7F91',
     backgroundColor: 'rgba(90, 200, 250, 0.12)',
     accessibilityLabel: 'Reminder',
   },

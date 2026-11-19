@@ -248,10 +248,10 @@ export const getHamsterStateColor = (state) => {
     case HamsterState.CHILLIN:
     case HamsterState.RESTED:
     case 'rested': return '#8B5A2B';  // Warm brown for rested
-    case HamsterState.HAPPY: return '#34C759';
+    case HamsterState.HAPPY: return '#2E7D32';
     case HamsterState.EXCITED: return '#FFCC00';
-    case HamsterState.PROUD: return '#AF52DE';
-    default: return '#8E8E93';
+    case HamsterState.PROUD: return '#8B5A2B';
+    default: return '#6B5D52';
   }
 };
 

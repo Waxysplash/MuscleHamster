@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image } from 'react-native';
+import { StoryButton } from '../../components/ui/Story';
 
 export default function WelcomeScreen({ navigation }) {
   return (
@@ -20,15 +21,11 @@ export default function WelcomeScreen({ navigation }) {
 
         {/* Action Buttons */}
         <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.primaryButton}
+          <StoryButton
+            title="Let's get started"
             onPress={() => navigation.navigate('SignUp')}
-            accessibilityLabel="Let's Get Started"
             accessibilityHint="Creates a new account"
-            accessibilityRole="button"
-          >
-            <Text style={styles.primaryButtonText}>Let's Get Started</Text>
-          </TouchableOpacity>
+          />
 
           <TouchableOpacity
             style={styles.secondaryButton}
@@ -50,7 +47,7 @@ export default function WelcomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     flex: 1,
@@ -66,14 +63,13 @@ const styles = StyleSheet.create({
     height: 180,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 32,
     textAlign: 'center',
     marginTop: 24,
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 17,
+    fontFamily: 'Nunito_400Regular', fontSize: 17,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
@@ -91,8 +87,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -100,6 +95,6 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#8B5A2B',
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
   },
 });

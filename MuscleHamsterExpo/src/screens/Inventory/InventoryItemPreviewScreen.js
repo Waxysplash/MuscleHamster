@@ -50,7 +50,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
 
   const categoryInfo = ShopItemCategoryInfo[category];
   const rarityInfo = ShopItemRarityInfo[item.rarity];
-  const categoryColor = categoryInfo?.color || '#8E8E93';
+  const categoryColor = categoryInfo?.color || '#6B5D52';
 
   const [isLoading, setIsLoading] = useState(false);
   const [isInUse, setIsInUse] = useState(false);
@@ -348,7 +348,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
           <TouchableOpacity
             style={[
               styles.actionButton,
-              { backgroundColor: isInUse ? '#8E8E93' : categoryColor },
+              { backgroundColor: isInUse ? '#6B5D52' : categoryColor },
             ]}
             onPress={performAction}
             disabled={isLoading}
@@ -379,7 +379,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
           >
             {/* Success icon */}
             <View style={styles.successIcon}>
-              <Ionicons name="checkmark-circle" size={50} color="#34C759" />
+              <Ionicons name="checkmark-circle" size={50} color="#2E7D32" />
             </View>
 
             {/* Message */}
@@ -418,7 +418,7 @@ export default function InventoryItemPreviewScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   errorContainer: {
     flex: 1,
@@ -427,13 +427,12 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#4A3728',
     marginTop: 16,
   },
   errorText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -442,12 +441,11 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 32,
     paddingVertical: 12,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 12,
   },
   errorButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   scrollView: {
@@ -489,15 +487,14 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
   },
   inUseBadgeText: {
     marginLeft: 4,
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#fff',
   },
   rarityBadge: {
@@ -513,16 +510,14 @@ const styles = StyleSheet.create({
   },
   rarityBadgeText: {
     marginLeft: 4,
-    fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
   },
   infoSection: {
     paddingHorizontal: 16,
     paddingVertical: 20,
   },
   itemName: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
   },
   categoryLabel: {
@@ -532,22 +527,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
   },
   newBadge: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#C0392B',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   newBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
     color: '#fff',
   },
   description: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
     lineHeight: 24,
@@ -565,12 +558,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
   hintText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
@@ -588,7 +580,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   loadingText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   successOverlay: {
@@ -615,14 +607,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   successMessage: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     textAlign: 'center',
     color: '#4A3728',
     marginBottom: 20,
   },
   reactionContainer: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -644,13 +635,13 @@ const styles = StyleSheet.create({
     height: 52,
   },
   reactionText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     fontStyle: 'italic',
     color: '#6B5D52',
     textAlign: 'center',
   },
   doneButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 14,
     paddingHorizontal: 48,
     borderRadius: 12,
@@ -658,8 +649,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
 });

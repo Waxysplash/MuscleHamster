@@ -54,14 +54,14 @@ export const WorkoutType = {
 };
 
 export const WorkoutTypeInfo = {
-  [WorkoutType.STRENGTH]: { displayName: 'Strength', icon: 'barbell', color: '#FF6B6B', description: 'Build muscle and get stronger' },
-  [WorkoutType.CARDIO]: { displayName: 'Cardio', icon: 'heart', color: '#FF9500', description: 'Get your heart pumping' },
-  [WorkoutType.HIIT]: { displayName: 'HIIT', icon: 'flash', color: '#FF3B30', description: 'High intensity, maximum results' },
-  [WorkoutType.YOGA]: { displayName: 'Yoga', icon: 'leaf', color: '#34C759', description: 'Mind-body connection' },
-  [WorkoutType.STRETCHING]: { displayName: 'Stretching', icon: 'body', color: '#5856D6', description: 'Improve flexibility' },
-  [WorkoutType.PILATES]: { displayName: 'Pilates', icon: 'ellipse', color: '#AF52DE', description: 'Core strength and control' },
+  [WorkoutType.STRENGTH]: { displayName: 'Strength', icon: 'barbell', color: '#E0703D', description: 'Build muscle and get stronger' },
+  [WorkoutType.CARDIO]: { displayName: 'Cardio', icon: 'heart', color: '#A65000', description: 'Get your heart pumping' },
+  [WorkoutType.HIIT]: { displayName: 'HIIT', icon: 'flash', color: '#C0392B', description: 'High intensity, maximum results' },
+  [WorkoutType.YOGA]: { displayName: 'Yoga', icon: 'leaf', color: '#2E7D32', description: 'Mind-body connection' },
+  [WorkoutType.STRETCHING]: { displayName: 'Stretching', icon: 'body', color: '#8B5A2B', description: 'Improve flexibility' },
+  [WorkoutType.PILATES]: { displayName: 'Pilates', icon: 'ellipse', color: '#8B5A2B', description: 'Core strength and control' },
   [WorkoutType.MOBILITY]: { displayName: 'Mobility', icon: 'sync', color: '#00C7BE', description: 'Move better, feel better' },
-  [WorkoutType.CIRCUIT]: { displayName: 'Circuit', icon: 'repeat', color: '#FF2D55', description: 'Non-stop action' },
+  [WorkoutType.CIRCUIT]: { displayName: 'Circuit', icon: 'repeat', color: '#C0392B', description: 'Non-stop action' },
 };
 
 export const Equipment = {
@@ -94,10 +94,10 @@ export const ExerciseType = {
 };
 
 export const ExerciseTypeInfo = {
-  [ExerciseType.WORK]: { displayName: 'Work', icon: 'flash', color: '#FF9500' },
-  [ExerciseType.REST]: { displayName: 'Rest', icon: 'pause', color: '#8E8E93' },
+  [ExerciseType.WORK]: { displayName: 'Work', icon: 'flash', color: '#A65000' },
+  [ExerciseType.REST]: { displayName: 'Rest', icon: 'pause', color: '#6B5D52' },
   [ExerciseType.WARMUP]: { displayName: 'Warm Up', icon: 'sunny', color: '#FFCC00' },
-  [ExerciseType.COOLDOWN]: { displayName: 'Cool Down', icon: 'snow', color: '#5AC8FA' },
+  [ExerciseType.COOLDOWN]: { displayName: 'Cool Down', icon: 'snow', color: '#1A7F91' },
 };
 
 // Create a workout object

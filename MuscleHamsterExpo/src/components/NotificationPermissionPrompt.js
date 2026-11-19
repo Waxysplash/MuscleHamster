@@ -110,7 +110,7 @@ export default function NotificationPermissionPrompt({
                   <Ionicons
                     name="checkmark-circle"
                     size={48}
-                    color="#34C759"
+                    color="#2E7D32"
                     style={styles.resultIcon}
                   />
                 </>
@@ -237,7 +237,7 @@ export function NotificationPromptBanner({ onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   dragIndicator: {
     width: 36,
@@ -268,8 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     textAlign: 'center',
     color: '#4A3728',
   },
@@ -278,14 +277,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   explanationTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     textAlign: 'center',
     marginBottom: 8,
     color: '#4A3728',
   },
   explanationText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     textAlign: 'center',
     color: '#6B5D52',
     lineHeight: 24,
@@ -307,12 +305,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   previewTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   previewDescription: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -320,7 +317,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   resultText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     textAlign: 'center',
     color: '#6B5D52',
     lineHeight: 24,
@@ -330,33 +327,31 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   doneButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 16,
     paddingHorizontal: 48,
     borderRadius: 12,
     width: '100%',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
     textAlign: 'center',
   },
   buttonContainer: {
     paddingHorizontal: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   primaryButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginBottom: 12,
   },
   primaryButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
   secondaryButton: {
@@ -364,7 +359,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#8B5A2B',
   },
 
@@ -384,24 +379,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bannerTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   bannerSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
   bannerButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   bannerButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 });

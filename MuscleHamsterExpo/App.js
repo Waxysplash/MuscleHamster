@@ -1,4 +1,11 @@
 import React, { useEffect } from 'react';
+import { useFonts } from 'expo-font';
+import { Quicksand_600SemiBold } from '@expo-google-fonts/quicksand/600SemiBold';
+import { Quicksand_700Bold } from '@expo-google-fonts/quicksand/700Bold';
+import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
+import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
+import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
+import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -105,6 +112,19 @@ function RootNavigator() {
 }
 
 export default function App() {
+  // Brand fonts (Storybook redesign). If they fail to load, the app still opens with system fonts.
+  const [fontsLoaded, fontError] = useFonts({
+    Quicksand_600SemiBold,
+    Quicksand_700Bold,
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+  });
+  if (!fontsLoaded && !fontError) {
+    return null; // splash screen stays up for a moment while fonts load
+  }
+
   return (
     <ErrorBoundary>
       <NotificationInitializer>

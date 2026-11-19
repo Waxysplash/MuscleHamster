@@ -11,19 +11,19 @@ export const ShopItemCategoryInfo = {
     displayName: 'Outfits',
     description: 'Dress up your hamster in style!',
     icon: 'shirt',
-    color: '#AF52DE',
+    color: '#8B5A2B',
   },
   [ShopItemCategory.ACCESSORIES]: {
     displayName: 'Accessories',
     description: 'Add some flair with fun accessories!',
     icon: 'glasses',
-    color: '#FF2D55',
+    color: '#C0392B',
   },
   [ShopItemCategory.ENCLOSURE]: {
     displayName: 'Enclosure',
     description: 'Decorate your hamster\'s home!',
     icon: 'home',
-    color: '#FF9500',
+    color: '#A65000',
   },
 };
 
@@ -37,19 +37,19 @@ export const ShopItemRarity = {
 export const ShopItemRarityInfo = {
   [ShopItemRarity.COMMON]: {
     displayName: 'Common',
-    color: '#8E8E93',
+    color: '#6B5D52',
     icon: 'ellipse',
     badgeIcon: 'ellipse',
   },
   [ShopItemRarity.UNCOMMON]: {
     displayName: 'Uncommon',
-    color: '#34C759',
+    color: '#2E7D32',
     icon: 'triangle',
     badgeIcon: 'triangle',
   },
   [ShopItemRarity.RARE]: {
     displayName: 'Rare',
-    color: '#5856D6',
+    color: '#8B5A2B',
     icon: 'diamond',
     badgeIcon: 'diamond',
   },

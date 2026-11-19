@@ -247,7 +247,7 @@ export default function HomeExerciseDetailScreen({ route, navigation }) {
                         <TouchableOpacity
                           style={styles.removeSetButton}
                           onPress={() => removeSet(index)} accessibilityRole="button" accessibilityLabel="Delete">
-                          <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                          <Ionicons name="trash-outline" size={18} color="#C0392B" />
                         </TouchableOpacity>
                       )}
                     </View>
@@ -356,11 +356,11 @@ export default function HomeExerciseDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -376,8 +376,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
   },
   placeholder: {
@@ -402,8 +401,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   exerciseName: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 12,
@@ -419,8 +417,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   categoryText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
   instructionsCard: {
     backgroundColor: '#fff',
@@ -428,10 +425,12 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   instructionsHeader: {
     flexDirection: 'row',
@@ -440,12 +439,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   instructionsTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   instructionsText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     lineHeight: 24,
   },
@@ -465,8 +463,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   journalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
   },
   addButton: {
@@ -483,14 +480,15 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   formLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 8,
     marginTop: 8,
@@ -499,8 +497,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   setNumber: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#8B5A2B',
     marginBottom: 6,
   },
@@ -513,7 +510,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#F0E6DC',
@@ -523,11 +520,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
   },
   inputUnit: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#A0968E',
   },
   removeSetButton: {
@@ -541,17 +538,16 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   addSetText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#8B5A2B',
   },
   notesInput: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#F0E6DC',
     padding: 12,
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#4A3728',
     minHeight: 80,
     textAlignVertical: 'top',
@@ -560,7 +556,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     borderRadius: 12,
     paddingVertical: 14,
     marginTop: 16,
@@ -570,8 +566,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   loader: {
@@ -584,13 +579,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#A0968E',
     marginTop: 4,
   },
@@ -602,10 +596,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   entryHeader: {
     flexDirection: 'row',
@@ -614,8 +610,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   entryDate: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#8B5A2B',
   },
   entrySets: {
@@ -625,11 +620,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   entrySetText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#4A3728',
   },
   entryNotes: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     fontStyle: 'italic',
     marginTop: 8,
@@ -638,7 +633,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#F0E6DC',
   },
   moreEntries: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#A0968E',
     textAlign: 'center',
     paddingVertical: 8,
@@ -656,8 +651,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#FFF8F0',
   },
 });

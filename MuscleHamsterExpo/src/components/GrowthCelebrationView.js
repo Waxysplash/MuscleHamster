@@ -77,7 +77,7 @@ const ConfettiParticle = ({ delay, startX, color }) => {
 
 // Confetti container
 const ConfettiView = () => {
-  const colors = ['#FFD700', '#FF9500', '#FF2D55', '#AF52DE', '#5AC8FA', '#34C759'];
+  const colors = ['#FFD700', '#FF9500', '#C0392B', '#8B5A2B', '#1A7F91', '#2E7D32'];
   const particles = [];
 
   for (let i = 0; i < 30; i++) {
@@ -97,7 +97,7 @@ const ConfettiView = () => {
 // Stage badge component
 const StageBadge = ({ stage, isActive }) => {
   const info = GrowthStageInfo[stage];
-  const color = isActive ? info.color : '#8E8E93';
+  const color = isActive ? info.color : '#6B5D52';
 
   return (
     <View style={[
@@ -221,7 +221,7 @@ export default function GrowthCelebrationView({
             {previousStage && (
               <>
                 <StageBadge stage={previousStage} isActive={false} />
-                <Ionicons name="arrow-forward" size={24} color="#8E8E93" style={styles.arrow} />
+                <Ionicons name="arrow-forward" size={24} color="#6B5D52" style={styles.arrow} />
               </>
             )}
             <StageBadge stage={milestone.stage} isActive={true} />
@@ -250,7 +250,7 @@ export default function GrowthCelebrationView({
               <Ionicons
                 name={milestone.triggerType === GrowthTriggerType.WORKOUTS ? 'fitness' : 'flame'}
                 size={16}
-                color="#8E8E93"
+                color="#6B5D52"
               />
               <Text style={styles.achievementText}>{triggerDescription}</Text>
             </View>
@@ -298,14 +298,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headline: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     textAlign: 'center',
     marginTop: 16,
     color: '#4A3728',
   },
   hamsterNameText: {
-    color: '#FF9500',
+    color: '#A65000',
   },
   stageTransition: {
     flexDirection: 'row',
@@ -324,8 +323,7 @@ const styles = StyleSheet.create({
   },
   stageBadgeText: {
     marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
   arrow: {
     marginHorizontal: 12,
@@ -348,19 +346,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   speechBubble: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
     maxWidth: '100%',
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   speechText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     color: '#4A3728',
@@ -377,9 +377,8 @@ const styles = StyleSheet.create({
   },
   achievementText: {
     marginLeft: 6,
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#8E8E93',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
+    color: '#6B5D52',
   },
   buttonContainer: {
     width: '100%',
@@ -391,8 +390,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
 });

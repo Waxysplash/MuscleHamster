@@ -17,6 +17,8 @@ import { useActivity } from '../../context/ActivityContext';
 import { FINAL_STRETCH_PROMPT } from '../../models/DailyExercise';
 import { StatIcons } from '../../config/AssetImages';
 import HoldTimer from '../../components/HoldTimer';
+import { StoryCard, StoryButton, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, T } from '../../config/theme';
 import { playSFX } from '../../services/AudioService';
 import { SoundEffect } from '../../models/AudioPreferences';
 import { logDailyCheckIn } from '../../services/AnalyticsService';
@@ -104,12 +106,10 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <Ionicons name="alert-circle" size={60} color="#FF3B30" />
+          <Ionicons name="alert-circle" size={60} color="#C0392B" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
+          <StoryButton title="Try again" onPress={handleRetry} style={{ marginTop: 20, alignSelf: 'stretch' }} />
           <TouchableOpacity style={styles.cancelButton} onPress={handleDone}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
@@ -137,32 +137,30 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
           </View>
 
           {/* Points & Streak */}
-          <View style={styles.rewardCard}>
+          <StoryCard color={Colors.peach} containerStyle={{ alignSelf: 'stretch', marginTop: 16 }}>
             <View style={styles.rewardRow}>
               <Image source={StatIcons.points} style={{ width: 28, height: 28 }} resizeMode="contain" />
-              <Text style={styles.rewardText}>+{result.pointsEarned} points</Text>
+              <Text style={T.title}>+{result.pointsEarned} points</Text>
             </View>
-            <View style={styles.rewardRow}>
+            <View style={[styles.rewardRow, { marginTop: 8 }]}>
               <Image source={StatIcons.streak} style={{ width: 28, height: 28 }} resizeMode="contain" />
-              <Text style={styles.streakText}>{result.newStreak} day streak!</Text>
+              <Text style={T.heading}>{result.newStreak} day streak</Text>
             </View>
-          </View>
+          </StoryCard>
 
           {/* The Final Stretch - always shown after check-in */}
-          <View style={styles.finalStretchCard}>
+          <StoryCard color={Colors.surface} containerStyle={{ alignSelf: 'stretch', marginTop: 16 }}>
             <View style={styles.finalStretchHeader}>
-              <Ionicons name={FINAL_STRETCH_PROMPT.icon} size={24} color="#FF9500" />
-              <Text style={styles.finalStretchTitle}>{FINAL_STRETCH_PROMPT.title}</Text>
+              <StoryIcon name={FINAL_STRETCH_PROMPT.icon} size={36} />
+              <Text style={T.heading}>{FINAL_STRETCH_PROMPT.title}</Text>
             </View>
-            <Text style={styles.finalStretchInstruction}>
+            <Text style={[T.body, { marginTop: 8 }]}>
               {FINAL_STRETCH_PROMPT.instruction}
             </Text>
-          </View>
+          </StoryCard>
         </ScrollView>
 
-        <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-          <Text style={styles.doneButtonText}>Done</Text>
-        </TouchableOpacity>
+        <StoryButton title="Done" onPress={handleDone} style={styles.bottomButton} />
       </View>
     );
   }
@@ -184,9 +182,7 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={styles.readyContent}>
         {/* Exercise icon */}
-        <View style={styles.exerciseCircle}>
-          <Ionicons name={exercise.icon} size={44} color="#FF9500" />
-        </View>
+        <StoryIcon name={exercise.icon} size={96} color={Colors.peach} />
 
         {/* Exercise name */}
         <Text style={styles.exerciseName}>
@@ -211,13 +207,15 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
 
         {/* Easier version - nobody should open the app to something they can't do */}
         {exercise.easier && (
-          <View style={styles.easierBox} accessible accessibilityLabel={`Easier version: ${exercise.easier}`}>
-            <Ionicons name="leaf" size={16} color="#34C759" />
-            <Text style={styles.easierText}>
-              <Text style={styles.easierLabel}>Easier version: </Text>
-              {exercise.easier}
-            </Text>
-          </View>
+          <StoryCard color={Colors.mint} shadow={false} containerStyle={{ alignSelf: 'stretch', marginTop: 16 }}>
+            <View style={styles.easierRow} accessible accessibilityLabel={`Easier version: ${exercise.easier}`}>
+              <Ionicons name="leaf" size={18} color={Colors.ink} />
+              <Text style={styles.easierText}>
+                <Text style={styles.easierLabel}>Easier version: </Text>
+                {exercise.easier}
+              </Text>
+            </View>
+          </StoryCard>
         )}
 
         {/* Countdown for timed moves, so nobody has to count in their head */}
@@ -230,13 +228,13 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
       </ScrollView>
 
       {/* I Did It! button */}
-      <TouchableOpacity
-        style={styles.iDidItButton}
+      <StoryButton
+        title="I did it!"
+        icon="checkmark"
         onPress={handleCheckIn}
         accessibilityLabel="I did it! Complete the daily exercise"
-      >
-        <Text style={styles.iDidItButtonText}>I Did It!</Text>
-      </TouchableOpacity>
+        style={styles.bottomButton}
+      />
     </View>
   );
 }
@@ -244,7 +242,17 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.background,
+  },
+  bottomButton: {
+    marginHorizontal: 20,
+    marginBottom: 36,
+    marginTop: 8,
+  },
+  easierRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
   },
   header: {
     flexDirection: 'row',
@@ -263,8 +271,8 @@ const styles = StyleSheet.create({
   },
   confirmingText: {
     marginTop: 16,
-    fontSize: 18,
-    color: '#FF9500',
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
+    color: '#A65000',
   },
   readyContent: {
     flexGrow: 1,
@@ -283,14 +291,14 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   exerciseName: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: Fonts.heading, fontSize: 30,
     textAlign: 'center',
-    color: '#4A3728',
-    marginBottom: 12,
+    color: Colors.ink,
+    marginTop: 16,
+    marginBottom: 8,
   },
   safetyText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 10,
@@ -309,22 +317,22 @@ const styles = StyleSheet.create({
   },
   easierText: {
     flex: 1,
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#4A3728',
     lineHeight: 21,
   },
   easierLabel: {
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold',
   },
   exerciseSuggested: {
-    fontSize: 16,
-    color: '#8B5A2B',
+    fontFamily: Fonts.bodyBold, fontSize: 17,
+    color: Colors.brown,
     textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 24,
+    marginBottom: 4,
+    paddingHorizontal: 16,
   },
   exerciseTip: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     textAlign: 'center',
     paddingHorizontal: 24,
@@ -340,19 +348,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iDidItButtonText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 22,
     color: '#fff',
   },
   // Error
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     marginTop: 16,
-    color: '#FF3B30',
+    color: '#C0392B',
   },
   errorText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -365,8 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   cancelButton: {
@@ -374,7 +379,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   cancelButtonText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   // Success
@@ -385,8 +390,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   successTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     marginTop: 16,
     marginBottom: 24,
     color: '#4A3728',
@@ -397,14 +401,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   speechBubble: {
-    backgroundColor: 'rgba(255,149,0,0.1)',
+    backgroundColor: Colors.surface,
+    borderWidth: 2.5,
+    borderColor: Colors.ink,
     padding: 16,
-    borderRadius: 16,
-    marginBottom: 24,
-    maxWidth: '90%',
+    borderRadius: 18,
+    marginBottom: 8,
+    maxWidth: '92%',
   },
   encouragementText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     color: '#4A3728',
@@ -423,14 +429,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
+    color: '#A65000',
   },
   streakText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#C0392B',
   },
   doneButton: {
     marginHorizontal: 20,
@@ -441,8 +445,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
   // Final Stretch
@@ -463,12 +466,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   finalStretchTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   finalStretchInstruction: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     lineHeight: 20,
   },

@@ -45,7 +45,7 @@ export default function SuggestedWorkoutsRow({ profile, stats, onOpen }) {
 
 const styles = StyleSheet.create({
   wrap: { marginBottom: 16 },
-  title: { fontSize: 18, fontWeight: '700', color: '#4A3728', marginBottom: 10 },
+  title: { fontFamily: 'Nunito_700Bold', fontSize: 18, color: '#4A3728', marginBottom: 10 },
   row: { gap: 10, paddingRight: 8 },
   card: {
     width: 150,
@@ -53,11 +53,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
-      android: { elevation: 2 },
+      ios: { shadowColor: '#4A3728', shadowOffset: { width: 3, height: 3 }, shadowOpacity: 1, shadowRadius: 0 },
+      android: { elevation: 0 },
     }),
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   icon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  name: { fontSize: 15, fontWeight: '700', color: '#4A3728', marginTop: 10, minHeight: 40 },
-  meta: { fontSize: 14, color: '#6B5D52', marginTop: 4 },
+  name: { fontFamily: 'Nunito_700Bold', fontSize: 15, color: '#4A3728', marginTop: 10, minHeight: 40 },
+  meta: { fontFamily: 'Nunito_400Regular', fontSize: 14, color: '#6B5D52', marginTop: 4 },
 });

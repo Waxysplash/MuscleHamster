@@ -233,7 +233,7 @@ function OutgoingRequestRow({ request, receiverProfile }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -242,23 +242,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   backButton: {
     padding: 8,
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   doneButton: {
     padding: 8,
   },
   doneText: {
-    fontSize: 17,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#8B5A2B',
-    fontWeight: '600',
   },
   tabContainer: {
     flexDirection: 'row',
@@ -276,16 +274,17 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   tabText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#6B5D52',
-    fontWeight: '500',
   },
   tabTextActive: {
     color: '#4A3728',
@@ -314,17 +313,16 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   requestName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   requestHamster: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
   requestTime: {
-    fontSize: 11,
+    fontFamily: 'Nunito_400Regular', fontSize: 11,
     color: '#8B5A2B',
     marginTop: 2,
   },
@@ -344,7 +342,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -358,9 +356,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   pendingBadgeText: {
-    color: '#FF9500',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#A65000',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
   },
   emptyContainer: {
     flex: 1,
@@ -369,14 +366,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginTop: 16,
     marginBottom: 8,
     color: '#4A3728',
   },
   emptyMessage: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
   },

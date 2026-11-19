@@ -137,14 +137,14 @@ export default function PrivacySettingsScreen({ navigation }) {
                 <Ionicons
                   name={getVisibilityIcon(privacySettings.profileVisibility)}
                   size={14}
-                  color="#8E8E93"
+                  color="#6B5D52"
                 />
                 <Text style={styles.visibilityText}>
                   {getVisibilityDisplayName(privacySettings.profileVisibility)}
                 </Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#A89B8C" />
           </TouchableOpacity>
         </View>
         <Text style={styles.footerText}>
@@ -158,7 +158,7 @@ export default function PrivacySettingsScreen({ navigation }) {
         <View style={styles.card}>
           <View style={[styles.row, !canToggleFriendRequests && styles.disabledRow]}>
             <View style={styles.iconContainer}>
-              <Ionicons name="person-add" size={22} color="#34C759" />
+              <Ionicons name="person-add" size={22} color="#2E7D32" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Allow Friend Requests</Text>
@@ -175,7 +175,7 @@ export default function PrivacySettingsScreen({ navigation }) {
         </View>
         {!canToggleFriendRequests && (
           <View style={styles.footerInfo}>
-            <Ionicons name="information-circle" size={16} color="#8E8E93" />
+            <Ionicons name="information-circle" size={16} color="#6B5D52" />
             <Text style={styles.footerInfoText}>
               Friend requests are automatically disabled when your profile is set to Private.
             </Text>
@@ -195,13 +195,13 @@ export default function PrivacySettingsScreen({ navigation }) {
             accessibilityHint="Manage users you've blocked. Double tap to view."
           >
             <View style={styles.iconContainer}>
-              <Ionicons name="ban" size={22} color="#FF3B30" />
+              <Ionicons name="ban" size={22} color="#C0392B" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Blocked Users</Text>
               <Text style={styles.rowSubLabel}>{getBlockedUsersSubtitle()}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color="#A89B8C" />
           </TouchableOpacity>
         </View>
         <Text style={styles.footerText}>
@@ -216,7 +216,7 @@ export default function PrivacySettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 16,
@@ -226,16 +226,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   section: {
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -263,11 +261,10 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   rowLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   rowSubLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -277,7 +274,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   visibilityText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginLeft: 4,
   },
@@ -287,7 +284,7 @@ const styles = StyleSheet.create({
     marginLeft: 52,
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
@@ -300,7 +297,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   footerInfoText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginLeft: 6,
     flex: 1,
@@ -313,8 +310,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   comingSoonText: {
-    fontSize: 12,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
     color: '#6B5D52',
-    fontWeight: '500',
   },
 });

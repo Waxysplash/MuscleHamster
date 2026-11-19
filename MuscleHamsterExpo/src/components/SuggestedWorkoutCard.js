@@ -1,8 +1,9 @@
 // Suggested Workout Card - "Want to do more?" on Today.
 // Picks a guided workout from the user's level, goals and chosen time (SuggestionService).
 // Shuffle moves to the next good option; a gentle rest-day link sits underneath.
+// Storybook style: outlined card, outlined time chips, chunky Start button.
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   getSuggestion,
@@ -12,8 +13,8 @@ import {
 } from '../services/SuggestionService';
 import { WorkoutTypeInfo } from '../models/Workout';
 import { PLAIN_CATEGORY } from '../models/MoveGuide';
-
-const ACCENT = '#B85A00'; // buttonOrange: readable with white text (config/theme.js)
+import { StoryCard, StoryButton, StoryChip, StoryIcon } from './ui/Story';
+import { Colors, Fonts, T } from '../config/theme';
 
 export default function SuggestedWorkoutCard({
   profile,
@@ -35,125 +36,75 @@ export default function SuggestedWorkoutCard({
   if (!suggestion) return null;
   const { workout, minutes, reason, options } = suggestion;
   const typeInfo = WorkoutTypeInfo[workout.category];
+  const plain = PLAIN_CATEGORY[workout.category];
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.label}>Want to do more? Try this</Text>
+    <StoryCard containerStyle={styles.gap}>
+      <Text style={T.label}>Want to do more? Try this</Text>
 
       <View style={styles.timeRow} accessibilityRole="radiogroup">
-        {Object.values(TimeChoice).map((t) => {
-          const selected = t === timeChoice;
-          return (
-            <TouchableOpacity
-              key={t}
-              style={[styles.timeChip, selected && styles.timeChipSelected]}
-              onPress={() => { setTimeChoice(t); setShuffle(0); }}
-              accessibilityRole="radio"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${TimeChoiceInfo[t].label} workouts`}
-            >
-              <Text style={[styles.timeText, selected && styles.timeTextSelected]}>
-                {TimeChoiceInfo[t].label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        {Object.values(TimeChoice).map((t) => (
+          <StoryChip
+            key={t}
+            label={TimeChoiceInfo[t].label}
+            selected={t === timeChoice}
+            accessibilityLabel={`${TimeChoiceInfo[t].label} workouts`}
+            onPress={() => { setTimeChoice(t); setShuffle(0); }}
+          />
+        ))}
       </View>
 
-      <TouchableOpacity
-        style={styles.workoutRow}
-        onPress={() => onStart?.(workout)}
-        activeOpacity={0.85}
-        accessibilityRole="button"
-        accessibilityLabel={`${workout.name}, ${minutes} minutes. ${reason}. Opens the workout.`}
-      >
-        <View style={[styles.typeIcon, { backgroundColor: `${typeInfo?.color || ACCENT}22` }]}>
-          <Ionicons name={typeInfo?.icon || 'fitness'} size={24} color={typeInfo?.color || ACCENT} />
-        </View>
+      <View style={styles.workoutRow} accessible accessibilityLabel={`${workout.name}, ${minutes} minutes. ${plain || ''}. ${reason}`}>
+        <StoryIcon name={typeInfo?.icon || 'fitness'} size={52} color={Colors.peach} />
         <View style={styles.workoutText}>
-          <Text style={styles.workoutName}>{workout.name}</Text>
-          <Text style={styles.reason}>{PLAIN_CATEGORY[workout.category] ? `${PLAIN_CATEGORY[workout.category]} · ` : ''}{reason}</Text>
+          <Text style={T.heading}>{workout.name}</Text>
+          <Text style={T.small}>{plain ? `${plain} · ` : ''}{minutes} min</Text>
         </View>
-        <View style={styles.startButton}>
-          <Text style={styles.startText}>Start</Text>
-        </View>
-      </TouchableOpacity>
+      </View>
+      <Text style={[T.small, { marginTop: 8 }]}>{reason}</Text>
+
+      <StoryButton
+        title="Start"
+        icon="play"
+        style={{ marginTop: 14 }}
+        accessibilityHint="Opens the workout"
+        onPress={() => onStart?.(workout)}
+      />
 
       <View style={styles.footer}>
         {options > 1 ? (
-          <TouchableOpacity
+          <Pressable
             onPress={() => setShuffle((n) => n + 1)}
             style={styles.footerButton}
             accessibilityRole="button"
             accessibilityLabel="Show a different workout"
           >
-            <Ionicons name="shuffle" size={18} color="#8B5A2B" />
+            <Ionicons name="shuffle" size={18} color={Colors.ink} />
             <Text style={styles.footerText}>Something else</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : <View />}
         {showRestOption && onRest && (
-          <TouchableOpacity
+          <Pressable
             onPress={onRest}
             style={styles.footerButton}
             accessibilityRole="button"
             accessibilityLabel="I'm resting today. Rest days count toward your streak"
           >
-            <Ionicons name="bed" size={18} color="#8B5A2B" />
+            <Ionicons name="bed" size={18} color={Colors.ink} />
             <Text style={styles.footerText}>I'm resting today</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
-    </View>
+    </StoryCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
-      android: { elevation: 2 },
-    }),
-  },
-  label: { fontSize: 15, fontWeight: '700', color: '#4A3728', marginBottom: 10 },
-  timeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  timeChip: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 8,
-    minHeight: 44,
-    justifyContent: 'center',
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(139,90,43,0.25)',
-  },
-  timeChipSelected: { backgroundColor: ACCENT, borderColor: ACCENT },
-  timeText: { fontSize: 14, fontWeight: '600', color: '#8B5A2B' },
-  timeTextSelected: { color: '#fff' },
+  gap: { marginBottom: 14 },
+  timeRow: { flexDirection: 'row', gap: 8, marginTop: 10, marginBottom: 14 },
   workoutRow: { flexDirection: 'row', alignItems: 'center' },
-  typeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  workoutText: { flex: 1, marginLeft: 12, marginRight: 8 },
-  workoutName: { fontSize: 17, fontWeight: '700', color: '#4A3728' },
-  reason: { fontSize: 14, color: '#6B5D52', marginTop: 2 },
-  startButton: {
-    backgroundColor: ACCENT,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  startText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  workoutText: { flex: 1, marginLeft: 12 },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
   footerButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, minHeight: 44 },
-  footerText: { fontSize: 14, fontWeight: '600', color: '#8B5A2B' },
+  footerText: { fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.ink, textDecorationLine: 'underline' },
 });

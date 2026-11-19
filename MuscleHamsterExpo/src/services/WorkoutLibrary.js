@@ -3,21 +3,21 @@
 
 // Body part metadata for gym workouts
 export const GYM_BODY_PARTS = {
-  legs: { id: 'legs', name: 'Legs', color: '#FF6B6B' },
-  arms: { id: 'arms', name: 'Arms', color: '#4ECDC4' },
-  back: { id: 'back', name: 'Back', color: '#45B7D1' },
-  chest: { id: 'chest', name: 'Chest', color: '#F39C12' },
-  shoulders: { id: 'shoulders', name: 'Shoulders', color: '#9B59B6' },
-  core: { id: 'core', name: 'Core', color: '#E74C3C' },
+  legs: { id: 'legs', name: 'Legs', color: '#E0703D' },
+  arms: { id: 'arms', name: 'Arms', color: '#5E9E4F' },
+  back: { id: 'back', name: 'Back', color: '#1A7F91' },
+  chest: { id: 'chest', name: 'Chest', color: '#D98A1E' },
+  shoulders: { id: 'shoulders', name: 'Shoulders', color: '#8B5A2B' },
+  core: { id: 'core', name: 'Core', color: '#C0392B' },
 };
 
 // Home category metadata
 export const HOME_CATEGORIES = {
-  quick_sweats: { id: 'quick_sweats', name: 'Quick Sweats', color: '#FF9500' },
-  lower_body: { id: 'lower_body', name: 'Lower Body', color: '#FF6B6B' },
-  upper_body: { id: 'upper_body', name: 'Upper Body', color: '#4ECDC4' },
-  core: { id: 'core', name: 'Core', color: '#E74C3C' },
-  desk: { id: 'desk', name: 'Desk Workouts', color: '#45B7D1' },
+  quick_sweats: { id: 'quick_sweats', name: 'Quick Sweats', color: '#A65000' },
+  lower_body: { id: 'lower_body', name: 'Lower Body', color: '#E0703D' },
+  upper_body: { id: 'upper_body', name: 'Upper Body', color: '#5E9E4F' },
+  core: { id: 'core', name: 'Core', color: '#C0392B' },
+  desk: { id: 'desk', name: 'Desk Workouts', color: '#1A7F91' },
 };
 
 // Gym workouts by body part

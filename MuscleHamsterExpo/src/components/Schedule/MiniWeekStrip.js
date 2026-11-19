@@ -48,21 +48,21 @@ export default function MiniWeekStrip({
 
     if (dayData.type === DAY_TYPES.REST) {
       if (dayData.completed) {
-        return { symbol: '✓', color: '#34C759' };
+        return { symbol: '✓', color: '#2E7D32' };
       }
       return { symbol: '😴', color: '#8B5A2B', isEmoji: true };
     }
 
     if (dayData.type === DAY_TYPES.WORKOUT) {
       if (dayData.completed) {
-        return { symbol: '✓', color: '#34C759' };
+        return { symbol: '✓', color: '#2E7D32' };
       }
       if (dayData.workoutId) {
         // Specific workout scheduled
-        return { symbol: '●', color: '#FF9500' };
+        return { symbol: '●', color: '#A65000' };
       }
       // Workout day but no specific workout
-      return { symbol: '○', color: '#FF9500' };
+      return { symbol: '○', color: '#A65000' };
     }
 
     return { symbol: '·', color: '#D1C7BC' };
@@ -126,7 +126,7 @@ export default function MiniWeekStrip({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 16,
     padding: 14,
     marginBottom: 16,
@@ -143,14 +143,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
   },
   viewPlanText: {
-    fontSize: 12,
-    color: '#FF9500',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
+    color: '#A65000',
   },
   daysRow: {
     flexDirection: 'row',
@@ -164,14 +162,13 @@ const styles = StyleSheet.create({
     // Highlight today
   },
   dayLabel: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     color: '#6B5D52',
     marginBottom: 6,
   },
   todayLabel: {
-    color: '#FF9500',
-    fontWeight: '600',
+    color: '#A65000',
+    fontFamily: 'Nunito_600SemiBold',
   },
   indicatorContainer: {
     width: 32,
@@ -184,14 +181,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,149,0,0.2)',
   },
   indicator: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
   },
   emojiIndicator: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
   },
   checkmark: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 16,
   },
 });

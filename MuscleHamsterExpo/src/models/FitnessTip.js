@@ -13,7 +13,7 @@ export const TipCategoryInfo = {
   [TipCategory.NUTRITION]: { displayName: 'Nutrition', icon: 'nutrition', color: '#5D9A5D' },
   [TipCategory.EXERCISE]: { displayName: 'Exercise', icon: 'fitness', color: '#C47F3B' },
   [TipCategory.RECOVERY]: { displayName: 'Recovery', icon: 'bed', color: '#8B7355' },
-  [TipCategory.MINDSET]: { displayName: 'Mindset', icon: 'happy', color: '#FF9500' },
+  [TipCategory.MINDSET]: { displayName: 'Mindset', icon: 'happy', color: '#A65000' },
   [TipCategory.FUN_FACT]: { displayName: 'Fun Fact', icon: 'bulb', color: '#D4A84B' },
 };
 

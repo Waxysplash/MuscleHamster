@@ -23,7 +23,7 @@ export default function AuthNavigator() {
         headerTintColor: COLORS.tint,
         headerTitleStyle: {
           color: COLORS.headerText,
-          fontWeight: '600',
+          fontFamily: 'Nunito_600SemiBold',
         },
         headerShadowVisible: false,
       }}

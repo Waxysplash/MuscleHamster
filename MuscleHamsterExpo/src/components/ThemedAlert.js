@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   alertContainer: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 16,
     padding: 24,
     width: Math.min(SCREEN_WIDTH - 80, 320),
@@ -136,14 +136,13 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 8,
   },
   message: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 22,
@@ -168,18 +167,17 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   buttonDefault: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
   },
   buttonCancel: {
     backgroundColor: 'rgba(139, 90, 43, 0.12)',
     flex: 1,
   },
   buttonDestructive: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#C0392B',
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   buttonTextDefault: {
     color: '#FFFFFF',

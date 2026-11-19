@@ -25,7 +25,7 @@ import { getShopItemImage } from '../../config/AssetImages';
 export default function InventoryCategoryScreen({ route, navigation }) {
   const { category } = route.params;
   const categoryInfo = ShopItemCategoryInfo[category];
-  const categoryColor = categoryInfo?.color || '#8E8E93';
+  const categoryColor = categoryInfo?.color || '#6B5D52';
 
   const [viewState, setViewState] = useState('loading');
   const [ownedItems, setOwnedItems] = useState([]);
@@ -266,7 +266,7 @@ function InventoryItemCard({ item, isInUse, gradientColors, onPress }) {
         <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
         {isInUse ? (
           <View style={styles.inUseLabel}>
-            <Ionicons name={getInUseIcon()} size={12} color="#34C759" />
+            <Ionicons name={getInUseIcon()} size={12} color="#2E7D32" />
             <Text style={styles.inUseLabelText}>{getInUseText()}</Text>
           </View>
         ) : (
@@ -280,7 +280,7 @@ function InventoryItemCard({ item, isInUse, gradientColors, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   contentContainer: {
     paddingVertical: 16,
@@ -305,12 +305,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   headerStatus: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -325,11 +324,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   itemCardInUse: {
     borderWidth: 2,
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -371,8 +372,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   itemName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   inUseLabel: {
@@ -381,12 +381,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   inUseLabelText: {
-    fontSize: 13,
-    color: '#34C759',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
+    color: '#2E7D32',
     marginLeft: 4,
   },
   itemHint: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 4,
   },

@@ -161,10 +161,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
     borderRadius: 12,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   todayCell: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderWidth: 2,
     borderColor: '#FF9500',
   },
@@ -172,14 +172,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
   },
   dayLabel: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     color: '#6B5D52',
     marginBottom: 4,
   },
   todayLabel: {
-    color: '#FF9500',
-    fontWeight: '700',
+    color: '#A65000',
+    fontFamily: 'Nunito_700Bold',
   },
   iconContainer: {
     width: 32,
@@ -196,11 +195,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B5A2B',
   },
   multiWorkoutIcon: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
   },
   workoutCountText: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 14,
     color: '#fff',
   },
   workoutDayIcon: {
@@ -213,15 +211,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F0EB',
   },
   completedIcon: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
   },
   workoutName: {
-    fontSize: 9,
+    fontFamily: 'Nunito_400Regular', fontSize: 9,
     color: '#6B5D52',
     textAlign: 'center',
     maxWidth: '100%',
   },
   completedText: {
-    color: '#34C759',
+    color: '#2E7D32',
   },
 });

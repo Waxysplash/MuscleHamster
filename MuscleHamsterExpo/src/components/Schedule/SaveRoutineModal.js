@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalBox: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 20,
     padding: 20,
     width: '90%',
@@ -196,8 +196,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   workoutPreview: {
@@ -210,16 +209,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   workoutCount: {
-    fontSize: 14,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#8B5A2B',
-    fontWeight: '500',
   },
   inputContainer: {
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#4A3728',
     marginBottom: 8,
   },
@@ -227,24 +224,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 14,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     borderWidth: 2,
     borderColor: '#E8E0D8',
   },
   inputError: {
-    borderColor: '#FF3B30',
+    borderColor: '#C0392B',
   },
   errorText: {
-    color: '#FF3B30',
-    fontSize: 13,
+    color: '#C0392B',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     marginTop: 6,
   },
   suggestionsContainer: {
     marginBottom: 20,
   },
   suggestionsLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginBottom: 8,
   },
@@ -262,7 +259,7 @@ const styles = StyleSheet.create({
     borderColor: '#E8E0D8',
   },
   suggestionText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   buttons: {
@@ -277,8 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#6B5D52',
   },
   saveButton: {
@@ -295,8 +291,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 });

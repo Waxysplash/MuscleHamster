@@ -63,8 +63,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   appleText: {
     color: '#fff',

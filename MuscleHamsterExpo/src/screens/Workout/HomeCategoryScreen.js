@@ -82,10 +82,10 @@ export default function HomeCategoryScreen({ route, navigation }) {
           </View>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <Ionicons name="alert-circle-outline" size={48} color="#FF9500" />
-            <Text style={{ fontSize: 18, color: '#4A3728', marginTop: 16, textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'Nunito_400Regular', fontSize: 18, color: '#4A3728', marginTop: 16, textAlign: 'center' }}>
               Oops! Something went wrong.
             </Text>
-            <Text style={{ fontSize: 14, color: '#6B5D52', marginTop: 8, textAlign: 'center' }}>
+            <Text style={{ fontFamily: 'Nunito_400Regular', fontSize: 14, color: '#6B5D52', marginTop: 8, textAlign: 'center' }}>
               Please go back and try again.
             </Text>
           </View>
@@ -190,11 +190,11 @@ export default function HomeCategoryScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -209,8 +209,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
   },
   placeholder: {
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
     height: 100,
   },
   exerciseCount: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
   },
   exerciseCard: {
@@ -251,10 +250,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   exerciseIcon: {
     width: 52,
@@ -272,13 +273,12 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   exerciseName: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginBottom: 4,
   },
   exerciseDescription: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     lineHeight: 20,
   },
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   emptyText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },

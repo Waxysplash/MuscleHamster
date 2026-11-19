@@ -136,18 +136,17 @@ const styles = StyleSheet.create({
     // Selected state handled by iconWrapper
   },
   dayLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 12,
     color: '#6B5D52',
     marginBottom: 6,
   },
   todayLabel: {
-    color: '#FF9500',
-    fontWeight: '700',
+    color: '#A65000',
+    fontFamily: 'Nunito_700Bold',
   },
   selectedLabel: {
     color: '#8B5A2B',
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold',
   },
   iconWrapper: {
     padding: 3,
@@ -175,11 +174,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B5A2B',
   },
   multiWorkoutIcon: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
   },
   workoutCountText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 16,
     color: '#fff',
   },
   plannedWorkoutIcon: {
@@ -192,6 +190,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F0EB',
   },
   completedIcon: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
   },
 });

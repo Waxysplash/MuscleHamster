@@ -577,7 +577,7 @@ export default function NotificationSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 16,
@@ -587,10 +587,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -605,7 +603,7 @@ const styles = StyleSheet.create({
     marginLeft: 48,
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
@@ -623,12 +621,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deniedTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   deniedSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -642,8 +639,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   openSettingsText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#8B5A2B',
     marginRight: 6,
   },
@@ -658,12 +654,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   masterToggleLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   masterToggleSubLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -678,12 +673,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   periodLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   periodDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -698,12 +692,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   reminderTypeLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   reminderTypeDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -713,7 +706,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 40,
@@ -727,18 +720,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5DDD5',
   },
   modalTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   modalCancel: {
-    fontSize: 17,
+    fontFamily: 'Nunito_400Regular', fontSize: 17,
     color: '#6B5D52',
   },
   modalSave: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
+    color: '#A65000',
   },
   timePickerContainer: {
     flexDirection: 'row',
@@ -750,7 +741,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timePickerLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginBottom: 8,
   },
@@ -765,25 +756,23 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   timePickerItemSelected: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
   },
   timePickerItemText: {
-    fontSize: 24,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 24,
     color: '#4A3728',
   },
   timePickerItemTextSelected: {
     color: '#fff',
   },
   timePickerColon: {
-    fontSize: 32,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 32,
     marginHorizontal: 16,
     marginTop: 24,
     color: '#4A3728',
   },
   modalFooter: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,

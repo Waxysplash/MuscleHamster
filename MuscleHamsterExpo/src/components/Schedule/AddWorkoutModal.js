@@ -34,14 +34,14 @@ const CategoryImages = {
 
 // Category options for selection
 const CATEGORY_OPTIONS = [
-  { id: 'arms', name: 'Arms', color: '#9B59B6' },
-  { id: 'legs', name: 'Legs', color: '#E74C3C' },
+  { id: 'arms', name: 'Arms', color: '#8B5A2B' },
+  { id: 'legs', name: 'Legs', color: '#C0392B' },
   { id: 'shoulders', name: 'Shoulders', color: '#E67E22' },
-  { id: 'chest', name: 'Chest', color: '#F39C12' },
-  { id: 'back', name: 'Back', color: '#45B7D1' },
+  { id: 'chest', name: 'Chest', color: '#D98A1E' },
+  { id: 'back', name: 'Back', color: '#1A7F91' },
   { id: 'core', name: 'Core', color: '#8B5A2B' },
-  { id: 'cardio', name: 'Cardio', color: '#FF3B30' },
-  { id: 'class', name: 'Class', color: '#AF52DE' },
+  { id: 'cardio', name: 'Cardio', color: '#C0392B' },
+  { id: 'class', name: 'Class', color: '#8B5A2B' },
 ];
 
 // Gym workouts from Browse tab
@@ -383,7 +383,7 @@ export default function AddWorkoutModal({
         </Text>
         {isSelected && (
           <View style={styles.checkmark}>
-            <Ionicons name="checkmark-circle" size={22} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={22} color="#2E7D32" />
           </View>
         )}
       </TouchableOpacity>
@@ -426,7 +426,7 @@ export default function AddWorkoutModal({
                 <View style={styles.section}>
                   <TouchableOpacity style={styles.clearOption} onPress={onClear}>
                     <View style={styles.clearIcon}>
-                      <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                      <Ionicons name="trash-outline" size={20} color="#C0392B" />
                     </View>
                     <Text style={styles.clearText}>Clear All Workouts</Text>
                   </TouchableOpacity>
@@ -538,7 +538,7 @@ export default function AddWorkoutModal({
               {/* Selected Workouts Count */}
               {selectedWorkouts.length > 0 && (
                 <View style={styles.selectionBanner}>
-                  <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+                  <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />
                   <Text style={styles.selectionBannerText}>
                     {selectedWorkouts.length} workout{selectedWorkouts.length !== 1 ? 's' : ''} selected
                   </Text>
@@ -592,7 +592,7 @@ export default function AddWorkoutModal({
                         </View>
                         {isSelected ? (
                           <View style={styles.selectedCheck}>
-                            <Ionicons name="checkmark-circle" size={28} color="#34C759" />
+                            <Ionicons name="checkmark-circle" size={28} color="#2E7D32" />
                           </View>
                         ) : (
                           <View style={styles.addCircle}>
@@ -659,7 +659,7 @@ export default function AddWorkoutModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -683,8 +683,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   scrollView: {
@@ -704,20 +703,18 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginBottom: 4,
   },
   sectionSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 16,
   },
   routineCount: {
-    fontSize: 13,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    fontWeight: '500',
   },
   routineScroll: {
     paddingRight: 16,
@@ -742,11 +739,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 14,
     padding: 6,
     zIndex: 100,
-    elevation: 10,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   routineDeleteButtonPressed: {
     backgroundColor: '#FFDDDD',
@@ -762,17 +761,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   routineName: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#4A3728',
     marginBottom: 4,
   },
   routineWorkoutCount: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
   },
   routineUsage: {
-    fontSize: 11,
+    fontFamily: 'Nunito_400Regular', fontSize: 11,
     color: '#A0968E',
     marginTop: 4,
   },
@@ -793,9 +791,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   clearText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
+    color: '#C0392B',
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -813,7 +810,7 @@ const styles = StyleSheet.create({
   },
   categoryCardSelected: {
     borderColor: '#8B5A2B',
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   categoryImage: {
     width: 56,
@@ -829,8 +826,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryName: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#4A3728',
     textAlign: 'center',
   },
@@ -853,8 +849,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   nextButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   selectedSummary: {
@@ -864,7 +859,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   selectedSummaryLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginBottom: 8,
   },
@@ -879,8 +874,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   selectedTagText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
   },
   selectionBanner: {
     flexDirection: 'row',
@@ -892,8 +886,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   selectionBannerText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#2E7D32',
   },
   loadingContainer: {
@@ -912,7 +905,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   workoutItemSelected: {
-    borderColor: '#34C759',
+    borderColor: '#2E7D32',
     backgroundColor: '#F8FFF8',
   },
   workoutIcon: {
@@ -927,18 +920,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF3E0',
   },
   workoutIconSelected: {
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
   },
   workoutInfo: {
     flex: 1,
   },
   workoutName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   workoutMeta: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -949,13 +941,12 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
     marginTop: 16,
   },
   emptyText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 4,
     textAlign: 'center',
@@ -968,7 +959,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     paddingBottom: 32,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderTopWidth: 1,
     borderTopColor: '#E5E0DB',
   },
@@ -983,22 +974,20 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   saveAsRoutineText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#8B5A2B',
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     borderRadius: 14,
     paddingVertical: 16,
     gap: 8,
   },
   saveButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
 });

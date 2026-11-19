@@ -45,15 +45,15 @@ export default function ProfileUpdatePrompt({ visible, onUpdate, onSkip }) {
           <View style={styles.whatsNew}>
             <Text style={styles.whatsNewTitle}>What's new:</Text>
             <View style={styles.bulletItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#34C759" />
+              <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
               <Text style={styles.bulletText}>Simpler fitness goals</Text>
             </View>
             <View style={styles.bulletItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#34C759" />
+              <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
               <Text style={styles.bulletText}>Pick your workout days</Text>
             </View>
             <View style={styles.bulletItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#34C759" />
+              <Ionicons name="checkmark-circle" size={16} color="#2E7D32" />
               <Text style={styles.bulletText}>Better workout suggestions</Text>
             </View>
           </View>
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modal: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 20,
     padding: 24,
     width: '100%',
@@ -106,21 +106,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 22,
     color: '#4A3728',
     marginBottom: 12,
     textAlign: 'center',
   },
   message: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 20,
   },
   whatsNew: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 12,
     padding: 16,
     width: '100%',
@@ -129,8 +128,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5DDD5',
   },
   whatsNewTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#4A3728',
     marginBottom: 12,
   },
@@ -141,11 +139,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   bulletText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   updateButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 32,
@@ -154,15 +152,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   updateButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
   skipButton: {
     paddingVertical: 10,
   },
   skipButtonText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#8B5A2B',
   },
 });

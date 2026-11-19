@@ -77,7 +77,7 @@ export default function BlockedUsersScreen() {
       {blockedUsers.length === 0 ? (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIcon}>
-            <Ionicons name="checkmark-shield" size={64} color="#34C759" />
+            <Ionicons name="checkmark-shield" size={64} color="#2E7D32" />
           </View>
           <Text style={styles.emptyTitle}>No Blocked Users</Text>
           <Text style={styles.emptyMessage}>
@@ -151,7 +151,7 @@ function BlockedUserRow({ blockedUser, profile, isUnblocking, onUnblock }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -160,14 +160,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   backButton: {
     padding: 8,
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   placeholder: {
@@ -183,18 +182,17 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     marginBottom: 8,
     color: '#4A3728',
   },
   emptyMessage: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
   },
   listHeader: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -224,18 +222,16 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   blockedName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   blockedDate: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     marginTop: 2,
   },
   unblockButton: {
     color: '#8B5A2B',
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
   },
 });

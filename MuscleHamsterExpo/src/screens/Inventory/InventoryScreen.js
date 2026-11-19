@@ -138,7 +138,7 @@ export default function InventoryScreen({ navigation }) {
                 />
                 {equippedItem ? (
                   <View style={styles.equippedLabel}>
-                    <Ionicons name="checkmark-circle" size={14} color="#34C759" />
+                    <Ionicons name="checkmark-circle" size={14} color="#2E7D32" />
                     <Text style={styles.equippedLabelText}>Wearing: {equippedItem.name}</Text>
                   </View>
                 ) : (
@@ -184,7 +184,7 @@ export default function InventoryScreen({ navigation }) {
               <View style={styles.equipStatus}>
                 {isEquipped ? (
                   <View style={styles.equippedBadge}>
-                    <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                    <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
                   </View>
                 ) : (
                   <View style={styles.equipButton}>
@@ -216,7 +216,7 @@ export default function InventoryScreen({ navigation }) {
               onPress={() => handleEquip(equippedItemId)}
               disabled={isEquipping}
             >
-              <Ionicons name="close-circle-outline" size={18} color="#FF3B30" />
+              <Ionicons name="close-circle-outline" size={18} color="#C0392B" />
               <Text style={styles.unequipButtonText}>Remove current item</Text>
             </TouchableOpacity>
           ) : null
@@ -229,18 +229,17 @@ export default function InventoryScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(139,90,43,0.1)',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
   },
   content: {
@@ -263,21 +262,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   equippedLabelText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#34C759',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
+    color: '#2E7D32',
   },
   noEquippedText: {
     marginTop: 12,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   itemsSection: {
     marginTop: 8,
   },
   sectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     marginBottom: 12,
     color: '#4A3728',
   },
@@ -292,14 +289,14 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   itemCardEquipped: {
-    borderColor: '#34C759',
+    borderColor: '#2E7D32',
     backgroundColor: 'rgba(52, 199, 89, 0.05)',
   },
   itemImageContainer: {
     width: 56,
     height: 56,
     borderRadius: 12,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -312,12 +309,11 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   itemDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -328,14 +324,13 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   equipButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 16,
   },
   equipButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#fff',
   },
   unequipButton: {
@@ -347,21 +342,20 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   unequipButtonText: {
-    fontSize: 15,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
+    color: '#C0392B',
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
     marginTop: 16,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
@@ -369,7 +363,7 @@ const styles = StyleSheet.create({
   shopButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
@@ -377,8 +371,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   shopButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 });

@@ -197,7 +197,7 @@ export default function SignUpScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 24,
@@ -208,12 +208,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 26,
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 8,
   },
@@ -227,12 +226,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorBannerText: {
-    color: '#FF3B30',
-    fontSize: 14,
+    color: '#C0392B',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     textAlign: 'center',
   },
   submitButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -243,8 +242,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
   loadingRow: {
     flexDirection: 'row',
@@ -264,7 +262,7 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     color: '#6B5D52',
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
   },
   linkButton: {
     alignItems: 'center',
@@ -272,6 +270,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#8B5A2B',
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
   },
 });

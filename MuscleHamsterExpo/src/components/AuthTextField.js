@@ -51,7 +51,7 @@ export default function AuthTextField({
     : textContentType;
 
   const getBorderColor = () => {
-    if (error) return '#FF3B30';
+    if (error) return '#C0392B';
     if (isFocused) return '#FF9500';
     return '#E8DED4';
   };
@@ -101,7 +101,7 @@ export default function AuthTextField({
       </View>
       {error ? (
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={14} color="#FF3B30" />
+          <Ionicons name="alert-circle" size={14} color="#C0392B" />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       ) : hint ? (
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
   },
   eyeButton: {
@@ -142,12 +142,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   errorText: {
-    fontSize: 13,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
+    color: '#C0392B',
     marginLeft: 4,
   },
   hintText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 6,
     paddingHorizontal: 4,

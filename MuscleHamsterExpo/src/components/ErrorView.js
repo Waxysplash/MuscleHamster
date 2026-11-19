@@ -31,13 +31,12 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
     marginTop: 16,
   },
   message: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
@@ -45,7 +44,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 24,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 25,
@@ -54,7 +53,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
 });

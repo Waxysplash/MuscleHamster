@@ -56,12 +56,12 @@ function HomeStackScreen() {
     <HomeStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#FFF8F0',
+          backgroundColor: '#FFF4E6',
         },
         headerTintColor: '#4A3728',
         headerTitleStyle: {
           color: '#4A3728',
-          fontWeight: '600',
+          fontFamily: 'Quicksand_700Bold', fontSize: 18,
         },
         headerShadowVisible: false,
       }}
@@ -133,12 +133,12 @@ function WorkoutsStackScreen() {
     <WorkoutsStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#FFF8F0',
+          backgroundColor: '#FFF4E6',
         },
         headerTintColor: '#4A3728',
         headerTitleStyle: {
           color: '#4A3728',
-          fontWeight: '600',
+          fontFamily: 'Quicksand_700Bold', fontSize: 18,
         },
         headerShadowVisible: false,
       }}
@@ -214,9 +214,9 @@ function HamsterStackScreen() {
   return (
     <HamsterStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#FFF8F0' },
+        headerStyle: { backgroundColor: '#FFF4E6' },
         headerTintColor: '#4A3728',
-        headerTitleStyle: { color: '#4A3728', fontWeight: '600' },
+        headerTitleStyle: { color: '#4A3728', fontFamily: 'Quicksand_700Bold', fontSize: 18 },
         headerShadowVisible: false,
       }}
     >
@@ -259,12 +259,12 @@ function SocialStackScreen() {
     <SocialStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#FFF8F0',
+          backgroundColor: '#FFF4E6',
         },
         headerTintColor: '#4A3728',
         headerTitleStyle: {
           color: '#4A3728',
-          fontWeight: '600',
+          fontFamily: 'Quicksand_700Bold', fontSize: 18,
         },
         headerShadowVisible: false,
       }}
@@ -325,12 +325,12 @@ function MeStackScreen() {
     <SettingsStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#FFF8F0',
+          backgroundColor: '#FFF4E6',
         },
         headerTintColor: '#4A3728',
         headerTitleStyle: {
           color: '#4A3728',
-          fontWeight: '600',
+          fontFamily: 'Quicksand_700Bold', fontSize: 18,
         },
         headerShadowVisible: false,
       }}
@@ -399,12 +399,16 @@ export default function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        // Storybook tab bar: ink outline on top, active tab sits on a peach pill
         tabBarInactiveTintColor: '#6B5D52',
-        tabBarActiveTintColor: '#B85A00',
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+        tabBarActiveTintColor: '#4A3728',
+        tabBarActiveBackgroundColor: '#FFE3B8',
+        tabBarItemStyle: { borderRadius: 16, marginHorizontal: 4, marginVertical: 4 },
+        tabBarLabelStyle: { fontFamily: 'Nunito_700Bold', fontSize: 12 },
         tabBarStyle: {
-          backgroundColor: '#FFF8F0',
-          borderTopColor: 'rgba(139,90,43,0.1)',
+          backgroundColor: '#FFF4E6',
+          borderTopColor: '#4A3728',
+          borderTopWidth: 2.5,
         },
       }}
       screenListeners={{
@@ -476,7 +480,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -8,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#C0392B',
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -486,7 +490,6 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
   },
 });

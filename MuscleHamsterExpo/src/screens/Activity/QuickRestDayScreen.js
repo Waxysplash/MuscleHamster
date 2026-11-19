@@ -79,7 +79,7 @@ export default function QuickRestDayScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <Ionicons name="alert-circle" size={60} color="#FF3B30" />
+          <Ionicons name="alert-circle" size={60} color="#C0392B" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => setState('idle')}>
@@ -96,7 +96,7 @@ export default function QuickRestDayScreen({ navigation }) {
       <View style={styles.popupOverlay}>
         <View style={styles.popupBubble}>
           <View style={styles.popupIconCircle}>
-            <Ionicons name="checkmark-circle" size={32} color="#34C759" />
+            <Ionicons name="checkmark-circle" size={32} color="#2E7D32" />
           </View>
           <Text style={styles.popupText}>
             You already logged your daily activity.
@@ -174,7 +174,7 @@ export default function QuickRestDayScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   closeButton: {
     position: 'absolute',
@@ -212,14 +212,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -236,9 +235,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pointsPreviewText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#A65000',
   },
   logButton: {
     flexDirection: 'row',
@@ -251,24 +249,24 @@ const styles = StyleSheet.create({
     gap: 10,
     ...Platform.select({
       ios: {
-        shadowColor: '#8B5A2B',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   logButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
   successTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
     marginBottom: 16,
   },
@@ -283,9 +281,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
+    color: '#A65000',
   },
   speechBubble: {
     backgroundColor: 'rgba(139,90,43,0.08)',
@@ -295,7 +292,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
   },
   messageText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     color: '#6B5D52',
@@ -307,9 +304,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   streakText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
+    color: '#C0392B',
   },
   doneButton: {
     marginHorizontal: 24,
@@ -320,23 +316,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#8B5A2B',
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     marginTop: 16,
-    color: '#FF3B30',
+    color: '#C0392B',
   },
   errorText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -349,8 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   // Already logged popup styles
@@ -362,7 +355,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   popupBubble: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
@@ -371,14 +364,16 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#4A3728',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 12,
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 8,
+        elevation: 0,
       },
     }),
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   popupIconCircle: {
     width: 56,
@@ -390,7 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   popupText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 20,
@@ -403,8 +398,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   popupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 });

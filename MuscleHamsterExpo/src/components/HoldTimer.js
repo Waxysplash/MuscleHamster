@@ -1,8 +1,9 @@
 // Hold Timer - a simple countdown for seconds-based moves (plank, wall sit, high knees...)
 // so beginners don't have to count in their heads. Buzzes 3-2-1 and at the end.
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Vibration } from 'react-native';
+import { StoryButton } from './ui/Story';
+import { Colors, Fonts } from '../config/theme';
 
 export default function HoldTimer({ seconds, onDone }) {
   const [remaining, setRemaining] = useState(seconds);
@@ -42,34 +43,20 @@ export default function HoldTimer({ seconds, onDone }) {
       <Text style={styles.time} accessibilityLiveRegion="polite" accessibilityLabel={`${remaining} seconds left`}>
         {finished ? 'Done!' : `${remaining}s`}
       </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={running ? pause : start}
-        accessibilityRole="button"
+      <StoryButton
+        variant="secondary"
+        size="sm"
+        icon={running ? 'pause' : 'play'}
+        title={running ? 'Pause' : finished ? 'Again' : remaining < seconds ? 'Keep going' : 'Start timer'}
         accessibilityLabel={running ? 'Pause timer' : finished ? 'Start the timer again' : 'Start timer'}
-      >
-        <Ionicons name={running ? 'pause' : 'play'} size={20} color="#fff" />
-        <Text style={styles.buttonText}>
-          {running ? 'Pause' : finished ? 'Again' : remaining < seconds ? 'Keep going' : 'Start timer'}
-        </Text>
-      </TouchableOpacity>
+        onPress={running ? pause : start}
+        style={{ marginTop: 8 }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', marginTop: 16 },
-  time: { fontSize: 40, fontWeight: '700', color: '#4A3728' },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#8B5A2B',
-    borderRadius: 24,
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    minHeight: 48,
-    marginTop: 8,
-  },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  time: { fontFamily: Fonts.heading, fontSize: 44, color: Colors.ink },
 });

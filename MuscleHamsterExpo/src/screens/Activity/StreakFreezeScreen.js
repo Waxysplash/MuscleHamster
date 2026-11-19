@@ -79,7 +79,7 @@ export default function StreakFreezeScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#5AC8FA" />
+          <ActivityIndicator size="large" color="#1A7F91" />
           <Text style={styles.loadingText}>Restoring your streak...</Text>
         </View>
       </View>
@@ -90,7 +90,7 @@ export default function StreakFreezeScreen({ navigation }) {
     return (
       <View style={styles.container}>
         <View style={styles.centerContent}>
-          <Ionicons name="alert-circle" size={60} color="#FF3B30" />
+          <Ionicons name="alert-circle" size={60} color="#C0392B" />
           <Text style={styles.errorTitle}>Oops!</Text>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity
@@ -109,7 +109,7 @@ export default function StreakFreezeScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.successContent}>
           <View style={styles.successIcon}>
-            <Ionicons name="snow" size={60} color="#5AC8FA" />
+            <Ionicons name="snow" size={60} color="#1A7F91" />
           </View>
           <Text style={styles.successTitle}>Streak Restored!</Text>
           <Text style={styles.successSubtitle}>
@@ -145,7 +145,7 @@ export default function StreakFreezeScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.successContent}>
           <View style={[styles.successIcon, { backgroundColor: 'rgba(52,199,89,0.1)' }]}>
-            <Ionicons name="refresh" size={60} color="#34C759" />
+            <Ionicons name="refresh" size={60} color="#2E7D32" />
           </View>
           <Text style={styles.successTitle}>Fresh Start!</Text>
           <Text style={styles.successSubtitle}>
@@ -193,7 +193,7 @@ export default function StreakFreezeScreen({ navigation }) {
           <>
             <View style={styles.restoreCard}>
               <View style={styles.restoreHeader}>
-                <Ionicons name="snow" size={24} color="#5AC8FA" />
+                <Ionicons name="snow" size={24} color="#1A7F91" />
                 <Text style={styles.restoreTitle}>Streak Freeze</Text>
               </View>
               <Text style={styles.restoreDescription}>
@@ -246,7 +246,7 @@ export default function StreakFreezeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -271,22 +271,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -4,
     right: -4,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 12,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     marginBottom: 8,
     color: '#4A3728',
   },
   streakInfo: {
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#6B5D52',
     marginBottom: 16,
   },
   message: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 24,
@@ -304,13 +303,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   restoreTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     marginLeft: 8,
-    color: '#5AC8FA',
+    color: '#1A7F91',
   },
   restoreDescription: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#3C3C43',
     marginBottom: 12,
   },
@@ -320,7 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   costLabel: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   costBadge: {
@@ -333,9 +331,8 @@ const styles = StyleSheet.create({
   },
   costText: {
     marginLeft: 4,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#A65000',
   },
   balanceRow: {
     flexDirection: 'row',
@@ -344,16 +341,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   balanceLabel: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   balanceValue: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   afterPurchase: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 24,
   },
@@ -361,7 +357,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#5AC8FA',
+    backgroundColor: '#1A7F91',
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -370,8 +366,7 @@ const styles = StyleSheet.create({
   },
   restoreButtonText: {
     marginLeft: 8,
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
   cantAffordCard: {
@@ -383,17 +378,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cantAffordText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   cantAffordBalance: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
+    color: '#C0392B',
     marginTop: 8,
   },
   cantAffordHint: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 12,
@@ -402,8 +396,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   declineButtonText: {
-    fontSize: 16,
-    color: '#FF9500',
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
+    color: '#A65000',
   },
   centerContent: {
     flex: 1,
@@ -412,17 +406,16 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 18,
-    color: '#5AC8FA',
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
+    color: '#1A7F91',
   },
   errorTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     marginTop: 16,
-    color: '#FF3B30',
+    color: '#C0392B',
   },
   errorText: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     marginTop: 8,
@@ -435,8 +428,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   successContent: {
@@ -455,13 +447,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   successTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     marginBottom: 8,
     color: '#4A3728',
   },
   successSubtitle: {
-    fontSize: 18,
+    fontFamily: 'Nunito_400Regular', fontSize: 18,
     color: '#6B5D52',
     marginBottom: 24,
   },
@@ -473,7 +464,7 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   hamsterReaction: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
     color: '#6B5D52',
@@ -487,21 +478,20 @@ const styles = StyleSheet.create({
   },
   reminderText: {
     marginLeft: 8,
-    fontSize: 14,
-    color: '#FF9500',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
+    color: '#A65000',
     flex: 1,
   },
   doneButton: {
     marginHorizontal: 24,
     marginBottom: 40,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   doneButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
 });

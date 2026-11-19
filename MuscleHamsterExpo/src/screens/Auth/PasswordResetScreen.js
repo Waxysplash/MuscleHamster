@@ -143,7 +143,7 @@ export default function PasswordResetScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 24,
@@ -154,13 +154,12 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#4A3728',
     marginTop: 16,
   },
   subtitle: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
@@ -173,12 +172,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   errorBannerText: {
-    color: '#FF3B30',
-    fontSize: 14,
+    color: '#C0392B',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     textAlign: 'center',
   },
   submitButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -188,8 +187,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
   loadingRow: {
     flexDirection: 'row',
@@ -199,7 +197,7 @@ const styles = StyleSheet.create({
   // Success State
   successContainer: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     justifyContent: 'space-between',
   },
   successContent: {
@@ -209,24 +207,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   successTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'Quicksand_700Bold', fontSize: 24,
     color: '#4A3728',
     marginTop: 24,
   },
   successSubtitle: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },
   successEmail: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
     marginTop: 4,
   },
   successHint: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 16,
     textAlign: 'center',
@@ -236,7 +232,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   primaryButton: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
@@ -244,8 +240,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
   linkButton: {
     alignItems: 'center',
@@ -253,6 +248,6 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#8B5A2B',
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
   },
 });

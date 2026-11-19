@@ -173,7 +173,7 @@ export default function ShopScreen({ navigation }) {
               <View style={styles.itemAction}>
                 {isOwned ? (
                   <View style={styles.ownedBadge}>
-                    <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+                    <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />
                     <Text style={styles.ownedText}>Owned</Text>
                   </View>
                 ) : (
@@ -229,7 +229,7 @@ export default function ShopScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -237,13 +237,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(139,90,43,0.1)',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
   },
   pointsBadge: {
@@ -256,9 +255,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   pointsText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FF9500',
+    fontFamily: 'Nunito_700Bold', fontSize: 16,
+    color: '#A65000',
   },
   content: {
     padding: 16,
@@ -276,7 +274,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 12,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -289,12 +287,11 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   itemDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -304,7 +301,7 @@ const styles = StyleSheet.create({
   buyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -314,8 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4B8AE',
   },
   buyButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#fff',
   },
   ownedBadge: {
@@ -324,9 +320,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   ownedText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#34C759',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
+    color: '#2E7D32',
   },
   inventoryLink: {
     flexDirection: 'row',
@@ -339,8 +334,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   inventoryLinkText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#8B5A2B',
   },
   emptyState: {
@@ -348,13 +342,12 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
     marginTop: 16,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',

@@ -26,6 +26,8 @@ import { EnclosureBackground, StatIcons } from '../../config/AssetImages';
 import { getTodaysExercise } from '../../services/DailyExerciseService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
+import { StoryCard, StoryButton, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 import StepsCard from '../../components/StepsCard';
 import SuggestedWorkoutCard from '../../components/SuggestedWorkoutCard';
 import { scaleDailyExercise } from '../../models/DailyExercise';
@@ -190,17 +192,17 @@ export default function HomeScreen({ navigation }) {
   const hamsterName = profile?.hamsterName || 'Your Hamster';
 
   const getStreakStatusInfo = () => {
-    if (!streakStatus) return { icon: 'flame-outline', color: '#8E8E93', text: 'Start your streak!' };
+    if (!streakStatus) return { icon: 'flame-outline', color: '#6B5D52', text: 'Start your streak!' };
 
     switch (streakStatus.status) {
       case StreakStatus.ACTIVE:
-        return { icon: 'flame', color: '#FF3B30', text: 'Streak secured!' };
+        return { icon: 'flame', color: '#C0392B', text: 'Streak secured!' };
       case StreakStatus.AT_RISK:
-        return { icon: 'flame', color: '#FF9500', text: 'Check in today to keep it!' };
+        return { icon: 'flame', color: '#A65000', text: 'Check in today to keep it!' };
       case StreakStatus.BROKEN:
-        return { icon: 'refresh', color: '#8E8E93', text: 'Start a new streak!' };
+        return { icon: 'refresh', color: '#6B5D52', text: 'Start a new streak!' };
       default:
-        return { icon: 'flame-outline', color: '#8E8E93', text: 'Start your streak!' };
+        return { icon: 'flame-outline', color: '#6B5D52', text: 'Start your streak!' };
     }
   };
 
@@ -219,42 +221,41 @@ export default function HomeScreen({ navigation }) {
     // Already checked in today - show completed card
     if (hasCheckedInToday) {
       return (
-        <View style={styles.completedCard}>
-          <Ionicons name="checkmark-circle" size={32} color="#34C759" />
-          <View style={styles.completedInfo}>
-            <Text style={styles.completedTitle}>{hamsterName} is fed for today!</Text>
-            <Text style={styles.completedSubtitle}>
-              {hasCompletedWorkoutToday ? 'Workout done. Lovely work!' : 'Want a bonus? Try the workout below.'}
-            </Text>
+        <StoryCard color={Colors.mint} containerStyle={styles.cardGap}>
+          <View style={styles.row}>
+            <StoryIcon name="checkmark" color={Colors.successFill} />
+            <View style={styles.rowText}>
+              <Text style={T.heading}>{hamsterName} is fed for today!</Text>
+              <Text style={T.small}>
+                {hasCompletedWorkoutToday ? 'Workout done. Lovely work!' : 'Want a bonus? Try the workout below.'}
+              </Text>
+            </View>
           </View>
-        </View>
+        </StoryCard>
       );
     }
 
-    // Daily exercise check-in card
+    // Daily exercise card
+    const amount = todaysExercise
+      ? `${todaysExercise.repCount} ${todaysExercise.repType === 'seconds' ? 'seconds' : /breathing/i.test(todaysExercise.name) ? 'slow rounds' : 'times'}`
+      : '';
     return (
-      <TouchableOpacity
-        style={styles.actionCard}
-        onPress={() => {
-          if (!todaysExercise) return;
-          navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise });
-        }}
-        activeOpacity={0.9}
-      >
-        <View style={styles.actionIconWrapper}>
-          <Ionicons name="fitness" size={28} color="#fff" />
-        </View>
-        <View style={styles.actionInfo}>
-          <Text style={styles.actionLabel}>Today's exercise</Text>
-          <Text style={styles.actionTitle}>Feed {hamsterName}!</Text>
-          <Text style={styles.actionSubtitle}>
-            {todaysExercise
-              ? `${todaysExercise.name} · ${todaysExercise.repCount} ${todaysExercise.repType === 'seconds' ? 'seconds' : /breathing/i.test(todaysExercise.name) ? 'slow rounds' : 'times'}`
-              : 'Complete your daily exercise'}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={24} color="#fff" />
-      </TouchableOpacity>
+      <StoryCard color={Colors.peach} containerStyle={styles.cardGap}>
+        <Text style={T.label}>Today's exercise</Text>
+        <Text style={[T.title, { marginTop: 2 }]}>{todaysExercise ? todaysExercise.name : 'Getting it ready...'}</Text>
+        {todaysExercise ? <Text style={[T.body, { color: Colors.textSecondary }]}>{amount}</Text> : null}
+        <StoryButton
+          title={`Feed ${hamsterName}`}
+          icon="nutrition"
+          style={{ marginTop: 14 }}
+          disabled={!todaysExercise}
+          accessibilityHint="Opens today's exercise"
+          onPress={() => {
+            if (!todaysExercise) return;
+            navigation.navigate('DailyExerciseCheckIn', { exercise: todaysExercise });
+          }}
+        />
+      </StoryCard>
     );
   };
 
@@ -276,9 +277,9 @@ export default function HomeScreen({ navigation }) {
             <View style={[styles.topBar, isTablet && { paddingHorizontal: 24 }]}>
               {/* State Badge - Left */}
               <View style={styles.topBarLeft}>
-                <View style={[styles.stateBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
+                <View style={styles.stateBadge}>
                   <Ionicons name={hamsterInfo.icon} size={isTablet ? 16 : 14} color={hamsterInfo.color} />
-                  <Text style={[styles.stateText, { color: hamsterInfo.color }, isTablet && { fontSize: 14 }]}>
+                  <Text style={[styles.stateText, isTablet && { fontSize: 14 }]}>
                     {hamsterInfo.displayName}
                   </Text>
                 </View>
@@ -335,7 +336,7 @@ export default function HomeScreen({ navigation }) {
             isTablet && { alignItems: 'center' }
           ]}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF9500" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ink} />
           }
           showsVerticalScrollIndicator={false}
         >
@@ -367,60 +368,61 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
           />
 
-          {/* THIS WEEK - weekly goal + streak in one line each (full stats live in the Me tab) */}
-          <View style={styles.section}>
-            {weeklyProgress && (
+          {/* THIS WEEK - weekly goal + streak (full stats live in the Me tab) */}
+          {weeklyProgress && (
+            <StoryCard color={Colors.sand} containerStyle={styles.cardGap}>
               <View
-                style={styles.weeklyRow}
                 accessible
-                accessibilityLabel={`This week: ${Math.min(weeklyProgress.daysDone, weeklyProgress.target)} of ${weeklyProgress.target} active days${weeklyProgress.reached ? '. Weekly goal reached!' : ''}`}
+                accessibilityLabel={`This week: ${Math.min(weeklyProgress.daysDone, weeklyProgress.target)} of ${weeklyProgress.target} active days${weeklyProgress.reached ? '. Weekly goal reached!' : ''}${currentStreak > 0 ? `. ${currentStreak} day streak.` : ''}`}
               >
-                <View style={styles.weeklyDots}>
-                  {Array.from({ length: weeklyProgress.target }).map((_, i) => (
-                    <View
-                      key={i}
-                      style={[styles.weeklyDot, i < weeklyProgress.daysDone && styles.weeklyDotDone]}
-                    />
-                  ))}
+                <Text style={T.label}>This week</Text>
+                <View style={[styles.row, { marginTop: 8 }]}>
+                  <View style={styles.weeklyDots}>
+                    {Array.from({ length: weeklyProgress.target }).map((_, i) => (
+                      <View
+                        key={i}
+                        style={[styles.weeklyDot, i < weeklyProgress.daysDone && styles.weeklyDotDone]}
+                      />
+                    ))}
+                  </View>
+                  <Text style={[T.bodyBold, { flex: 1, marginLeft: 12 }]}>
+                    {weeklyProgress.reached
+                      ? `Goal reached! ${hamsterName} is proud of you`
+                      : `${weeklyProgress.daysDone} of ${weeklyProgress.target} active days`}
+                  </Text>
                 </View>
-                <Text style={styles.weeklyText}>
-                  {weeklyProgress.reached
-                    ? `Weekly goal reached! ${hamsterName} is proud of you`
-                    : `This week: ${weeklyProgress.daysDone} of ${weeklyProgress.target} active days`}
-                </Text>
+                {currentStreak > 0 && (
+                  <View style={[styles.row, { marginTop: 10 }]}>
+                    <Image source={StatIcons.streak} style={{ width: 18, height: 18 }} resizeMode="contain" />
+                    <Text style={[T.small, { marginLeft: 6, color: Colors.text }]}>{currentStreak} day streak</Text>
+                  </View>
+                )}
+                {streakStatus?.status === StreakStatus.AT_RISK && (
+                  <Text style={[T.small, { marginTop: 6 }]}>{streakInfo.text}</Text>
+                )}
               </View>
-            )}
+            </StoryCard>
+          )}
 
-            {currentStreak > 0 && (
-              <View style={styles.longestStreakRow}>
-                <Image source={StatIcons.streak} style={{ width: 16, height: 16 }} resizeMode="contain" />
-                <Text style={styles.longestStreak}>{currentStreak} day streak</Text>
+          {/* Welcome back - gentle, never a pop-up */}
+          {previousBrokenStreak && previousBrokenStreak > 0 && (
+            <StoryCard color={Colors.surface} containerStyle={styles.cardGap}>
+              <View style={styles.row}>
+                <StoryIcon name="heart" />
+                <View style={styles.rowText}>
+                  <Text style={T.heading}>Welcome back! {hamsterName} missed you</Text>
+                  <Text style={T.small}>Want to bring back your {previousBrokenStreak}-day streak?</Text>
+                </View>
               </View>
-            )}
-
-            {/* Streak Status Message */}
-            {streakStatus?.status === StreakStatus.AT_RISK && (
-              <View style={styles.streakWarning}>
-                <Ionicons name="alert-circle" size={20} color="#FF9500" />
-                <Text style={styles.streakWarningText}>{streakInfo.text}</Text>
-              </View>
-            )}
-
-            {/* Restore Streak Option */}
-            {previousBrokenStreak && previousBrokenStreak > 0 && (
-              <TouchableOpacity
-                style={styles.restoreCard}
+              <StoryButton
+                title="Have a look"
+                variant="secondary"
+                size="sm"
+                style={{ marginTop: 12 }}
                 onPress={() => navigation.navigate('StreakFreeze')}
-              >
-                <Ionicons name="snow" size={24} color="#5AC8FA" />
-                <View style={styles.restoreInfo}>
-                  <Text style={styles.restoreTitle}>Welcome back! {hamsterName} missed you</Text>
-                  <Text style={styles.restoreSubtitle}>Want to bring back your {previousBrokenStreak}-day streak?</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#5AC8FA" />
-              </TouchableOpacity>
-            )}
-          </View>
+              />
+            </StoryCard>
+          )}
           </View>
         </ScrollView>
       </View>
@@ -439,7 +441,18 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.background,
+  },
+  cardGap: {
+    marginBottom: 14,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rowText: {
+    flex: 1,
+    marginLeft: 12,
   },
   // ENCLOSURE SECTION (Fixed at top - height set dynamically)
   enclosureSection: {
@@ -472,27 +485,17 @@ const styles = StyleSheet.create({
   pointsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: Colors.surface,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
     gap: 4,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   pointsText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FF9500',
+    fontFamily: 'Nunito_800ExtraBold', fontSize: 15,
+    color: Colors.ink,
   },
   hamsterContainer: {
     flex: 1,
@@ -501,25 +504,15 @@ const styles = StyleSheet.create({
     marginTop: 55, // Lowered 25% from center
   },
   nameBadge: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   hamsterName: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontFamily: Fonts.heading, fontSize: 17,
     color: '#4A3728',
   },
   stateBadge: {
@@ -529,47 +522,32 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     gap: 4,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
+    backgroundColor: Colors.surface,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   stateText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_700Bold', fontSize: 14,
+    color: Colors.ink,
   },
   // CONTENT SECTION (Scrollable)
   contentSection: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.background,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     marginTop: -24,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    borderTopWidth: Outline.width,
+    borderLeftWidth: Outline.width,
+    borderRightWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
-    paddingTop: 24,
+    padding: 18,
+    paddingTop: 22,
     paddingBottom: 32,
   },
   contentWrapper: {
@@ -585,15 +563,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     ...Platform.select({
       ios: {
-        shadowColor: '#FF9500',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   actionIconWrapper: {
     width: 52,
@@ -608,18 +588,16 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   actionLabel: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 14,
     color: '#FFFFFF',
   },
   actionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#fff',
     marginTop: 2,
   },
   actionSubtitle: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#FFFFFF',
     marginTop: 2,
   },
@@ -636,12 +614,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   completedTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#34C759',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
+    color: '#2E7D32',
   },
   completedSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -655,15 +632,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#8B5A2B',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 6,
+        elevation: 0,
       },
     }),
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   scheduledWorkoutIconWrapper: {
     width: 52,
@@ -674,19 +653,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   scheduledWorkoutLabel: {
-    fontSize: 10,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
     color: 'rgba(255,255,255,0.7)',
     letterSpacing: 1,
   },
   scheduledWorkoutTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#fff',
     marginTop: 2,
   },
   scheduledWorkoutSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
   },
@@ -710,19 +687,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   restDayLabel: {
-    fontSize: 10,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
     color: '#8B5A2B',
     letterSpacing: 1,
   },
   restDayTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
     marginTop: 2,
   },
   restDaySubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -747,19 +722,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pickWorkoutLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#FF9500',
+    fontFamily: 'Nunito_700Bold', fontSize: 10,
+    color: '#A65000',
     letterSpacing: 1,
   },
   pickWorkoutTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
     marginTop: 2,
   },
   pickWorkoutSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -768,8 +741,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sectionLabel: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
     letterSpacing: 0.5,
     marginBottom: 12,
@@ -790,13 +762,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(139,90,43,0.06)',
     ...Platform.select({
       ios: {
-        shadowColor: '#8B5A2B',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 2,
+        elevation: 0,
       },
     }),
   },
@@ -805,16 +777,14 @@ const styles = StyleSheet.create({
     height: 40,
   },
   statNumber: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 28,
     color: '#4A3728',
     marginTop: 6,
   },
   statLabel: {
-    fontSize: 11,
+    fontFamily: 'Nunito_600SemiBold', fontSize: 11,
     color: '#6B5D52',
     marginTop: 2,
-    fontWeight: '500',
   },
   weeklyRow: {
     flexDirection: 'row',
@@ -825,22 +795,21 @@ const styles = StyleSheet.create({
   },
   weeklyDots: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 6,
   },
   weeklyDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#34C759',
-    backgroundColor: 'transparent',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
   },
   weeklyDotDone: {
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.brand,
   },
   weeklyText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#4A3728',
   },
   longestStreakRow: {
@@ -861,9 +830,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   streakWarningText: {
-    fontSize: 14,
-    color: '#FF9500',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
+    color: '#A65000',
     flex: 1,
   },
   // Restore Card
@@ -880,12 +848,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   restoreTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#5AC8FA',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
+    color: '#1A7F91',
   },
   restoreSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -909,12 +876,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   restDayActionTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   restDayActionSubtitle: {
-    fontSize: 12,
+    fontFamily: 'Nunito_400Regular', fontSize: 12,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -937,13 +903,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(139,90,43,0.06)',
     ...Platform.select({
       ios: {
-        shadowColor: '#8B5A2B',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
+        shadowColor: '#4A3728',
+        shadowOffset: { width: 3, height: 3 },
+        shadowOpacity: 1,
+        shadowRadius: 0,
       },
       android: {
-        elevation: 2,
+        elevation: 0,
       },
     }),
   },
@@ -964,14 +930,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
+    color: '#A65000',
   },
   // Longest Streak
   longestStreak: {
     textAlign: 'center',
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
 });

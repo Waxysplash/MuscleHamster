@@ -11,10 +11,10 @@ import FavoriteButton from '../FavoriteButton';
 
 // Workout type info for custom workouts
 const TYPE_INFO = {
-  strength: { icon: 'barbell-outline', label: 'Strength', color: '#4ECDC4' },
-  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#FF6B6B' },
-  class: { icon: 'people-outline', label: 'Class', color: '#9B59B6' },
-  other: { icon: 'fitness-outline', label: 'Other', color: '#FF9500' },
+  strength: { icon: 'barbell-outline', label: 'Strength', color: '#5E9E4F' },
+  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#E0703D' },
+  class: { icon: 'people-outline', label: 'Class', color: '#8B5A2B' },
+  other: { icon: 'fitness-outline', label: 'Other', color: '#A65000' },
 };
 
 /**
@@ -121,13 +121,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginLeft: 8,
     color: '#4A3728',
   },
   subtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 16,
     marginLeft: 28,
@@ -143,8 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#FFF8F0',
   },
   emptyState: {
@@ -153,13 +151,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },
   emptySubtext: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#A89B8C',
     textAlign: 'center',
     marginTop: 4,
@@ -175,10 +172,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   workoutIcon: {
     width: 44,
@@ -192,8 +191,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   workoutName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   workoutMeta: {
@@ -202,11 +200,11 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   workoutMetaText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
   },
   workoutMetaDot: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#A89B8C',
     marginHorizontal: 6,
   },

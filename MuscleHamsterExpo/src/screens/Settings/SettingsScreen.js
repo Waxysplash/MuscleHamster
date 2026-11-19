@@ -109,7 +109,7 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.section}>
           <View style={styles.row}>
             <View style={styles.iconBox}>
-              <Ionicons name="volume-high" size={22} color="#34C759" />
+              <Ionicons name="volume-high" size={22} color="#2E7D32" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Sound Effects</Text>
@@ -124,7 +124,7 @@ export default function SettingsScreen({ navigation }) {
           </View>
           <View style={[styles.row, { marginTop: 1 }]}>
             <View style={styles.iconBox}>
-              <Ionicons name="musical-note" size={22} color="#AF52DE" />
+              <Ionicons name="musical-note" size={22} color="#8B5A2B" />
             </View>
             <View style={styles.rowInfo}>
               <Text style={styles.rowLabel}>Music</Text>
@@ -233,7 +233,7 @@ export default function SettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 16,
@@ -264,12 +264,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   rowLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   rowSub: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -281,20 +280,19 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   signOutText: {
-    fontSize: 16,
-    color: '#FF3B30',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#C0392B',
   },
   versionContainer: {
     alignItems: 'center',
     marginBottom: 16,
   },
   versionText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   versionNumber: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#8B5A2B',
     marginTop: 2,
   },

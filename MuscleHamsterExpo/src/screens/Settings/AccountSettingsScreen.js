@@ -308,7 +308,7 @@ export default function AccountSettingsScreen({ navigation }) {
             </View>
             {isProfileComplete ? (
               <View style={styles.completeBadge}>
-                <Ionicons name="checkmark-circle" size={18} color="#34C759" />
+                <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
                 <Text style={styles.completeText}>Complete</Text>
               </View>
             ) : (
@@ -331,13 +331,13 @@ export default function AccountSettingsScreen({ navigation }) {
             accessibilityRole="button"
           >
             <View style={styles.dangerLabel}>
-              <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+              <Ionicons name="trash-outline" size={22} color="#C0392B" />
               <View style={styles.dangerTextContainer}>
                 <Text style={styles.dangerTextActive}>Delete Account</Text>
                 <Text style={styles.dangerSubTextActive}>Permanently remove all data</Text>
               </View>
             </View>
-            <Ionicons name="chevron-forward" size={22} color="#FF3B30" />
+            <Ionicons name="chevron-forward" size={22} color="#C0392B" />
           </TouchableOpacity>
         </View>
         <Text style={styles.footerText}>
@@ -351,7 +351,7 @@ export default function AccountSettingsScreen({ navigation }) {
       {isDeleting && (
         <View style={styles.deletingOverlay}>
           <View style={styles.deletingBox}>
-            <ActivityIndicator size="large" color="#FF3B30" />
+            <ActivityIndicator size="large" color="#C0392B" />
             <Text style={styles.deletingText}>Deleting your account...</Text>
             <Text style={styles.deletingSubText}>This may take a moment</Text>
           </View>
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 16,
@@ -431,10 +431,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -455,12 +453,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emailText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   emailSubText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -475,8 +472,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     marginLeft: 12,
     color: '#4A3728',
   },
@@ -485,12 +481,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completeText: {
-    fontSize: 15,
-    color: '#34C759',
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
+    color: '#2E7D32',
     marginLeft: 4,
   },
   incompleteText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
   },
   dangerRow: {
@@ -508,23 +504,21 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   dangerText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#A0968E',
   },
   dangerSubText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#A0968E',
     marginTop: 1,
   },
   dangerTextActive: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#FF3B30',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#C0392B',
   },
   dangerSubTextActive: {
-    fontSize: 13,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
+    color: '#C0392B',
     marginTop: 1,
   },
   deletingOverlay: {
@@ -545,18 +539,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 40,
   },
   deletingText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
     marginTop: 16,
   },
   deletingSubText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 4,
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
@@ -567,16 +560,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   signedOutTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     marginTop: 16,
     color: '#4A3728',
   },
   signedOutMessage: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 8,
     textAlign: 'center',
@@ -597,34 +589,33 @@ const styles = StyleSheet.create({
     maxWidth: 340,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 8,
   },
   modalSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
   },
   passwordInput: {
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderRadius: 10,
     padding: 14,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     borderWidth: 1,
     borderColor: '#E8DDD4',
   },
   passwordInputError: {
-    borderColor: '#FF3B30',
+    borderColor: '#C0392B',
   },
   errorText: {
-    color: '#FF3B30',
-    fontSize: 13,
+    color: '#C0392B',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -641,20 +632,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#6B5D52',
   },
   confirmButton: {
     flex: 1,
     padding: 14,
     borderRadius: 10,
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#C0392B',
     alignItems: 'center',
   },
   confirmButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
 });

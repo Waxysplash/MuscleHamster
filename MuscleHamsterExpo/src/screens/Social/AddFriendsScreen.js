@@ -165,7 +165,7 @@ export default function AddFriendsScreen() {
               <Text style={styles.pendingTitle}>Friend Requests</Text>
               <Text style={styles.pendingSubtitle}>{pendingRequestCount} waiting for you</Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={16} color="#A89B8C" />
           </TouchableOpacity>
         )}
 
@@ -193,7 +193,7 @@ export default function AddFriendsScreen() {
                     <Ionicons
                       name={copied ? "checkmark" : "copy-outline"}
                       size={20}
-                      color={copied ? "#34C759" : "#8B5A2B"}
+                      color={copied ? "#2E7D32" : "#8B5A2B"}
                     />
                     <Text style={[styles.codeButtonText, copied && styles.codeButtonTextCopied]}>
                       {copied ? 'Copied!' : 'Copy'}
@@ -225,7 +225,7 @@ export default function AddFriendsScreen() {
               <TextInput
                 style={styles.codeInput}
                 placeholder="XXXXXX"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor="#A89B8C"
                 value={inputCode}
                 onChangeText={handleInputChange}
                 autoCapitalize="characters"
@@ -242,7 +242,7 @@ export default function AddFriendsScreen() {
                     setLookupResult(null);
                   }}
                 >
-                  <Ionicons name="close-circle" size={20} color="#C7C7CC" />
+                  <Ionicons name="close-circle" size={20} color="#A89B8C" />
                 </TouchableOpacity>
               )}
             </View>
@@ -326,7 +326,7 @@ export default function AddFriendsScreen() {
 
             <View style={styles.howItWorksItem}>
               <View style={styles.howItWorksIcon}>
-                <Ionicons name="enter-outline" size={20} color="#34C759" />
+                <Ionicons name="enter-outline" size={20} color="#2E7D32" />
               </View>
               <View style={styles.howItWorksContent}>
                 <Text style={styles.howItWorksTitle}>Enter Their Code</Text>
@@ -359,7 +359,7 @@ export default function AddFriendsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -368,14 +368,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 60,
     paddingBottom: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   backButton: {
     padding: 8,
   },
   title: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#4A3728',
   },
   placeholder: {
@@ -409,12 +408,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   pendingTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   pendingSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -423,13 +421,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     marginBottom: 4,
     color: '#4A3728',
   },
   sectionSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginBottom: 16,
   },
@@ -438,11 +435,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   codeContainer: {
     backgroundColor: 'rgba(255, 149, 0, 0.12)',
@@ -452,9 +451,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inviteCodeText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FF9500',
+    fontFamily: 'Quicksand_700Bold', fontSize: 32,
+    color: '#A65000',
     letterSpacing: 2,
   },
   codeActions: {
@@ -472,33 +470,31 @@ const styles = StyleSheet.create({
     borderColor: '#8B5A2B',
   },
   codeButtonCopied: {
-    borderColor: '#34C759',
+    borderColor: '#2E7D32',
   },
   codeButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#8B5A2B',
   },
   codeButtonTextCopied: {
-    color: '#34C759',
+    color: '#2E7D32',
   },
   shareButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
   },
   shareButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   errorText: {
-    fontSize: 14,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
+    color: '#C0392B',
   },
   inputCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -506,11 +502,13 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     gap: 12,
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   inputContainer: {
     flex: 1,
@@ -521,15 +519,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   codePrefix: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#8B5A2B',
     letterSpacing: 1,
   },
   codeInput: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     paddingVertical: 12,
     letterSpacing: 2,
     color: '#4A3728',
@@ -544,11 +540,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   lookupButtonDisabled: {
-    backgroundColor: '#C7C7CC',
+    backgroundColor: '#A89B8C',
   },
   lookupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   resultCard: {
@@ -556,11 +551,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginTop: 12,
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   resultHeader: {
     flexDirection: 'row',
@@ -579,12 +576,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   resultName: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#4A3728',
   },
   resultSubtitle: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -593,24 +589,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#34C759',
+    backgroundColor: '#2E7D32',
     paddingVertical: 14,
     borderRadius: 12,
   },
   addFriendButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#fff',
   },
   howItWorksCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#8B5A2B',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   howItWorksItem: {
     flexDirection: 'row',
@@ -630,13 +627,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   howItWorksTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     marginBottom: 2,
     color: '#4A3728',
   },
   howItWorksText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     lineHeight: 18,
   },

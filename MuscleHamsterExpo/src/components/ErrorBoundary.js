@@ -63,14 +63,14 @@ class ErrorBoundary extends React.Component {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   iconContainer: {
     width: 120,
@@ -82,14 +82,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 22,
     color: '#4A3728',
     textAlign: 'center',
     marginBottom: 12,
   },
   message: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 24,
@@ -97,22 +96,23 @@ const styles = StyleSheet.create({
     maxWidth: 300,
   },
   button: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 25,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#FF9500',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: '#4A3728',
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   buttonText: {
     color: '#FFF',
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
   },
 });
 

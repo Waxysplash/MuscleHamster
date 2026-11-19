@@ -19,6 +19,8 @@ import {
 } from '../../models/Workout';
 import { FitnessLevelInfo, FitnessGoalInfo } from '../../models/UserProfile';
 import { PLAIN_CATEGORY } from '../../models/MoveGuide';
+import { StoryButton, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline } from '../../config/theme';
 
 export default function WorkoutDetailScreen({ route, navigation }) {
   const { workoutId } = route.params;
@@ -63,7 +65,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
   if (error || !workout) {
     return (
       <View style={styles.centerContainer}>
-        <Ionicons name="alert-circle" size={48} color="#FF3B30" />
+        <Ionicons name="alert-circle" size={48} color="#C0392B" />
         <Text style={styles.errorText}>{error || 'Workout not found'}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={loadWorkout}>
           <Text style={styles.retryButtonText}>Try Again</Text>
@@ -89,10 +91,8 @@ export default function WorkoutDetailScreen({ route, navigation }) {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: typeInfo.color + '20' }]}>
-          <View style={[styles.iconContainer, { backgroundColor: typeInfo.color }]}>
-            <Ionicons name={typeInfo.icon} size={40} color="#fff" />
-          </View>
+        <View style={styles.header}>
+          <StoryIcon name={typeInfo.icon} size={84} color={Colors.surface} />
           <Text style={styles.category}>{typeInfo.displayName}{PLAIN_CATEGORY[workout.category] ? ` · ${PLAIN_CATEGORY[workout.category]}` : ''}</Text>
           <Text style={styles.title}>{workout.name}</Text>
         </View>
@@ -142,7 +142,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <Text style={styles.sectionTitle}>Equipment</Text>
           {hasNoEquipment ? (
             <View style={styles.noEquipmentBadge}>
-              <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+              <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />
               <Text style={styles.noEquipmentText}>No equipment needed!</Text>
             </View>
           ) : (
@@ -163,7 +163,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
           <View style={styles.goalsContainer}>
             {workout.fitnessGoals.filter((goal) => FitnessGoalInfo[goal]).map((goal) => (
               <View key={goal} style={styles.goalItem}>
-                <Ionicons name={FitnessGoalInfo[goal].icon} size={20} color="#5856D6" />
+                <Ionicons name={FitnessGoalInfo[goal].icon} size={20} color="#8B5A2B" />
                 <Text style={styles.goalText}>{FitnessGoalInfo[goal].displayName}</Text>
               </View>
             ))}
@@ -196,14 +196,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 
       {/* Start Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={startWorkout}
-          accessibilityLabel="Start workout"
-        >
-          <Ionicons name="play" size={24} color="#fff" />
-          <Text style={styles.startButtonText}>Start Workout</Text>
-        </TouchableOpacity>
+        <StoryButton title="Start workout" icon="play" onPress={startWorkout} />
       </View>
     </View>
   );
@@ -211,20 +204,20 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   exerciseHow: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#4A3728',
     marginTop: 2,
     lineHeight: 20,
   },
   safetyText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     marginTop: 8,
     lineHeight: 20,
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.background,
   },
   centerContainer: {
     flex: 1,
@@ -234,13 +227,13 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#6B5D52',
   },
   errorText: {
     marginTop: 12,
-    fontSize: 16,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
+    color: '#C0392B',
     textAlign: 'center',
   },
   retryButton: {
@@ -252,8 +245,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
   },
   scrollView: {
     flex: 1,
@@ -262,8 +254,12 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   header: {
-    padding: 24,
     alignItems: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    backgroundColor: Colors.peach,
+    borderBottomWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   iconContainer: {
     width: 80,
@@ -274,25 +270,26 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   category: {
-    fontSize: 14,
-    color: '#6B5D52',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    fontFamily: Fonts.bodyBold, fontSize: 14,
+    color: Colors.brown,
+    marginTop: 12,
+    textAlign: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: 4,
+    fontFamily: Fonts.heading, fontSize: 28,
+    color: Colors.ink,
     textAlign: 'center',
-    color: '#4A3728',
+    marginTop: 4,
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5DDD5',
+    backgroundColor: Colors.surface,
+    marginHorizontal: 16,
+    marginTop: 16,
+    paddingVertical: 14,
+    borderRadius: 18,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   statItem: {
     flexDirection: 'row',
@@ -301,13 +298,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     marginLeft: 6,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#4A3728',
   },
   statDivider: {
-    width: 1,
-    height: 20,
-    backgroundColor: '#E5DDD5',
+    width: Outline.width,
+    backgroundColor: Colors.ink,
   },
   section: {
     padding: 20,
@@ -315,13 +311,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5DDD5',
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     marginBottom: 12,
     color: '#4A3728',
   },
   description: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     lineHeight: 24,
     color: '#6B5D52',
   },
@@ -333,16 +328,17 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8F0',
+    gap: 6,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    backgroundColor: Colors.surface,
   },
   tagText: {
     marginLeft: 6,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#4A3728',
   },
   noEquipmentBadge: {
@@ -355,9 +351,8 @@ const styles = StyleSheet.create({
   },
   noEquipmentText: {
     marginLeft: 8,
-    fontSize: 16,
-    color: '#34C759',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
+    color: '#2E7D32',
   },
   goalsContainer: {
     gap: 8,
@@ -369,7 +364,7 @@ const styles = StyleSheet.create({
   },
   goalText: {
     marginLeft: 12,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
   },
   exerciseItem: {
@@ -381,14 +376,15 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: Colors.brand,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
   exerciseNumberText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6B5D52',
+    fontFamily: Fonts.bodyHeavy, fontSize: 14,
+    color: Colors.ink,
   },
   exerciseInfo: {
     flex: 1,
@@ -396,32 +392,28 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   exerciseName: {
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
   },
   exerciseDuration: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   moreExercises: {
     textAlign: 'center',
     marginTop: 8,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#8B5A2B',
   },
   bottomPadding: {
     height: 20,
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    paddingBottom: 40,
-    backgroundColor: '#FFF8F0',
-    borderTopWidth: 1,
-    borderTopColor: '#E5DDD5',
+    padding: 16,
+    paddingBottom: 34,
+    backgroundColor: Colors.background,
+    borderTopWidth: Outline.width,
+    borderColor: Colors.ink,
   },
   startButton: {
     flexDirection: 'row',
@@ -433,8 +425,7 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     marginLeft: 8,
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
     color: '#fff',
   },
 });

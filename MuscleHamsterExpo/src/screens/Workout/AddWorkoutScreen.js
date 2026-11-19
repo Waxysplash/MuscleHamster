@@ -227,11 +227,11 @@ export default function AddWorkoutScreen({ navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -246,8 +246,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
   },
   saveButton: {
@@ -260,8 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4B5A8',
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#FFF8F0',
   },
   saveButtonTextDisabled: {
@@ -278,8 +276,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   label: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
     marginBottom: 10,
   },
@@ -288,7 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
+    fontFamily: 'Nunito_400Regular', fontSize: 16,
     color: '#4A3728',
     borderWidth: 1,
     borderColor: '#E8DFD5',
@@ -322,8 +319,7 @@ const styles = StyleSheet.create({
     borderColor: '#8B5A2B',
   },
   typeButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#6B5D52',
   },
   typeButtonTextSelected: {
@@ -347,8 +343,7 @@ const styles = StyleSheet.create({
     borderColor: '#8B5A2B',
   },
   targetTypeText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
     color: '#6B5D52',
   },
   targetTypeTextSelected: {
@@ -364,7 +359,7 @@ const styles = StyleSheet.create({
   },
   tipsText: {
     flex: 1,
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     lineHeight: 20,
   },

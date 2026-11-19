@@ -192,7 +192,7 @@ export default function AudioSettingsScreen({ navigation }) {
         <View style={styles.card}>
           <View style={styles.row}>
             <View style={styles.rowLabel}>
-              <Ionicons name="volume-high" size={22} color="#34C759" />
+              <Ionicons name="volume-high" size={22} color="#2E7D32" />
               <Text style={styles.rowText}>Sound Effects</Text>
             </View>
             <Switch
@@ -206,7 +206,7 @@ export default function AudioSettingsScreen({ navigation }) {
           <View style={styles.separator} />
           <View style={styles.row}>
             <View style={styles.rowLabel}>
-              <Ionicons name="musical-note" size={22} color="#AF52DE" />
+              <Ionicons name="musical-note" size={22} color="#8B5A2B" />
               <Text style={styles.rowText}>Music</Text>
             </View>
             <Switch
@@ -230,7 +230,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Ionicons
                 name={getSfxVolumeIcon()}
                 size={22}
-                color={canAdjustSFXVolume ? '#8B5A2B' : '#8E8E93'}
+                color={canAdjustSFXVolume ? '#8B5A2B' : '#6B5D52'}
               />
               <Text style={[styles.volumeLabel, !canAdjustSFXVolume && styles.disabledText]}>
                 Sound Effects
@@ -238,7 +238,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Text style={styles.volumeValue}>{Math.round(sfxVolume * 100)}%</Text>
             </View>
             <View style={styles.sliderContainer}>
-              <Ionicons name="volume-low" size={16} color="#8E8E93" />
+              <Ionicons name="volume-low" size={16} color="#6B5D52" />
               <View style={styles.volumeButtonsContainer}>
                 {[0, 0.25, 0.5, 0.75, 1].map((level) => (
                   <TouchableOpacity
@@ -259,7 +259,7 @@ export default function AudioSettingsScreen({ navigation }) {
                   />
                 ))}
               </View>
-              <Ionicons name="volume-high" size={16} color="#8E8E93" />
+              <Ionicons name="volume-high" size={16} color="#6B5D52" />
             </View>
           </View>
 
@@ -271,7 +271,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Ionicons
                 name="musical-note"
                 size={22}
-                color={canAdjustMusicVolume ? '#8B5A2B' : '#8E8E93'}
+                color={canAdjustMusicVolume ? '#8B5A2B' : '#6B5D52'}
               />
               <Text style={[styles.volumeLabel, !canAdjustMusicVolume && styles.disabledText]}>
                 Music
@@ -279,7 +279,7 @@ export default function AudioSettingsScreen({ navigation }) {
               <Text style={styles.volumeValue}>{Math.round(musicVolume * 100)}%</Text>
             </View>
             <View style={styles.sliderContainer}>
-              <Ionicons name="volume-low" size={16} color="#8E8E93" />
+              <Ionicons name="volume-low" size={16} color="#6B5D52" />
               <View style={styles.volumeButtonsContainer}>
                 {[0, 0.25, 0.5, 0.75, 1].map((level) => (
                   <TouchableOpacity
@@ -300,7 +300,7 @@ export default function AudioSettingsScreen({ navigation }) {
                   />
                 ))}
               </View>
-              <Ionicons name="volume-high" size={16} color="#8E8E93" />
+              <Ionicons name="volume-high" size={16} color="#6B5D52" />
             </View>
           </View>
         </View>
@@ -346,7 +346,7 @@ export default function AudioSettingsScreen({ navigation }) {
             <Ionicons
               name={isPlayingPreviewSFX ? 'volume-medium' : 'play-circle'}
               size={24}
-              color={canPreviewSFX ? '#8B5A2B' : '#8E8E93'}
+              color={canPreviewSFX ? '#8B5A2B' : '#6B5D52'}
             />
             <Text style={[styles.previewText, !canPreviewSFX && styles.disabledText]}>
               Preview Sound Effect
@@ -368,7 +368,7 @@ export default function AudioSettingsScreen({ navigation }) {
             <Ionicons
               name={isPlayingPreviewMusic ? 'musical-note' : 'play-circle'}
               size={24}
-              color={canPreviewMusic ? '#8B5A2B' : '#8E8E93'}
+              color={canPreviewMusic ? '#8B5A2B' : '#6B5D52'}
             />
             <Text style={[styles.previewText, !canPreviewMusic && styles.disabledText]}>
               Preview Music
@@ -389,7 +389,7 @@ export default function AudioSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   content: {
     padding: 16,
@@ -399,10 +399,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -427,12 +425,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   rowText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     marginLeft: 12,
   },
   rowSubText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -453,11 +450,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mutedTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
   },
   mutedSubtitle: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -470,13 +466,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   volumeLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     marginLeft: 12,
     flex: 1,
   },
   volumeValue: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     fontVariant: ['tabular-nums'],
   },
@@ -508,8 +503,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   previewText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     marginLeft: 12,
     flex: 1,
   },
@@ -520,7 +514,7 @@ const styles = StyleSheet.create({
     color: '#6B5D52',
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,

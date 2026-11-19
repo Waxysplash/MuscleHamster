@@ -44,9 +44,9 @@ const Colors = {
   // Wheel colors
   wheelRim: '#B0B0B0',
   wheelRimLight: '#D0D0D0',
-  spoke: '#A0A0A0',
+  spoke: '#A89B8C',
   hub: '#909090',
-  stand: '#A0A0A0',
+  stand: '#A89B8C',
 };
 
 export default function WheelRunningView({ size = 250 }) {

@@ -18,10 +18,10 @@ import FavoriteButton from '../../components/FavoriteButton';
 import { StatIcons } from '../../config/AssetImages';
 
 const TYPE_INFO = {
-  strength: { icon: 'barbell-outline', label: 'Strength', color: '#4ECDC4' },
-  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#FF6B6B' },
-  class: { icon: 'people-outline', label: 'Class', color: '#9B59B6' },
-  other: { icon: 'fitness-outline', label: 'Other', color: '#FF9500' },
+  strength: { icon: 'barbell-outline', label: 'Strength', color: '#5E9E4F' },
+  cardio: { icon: 'heart-outline', label: 'Cardio', color: '#E0703D' },
+  class: { icon: 'people-outline', label: 'Class', color: '#8B5A2B' },
+  other: { icon: 'fitness-outline', label: 'Other', color: '#A65000' },
 };
 
 export default function CustomWorkoutDetailScreen({ route, navigation }) {
@@ -251,7 +251,7 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={handleDelete} accessibilityRole="button" accessibilityLabel="Delete">
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+              <Ionicons name="trash-outline" size={20} color="#C0392B" />
               <Text style={styles.deleteButtonText}>Delete Workout</Text>
             </TouchableOpacity>
           </View>
@@ -264,11 +264,11 @@ export default function CustomWorkoutDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   header: {
     flexDirection: 'row',
@@ -284,8 +284,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     color: '#4A3728',
     textAlign: 'center',
     marginHorizontal: 8,
@@ -306,11 +305,13 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
     marginBottom: 16,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   typeIconContainer: {
     width: 80,
@@ -324,12 +325,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     marginBottom: 12,
   },
   typeBadgeText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
   },
   targetRow: {
     flexDirection: 'row',
@@ -338,12 +338,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   targetText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   description: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     textAlign: 'center',
     lineHeight: 20,
@@ -359,12 +358,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
   },
   statLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -379,16 +377,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   logButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#FFF8F0',
   },
   historySection: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Nunito_700Bold', fontSize: 18,
     color: '#4A3728',
     marginBottom: 16,
   },
@@ -399,13 +395,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   emptyHistoryText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#6B5D52',
     marginTop: 12,
   },
   emptyHistorySubtext: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#A89B8C',
     marginTop: 4,
     textAlign: 'center',
@@ -416,10 +411,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#4A3728',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
   },
   historyHeader: {
     flexDirection: 'row',
@@ -428,12 +425,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   historyDate: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
     color: '#4A3728',
   },
   historyTime: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
   },
   historyMetrics: {
@@ -443,11 +439,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   historyMetricsText: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#4A3728',
   },
   historyNotes: {
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     fontStyle: 'italic',
     marginBottom: 8,
@@ -458,9 +454,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   historyPointsText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#FF9500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
+    color: '#A65000',
   },
   actionsSection: {
     alignItems: 'center',
@@ -473,8 +468,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   deleteButtonText: {
-    fontSize: 15,
-    color: '#FF3B30',
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
+    color: '#C0392B',
   },
 });

@@ -312,7 +312,7 @@ export default function ProfileSettingsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
   },
   scrollView: {
     flex: 1,
@@ -325,10 +325,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 13,
     color: '#6B5D52',
-    textTransform: 'uppercase',
     marginBottom: 8,
     marginLeft: 16,
   },
@@ -361,19 +359,18 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   inputLabel: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginBottom: 4,
   },
   hamsterInput: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontFamily: 'Quicksand_700Bold', fontSize: 20,
     paddingVertical: 4,
     color: '#4A3728',
   },
   errorText: {
-    fontSize: 13,
-    color: '#FF3B30',
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
+    color: '#C0392B',
     marginTop: 4,
   },
   // Options
@@ -389,17 +386,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionLabel: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#4A3728',
   },
   optionDescription: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 2,
   },
   footerText: {
-    fontSize: 13,
+    fontFamily: 'Nunito_400Regular', fontSize: 13,
     color: '#6B5D52',
     marginTop: 8,
     marginHorizontal: 16,
@@ -419,18 +415,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayButtonSelected: {
-    backgroundColor: '#FF9500',
+    backgroundColor: '#B85A00',
   },
   dayLetter: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
     color: '#8B5A2B',
   },
   dayLetterSelected: {
     color: '#fff',
   },
   dayName: {
-    fontSize: 10,
+    fontFamily: 'Nunito_400Regular', fontSize: 10,
     color: '#6B5D52',
     marginTop: 2,
   },
@@ -439,7 +434,7 @@ const styles = StyleSheet.create({
   },
   daysCount: {
     textAlign: 'center',
-    fontSize: 14,
+    fontFamily: 'Nunito_400Regular', fontSize: 14,
     color: '#6B5D52',
     paddingBottom: 14,
   },
@@ -450,7 +445,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#FFF8F0',
+    backgroundColor: '#FFF4E6',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#E5DDD5',
   },
@@ -464,8 +459,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#C4B8AE',
   },
   saveButtonText: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
     color: '#fff',
   },
   // Saving Overlay
@@ -482,7 +476,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   savingText: {
-    fontSize: 15,
+    fontFamily: 'Nunito_400Regular', fontSize: 15,
     color: '#6B5D52',
     marginTop: 16,
   },
