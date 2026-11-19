@@ -15,7 +15,14 @@
  * - Never logs sensitive user data
  * - Sends errors to Firebase Crashlytics in production
  */
-import crashlytics from '@react-native-firebase/crashlytics';
+// Firebase v26+: crashlytics is modular-only (the old crashlytics() calls were removed)
+import {
+  getCrashlytics,
+  log as crashlyticsLog,
+  recordError as crashlyticsRecordError,
+  setUserId as crashlyticsSetUserId,
+  setAttribute as crashlyticsSetAttribute,
+} from '@react-native-firebase/crashlytics';
 
 // Check if we're in development mode
 const isDev = __DEV__;
@@ -89,11 +96,11 @@ const Logger = {
     if (!isDev) {
       try {
         // Log the error message as a custom log
-        crashlytics().log(message);
+        crashlyticsLog(getCrashlytics(), message);
 
         if (error) {
           // Record the actual error/exception
-          crashlytics().recordError(error);
+          crashlyticsRecordError(getCrashlytics(), error);
         }
       } catch (crashlyticsError) {
         // Silently fail if Crashlytics isn't available
@@ -133,7 +140,7 @@ const Logger = {
   setUserId: (userId) => {
     if (!isDev && userId) {
       try {
-        crashlytics().setUserId(userId);
+        crashlyticsSetUserId(getCrashlytics(), userId);
       } catch (e) {
         // Silently fail
       }
@@ -147,7 +154,7 @@ const Logger = {
   setAttribute: (key, value) => {
     if (!isDev) {
       try {
-        crashlytics().setAttribute(key, String(value));
+        crashlyticsSetAttribute(getCrashlytics(), key, String(value));
       } catch (e) {
         // Silently fail
       }
@@ -161,7 +168,7 @@ const Logger = {
   breadcrumb: (message) => {
     if (!isDev) {
       try {
-        crashlytics().log(message);
+        crashlyticsLog(getCrashlytics(), message);
       } catch (e) {
         // Silently fail
       }

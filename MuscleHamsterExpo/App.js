@@ -7,6 +7,7 @@ import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
 import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
 import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, useAuth, AuthState } from './src/context/AuthContext';
@@ -126,6 +127,7 @@ export default function App() {
   }
 
   return (
+    <SafeAreaProvider>
     <ErrorBoundary>
       <NotificationInitializer>
         <AuthProvider>
@@ -152,5 +154,6 @@ export default function App() {
         </AuthProvider>
       </NotificationInitializer>
     </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }

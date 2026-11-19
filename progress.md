@@ -191,6 +191,15 @@ eas submit --platform ios                         # Submit to App Store
   - App-wide passes: 667 text styles -> brand fonts (fontWeight removed, family carries weight); 8 ALL CAPS removed; ~264 cold Apple colours -> warm equivalents; orange text -> `#A65000` (readable); 31 soft-shadow cards -> outline + sticker shadow; page backgrounds unified.
   - Hand-restyled: tab bar (ink top line, peach active pill), headers, Today (exercise card + Feed button, suggestion card, steps card, this-week card, welcome back), daily exercise check-in + success, HoldTimer, workout detail, player (+ finish), Hamster tab, Me tab, Workouts switcher, Welcome, onboarding.
   - Still generic: stock icons (custom art list in `Documents\Claude Code\Muscle Hamster - Icons To Make`), Shop/Settings/gym screens only got the automatic passes. Not seen on a device yet.
+- **Expo SDK 54 -> 58 upgrade** (branch `sdk-58`, worktree `C:\dev\mh-sdk58`; based on main, without the Storybook design)
+  - expo 58.0.26, React Native 0.88.1, React 19.3. All expo-* packages aligned with `npx expo install --fix`.
+  - expo-av (removed in SDK 55) -> expo-audio in `services/AudioService.js` (createAudioPlayer / setAudioModeAsync).
+  - @react-native-firebase 23 -> **26.4.2** (not 27: v27 is SPM-only and needs useFrameworks "dynamic" + has a Google Sign-In App Check caveat). Crashlytics moved to the modular API (namespaced removed in v26). `@expo/config-plugins@~58` added because RNFB 26 plugins still import it (expo-doctor flags this; expected).
+  - Google Sign-In kept on **16.2.0** (17.0.0 was 3 weeks old).
+  - Added @expo/vector-icons (no longer bundled), expo-font, expo-asset, expo-system-ui.
+  - App config: removed `android.edgeToEdgeEnabled` (edge-to-edge is mandatory); `expo-build-properties android.enableMinifyInReleaseBuilds: false` (SDK 58 turns R8 on by default; untested with Firebase/Google Sign-In reflection).
+  - Notifications: shouldShowAlert -> shouldShowBanner + shouldShowList. 16 screens: SafeAreaView now from react-native-safe-area-context (RN's is deprecated); SafeAreaProvider at the root.
+  - Checked: expo-doctor 19/20 (the expected config-plugins note), iOS + Android bundles, Android prebuild (permissions, Firebase plugins). iOS native project not checked locally (Windows) — first EAS build is the test. Needs a NEW development build: the SDK 54 dev build cannot load SDK 58 code.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---
