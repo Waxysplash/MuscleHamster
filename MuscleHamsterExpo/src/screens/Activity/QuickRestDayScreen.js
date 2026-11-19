@@ -159,7 +159,7 @@ export default function QuickRestDayScreen({ navigation }) {
 
         <View style={styles.pointsPreview}>
           <Image source={StatIcons.points} style={{ width: 22, height: 22 }} resizeMode="contain" />
-          <Text style={styles.pointsPreviewText}>Earn 2 points</Text>
+          <Text style={styles.pointsPreviewText}>Earn 5 points</Text>
         </View>
 
         <TouchableOpacity style={styles.logButton} onPress={handleLogRestDay}>

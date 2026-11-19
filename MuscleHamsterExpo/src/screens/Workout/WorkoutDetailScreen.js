@@ -114,6 +114,9 @@ export default function WorkoutDetailScreen({ route, navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.description}>{workout.description}</Text>
+          <Text style={styles.safetyText}>
+            Some effort is good. Sharp pain, dizziness or chest tightness: stop and rest. Skipping a move is always okay.
+          </Text>
         </View>
 
         {/* Body Focus */}
@@ -202,6 +205,12 @@ export default function WorkoutDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  safetyText: {
+    fontSize: 14,
+    color: '#6B5D52',
+    marginTop: 8,
+    lineHeight: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF8F0',

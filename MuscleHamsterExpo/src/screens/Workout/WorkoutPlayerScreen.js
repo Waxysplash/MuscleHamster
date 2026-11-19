@@ -74,6 +74,13 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   const pausedAtRef = useRef(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
+  // The 1-second timer reads these refs, not state: a setInterval callback keeps the values
+  // from when it was created, which made the player loop on the 2nd exercise forever.
+  const indexRef = useRef(0);
+  const remainingRef = useRef(0);
+  const completedRef = useRef(0); // WORK moves finished (not warm-up/rest/cool-down, not skipped)
+  const elapsedRef = useRef(0);
+
   const currentExercise = workout.exercises?.[currentExerciseIndex];
   const isLastExercise = currentExerciseIndex === workout.exercises.length - 1;
 
@@ -126,7 +133,10 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       setPlayerState(PlayerState.ERROR);
       return;
     }
-    setTimeRemaining(workout.exercises[0].duration);
+    indexRef.current = 0;
+    remainingRef.current = workout.exercises[0].duration;
+    setCurrentExerciseIndex(0);
+    setTimeRemaining(remainingRef.current);
     setPlayerState(PlayerState.ACTIVE);
     startTimer();
   };
@@ -134,33 +144,38 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
   const startTimer = () => {
     clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Exercise complete
-          advanceToNextExercise();
-          return 0;
-        }
-        return prev - 1;
-      });
-      setTotalTimeElapsed((prev) => prev + 1);
+      elapsedRef.current += 1;
+      setTotalTimeElapsed(elapsedRef.current);
+      remainingRef.current -= 1;
+      if (remainingRef.current <= 0) {
+        setTimeRemaining(0);
+        advanceToNextExercise({ finished: true });
+      } else {
+        setTimeRemaining(remainingRef.current);
+      }
     }, 1000);
   };
 
-  const advanceToNextExercise = useCallback(() => {
-    const completed = exercisesCompleted + 1;
-    setExercisesCompleted(completed);
-
-    if (currentExerciseIndex >= workout.exercises.length - 1) {
-      // Workout complete
-      completeWorkout(completed);
-    } else {
-      playSFX(SoundEffect.EXERCISE_TRANSITION);
-      const nextIndex = currentExerciseIndex + 1;
-      setCurrentExerciseIndex(nextIndex);
-      setTimeRemaining(workout.exercises[nextIndex].duration);
-      progressAnim.setValue(0);
+  // finished: true when the timer ran out (counts as done); false when skipped
+  const advanceToNextExercise = ({ finished } = { finished: false }) => {
+    const index = indexRef.current;
+    if (finished && workout.exercises[index]?.type === ExerciseType.WORK) {
+      completedRef.current += 1;
+      setExercisesCompleted(completedRef.current);
     }
-  }, [currentExerciseIndex, exercisesCompleted, workout.exercises]);
+
+    if (index >= workout.exercises.length - 1) {
+      completeWorkout(completedRef.current);
+      return;
+    }
+    playSFX(SoundEffect.EXERCISE_TRANSITION);
+    const nextIndex = index + 1;
+    indexRef.current = nextIndex;
+    remainingRef.current = workout.exercises[nextIndex].duration;
+    setCurrentExerciseIndex(nextIndex);
+    setTimeRemaining(remainingRef.current);
+    progressAnim.setValue(0);
+  };
 
   const pauseWorkout = () => {
     clearInterval(timerRef.current);
@@ -181,7 +196,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         {
           text: 'Skip',
           onPress: () => {
-            advanceToNextExercise();
+            advanceToNextExercise({ finished: false });
           },
         },
       ]
@@ -197,7 +212,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         {
           text: 'End Workout',
           style: 'destructive',
-          onPress: () => completeWorkout(exercisesCompleted, true),
+          onPress: () => completeWorkout(completedRef.current, true),
         },
       ]
     );
@@ -212,8 +227,8 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         workoutId: workout.id,
         workoutName: workout.name,
         exercisesCompleted: completed,
-        totalExercises: workout.exercises.length,
-        durationSeconds: totalTimeElapsed,
+        totalExercises: workout.exercises.filter((e) => e.type === ExerciseType.WORK).length,
+        durationSeconds: elapsedRef.current,
       });
       setCompletionResult(result);
       logWorkoutComplete({ workoutId: workout.id, exercisesCompleted: completed });
@@ -301,7 +316,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
           </View>
           <Text style={styles.completedTitle}>Amazing Work!</Text>
           <Text style={styles.completedSubtitle}>
-            You completed {exercisesCompleted} of {workout.exercises.length} exercises
+            You completed {exercisesCompleted} of {workout.exercises.filter((e) => e.type === ExerciseType.WORK).length} moves
           </Text>
 
           {completionResult && (
@@ -459,11 +474,8 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
         <TouchableOpacity
           style={styles.controlButton}
           onPress={() => {
-            if (isLastExercise) {
-              completeWorkout(exercisesCompleted + 1);
-            } else {
-              advanceToNextExercise();
-            }
+            // "Next" means the user finished this move early: it counts as done
+            advanceToNextExercise({ finished: true });
           }}
           accessibilityLabel={isLastExercise ? 'Finish' : 'Next exercise'}
         >

@@ -190,10 +190,15 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
         {/* Suggested amount */}
         <Text style={styles.exerciseSuggested}>
           {exercise.repType === 'seconds'
-            ? `Suggested: ${exercise.repCount} seconds — or do as many as you can`
+            ? `Suggested: ${exercise.repCount} seconds — stop early whenever you need to`
             : exercise.repType === 'breath'
             ? 'Take as many deep breaths as you need'
             : `Suggested: ${exercise.repCount} reps — or do as many as you can`}
+        </Text>
+
+        {/* Safety line (beginner review) */}
+        <Text style={styles.safetyText} accessibilityRole="text">
+          Some effort is good. Sharp pain, dizziness or chest tightness: stop and rest.
         </Text>
 
         {/* Easier version - nobody should open the app to something they can't do */}
@@ -271,6 +276,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#4A3728',
     marginBottom: 12,
+  },
+  safetyText: {
+    fontSize: 14,
+    color: '#6B5D52',
+    textAlign: 'center',
+    marginTop: 10,
+    marginHorizontal: 16,
   },
   easierBox: {
     flexDirection: 'row',
