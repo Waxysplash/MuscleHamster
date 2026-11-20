@@ -45,6 +45,7 @@ export default function ProgramScreen({ route, navigation }) {
           <Text style={[T.hero, { marginTop: 10 }]}>{program.title}</Text>
           <Text style={[T.bodyBold, { color: Colors.brown }]}>{program.subtitle}</Text>
           <Text style={[T.body, { textAlign: 'center', marginTop: 8 }]}>{program.about}</Text>
+          <Text style={[T.small, { color: Colors.text, marginTop: 6, textAlign: 'center' }]}>You'll need: {program.needs}</Text>
         </View>
 
         <Text style={styles.sectionTitle}>Pick your level</Text>

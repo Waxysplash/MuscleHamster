@@ -343,13 +343,13 @@ export default function WorkoutsScreen({ navigation, route }) {
                   {PROGRAMS.map((program) => (
                     <TouchableOpacity
                       key={program.id}
-                      style={styles.programTileWrap}
+                      style={program.wide ? styles.programTileWide : styles.programTileWrap}
                       onPress={() => navigation.navigate('WorkoutProgram', { programId: program.id })}
                       accessibilityRole="button"
                       accessibilityLabel={`${program.title}: ${program.subtitle}`}
                       activeOpacity={0.85}
                     >
-                      <StoryCard color={program.color} style={styles.programTile}>
+                      <StoryCard color={program.color} style={program.wide ? styles.programTileRow : styles.programTile}>
                         <StoryIcon name={program.icon} size={48} color={Colors.surface} />
                         <Text style={[T.title, { marginTop: 8 }]}>{program.title}</Text>
                         <Text style={[T.small, { color: Colors.text }]} numberOfLines={2}>{program.subtitle}</Text>
@@ -539,6 +539,8 @@ const styles = StyleSheet.create({
   programGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 8 },
   programTileWrap: { width: '48%', marginBottom: 12 },
   programTile: { alignItems: 'flex-start', minHeight: 150 },
+  programTileWide: { width: '100%', marginBottom: 12 },
+  programTileRow: { alignItems: 'flex-start' },
   hubRow: { flexDirection: 'row', alignItems: 'center' },
   safeArea: {
     flex: 1,

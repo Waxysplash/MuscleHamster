@@ -121,6 +121,62 @@ export const MOVE_GUIDE = {
     easier: 'Stand more upright so you lean back less.',
   },
 
+  // ---------- Arms and shoulders with household items (two water bottles or cans) ----------
+  'Bottle Bicep Curls': {
+    how: 'Stand tall holding a water bottle in each hand, palms facing forward. Bend your elbows to bring the bottles up toward your shoulders, then lower slowly. Keep your elbows by your sides.',
+    easier: 'Use lighter bottles, or curl one arm at a time.',
+  },
+  'Towel Bicep Curls': {
+    how: 'Sit on a chair and loop a towel under one foot. Hold both ends and curl your hands up toward your shoulders while gently pushing down with your foot for resistance. Switch feet halfway.',
+    easier: 'Push down with your foot more lightly.',
+  },
+  'Bottle Tricep Kickbacks': {
+    how: 'Hold a water bottle in each hand and lean forward a little with a flat back. Keep your elbows bent by your sides, then straighten your arms back behind you and bend them again.',
+    easier: 'Do one arm at a time, resting the other hand on a chair.',
+  },
+  'Overhead Tricep Stretch Press': {
+    how: 'Hold one water bottle with both hands above your head. Bend your elbows to lower it behind your head, then straighten your arms to press it back up.',
+    easier: 'Sit on a chair and use a lighter bottle.',
+  },
+  'Diamond Push-Ups': {
+    how: 'Start in a push-up with your hands close together under your chest, thumbs and fingers touching. Lower your chest toward your hands, then push back up. Keep your elbows close to your body.',
+    easier: 'Do it with your knees on the floor.',
+  },
+  'Bottle Shoulder Press': {
+    how: 'Hold a water bottle in each hand at shoulder height, palms facing forward. Press them straight up overhead, then lower back to your shoulders.',
+    easier: 'Sit on a chair, or press one arm at a time.',
+  },
+  'Bottle Lateral Raises': {
+    how: 'Stand holding a water bottle in each hand by your sides. Lift your arms out to the sides until they reach shoulder height, then lower slowly.',
+    easier: 'Lift only halfway up, or bend your elbows a little.',
+  },
+  'Bottle Front Raises': {
+    how: 'Stand holding a water bottle in each hand in front of your thighs. Lift your arms straight in front of you to shoulder height, then lower slowly.',
+    easier: 'Lift one arm at a time.',
+  },
+  'Wall Angels': {
+    how: 'Stand with your back flat against a wall, arms bent in a W shape against it. Slide your arms up the wall into a Y, then back down to the W.',
+    easier: 'Stand one step away from the wall.',
+  },
+  'Plank to Downward Dog': {
+    how: 'Start in a high plank. Push your hips up and back into an upside-down V, then lower back to the plank. Move slowly.',
+    easier: 'Do it with your knees on the floor.',
+  },
+
+  // ---------- Abs ----------
+  'Crunches': {
+    how: 'Lie on your back with knees bent and hands lightly behind your head. Gently lift your head and shoulders off the floor, then lower slowly.',
+    easier: 'Lift only your head, or cross your arms over your chest.',
+  },
+  'Leg Raises': {
+    how: 'Lie on your back with legs straight and hands under your bottom. Slowly lift your legs up, then lower them without touching the floor. Stop if your lower back hurts.',
+    easier: 'Bend your knees and lift one leg at a time.',
+  },
+  'Russian Twists': {
+    how: 'Sit with knees bent and lean back a little with a straight back. Turn your upper body side to side, touching the floor beside each hip.',
+    easier: 'Keep your feet on the floor and sit taller.',
+  },
+
   // ---------- Cardio: low impact ----------
   'Marching in Place': {
     how: 'Stand tall and march on the spot, lifting your knees and swinging your arms.',

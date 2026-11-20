@@ -570,26 +570,28 @@ const getSeedWorkouts = () => {
 
 // Ready-made workouts for the Workouts tab (Push, Pull, Legs, Core, Cardio, Stretch x 3 levels)
 const PROGRAM_GOALS = {
-  push: [FitnessGoal.GET_STRONGER],
-  pull: [FitnessGoal.GET_STRONGER],
+  chestTriceps: [FitnessGoal.GET_STRONGER],
+  backBiceps: [FitnessGoal.GET_STRONGER],
+  shoulders: [FitnessGoal.GET_STRONGER],
   legs: [FitnessGoal.GET_STRONGER],
-  core: [FitnessGoal.BUILD_CORE],
+  abs: [FitnessGoal.BUILD_CORE],
   cardio: [FitnessGoal.STAY_ACTIVE],
   stretch: [FitnessGoal.IMPROVE_FLEXIBILITY],
 };
 const createProgramWorkouts = () =>
-  PROGRAMS.flatMap((program, pi) =>
+  PROGRAMS.flatMap((program) =>
     LEVELS.map((level, li) => ({
       ...createWorkout({
-        id: programWorkoutId(pi, li),
+        id: programWorkoutId(program, li),
         name: `${LEVEL_INFO[level].label} ${program.title} Day`,
-        description: `${program.about} ${LEVEL_INFO[level].blurb}.`,
+        description: `${program.about} ${LEVEL_INFO[level].blurb}. You'll need: ${program.needs.toLowerCase()}.`,
         category: program.type,
         difficulty: level,
         duration: LEVEL_INFO[level].duration,
         fitnessGoals: PROGRAM_GOALS[program.id] || [],
         bodyFocus: program.bodyFocus,
         equipment: [Equipment.NONE],
+        needs: program.needs,
         exercises: [],
       }),
       program: program.id,
