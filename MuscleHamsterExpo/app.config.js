@@ -87,7 +87,9 @@ export default {
         }
       ],
       // Firebase plugins
-      "@react-native-firebase/app",
+      // Firebase 26 defaults to Swift Package Manager on iOS, which can't be combined with
+      // static frameworks (needed by the rest of the app). Use CocoaPods for Firebase instead.
+      ["@react-native-firebase/app", { ios: { disableSPM: true } }],
       "@react-native-firebase/crashlytics",
       // Native Google Sign-In (required - expo-auth-session WebView is blocked by Google OAuth policy)
       "@react-native-google-signin/google-signin",
