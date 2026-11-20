@@ -2,7 +2,7 @@
 
 **Status:** v1.0.6 (Build 59) - Submitted to TestFlight (processing)
 **Version:** 1.0.6 (Build 59) - Daily exercise cycling, dynamic version, custom art refresh
-**Last Updated:** Nov 17, 2026 (Session 92)
+**Last Updated:** Nov 20, 2026 (Session 93)
 
 ---
 
@@ -141,6 +141,14 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 93 (Nov 20, 2026) — design canvas screens built
+- Built the four proposals from the design canvas into the app (Storybook style):
+  - **Shop:** Outfits / Accessories / Home chips, two-column item cards, points badge, "Wear it" for owned items.
+  - **Settings:** grouped rows (You, Reminders, Sound, Privacy, Help and legal). The sound effect and music switches now really change AudioService preferences; before, they did nothing.
+  - **Points history:** "You have" and "This week" cards, entries grouped by day. Reads live stats now (the old screen read stale state and could show an empty list).
+  - **Exercise pages (gym and At Home):** a shared `ExerciseLogView` and `components/SetLogger.js`. Sets start from last time, with +/- steppers, "Add a set like the last one", a rest timer (1:00/1:30/2:00) and a remembered lb/kg switch. New sets store `unit`; old entries without it count as lb. Journal keys and the `recordTraining` JOURNAL reward are unchanged.
+- iOS and Android export pass; logic tests pass (51 workouts).
 
 ### Session 92 (Nov 17, 2026)
 **Restart after break: fresh checkout + Expo patch updates + step counter**

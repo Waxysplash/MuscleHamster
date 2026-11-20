@@ -1,429 +1,219 @@
-/**
- * PointsHistoryScreen.js
- * MuscleHamster Expo
- *
- * Transaction history screen showing points earned and spent
- * Ported from Phase 07.1: Points Wallet
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  RefreshControl,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+// Points history - Storybook redesign (proposal on the design canvas, Nov 2026)
+// "You have" and "This week" cards, then every earn/spend grouped by day.
+// Reads transactions straight from live stats (the old screen read stale state
+// and could show an empty list right after earning points).
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Text, SectionList, StyleSheet, RefreshControl, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
-import { StatIcons } from '../../config/AssetImages';
-import Logger from '../../services/LoggerService';
 import { useActivity } from '../../context/ActivityContext';
+import { StatIcons, HamsterImages } from '../../config/AssetImages';
 import ErrorView from '../../components/ErrorView';
-import {
-  TransactionType,
-  TransactionCategory,
-  TransactionCategoryInfo,
-} from '../../models/Activity';
+import { StoryCard, StoryIcon } from '../../components/ui/Story';
+import { TransactionType, TransactionCategory, TransactionCategoryInfo } from '../../models/Activity';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 
-// View states
-const ViewState = {
-  LOADING: 'loading',
-  ERROR: 'error',
-  CONTENT: 'content',
-  EMPTY: 'empty',
+const CATEGORY_LOOK = {
+  [TransactionCategory.WORKOUT]: { icon: 'barbell', color: Colors.peach },
+  [TransactionCategory.STEPS]: { icon: 'walk', color: Colors.sky },
+  [TransactionCategory.REST_DAY]: { icon: 'cafe', color: Colors.sand },
+  [TransactionCategory.STREAK_FREEZE]: { icon: 'snow', color: Colors.sky },
+  [TransactionCategory.SHOP_PURCHASE]: { icon: 'bag-handle', color: Colors.peach },
+  [TransactionCategory.AD_REWARD]: { icon: 'gift', color: Colors.mint },
 };
 
-export default function PointsHistoryScreen({ navigation }) {
+const formatNumber = (num) => String(num || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+const startOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+const dayLabel = (dayStart) => {
+  const today = startOfDay(new Date());
+  const diffDays = Math.round((today - dayStart) / 86400000);
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return dayStart.toLocaleDateString('en-US', { weekday: 'long' });
+  return dayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+// Monday-start week, matching the weekly goal
+const startOfWeek = () => {
+  const d = startOfDay(new Date());
+  const offset = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - offset);
+  return d;
+};
+
+export default function PointsHistoryScreen() {
   const { currentUser } = useAuth();
   const { stats, totalPoints, loadStats } = useActivity();
-  const [viewState, setViewState] = useState(ViewState.LOADING);
-  const [transactions, setTransactions] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load data on focus
+  const reload = useCallback(async () => {
+    setError(null);
+    try {
+      await loadStats(true);
+    } catch (e) {
+      setError('Could not load your points history. Please try again.');
+    }
+  }, [loadStats]);
+
   useFocusEffect(
     useCallback(() => {
-      loadData();
-    }, [])
+      if (currentUser) reload();
+    }, [currentUser, reload])
   );
-
-  const loadData = async () => {
-    setViewState(ViewState.LOADING);
-    setError(null);
-
-    // Small delay for visual feedback
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    if (!currentUser) {
-      setError('Please sign in to view your points history.');
-      setViewState(ViewState.ERROR);
-      return;
-    }
-
-    try {
-      await loadStats();
-      const txns = stats?.transactions || [];
-      setTransactions(txns.slice(0, 100)); // Limit to 100 recent transactions
-
-      if (txns.length === 0) {
-        setViewState(ViewState.EMPTY);
-      } else {
-        setViewState(ViewState.CONTENT);
-      }
-    } catch (e) {
-      Logger.warn('Failed to load points history:', e);
-      setError('Failed to load your points history. Please try again.');
-      setViewState(ViewState.ERROR);
-    }
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadData();
+    await reload();
     setRefreshing(false);
   };
 
-  // Format number with commas
-  const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
+  const transactions = useMemo(
+    () =>
+      [...(stats?.transactions || [])]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 150),
+    [stats?.transactions]
+  );
 
-  // Get points earned today from transactions
-  const getPointsEarnedToday = () => {
-    const today = new Date().toDateString();
+  const earnedThisWeek = useMemo(() => {
+    const weekStart = startOfWeek();
     return transactions
-      .filter(t => t.type === TransactionType.EARN && new Date(t.timestamp).toDateString() === today)
-      .reduce((sum, t) => sum + t.amount, 0);
-  };
+      .filter((t) => t.type === TransactionType.EARN && new Date(t.timestamp) >= weekStart)
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  }, [transactions]);
 
-  // Get points spent today from transactions
-  const getPointsSpentToday = () => {
-    const today = new Date().toDateString();
-    return transactions
-      .filter(t => t.type === TransactionType.SPEND && new Date(t.timestamp).toDateString() === today)
-      .reduce((sum, t) => sum + t.amount, 0);
-  };
+  const sections = useMemo(() => {
+    const groups = [];
+    let current = null;
+    transactions.forEach((t) => {
+      const key = startOfDay(t.timestamp).getTime();
+      if (!current || current.key !== key) {
+        current = { key, title: dayLabel(new Date(key)), data: [] };
+        groups.push(current);
+      }
+      current.data.push(t);
+    });
+    return groups;
+  }, [transactions]);
 
-  // Format short date
-  const formatShortDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days}d ago`;
-
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
-  // Get category color
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case TransactionCategory.WORKOUT:
-        return '#8B5A2B';
-      case TransactionCategory.REST_DAY:
-        return '#2E7D32';
-      case TransactionCategory.STREAK_FREEZE:
-        return '#8B5A2B';
-      case TransactionCategory.SHOP_PURCHASE:
-        return '#C0392B';
-      case TransactionCategory.AD_REWARD:
-        return '#FF9500';
-      default:
-        return '#6B5D52';
-    }
-  };
-
-  // Get category icon
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case TransactionCategory.WORKOUT:
-        return 'fitness';
-      case TransactionCategory.REST_DAY:
-        return 'cafe';
-      case TransactionCategory.STREAK_FREEZE:
-        return 'snow';
-      case TransactionCategory.SHOP_PURCHASE:
-        return 'bag';
-      case TransactionCategory.AD_REWARD:
-        return 'gift';
-      default:
-        return 'help-circle';
-    }
-  };
-
-  // Get category display name
-  const getCategoryDisplayName = (category) => {
-    const info = TransactionCategoryInfo[category];
-    return info?.displayName || 'Other';
-  };
-
-  // Render balance header
-  const renderBalanceHeader = () => {
-    const earnedToday = getPointsEarnedToday();
-    const spentToday = getPointsSpentToday();
-
+  if (!currentUser) {
     return (
-      <View style={styles.balanceSection}>
-        <View style={styles.balanceContainer}>
-          <Image source={StatIcons.points} style={{ width: 36, height: 36 }} resizeMode="contain" />
-          <Text style={styles.balanceAmount}>{formatNumber(totalPoints)}</Text>
-        </View>
-        <Text style={styles.balanceLabel}>Total Points</Text>
-
-        {/* Today's Activity Summary */}
-        <View style={styles.todaySummary}>
-          {earnedToday > 0 && (
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryEarned}>+{earnedToday}</Text>
-              <Text style={styles.summaryLabel}>earned today</Text>
-            </View>
-          )}
-          {spentToday > 0 && (
-            <View style={styles.summaryItem}>
-              <Text style={styles.summarySpent}>-{spentToday}</Text>
-              <Text style={styles.summaryLabel}>spent today</Text>
-            </View>
-          )}
-          {earnedToday === 0 && spentToday === 0 && (
-            <Text style={styles.noActivityText}>No activity today</Text>
-          )}
-        </View>
+      <View style={styles.container}>
+        <ErrorView message="Please sign in to see your points history." />
       </View>
     );
-  };
+  }
 
-  // Render transaction row
-  const renderTransactionRow = ({ item: transaction }) => {
-    const color = getCategoryColor(transaction.category);
-    const icon = getCategoryIcon(transaction.category);
-    const isEarn = transaction.type === TransactionType.EARN;
-
+  if (error && transactions.length === 0) {
     return (
-      <View style={styles.transactionRow}>
-        <View style={[styles.transactionIcon, { backgroundColor: `${color}20` }]}>
-          <Ionicons name={icon} size={18} color={color} />
-        </View>
+      <View style={styles.container}>
+        <ErrorView message={error} onRetry={reload} />
+      </View>
+    );
+  }
 
-        <View style={styles.transactionInfo}>
-          <Text style={styles.transactionDescription} numberOfLines={1}>
-            {transaction.description}
-          </Text>
-          <View style={styles.transactionMeta}>
-            <Text style={styles.transactionCategory}>
-              {getCategoryDisplayName(transaction.category)}
-            </Text>
-            <Text style={styles.transactionDot}> • </Text>
-            <Text style={styles.transactionDate}>
-              {formatShortDate(transaction.timestamp)}
-            </Text>
-          </View>
+  const header = (
+    <View style={styles.cardsRow}>
+      <StoryCard color={Colors.peach} containerStyle={{ flex: 1 }}>
+        <Text style={styles.cardLabel}>You have</Text>
+        <View style={styles.balanceRow} accessibilityLabel={`You have ${totalPoints} points`}>
+          <Image source={StatIcons.points} style={{ width: 26, height: 26 }} resizeMode="contain" />
+          <Text style={styles.cardValue}>{formatNumber(totalPoints)}</Text>
         </View>
+      </StoryCard>
+      <StoryCard color={Colors.mint} containerStyle={{ flex: 1 }}>
+        <Text style={styles.cardLabel}>This week</Text>
+        <Text style={styles.cardValue} accessibilityLabel={`${earnedThisWeek} points earned this week`}>
+          +{formatNumber(earnedThisWeek)}
+        </Text>
+      </StoryCard>
+    </View>
+  );
 
-        <Text style={[styles.transactionAmount, isEarn ? styles.earnAmount : styles.spendAmount]}>
-          {isEarn ? '+' : '-'}{transaction.amount}
+  const renderItem = ({ item, index, section }) => {
+    const isEarn = item.type === TransactionType.EARN;
+    const look = CATEGORY_LOOK[item.category] || { icon: 'star', color: Colors.sand };
+    const categoryName = TransactionCategoryInfo[item.category]?.displayName || 'Other';
+    const first = index === 0;
+    const last = index === section.data.length - 1;
+    return (
+      <View
+        style={[styles.row, first && styles.rowFirst, last && styles.rowLast]}
+        accessible
+        accessibilityLabel={`${item.description}. ${categoryName}. ${isEarn ? 'Earned' : 'Spent'} ${item.amount} points`}
+      >
+        <StoryIcon name={look.icon} size={40} color={look.color} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.rowTitle} numberOfLines={2}>{item.description}</Text>
+          <Text style={styles.rowSub}>{categoryName}</Text>
+        </View>
+        <Text style={[styles.amount, isEarn && { color: Colors.success }]}>
+          {isEarn ? '+' : '−'}{item.amount}
         </Text>
       </View>
     );
   };
 
-  // Render empty state
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons name="sparkles" size={48} color="#6B5D52" />
-      <Text style={styles.emptyTitle}>Your points journey starts here!</Text>
-      <Text style={styles.emptyMessage}>
-        Complete a workout to earn your first points.
-      </Text>
-    </View>
-  );
-
-  // Loading state
-  if (viewState === ViewState.LOADING) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#8B5A2B" />
-        <Text style={styles.loadingText}>Loading your points history...</Text>
-      </View>
-    );
-  }
-
-  // Error state
-  if (viewState === ViewState.ERROR) {
-    return (
-      <View style={styles.container}>
-        <ErrorView message={error} onRetry={loadData} />
-      </View>
-    );
-  }
-
-  // Content or empty state
   return (
     <View style={styles.container}>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id}
-        renderItem={renderTransactionRow}
-        ListHeaderComponent={renderBalanceHeader}
-        ListEmptyComponent={renderEmptyState}
-        contentContainerStyle={transactions.length === 0 ? styles.emptyList : styles.listContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            tintColor="#8B5A2B"
-          />
+      <SectionList
+        sections={sections}
+        keyExtractor={(item, i) => item.id || String(i)}
+        renderItem={renderItem}
+        renderSectionHeader={({ section }) => <Text style={styles.day}>{section.title}</Text>}
+        renderSectionFooter={() => <View style={{ height: 14 }} />}
+        stickySectionHeadersEnabled={false}
+        ListHeaderComponent={header}
+        ListEmptyComponent={
+          <StoryCard color={Colors.surface}>
+            <View style={styles.emptyRow}>
+              <Image source={HamsterImages.happy} style={{ width: 56, height: 56 }} resizeMode="contain" />
+              <View style={{ flex: 1 }}>
+                <Text style={T.heading}>No points yet</Text>
+                <Text style={T.small}>Do a workout, a walk or today's exercise to earn your first points.</Text>
+              </View>
+            </View>
+          </StoryCard>
         }
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={Colors.ink} />}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF4E6',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFF4E6',
-  },
-  loadingText: {
-    fontFamily: 'Nunito_400Regular', fontSize: 15,
-    color: '#6B5D52',
-    marginTop: 16,
-  },
-  listContent: {
-    paddingBottom: 40,
-  },
-  emptyList: {
-    flexGrow: 1,
-  },
-  balanceSection: {
-    alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    marginBottom: 16,
-  },
-  balanceContainer: {
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 18, paddingBottom: 40 },
+  cardsRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  cardLabel: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.brown },
+  balanceRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  cardValue: { fontFamily: Fonts.heading, fontSize: 28, color: Colors.ink, marginTop: 2 },
+  day: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.brown, marginBottom: 8, marginLeft: 4 },
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: Colors.surface,
+    borderLeftWidth: Outline.width,
+    borderRightWidth: Outline.width,
+    borderBottomWidth: Outline.width,
+    borderColor: Colors.ink,
   },
-  balanceAmount: {
-    fontFamily: 'Quicksand_700Bold', fontSize: 40,
-    marginLeft: 8,
-  },
-  balanceLabel: {
-    fontFamily: 'Nunito_400Regular', fontSize: 15,
-    color: '#6B5D52',
-    marginBottom: 16,
-  },
-  todaySummary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 24,
-  },
-  summaryItem: {
-    alignItems: 'center',
-  },
-  summaryEarned: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
-    color: '#2E7D32',
-  },
-  summarySpent: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
-    color: '#A65000',
-  },
-  summaryLabel: {
-    fontFamily: 'Nunito_400Regular', fontSize: 12,
-    color: '#6B5D52',
-    marginTop: 2,
-  },
-  noActivityText: {
-    fontFamily: 'Nunito_400Regular', fontSize: 14,
-    color: '#6B5D52',
-  },
-  transactionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    backgroundColor: '#fff',
-  },
-  transactionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  transactionInfo: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 12,
-  },
-  transactionDescription: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
-  },
-  transactionMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  transactionCategory: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#6B5D52',
-  },
-  transactionDot: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#6B5D52',
-  },
-  transactionDate: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#6B5D52',
-  },
-  transactionAmount: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 17,
-  },
-  earnAmount: {
-    color: '#2E7D32',
-  },
-  spendAmount: {
-    color: '#A65000',
-  },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E5DDD5',
-    marginLeft: 66,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 32,
-  },
-  emptyTitle: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  emptyMessage: {
-    fontFamily: 'Nunito_400Regular', fontSize: 15,
-    color: '#6B5D52',
-    marginTop: 8,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
+  rowFirst: { borderTopWidth: Outline.width, borderTopLeftRadius: 18, borderTopRightRadius: 18 },
+  rowLast: { borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  rowTitle: { fontFamily: Fonts.bodyBold, fontSize: 15, color: Colors.ink },
+  rowSub: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary },
+  amount: { fontFamily: Fonts.bodyHeavy, fontSize: 16, color: Colors.ink },
+  emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

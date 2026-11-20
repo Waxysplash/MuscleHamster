@@ -1,299 +1,209 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Platform, Linking, Image } from 'react-native';
+// Settings - Storybook redesign (proposal on the design canvas, Nov 2026)
+// Grouped rows: You, Reminders, Sound, Help and legal; then Sign out and the version.
+// Sound switches now really change the app's sound preferences (they used to do nothing).
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, StyleSheet, Platform, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { StatIcons } from '../../config/AssetImages';
 import { useAuth } from '../../context/AuthContext';
-import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 import FeatureFlags from '../../config/FeatureFlags';
+import {
+  getAudioState,
+  subscribeToAudioState,
+  updateAudioPreferences,
+} from '../../services/AudioService';
+import { StoryButton, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline } from '../../config/theme';
 
 const APP_VERSION = Constants.expoConfig?.version || '';
 
+const Row = ({ icon, label, sub, onPress, right, last = false, accessibilityLabel }) => {
+  const content = (
+    <>
+      <StoryIcon name={icon} size={40} />
+      <View style={styles.rowInfo}>
+        <Text style={styles.rowLabel}>{label}</Text>
+        {sub ? <Text style={styles.rowSub}>{sub}</Text> : null}
+      </View>
+      {right || (onPress ? <Ionicons name="chevron-forward" size={22} color={Colors.ink} /> : null)}
+    </>
+  );
+  const style = [styles.row, last && { borderBottomWidth: 0 }];
+  return onPress ? (
+    <Pressable style={style} onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel || (sub ? `${label}. ${sub}` : label)}>
+      {content}
+    </Pressable>
+  ) : (
+    <View style={style}>{content}</View>
+  );
+};
+
+const Group = ({ title, children }) => (
+  <View style={styles.group}>
+    <Text style={styles.groupTitle}>{title}</Text>
+    <View style={styles.groupBox}>{children}</View>
+  </View>
+);
+
 export default function SettingsScreen({ navigation }) {
   const { currentUser, signOut } = useAuth();
-  const { totalPoints } = useActivity();
   const { profile } = useUserProfile();
   const { showAlert } = useAlert();
-  const [soundEffects, setSoundEffects] = useState(true);
-  const [music, setMusic] = useState(true);
 
-  // Format points for display
-  const formattedPoints = totalPoints.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  // Sound preferences come from the audio service, so the switches really work
+  const [audio, setAudio] = useState(getAudioState().preferences);
+  useEffect(() => subscribeToAudioState((state) => setAudio(state.preferences)), []);
+  const setPref = (key, value) => updateAudioPreferences({ ...audio, [key]: value });
 
   const handleSignOut = () => {
     if (Platform.OS === 'web') {
       if (window.confirm('Sign out of Muscle Hamster?\n\nYour hamster will miss you, but your progress is safe!')) {
         signOut();
       }
-    } else {
-      showAlert(
-        'Sign out of Muscle Hamster?',
-        'Your hamster will miss you, but your progress is safe!',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Sign Out', style: 'destructive', onPress: () => signOut() },
-        ]
-      );
+      return;
     }
+    showAlert(
+      'Sign out of Muscle Hamster?',
+      'Your hamster will miss you, but your progress is safe!',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign out', style: 'destructive', onPress: () => signOut() },
+      ]
+    );
   };
 
-  
+  const toggle = (value, onChange, label) => (
+    <Switch
+      value={value}
+      onValueChange={onChange}
+      trackColor={{ true: Colors.brand, false: Colors.sand }}
+      thumbColor={Colors.surface}
+      ios_backgroundColor={Colors.sand}
+      accessibilityLabel={label}
+    />
+  );
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Account */}
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.row}
+      <Group title="You">
+        <Row
+          icon="person-circle"
+          label={currentUser ? currentUser.email : 'Sign in'}
+          sub={currentUser ? 'Email, password and account' : 'Set up your account to save progress'}
           onPress={() => navigation.navigate('AccountSettings')}
-          accessibilityRole="button"
-          accessibilityLabel={currentUser ? `Account: ${currentUser.email}` : 'Sign In'}
-        >
-          <Ionicons name="person-circle" size={40} color="#FF9500" />
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>{currentUser ? currentUser.email : 'Sign In'}</Text>
-            <Text style={styles.rowSub}>
-              {currentUser ? 'Manage your account' : 'Set up your account to save progress'}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Profile Settings */}
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.row}
+        />
+        <Row
+          icon="paw"
+          label="Profile and goals"
+          sub={profile?.hamsterName ? `${profile.hamsterName}, fitness level, workout days` : 'Fitness level, goals, workout days'}
           onPress={() => navigation.navigate('ProfileSettings')}
-          accessibilityRole="button"
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="paw" size={22} color="#8B5A2B" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>My Profile</Text>
-            <Text style={styles.rowSub}>
-              {profile?.hamsterName ? `${profile.hamsterName}'s settings` : 'Edit your fitness profile'}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-        </TouchableOpacity>
-      </View>
+          last
+        />
+      </Group>
 
-      {/* Points History - only show if feature enabled */}
-      {FeatureFlags.transactionHistory && (
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => navigation.navigate('PointsHistory')}
-            accessibilityRole="button"
-          >
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(255,149,0,0.1)' }]}>
-              <Image source={StatIcons.points} style={{ width: 24, height: 24 }} resizeMode="contain" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Points History</Text>
-              <Text style={styles.rowSub}>
-                {formattedPoints} points
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-          </TouchableOpacity>
-        </View>
-      )}
+      <Group title="Reminders">
+        <Row
+          icon="notifications"
+          label="Reminders"
+          sub="Daily nudge from your hamster"
+          onPress={() => navigation.navigate('NotificationSettings')}
+          last
+        />
+      </Group>
 
-
-      {/* Audio - only show if feature enabled */}
       {FeatureFlags.audioSystem && (
-        <View style={styles.section}>
-          <View style={styles.row}>
-            <View style={styles.iconBox}>
-              <Ionicons name="volume-high" size={22} color="#2E7D32" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Sound Effects</Text>
-            </View>
-            <Switch
-              value={soundEffects}
-              onValueChange={setSoundEffects}
-              trackColor={{ true: '#FF9500' }}
-              accessibilityLabel="Sound Effects toggle"
-              accessibilityValue={{ text: soundEffects ? 'On' : 'Off' }}
-            />
-          </View>
-          <View style={[styles.row, { marginTop: 1 }]}>
-            <View style={styles.iconBox}>
-              <Ionicons name="musical-note" size={22} color="#8B5A2B" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Music</Text>
-            </View>
-            <Switch
-              value={music}
-              onValueChange={setMusic}
-              trackColor={{ true: '#FF9500' }}
-              accessibilityLabel="Music toggle"
-              accessibilityValue={{ text: music ? 'On' : 'Off' }}
-            />
-          </View>
-          <TouchableOpacity
-            style={[styles.row, { marginTop: 1 }]}
+        <Group title="Sound">
+          <Row
+            icon="volume-high"
+            label="Sound effects"
+            right={toggle(!!audio.soundEffectsEnabled, (v) => setPref('soundEffectsEnabled', v), 'Sound effects')}
+          />
+          <Row
+            icon="musical-notes"
+            label="Music"
+            right={toggle(!!audio.musicEnabled, (v) => setPref('musicEnabled', v), 'Music')}
+          />
+          <Row
+            icon="options"
+            label="More sound settings"
+            sub="Volume and mixing with other apps"
             onPress={() => navigation.navigate('AudioSettings')}
-          >
-            <View style={styles.iconBox}>
-              <Ionicons name="options" size={22} color="#6B5D52" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Audio Settings</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-          </TouchableOpacity>
-        </View>
+            last
+          />
+        </Group>
       )}
 
-      {/* Privacy - only show if social features enabled */}
       {FeatureFlags.socialFeatures && (
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.row}
+        <Group title="Privacy">
+          <Row
+            icon="shield-checkmark"
+            label="Privacy controls"
+            sub="Your data and who can see you"
             onPress={() => navigation.navigate('PrivacySettings')}
-          >
-            <View style={styles.iconBox}>
-              <Ionicons name="shield-checkmark" size={22} color="#8B5A2B" />
-            </View>
-            <View style={styles.rowInfo}>
-              <Text style={styles.rowLabel}>Privacy Controls</Text>
-              <Text style={styles.rowSub}>Manage your data and visibility</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-          </TouchableOpacity>
-        </View>
+            last
+          />
+        </Group>
       )}
 
-      {/* Support */}
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.row}
+      <Group title="Help and legal">
+        <Row
+          icon="help-circle"
+          label="Help and feedback"
+          sub="Email the Muscle Hamster team"
           onPress={() => Linking.openURL('mailto:support@musclehamster.app?subject=Help%20Request')}
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="help-circle" size={22} color="#8B5A2B" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Help</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.row, { marginTop: 1 }]}
+        />
+        <Row
+          icon="document-text"
+          label="Privacy policy"
           onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/privacy-policy.html')}
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="document-text" size={22} color="#6B5D52" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Privacy Policy</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.row, { marginTop: 1 }]}
+        />
+        <Row
+          icon="document-text"
+          label="Terms of service"
           onPress={() => Linking.openURL('https://waxysplash.github.io/MuscleHamster/terms-of-service.html')}
-        >
-          <View style={styles.iconBox}>
-            <Ionicons name="document-text" size={22} color="#6B5D52" />
-          </View>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Terms of Service</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8B5A2B" />
-        </TouchableOpacity>
-      </View>
+          last
+        />
+      </Group>
 
-      {/* Sign Out */}
-      <TouchableOpacity
-        style={styles.signOutButton}
+      <StoryButton
+        title="Sign out"
+        variant="secondary"
         onPress={handleSignOut}
         accessibilityLabel="Sign out of your account"
-        accessibilityRole="button"
-      >
-        <Text style={styles.signOutText}>Sign Out</Text>
-      </TouchableOpacity>
+        style={{ marginTop: 4 }}
+      />
 
-      {/* Version */}
-      <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>Muscle Hamster</Text>
-        <Text style={styles.versionNumber}>Version {APP_VERSION}</Text>
-      </View>
+      <Text style={styles.version}>Muscle Hamster {APP_VERSION}</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF4E6',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  section: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    marginBottom: 16,
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 18, paddingBottom: 40 },
+  group: { marginBottom: 18 },
+  groupTitle: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.brown, marginBottom: 8, marginLeft: 4 },
+  groupBox: {
+    backgroundColor: Colors.surface,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    borderRadius: 18,
     overflow: 'hidden',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 64,
+    borderBottomWidth: Outline.width,
+    borderBottomColor: Colors.ink,
   },
-  iconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 8,
-    backgroundColor: 'rgba(139,90,43,0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  rowInfo: {
-    flex: 1,
-    marginLeft: 4,
-  },
-  rowLabel: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
-    color: '#4A3728',
-  },
-  rowSub: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#6B5D52',
-    marginTop: 2,
-  },
-  signOutButton: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 16,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  signOutText: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
-    color: '#C0392B',
-  },
-  versionContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  versionText: {
-    fontFamily: 'Nunito_400Regular', fontSize: 14,
-    color: '#6B5D52',
-  },
-  versionNumber: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#8B5A2B',
-    marginTop: 2,
-  },
+  rowInfo: { flex: 1 },
+  rowLabel: { fontFamily: Fonts.bodyBold, fontSize: 16, color: Colors.ink },
+  rowSub: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, marginTop: 2 },
+  version: { fontFamily: Fonts.body, fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 18 },
 });

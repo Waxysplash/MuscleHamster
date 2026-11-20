@@ -24,7 +24,9 @@ import { playSFX } from '../../services/AudioService';
 import { SoundEffect } from '../../models/AudioPreferences';
 import { logShopPurchase } from '../../services/AnalyticsService';
 import { useAlert } from '../../context/AlertContext';
-import { getShopItemImage } from '../../config/AssetImages';
+import { getShopItemImage, HamsterImages } from '../../config/AssetImages';
+import { StoryCard, StoryButton, StoryChip } from '../../components/ui/Story';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 import LoadingView from '../../components/LoadingView';
 import ErrorBanner from '../../components/ErrorBanner';
 import { useResponsive } from '../../utils/responsive';
@@ -40,6 +42,7 @@ export default function ShopScreen({ navigation }) {
   const [items, setItems] = useState([]);
   const [ownedItemIds, setOwnedItemIds] = useState(new Set());
   const [isPurchasing, setIsPurchasing] = useState(null); // Track which item is being purchased
+  const [section, setSection] = useState('outfits');
 
   useFocusEffect(
     useCallback(() => {
@@ -78,7 +81,7 @@ export default function ShopScreen({ navigation }) {
     const canAfford = totalPoints >= item.price;
     if (!canAfford) {
       showAlert(
-        'Not Enough Points',
+        'Almost there',
         `You need ${item.price - totalPoints} more points to buy this item.`
       );
       return;
@@ -95,9 +98,9 @@ export default function ShopScreen({ navigation }) {
         setOwnedItemIds((prev) => new Set([...prev, item.id]));
 
         showAlert(
-          '🎉 Success!',
-          `You got the ${item.name}!`,
-          [{ text: 'Awesome!' }]
+          "It's yours!",
+          `You got the ${item.name}. Tap "Wear it" to dress up your hamster.`,
+          [{ text: 'Yay' }]
         );
       } else {
         showAlert('Oops!', result.message);
@@ -109,116 +112,128 @@ export default function ShopScreen({ navigation }) {
     }
   };
 
+  const sections = [
+    { id: 'outfits', label: 'Outfits' },
+    { id: 'accessories', label: 'Accessories' },
+    { id: 'enclosure', label: 'Home' },
+  ].filter((s) => items.some((i) => i.category === s.id));
+  const activeSection = sections.find((s) => s.id === section) ? section : sections[0]?.id;
+  const visibleItems = items.filter((i) => !activeSection || i.category === activeSection);
+
   if (isLoading) {
     return <LoadingView message="Opening the shop..." />;
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Points Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Shop</Text>
-        <View style={styles.pointsBadge}>
-          <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
-          <Text style={styles.pointsText}>{totalPoints}</Text>
-        </View>
-      </View>
-
-      {error && (
-        <ErrorBanner
-          message={error}
-          onRetry={loadShopData}
-          onDismiss={() => setError(null)}
-        />
-      )}
-
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <FlatList
-        data={items}
+        data={visibleItems}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[
-          styles.content,
-          isTablet && { alignItems: 'center' }
-        ]}
-        style={isTablet ? { width: '100%' } : undefined}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        numColumns={2}
+        columnWrapperStyle={styles.gridRow}
+        contentContainerStyle={[styles.content, isTablet && { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.ink} />}
         showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View>
+            {/* Points */}
+            <View style={styles.pointsRow}>
+              <Text style={T.small}>Your points</Text>
+              <View style={styles.pointsBadge} accessibilityLabel={`${totalPoints} points`}>
+                <Image source={StatIcons.points} style={{ width: 20, height: 20 }} resizeMode="contain" />
+                <Text style={styles.pointsText}>{totalPoints}</Text>
+              </View>
+            </View>
+
+            {/* Tip */}
+            <StoryCard color={Colors.mint} shadow={false} containerStyle={{ marginBottom: 14 }}>
+              <View style={styles.tipRow}>
+                <Image source={HamsterImages.happy} style={{ width: 52, height: 52 }} resizeMode="contain" />
+                <Text style={[T.body, { flex: 1 }]}>Every workout, walk and daily exercise earns points to spend here.</Text>
+              </View>
+            </StoryCard>
+
+            {error && (
+              <ErrorBanner message={error} onRetry={loadShopData} onDismiss={() => setError(null)} />
+            )}
+
+            {/* Sections */}
+            {sections.length > 1 && (
+              <View style={styles.chipRow} accessibilityRole="radiogroup">
+                {sections.map((s) => (
+                  <StoryChip
+                    key={s.id}
+                    label={s.label}
+                    selected={s.id === activeSection}
+                    onPress={() => setSection(s.id)}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
+        }
         renderItem={({ item }) => {
           const isOwned = ownedItemIds.has(item.id);
           const itemImage = getShopItemImage(item.id);
           const canAfford = totalPoints >= item.price;
-
+          const busy = isPurchasing === item.id;
           return (
-            <View style={[
-              styles.itemCard,
-              isTablet && { maxWidth: contentMaxWidth, width: '100%' }
-            ]}>
-              {/* Item Image */}
-              <View style={styles.itemImageContainer}>
+            <StoryCard containerStyle={styles.itemWrap} style={styles.itemCard}>
+              <View style={styles.itemImageBox}>
                 {itemImage ? (
                   <Image source={itemImage} style={styles.itemImage} resizeMode="contain" />
                 ) : (
-                  <Ionicons name="shirt" size={40} color="#6B5D52" />
+                  <Ionicons name="shirt" size={44} color={Colors.ink} />
                 )}
               </View>
-
-              {/* Item Info */}
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemDescription}>{item.description}</Text>
-              </View>
-
-              {/* Price / Owned / Buy Button */}
-              <View style={styles.itemAction}>
-                {isOwned ? (
-                  <View style={styles.ownedBadge}>
-                    <Ionicons name="checkmark-circle" size={20} color="#2E7D32" />
-                    <Text style={styles.ownedText}>Owned</Text>
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={[
-                      styles.buyButton,
-                      !canAfford && styles.buyButtonDisabled,
-                    ]}
-                    onPress={() => handlePurchase(item)}
-                    disabled={isPurchasing === item.id || !canAfford}
-                  >
-                    {isPurchasing === item.id ? (
-                      <Text style={styles.buyButtonText}>...</Text>
-                    ) : (
-                      <>
-                        <Ionicons name="star" size={14} color="#fff" />
-                        <Text style={styles.buyButtonText}>{item.price}</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
+              <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
+              {isOwned ? (
+                <Text style={styles.owned}>Owned</Text>
+              ) : (
+                <View style={styles.priceRow} accessibilityLabel={`${item.price} points`}>
+                  <Image source={StatIcons.points} style={{ width: 16, height: 16 }} resizeMode="contain" />
+                  <Text style={styles.priceText}>{item.price}</Text>
+                </View>
+              )}
+              {isOwned ? (
+                <StoryButton
+                  title="Wear it"
+                  variant="secondary"
+                  size="sm"
+                  style={styles.itemButton}
+                  accessibilityLabel={`Wear the ${item.name}`}
+                  onPress={() => navigation.navigate('Inventory')}
+                />
+              ) : (
+                <StoryButton
+                  title={busy ? 'Buying...' : canAfford ? 'Buy' : `Need ${item.price - totalPoints}`}
+                  variant={canAfford ? 'primary' : 'soft'}
+                  size="sm"
+                  style={styles.itemButton}
+                  disabled={busy}
+                  accessibilityLabel={canAfford ? `Buy the ${item.name} for ${item.price} points` : `${item.name}: you need ${item.price - totalPoints} more points`}
+                  onPress={() => handlePurchase(item)}
+                />
+              )}
+            </StoryCard>
           );
         }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Ionicons name="bag-outline" size={48} color="#C4B8AE" />
-            <Text style={styles.emptyTitle}>Shop is empty</Text>
-            <Text style={styles.emptySubtitle}>Check back soon for new items!</Text>
+            <Ionicons name="bag-outline" size={48} color={Colors.textSecondary} />
+            <Text style={T.heading}>Nothing here yet</Text>
+            <Text style={T.small}>New items are on the way.</Text>
           </View>
         }
         ListFooterComponent={
           items.length > 0 ? (
-            <TouchableOpacity
-              style={[
-                styles.inventoryLink,
-                isTablet && { maxWidth: contentMaxWidth, width: '100%' }
-              ]}
+            <StoryButton
+              title="See what I own"
+              icon="shirt"
+              variant="secondary"
+              style={{ marginTop: 8 }}
               onPress={() => navigation.navigate('Inventory')}
-            >
-              <Ionicons name="grid" size={20} color="#FF9500" />
-              <Text style={styles.inventoryLinkText}>View My Items</Text>
-              <Ionicons name="chevron-forward" size={16} color="#FF9500" />
-            </TouchableOpacity>
+            />
           ) : null
         }
       />
@@ -227,129 +242,32 @@ export default function ShopScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF4E6',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#FFF4E6',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(139,90,43,0.1)',
-  },
-  headerTitle: {
-    fontFamily: 'Quicksand_700Bold', fontSize: 28,
-    color: '#4A3728',
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 18, paddingBottom: 40 },
+  pointsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   pointsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    gap: 6,
+    backgroundColor: Colors.peach,
+    borderWidth: Outline.width,
+    borderColor: Colors.ink,
+    borderRadius: 16,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 4,
+    paddingVertical: 5,
   },
-  pointsText: {
-    fontFamily: 'Nunito_700Bold', fontSize: 16,
-    color: '#A65000',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  itemCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 10,
-  },
-  itemImageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#FFF4E6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  itemImage: {
-    width: 50,
-    height: 50,
-  },
-  itemInfo: {
-    flex: 1,
-    marginLeft: 14,
-  },
-  itemName: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
-    color: '#4A3728',
-  },
-  itemDescription: {
-    fontFamily: 'Nunito_400Regular', fontSize: 13,
-    color: '#6B5D52',
-    marginTop: 2,
-  },
-  itemAction: {
-    marginLeft: 10,
-  },
-  buyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#B85A00',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 4,
-  },
-  buyButtonDisabled: {
-    backgroundColor: '#C4B8AE',
-  },
-  buyButtonText: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 15,
-    color: '#fff',
-  },
-  ownedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  ownedText: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 14,
-    color: '#2E7D32',
-  },
-  inventoryLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 10,
-    gap: 8,
-  },
-  inventoryLinkText: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 16,
-    color: '#8B5A2B',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyTitle: {
-    fontFamily: 'Nunito_600SemiBold', fontSize: 18,
-    color: '#4A3728',
-    marginTop: 16,
-  },
-  emptySubtitle: {
-    fontFamily: 'Nunito_400Regular', fontSize: 14,
-    color: '#6B5D52',
-    marginTop: 8,
-    textAlign: 'center',
-  },
+  pointsText: { fontFamily: Fonts.bodyHeavy, fontSize: 17, color: Colors.ink },
+  tipRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  chipRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  gridRow: { justifyContent: 'space-between' },
+  itemWrap: { width: '47%', marginBottom: 16 },
+  itemCard: { alignItems: 'center', padding: 12 },
+  itemImageBox: { width: '100%', height: 100, alignItems: 'center', justifyContent: 'center' },
+  itemImage: { width: 100, height: 100 },
+  itemName: { fontFamily: Fonts.heading, fontSize: 16, color: Colors.ink, textAlign: 'center', marginTop: 6, minHeight: 40 },
+  owned: { fontFamily: Fonts.bodyBold, fontSize: 14, color: Colors.success, marginTop: 2 },
+  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  priceText: { fontFamily: Fonts.bodyHeavy, fontSize: 15, color: Colors.ink },
+  itemButton: { alignSelf: 'stretch', marginTop: 10 },
+  emptyState: { alignItems: 'center', gap: 6, paddingVertical: 40 },
 });
