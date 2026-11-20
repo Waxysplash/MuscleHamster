@@ -107,6 +107,20 @@ export const MOVE_GUIDE = {
     impact: true,
   },
 
+  // ---------- Pull (back) moves, no equipment ----------
+  'Prone Y-Raise': {
+    how: 'Lie on your stomach with arms stretched forward in a Y shape, thumbs up. Squeeze your shoulder blades and lift your arms a little off the floor, then lower slowly.',
+    easier: 'Lift one arm at a time.',
+  },
+  'Reverse Snow Angels': {
+    how: 'Lie on your stomach with arms by your sides, lifted just off the floor. Slowly sweep them out and up toward your head, like a snow angel, then back down.',
+    easier: 'Make the arc smaller, or rest your arms on the floor between reps.',
+  },
+  'Door Towel Rows': {
+    how: 'Wrap a towel around the handles of a sturdy, closed door. Hold both ends, lean back with straight arms, then pull your chest toward the door by squeezing your shoulder blades. Make sure the door is shut and can’t swing open.',
+    easier: 'Stand more upright so you lean back less.',
+  },
+
   // ---------- Cardio: low impact ----------
   'Marching in Place': {
     how: 'Stand tall and march on the spot, lifting your knees and swinging your arms.',

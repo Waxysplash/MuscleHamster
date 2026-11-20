@@ -200,6 +200,11 @@ eas submit --platform ios                         # Submit to App Store
   - App config: removed `android.edgeToEdgeEnabled` (edge-to-edge is mandatory); `expo-build-properties android.enableMinifyInReleaseBuilds: false` (SDK 58 turns R8 on by default; untested with Firebase/Google Sign-In reflection).
   - Notifications: shouldShowAlert -> shouldShowBanner + shouldShowList. 16 screens: SafeAreaView now from react-native-safe-area-context (RN's is deprecated); SafeAreaProvider at the root.
   - Checked: expo-doctor 19/20 (the expected config-plugins note), iOS + Android bundles, Android prebuild (permissions, Firebase plugins). iOS native project not checked locally (Windows) — first EAS build is the test. Needs a NEW development build: the SDK 54 dev build cannot load SDK 58 code.
+- **Build 64 failed at pod install** (RNFB 26 defaults to SPM; SPM + static frameworks unsupported) -> fixed with `["@react-native-firebase/app", { ios: { disableSPM: true } }]`. Build 65 then worked; user: "the app looks fantastic".
+- Hamster tab: hamster floated -> now uses Today's enclosure height + hamster placement.
+- **Workouts tab redesign**: opens on a home view (title, Suggested for you, ready-made workout tiles, Your workouts, Single exercises); sub-views (My plan, At home, At gym, My workouts) get a back bar. Today's week strip opens My plan directly (`params: { view: 'plan' }`).
+  - Ready-made workouts: `models/Programs.js` = Push, Pull, Legs, Core, Cardio, Stretch x Beginner/Intermediate/Advanced (ids w-100..w-152, ~16/26/37 min). Built by `WorkoutService` (`getProgramWorkouts`), so they also feed suggestions and plans. New `screens/Workout/ProgramScreen.js` (route `WorkoutProgram`) marks the user's level "Recommended for you".
+  - New moves with how-tos: Prone Y-Raise, Reverse Snow Angels, Door Towel Rows. Library now 48 guided workouts.
 - Not yet verified on device. Store status of 1.0.6 / 1.0.7 needs checking in App Store Connect.
 
 ---

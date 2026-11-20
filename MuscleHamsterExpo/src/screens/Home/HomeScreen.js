@@ -365,7 +365,7 @@ export default function HomeScreen({ navigation }) {
             weekStart={currentWeekStart}
             schedule={currentWeekSchedule}
             isEmpty={!hasScheduleThisWeek}
-            onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain' })}
+            onPress={() => navigation.navigate('Workouts', { screen: 'WorkoutsMain', params: { view: 'plan' } })}
           />
 
           {/* THIS WEEK - weekly goal + streak (full stats live in the Me tab) */}

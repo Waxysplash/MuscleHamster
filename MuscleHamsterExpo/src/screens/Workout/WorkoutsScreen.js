@@ -30,6 +30,9 @@ import { useUserProfile } from '../../context/UserProfileContext';
 import { useAlert } from '../../context/AlertContext';
 import { describeReward } from '../../utils/rewardMessage';
 import SuggestedWorkoutsRow from '../../components/SuggestedWorkoutsRow';
+import { PROGRAMS } from '../../models/Programs';
+import { StoryCard, StoryIcon } from '../../components/ui/Story';
+import { Colors, Fonts, Outline, T } from '../../config/theme';
 import Logger from '../../services/LoggerService';
 import { getTodayName } from '../../services/ScheduleService';
 import { findExerciseById } from '../../services/WorkoutLibrary';
@@ -80,7 +83,17 @@ export default function WorkoutsScreen({ navigation, route }) {
   const cardWidth = (effectiveWidth - (spacing.horizontal * 2) - (12 * (numColumns - 1))) / numColumns;
 
   // State
-  const [activeTab, setActiveTab] = useState('plan'); // 'plan', 'home', or 'gym'
+  // 'start' = Workouts home view (ready-made workouts + big choices); others are sub-views
+  const [activeTab, setActiveTab] = useState('start'); // 'start', 'plan', 'home', 'gym', 'myworkouts'
+
+  // Other screens can open a sub-view directly, e.g. Today's week strip -> My plan
+  const requestedView = route?.params?.view;
+  React.useEffect(() => {
+    if (requestedView) {
+      setActiveTab(requestedView);
+      navigation.setParams({ view: undefined });
+    }
+  }, [requestedView, navigation]);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDay, setSelectedDay] = useState(getTodayName()); // Default to today
 
@@ -277,48 +290,25 @@ export default function WorkoutsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Tab Selector - 3 flat tabs */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'plan' && styles.tabActive]}
-            onPress={() => setActiveTab('plan')}
-          >
-            <Ionicons
-              name="calendar"
-              size={16}
-              color="#4A3728"
-            />
-            <Text style={[styles.tabText, activeTab === 'plan' && styles.tabTextActive]}>
-              My Plan
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'home' && styles.tabActive]}
-            onPress={() => setActiveTab('home')}
-          >
-            <Ionicons
-              name="home-outline"
-              size={16}
-              color="#4A3728"
-            />
-            <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>
-              At Home
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'gym' && styles.tabActive]}
-            onPress={() => setActiveTab('gym')}
-          >
-            <Ionicons
-              name="barbell-outline"
-              size={16}
-              color="#4A3728"
-            />
-            <Text style={[styles.tabText, activeTab === 'gym' && styles.tabTextActive]}>
-              At Gym
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* Header: big title on the Workouts home view, a back bar everywhere else */}
+        {activeTab === 'start' ? (
+          <View style={styles.hubHeader}>
+            <Text style={T.hero}>Workouts</Text>
+            <Text style={T.small}>Pick a ready-made workout, or browse single exercises</Text>
+          </View>
+        ) : (
+          <View style={styles.subHeader}>
+            <TouchableOpacity
+              style={styles.subBack}
+              onPress={() => setActiveTab('start')}
+              accessibilityRole="button"
+              accessibilityLabel="Back to Workouts"
+            >
+              <Ionicons name="arrow-back" size={24} color={Colors.ink} />
+            </TouchableOpacity>
+            <Text style={T.title}>{({ plan: 'My plan', home: 'At home exercises', gym: 'At gym exercises', myworkouts: 'My workouts' })[activeTab]}</Text>
+          </View>
+        )}
 
         <ScrollView
           style={styles.scrollView}
@@ -335,15 +325,88 @@ export default function WorkoutsScreen({ navigation, route }) {
             isTablet && { maxWidth: contentMaxWidth + 48, width: '100%' }
           ]}>
             {/* Suggested guided workouts (Phase 2) - quick path for anyone unsure what to do */}
-            {(activeTab === 'plan' || activeTab === 'home') && (
+            {activeTab === 'start' && (
+              <View style={{ paddingHorizontal: 16 }}>
               <SuggestedWorkoutsRow
                 profile={profile}
                 stats={stats}
                 onOpen={(workout) => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
               />
+              </View>
             )}
 
-            {activeTab === 'plan' ? (
+            {activeTab === 'start' ? (
+              // WORKOUTS HOME VIEW
+              <View style={styles.section}>
+                <Text style={styles.hubSection}>Ready-made workouts</Text>
+                <View style={styles.programGrid}>
+                  {PROGRAMS.map((program) => (
+                    <TouchableOpacity
+                      key={program.id}
+                      style={styles.programTileWrap}
+                      onPress={() => navigation.navigate('WorkoutProgram', { programId: program.id })}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${program.title}: ${program.subtitle}`}
+                      activeOpacity={0.85}
+                    >
+                      <StoryCard color={program.color} style={styles.programTile}>
+                        <StoryIcon name={program.icon} size={48} color={Colors.surface} />
+                        <Text style={[T.title, { marginTop: 8 }]}>{program.title}</Text>
+                        <Text style={[T.small, { color: Colors.text }]} numberOfLines={2}>{program.subtitle}</Text>
+                      </StoryCard>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <Text style={styles.hubSection}>Your workouts</Text>
+                {[
+                  { key: 'plan', icon: 'calendar', title: 'My plan', sub: 'Your week, day by day' },
+                  { key: 'myworkouts', icon: 'create', title: 'My workouts', sub: 'Ones you made yourself' },
+                ].map((row) => (
+                  <TouchableOpacity
+                    key={row.key}
+                    onPress={() => setActiveTab(row.key)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${row.title}. ${row.sub}`}
+                    activeOpacity={0.85}
+                  >
+                    <StoryCard containerStyle={{ marginBottom: 12 }}>
+                      <View style={styles.hubRow}>
+                        <StoryIcon name={row.icon} size={44} />
+                        <View style={{ flex: 1, marginLeft: 12 }}>
+                          <Text style={T.heading}>{row.title}</Text>
+                          <Text style={T.small}>{row.sub}</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={22} color={Colors.ink} />
+                      </View>
+                    </StoryCard>
+                  </TouchableOpacity>
+                ))}
+
+                <Text style={styles.hubSection}>Single exercises</Text>
+                <View style={styles.programGrid}>
+                  {[
+                    { key: 'home', icon: 'home', title: 'At home', sub: 'No equipment needed' },
+                    { key: 'gym', icon: 'barbell', title: 'At the gym', sub: 'Machines and weights' },
+                  ].map((row) => (
+                    <TouchableOpacity
+                      key={row.key}
+                      style={styles.programTileWrap}
+                      onPress={() => setActiveTab(row.key)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${row.title} exercises. ${row.sub}`}
+                      activeOpacity={0.85}
+                    >
+                      <StoryCard style={styles.programTile}>
+                        <StoryIcon name={row.icon} size={44} />
+                        <Text style={[T.heading, { marginTop: 8 }]}>{row.title}</Text>
+                        <Text style={T.small}>{row.sub}</Text>
+                      </StoryCard>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            ) : activeTab === 'plan' ? (
               // MY PLAN TAB
               <View style={styles.section}>
                 {/* Horizontal Day Slider */}
@@ -440,12 +503,6 @@ export default function WorkoutsScreen({ navigation, route }) {
             ) : (
               // MY WORKOUTS (accessed via link from plan tab)
               <View style={styles.section}>
-                <TouchableOpacity
-                  style={styles.backToplanLink}
-                  onPress={() => setActiveTab('plan')} accessibilityRole="button" accessibilityLabel="Go back">
-                  <Ionicons name="arrow-back" size={18} color="#8B5A2B" />
-                  <Text style={styles.myWorkoutsLinkText}>Back to My Plan</Text>
-                </TouchableOpacity>
                 <MyWorkoutsSection
                   customWorkouts={customWorkouts}
                   onAddWorkout={navigateToAddWorkout}
@@ -475,6 +532,14 @@ export default function WorkoutsScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  hubHeader: { paddingHorizontal: 18, paddingTop: 12, paddingBottom: 8 },
+  subHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 6, gap: 4 },
+  subBack: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  hubSection: { fontFamily: Fonts.heading, fontSize: 20, color: Colors.ink, marginTop: 8, marginBottom: 12 },
+  programGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 8 },
+  programTileWrap: { width: '48%', marginBottom: 12 },
+  programTile: { alignItems: 'flex-start', minHeight: 150 },
+  hubRow: { flexDirection: 'row', alignItems: 'center' },
   safeArea: {
     flex: 1,
     backgroundColor: '#FFF4E6',

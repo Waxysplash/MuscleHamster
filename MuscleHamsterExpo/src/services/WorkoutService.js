@@ -15,6 +15,7 @@ import {
 } from '../models/Workout';
 import { FitnessGoal } from '../models/UserProfile';
 import { getMoveGuide } from '../models/MoveGuide';
+import { PROGRAMS, LEVELS, LEVEL_INFO, programWorkoutId } from '../models/Programs';
 
 // Simulate network delay (randomized like Swift version)
 const delay = (minMs = 300, maxMs = 800) => {
@@ -94,13 +95,13 @@ const makeMove = (id, name, duration, type, extra = {}) => {
 };
 
 // Generate exercises for a workout
-const generateExercises = (workoutType, difficulty, duration, bodyFocus = []) => {
+const generateExercises = (workoutType, difficulty, duration, bodyFocus = [], moveNames = null) => {
   const exercises = [];
   let id = 1;
 
   exercises.push(makeMove(`ex-${id++}`, 'Warm Up', 60, ExerciseType.WARMUP));
 
-  const names = getMoveNames(workoutType, difficulty, bodyFocus);
+  const names = moveNames || getMoveNames(workoutType, difficulty, bodyFocus);
   const numExercises = duration === DurationBucket.QUICK ? 3 :
                        duration === DurationBucket.SHORT ? 5 :
                        duration === DurationBucket.MEDIUM ? 7 : 9;
@@ -559,13 +560,46 @@ let seedWorkouts = null;
 const getSeedWorkouts = () => {
   if (!seedWorkouts) {
     // Rebuild each workout's moves with its body focus (upper/lower-body workouts get their own moves)
-    seedWorkouts = createSeedWorkouts().map((w) => {
-      const exercises = generateExercises(w.category, w.difficulty, w.duration, w.bodyFocus);
+    seedWorkouts = [...createSeedWorkouts(), ...createProgramWorkouts()].map((w) => {
+      const exercises = generateExercises(w.category, w.difficulty, w.duration, w.bodyFocus, w.moveNames);
       return { ...w, exercises, totalDurationSeconds: exercises.reduce((sum, ex) => sum + ex.duration, 0) };
     });
   }
   return seedWorkouts;
 };
+
+// Ready-made workouts for the Workouts tab (Push, Pull, Legs, Core, Cardio, Stretch x 3 levels)
+const PROGRAM_GOALS = {
+  push: [FitnessGoal.GET_STRONGER],
+  pull: [FitnessGoal.GET_STRONGER],
+  legs: [FitnessGoal.GET_STRONGER],
+  core: [FitnessGoal.BUILD_CORE],
+  cardio: [FitnessGoal.STAY_ACTIVE],
+  stretch: [FitnessGoal.IMPROVE_FLEXIBILITY],
+};
+const createProgramWorkouts = () =>
+  PROGRAMS.flatMap((program, pi) =>
+    LEVELS.map((level, li) => ({
+      ...createWorkout({
+        id: programWorkoutId(pi, li),
+        name: `${LEVEL_INFO[level].label} ${program.title} Day`,
+        description: `${program.about} ${LEVEL_INFO[level].blurb}.`,
+        category: program.type,
+        difficulty: level,
+        duration: LEVEL_INFO[level].duration,
+        fitnessGoals: PROGRAM_GOALS[program.id] || [],
+        bodyFocus: program.bodyFocus,
+        equipment: [Equipment.NONE],
+        exercises: [],
+      }),
+      program: program.id,
+      moveNames: program.moves[level],
+    }))
+  );
+
+// Ready-made workouts for one category, beginner -> advanced
+export const getProgramWorkouts = (programId) =>
+  getSeedWorkouts().filter((w) => w.program === programId);
 
 // Synchronous access to the built-in guided workouts (used by SuggestionService)
 export const getBuiltInWorkouts = () => getSeedWorkouts();

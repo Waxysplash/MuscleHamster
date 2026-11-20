@@ -45,6 +45,7 @@ import {
 // Phase 2 tabs
 import HamsterScreen from '../screens/Hamster/HamsterScreen';
 import MeScreen from '../screens/Me/MeScreen';
+import ProgramScreen from '../screens/Workout/ProgramScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createNativeStackNavigator();
@@ -146,6 +147,11 @@ function WorkoutsStackScreen() {
       <WorkoutsStack.Screen
         name="WorkoutsMain"
         component={WorkoutsScreen}
+        options={{ headerShown: false }}
+      />
+      <WorkoutsStack.Screen
+        name="WorkoutProgram"
+        component={ProgramScreen}
         options={{ headerShown: false }}
       />
       <WorkoutsStack.Screen
