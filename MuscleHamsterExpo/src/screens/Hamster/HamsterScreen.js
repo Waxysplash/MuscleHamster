@@ -20,7 +20,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { HamsterStateInfo, getSimplifiedState } from '../../models/Activity';
 import HamsterPortrait from '../../components/HamsterPortrait';
 import { EnclosureBackground, StatIcons } from '../../config/AssetImages';
-import { getHamsterSize } from '../../utils/responsive';
+import { getHamsterSize, getEnclosureHeight } from '../../utils/responsive';
 import { StoryCard, StoryIcon } from '../../components/ui/Story';
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 
@@ -41,27 +41,38 @@ export default function HamsterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={EnclosureBackground} style={styles.enclosure} resizeMode="cover">
+      {/* Same enclosure size and hamster placement as Today, so the hamster stands on the floor */}
+      <ImageBackground
+        source={EnclosureBackground}
+        style={[styles.enclosure, { height: getEnclosureHeight() }]}
+        resizeMode="cover"
+      >
         <SafeAreaView style={styles.enclosureInner}>
           <View style={styles.topRow}>
-            <View style={styles.badge}>
-              <Ionicons name={hamsterInfo.icon} size={14} color={Colors.ink} />
-              <Text style={styles.badgeText}>{hamsterInfo.displayName}</Text>
+            <View style={styles.topSide}>
+              <View style={styles.badge}>
+                <Ionicons name={hamsterInfo.icon} size={14} color={Colors.ink} />
+                <Text style={styles.badgeText}>{hamsterInfo.displayName}</Text>
+              </View>
             </View>
-            <View style={styles.badge} accessibilityLabel={`${totalPoints} points`}>
-              <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
-              <Text style={styles.pointsText}>{totalPoints}</Text>
+            <View style={styles.nameBadge}>
+              <Text style={styles.name}>{hamsterName}</Text>
+            </View>
+            <View style={[styles.topSide, { alignItems: 'flex-end' }]}>
+              <View style={styles.badge} accessibilityLabel={`${totalPoints} points`}>
+                <Image source={StatIcons.points} style={{ width: 18, height: 18 }} resizeMode="contain" />
+                <Text style={styles.pointsText}>{totalPoints}</Text>
+              </View>
             </View>
           </View>
-          <HamsterPortrait
-            state={displayState}
-            size={getHamsterSize()}
-            equippedOutfit={equippedOutfit}
-            equippedAccessory={equippedAccessory}
-            isRestDay={hasLoggedRestDayToday}
-          />
-          <View style={styles.nameBadge}>
-            <Text style={styles.name}>{hamsterName}</Text>
+          <View style={styles.hamsterContainer}>
+            <HamsterPortrait
+              state={displayState}
+              size={getHamsterSize()}
+              equippedOutfit={equippedOutfit}
+              equippedAccessory={equippedAccessory}
+              isRestDay={hasLoggedRestDayToday}
+            />
           </View>
         </SafeAreaView>
       </ImageBackground>
@@ -110,10 +121,13 @@ export default function HamsterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   enclosure: { width: '100%', borderBottomWidth: Outline.width, borderColor: Colors.ink },
-  enclosureInner: { alignItems: 'center', paddingBottom: 16 },
+  enclosureInner: { flex: 1, alignItems: 'center' },
+  hamsterContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 55 }, // matches Today
+  topSide: { flex: 1, alignItems: 'flex-start' },
   topRow: {
     width: '100%',
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingTop: 8,
@@ -138,9 +152,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 6,
     borderRadius: 16,
-    marginTop: 4,
   },
-  name: { fontFamily: Fonts.heading, fontSize: 20, color: Colors.ink },
+  name: { fontFamily: Fonts.heading, fontSize: 17, color: Colors.ink },
   content: { padding: 18 },
   tile: { flexDirection: 'row', alignItems: 'center', padding: 16, minHeight: 88 },
   tileText: { flex: 1, marginLeft: 14 },
