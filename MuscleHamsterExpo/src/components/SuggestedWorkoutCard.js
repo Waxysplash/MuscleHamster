@@ -4,7 +4,6 @@
 // Storybook style: outlined card, outlined time chips, chunky Start button.
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import {
   getSuggestion,
   TimeChoice,
@@ -56,7 +55,7 @@ export default function SuggestedWorkoutCard({
       </View>
 
       <View style={styles.workoutRow} accessible accessibilityLabel={`${workout.name}, ${minutes} minutes. ${plain || ''}. ${reason}`}>
-        <StoryIcon name={typeInfo?.icon || 'fitness'} art={typeInfo?.art} size={52} color={Colors.peach} />
+        <StoryIcon name={typeInfo?.icon || 'fitness'} art={typeInfo?.art} size={56} color={Colors.peach} />
         <View style={styles.workoutText}>
           <Text style={T.heading}>{workout.name}</Text>
           <Text style={T.small}>{plain ? `${plain} · ` : ''}{minutes} min</Text>

@@ -80,7 +80,7 @@ export default function MeScreen({ navigation }) {
       <StoryCard padded={false} style={{ overflow: 'hidden' }}>
         <Row
           icon="person-circle"
-          art="tab_hamster"
+          art="me_profile"
           title="Profile & goals"
           subtitle="Fitness level, goals, workout days"
           onPress={() => navigation.navigate('ProfileSettings')}

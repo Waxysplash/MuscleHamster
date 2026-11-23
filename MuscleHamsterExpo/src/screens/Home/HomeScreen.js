@@ -12,7 +12,6 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useActivity } from '../../context/ActivityContext';
 import { useUserProfile } from '../../context/UserProfileContext';
@@ -28,9 +27,6 @@ import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import { StoryCard, StoryButton, StoryIcon } from '../../components/ui/Story';
 import AppIcon from '../../components/ui/AppIcon';
-
-// Mood badge art per hamster state
-const MOOD_ART = { hungry: 'mood_hungry', chillin: 'mood_rested', rested: 'mood_rested' };
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 import StepsCard from '../../components/StepsCard';
 import SuggestedWorkoutCard from '../../components/SuggestedWorkoutCard';
@@ -38,6 +34,16 @@ import { scaleDailyExercise } from '../../models/DailyExercise';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getSuggestion } from '../../services/SuggestionService';
 import { getTodayName } from '../../services/ScheduleService';
+
+// Mood badge art per hamster state (fallback matches the label fallback: hungry)
+const MOOD_ART = {
+  hungry: 'mood_hungry',
+  chillin: 'mood_rested',
+  rested: 'mood_rested',
+  happy: 'mood_happy',
+  excited: 'mood_happy',
+  proud: 'mood_happy',
+};
 import NotificationPermissionPrompt from '../../components/NotificationPermissionPrompt';
 import Logger from '../../services/LoggerService';
 import { useResponsive, getEnclosureHeight, getHamsterSize } from '../../utils/responsive';
@@ -246,12 +252,12 @@ export default function HomeScreen({ navigation }) {
     return (
       <StoryCard color={Colors.peach} containerStyle={styles.cardGap}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <AppIcon name="today_exercise" size={56} />
           <View style={{ flex: 1 }}>
             <Text style={T.label}>Today's exercise</Text>
             <Text style={[T.title, { marginTop: 2 }]}>{todaysExercise ? todaysExercise.name : 'Getting it ready...'}</Text>
             {todaysExercise ? <Text style={[T.body, { color: Colors.textSecondary }]}>{amount}</Text> : null}
           </View>
-          <AppIcon name="today_exercise" size={64} />
         </View>
         <StoryButton
           title={`Feed ${hamsterName}`}
@@ -287,7 +293,7 @@ export default function HomeScreen({ navigation }) {
               {/* State Badge - Left */}
               <View style={styles.topBarLeft}>
                 <View style={styles.stateBadge}>
-                  <AppIcon name={MOOD_ART[displayState] || 'mood_happy'} size={isTablet ? 26 : 22} />
+                  <AppIcon name={MOOD_ART[displayState] || 'mood_hungry'} size={isTablet ? 28 : 24} />
                   <Text style={[styles.stateText, isTablet && { fontSize: 14 }]}>
                     {hamsterInfo.displayName}
                   </Text>
@@ -385,7 +391,7 @@ export default function HomeScreen({ navigation }) {
                 accessibilityLabel={`This week: ${Math.min(weeklyProgress.daysDone, weeklyProgress.target)} of ${weeklyProgress.target} active days${weeklyProgress.reached ? '. Weekly goal reached!' : ''}${currentStreak > 0 ? `. ${currentStreak} day streak.` : ''}`}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <AppIcon name={weeklyProgress.reached ? 'weekly_goal_reached' : 'weekly_goal'} size={28} />
+                  <AppIcon name={weeklyProgress.reached ? 'weekly_goal_done' : 'weekly_goal'} size={28} />
                   <Text style={T.label}>This week</Text>
                 </View>
                 <View style={[styles.row, { marginTop: 8 }]}>
@@ -498,10 +504,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface,
-    paddingHorizontal: 12,
+    paddingLeft: 8,
+    paddingRight: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    gap: 4,
+    gap: 6,
     borderWidth: Outline.width,
     borderColor: Colors.ink,
   },
@@ -530,10 +537,11 @@ const styles = StyleSheet.create({
   stateBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingLeft: 8,
+    paddingRight: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    gap: 4,
+    gap: 6,
     backgroundColor: Colors.surface,
     borderWidth: Outline.width,
     borderColor: Colors.ink,

@@ -430,7 +430,7 @@ export default function MainTabNavigator() {
         component={HomeStackScreen}
         options={{
           title: 'Today',
-          tabBarIcon: ({ focused }) => <AppIcon name="tab_today" size={28} opacity={focused ? 1 : 0.4} />,
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_today" size={28} opacity={focused ? 1 : 0.55} />,
           tabBarAccessibilityLabel: 'Today tab',
         }}
       />
@@ -438,7 +438,7 @@ export default function MainTabNavigator() {
         name="Workouts"
         component={WorkoutsStackScreen}
         options={{
-          tabBarIcon: ({ focused }) => <AppIcon name="tab_workouts" size={28} opacity={focused ? 1 : 0.4} />,
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_workouts" size={28} opacity={focused ? 1 : 0.55} />,
           tabBarAccessibilityLabel: 'Workouts tab',
         }}
       />
@@ -458,7 +458,7 @@ export default function MainTabNavigator() {
         name="Hamster"
         component={HamsterStackScreen}
         options={{
-          tabBarIcon: ({ focused }) => <AppIcon name="tab_hamster" size={28} opacity={focused ? 1 : 0.4} />,
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_hamster" size={28} opacity={focused ? 1 : 0.55} />,
           tabBarAccessibilityLabel: 'Hamster tab: shop and dress up',
         }}
       />
@@ -466,7 +466,7 @@ export default function MainTabNavigator() {
         name="Me"
         component={MeStackScreen}
         options={{
-          tabBarIcon: ({ focused }) => <AppIcon name="tab_me" size={28} opacity={focused ? 1 : 0.4} />,
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_me" size={28} opacity={focused ? 1 : 0.55} />,
           tabBarAccessibilityLabel: 'Me tab: progress and settings',
         }}
       />

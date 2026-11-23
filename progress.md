@@ -146,7 +146,8 @@ eas submit --platform ios                         # Submit to App Store
 - A graphic designer agent drew 37 custom vector icons (Priority 1 and 2 of the Icon List) in the Storybook style: `MuscleHamsterExpo/design/icons/` (svg/, STYLE.md, sheet.png, build.mjs generator).
 - `scripts/build-icons.mjs` turns them into `src/assets/icons/iconSet.js`; `components/ui/AppIcon.js` draws them; `StoryIcon art="..."` shows custom art bare (no extra circle) and falls back to the stock icon.
 - Wired in: tab bar (faded 0.4 when not selected), mood badge, Today cards (exercise, fed, welcome back, this week), Steps, Me and Settings rows, Shop and Dress up, Points history, workout types, programs, player finish, streak freeze.
-- Designer's weakest icons: type_mobility (reads like refresh), player_warmup (busy when small); today_exercise and player_done deserve full illustrations later. Priority 3 move pictures not started.
+- Review round (app designer, app developer, Twitch emote artist), same day: icon redraw (bigger eyes/smile, 3.0 outer / 2.3 inner strokes, colour cores on meaning lines, neutral "ready" today_exercise, person avatar for tab_me/me_profile, new weekly_goal_done and bonus_gift: 39 icons). App side: tab fade 0.55, mood map/fallback fixed, Home cards aligned at 56, step medal beside the progress text, player phase art, strength programs use tab_workouts, bare stock icons in Settings, AppIcon hidden from screen readers + memo, `npm run icons`. Emote concepts saved in the OneDrive Icons folder.
+- Designer's weakest icons (first pass): type_mobility (reads like refresh), player_warmup (busy when small); today_exercise and player_done deserve full illustrations later. Priority 3 move pictures not started.
 
 ### Session 93 (Nov 20, 2026) — design canvas screens built
 - Built the four proposals from the design canvas into the app (Storybook style):

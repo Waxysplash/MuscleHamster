@@ -110,7 +110,7 @@ export default function StreakFreezeScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.successContent}>
           <View style={styles.successIcon}>
-            <AppIcon name="streak_freeze" size={72} />
+            <AppIcon name="streak_freeze" size={76} />
           </View>
           <Text style={styles.successTitle}>Streak Restored!</Text>
           <Text style={styles.successSubtitle}>
@@ -442,7 +442,9 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(90,200,250,0.1)',
+    backgroundColor: '#FFE3B8',
+    borderWidth: 2.5,
+    borderColor: '#4A3728',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,

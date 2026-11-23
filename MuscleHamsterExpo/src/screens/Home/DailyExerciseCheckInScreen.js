@@ -182,7 +182,7 @@ export default function DailyExerciseCheckInScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={styles.readyContent}>
         {/* Exercise icon */}
-        <StoryIcon name={exercise.icon} art="today_exercise" size={96} color={Colors.peach} />
+        <StoryIcon name={exercise.icon} size={96} color={Colors.peach} />
 
         {/* Exercise name */}
         <Text style={styles.exerciseName}>

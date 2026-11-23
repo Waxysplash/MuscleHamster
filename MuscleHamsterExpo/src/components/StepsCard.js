@@ -9,6 +9,7 @@ import { useActivity } from '../context/ActivityContext';
 import { StepMilestones } from '../models/Activity';
 import StepService, { StepPermission } from '../services/StepService';
 import { StoryCard, StoryButton, StoryIcon } from './ui/Story';
+import AppIcon from './ui/AppIcon';
 import { Colors, Fonts, Outline, T } from '../config/theme';
 
 const ACCENT = '#1A7F91'; // darker teal: readable as text and behind white
@@ -109,7 +110,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
     return (
       <StoryCard color={Colors.sky} containerStyle={styles.gap}>
         <View style={styles.row}>
-          <StoryIcon name="walk" art="steps" color={Colors.surface} />
+          <StoryIcon name="walk" art="steps" size={56} color={Colors.surface} />
           <View style={styles.rowText}>
             <Text style={T.heading}>Count your steps</Text>
             <Text style={[T.small, { color: Colors.text }]}>Walking earns bonus points for {hamsterName}</Text>
@@ -138,7 +139,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
           accessibilityRole="button"
           accessibilityLabel="Step counter is off. Open Settings to turn on Motion and Fitness."
         >
-          <StoryIcon name="walk" art="steps" color={Colors.sand} />
+          <StoryIcon name="walk" art="steps" size={56} color={Colors.sand} />
           <View style={styles.rowText}>
             <Text style={T.heading}>Step counter is off</Text>
             <Text style={T.small}>Turn on Motion & Fitness in Settings anytime</Text>
@@ -166,7 +167,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
         }`}
       >
         <View style={styles.row}>
-          <StoryIcon name="walk" art="steps" color={Colors.surface} />
+          <StoryIcon name="walk" art="steps" size={56} color={Colors.surface} />
           <View style={styles.rowText}>
             <View style={styles.headerRow}>
               <Text style={T.title}>{formatSteps(current)}</Text>
@@ -179,13 +180,16 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
           <View style={[styles.fill, { width: `${Math.max(0, Math.min(1, progress)) * 100}%` }]} />
         </View>
 
-        <Text style={[T.small, { color: Colors.text, marginTop: 8 }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          {next && !celebration ? <AppIcon name={`steps_${next.id}`} size={28} /> : null}
+          <Text style={[T.small, { color: Colors.text, flex: 1 }]}>
           {celebration
             ? celebration
             : next
             ? `${formatSteps(next.steps - current)} more to ${next.label} (+${next.points})`
             : `All step bonuses earned today. ${hamsterName} is impressed!`}
-        </Text>
+          </Text>
+        </View>
 
         <View style={styles.milestoneRow}>
           {StepMilestones.map((m) => {

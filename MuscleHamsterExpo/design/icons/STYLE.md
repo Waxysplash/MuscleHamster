@@ -1,6 +1,6 @@
 # Muscle Hamster icon style
 
-37 hand-authored icons for the Storybook redesign. Files: `svg/<name>.svg`. Preview: `sheet.png` (each icon at 64, 28 and 20 px).
+39 hand-authored icons for the Storybook redesign. Files: `svg/<name>.svg`. Preview: `sheet.png` (each icon at 64, 28 and 20 px).
 `build.mjs` is the source the SVGs are generated from (`node build.mjs svg`). Edit it rather than hand-editing the SVGs so the hamster and strokes stay identical everywhere.
 
 ## Grid
@@ -9,9 +9,12 @@
 - Allowed elements: `path circle ellipse rect line polyline polygon g` with inline attributes. `g transform` (translate / rotate / mirror) is fine. No text, filters, gradients, masks, opacity, `<style>` or external refs.
 
 ## Stroke
-- Outline: ink `#4A3728`, **2.5**, round caps and joins. Every filled shape gets the full outline.
-- Facial features and small inner details: 2 (1.6 on small heads). Inner details never go above 2.5.
-- **Limbs** are capsules: an 8-wide ink stroke with a 3-wide colour stroke on top, so they carry the same 2.5 outline as everything else.
+- Ink `#4A3728`, round caps and joins. Three weights:
+  - **3.0** outer silhouette: head, ears, body, limbs, the main object's contour.
+  - **2.2–2.4** (2.3 in code) inner and face details: mouths, headband, text lines, inner rings, sparkles.
+  - **1.6** absolute floor (nose, tooth). Nothing thinner, or it vanishes on device.
+- **No ink-only line that carries meaning.** A free-standing line (rays, Zs, arrows, handles, waves, flag pole) is a `capsule()`: an ink stroke with a colour core. Plain ink lines are only allowed as details on top of a filled shape (receipt lines, the calendar ticks).
+- **Limbs** are capsules with the full 3.0 outline: 9-wide ink with a 3-wide colour core.
 - No light source, no shading, no shadows. Flat fills only. A single white highlight stroke (ice, ball) is the most "shine" we allow.
 
 ## Palette
@@ -36,8 +39,9 @@ Built from one function (`head()` in `build.mjs`). Same parts in every icon, onl
 - **Ears:** small orange circles at the top corners, half hidden behind the head, coral inner dot.
 - **Face:** white lower face. The orange dips into a soft V between the eyes.
 - **Headband:** coral band across the brow. This is the signature, so always include it. Below k = 0.75 it loses its inner outline and becomes a plain coral stripe.
-- **Eyes:** ink dots with one white glint. **Nose:** coral oval. **Mouth:** small "w". **Cheeks:** coral ovals.
-- **Expressions:** `smile` (default), `happy` (open mouth + buck tooth), `hungry` (big glossy eyes, licking lips), `sleep` (closed arcs), `squeeze` (^ ^ joy), `breath` (closed eyes, "o" mouth).
+- **Eyes:** ink dots r 2.9k (hungry 3.8k) with a white glint of at least 1.0. **Nose:** coral oval. **Mouth:** small "w"; below k 0.8 it becomes one wide smile curve. **Cheeks:** coral ovals, smaller below k 0.8 and never bigger than the eyes.
+- **Ears:** r = 3.9k + 0.8 so they survive at small sizes.
+- **Expressions:** `smile` (default), `happy` (wide open mouth + buck tooth), `hungry` (big glossy eyes, tongue out, drool drop), `sleep` (closed arcs), `squeeze` (^ ^ joy), `breath` (closed eyes, "o" mouth).
 - **Body:** orange oval with a white belly oval. Feet are small orange ovals. Paws are orange dots (r ≈ 3).
 - Proportions: chibi. The head is always bigger than the body. In full-body icons use head k ≈ 0.7–0.8.
 - Head-only ("bust") icons: arms rise from behind the head (strength, stretching).

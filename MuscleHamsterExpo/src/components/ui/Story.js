@@ -124,9 +124,17 @@ export function StoryChip({ label, selected = false, onPress, accessibilityLabel
 }
 
 // art: a custom icon name (design/icons). Falls back to the stock icon `name` if missing.
-export function StoryIcon({ name, art, size = 44, color = Colors.peach, iconColor = Colors.ink }) {
+// bare: stock icon without the circle (to sit in a list next to custom art). color is ignored when art or bare.
+export function StoryIcon({ name, art, bare = false, size = 44, color = Colors.peach, iconColor = Colors.ink }) {
   // Custom art has its own ink outline, so it renders bare (no second circle)
   if (hasAppIcon(art)) return <AppIcon name={art} size={size} />;
+  if (bare) {
+    return (
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Ionicons name={name} size={Math.round(size * 0.65)} color={iconColor} />
+      </View>
+    );
+  }
   return (
     <View
       style={{

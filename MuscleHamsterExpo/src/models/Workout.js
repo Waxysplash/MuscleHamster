@@ -95,9 +95,9 @@ export const ExerciseType = {
 
 export const ExerciseTypeInfo = {
   [ExerciseType.WORK]: { displayName: 'Work', icon: 'flash', color: '#A65000' },
-  [ExerciseType.REST]: { displayName: 'Rest', icon: 'pause', color: '#6B5D52' },
-  [ExerciseType.WARMUP]: { displayName: 'Warm Up', icon: 'sunny', color: '#FFCC00' },
-  [ExerciseType.COOLDOWN]: { displayName: 'Cool Down', icon: 'snow', color: '#1A7F91' },
+  [ExerciseType.REST]: { displayName: 'Rest', icon: 'pause', art: 'player_rest', color: '#6B5D52' },
+  [ExerciseType.WARMUP]: { displayName: 'Warm Up', icon: 'sunny', art: 'player_warmup', color: '#FFCC00' },
+  [ExerciseType.COOLDOWN]: { displayName: 'Cool Down', icon: 'snow', art: 'player_cooldown', color: '#1A7F91' },
 };
 
 // Create a workout object

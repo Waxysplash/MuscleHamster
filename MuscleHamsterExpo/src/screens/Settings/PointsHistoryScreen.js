@@ -19,7 +19,7 @@ const CATEGORY_LOOK = {
   [TransactionCategory.REST_DAY]: { icon: 'cafe', art: 'rest_day', color: Colors.sand },
   [TransactionCategory.STREAK_FREEZE]: { icon: 'snow', art: 'streak_freeze', color: Colors.sky },
   [TransactionCategory.SHOP_PURCHASE]: { icon: 'bag-handle', art: 'shop', color: Colors.peach },
-  [TransactionCategory.AD_REWARD]: { icon: 'gift', art: 'weekly_goal_reached', color: Colors.mint },
+  [TransactionCategory.AD_REWARD]: { icon: 'gift', art: 'bonus_gift', color: Colors.mint },
 };
 
 const formatNumber = (num) => String(num || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');

@@ -18,6 +18,7 @@ import { useAlert } from '../../context/AlertContext';
 import Logger from '../../services/LoggerService';
 import { Colors, Fonts, Outline } from '../../config/theme';
 import { StoryButton, StoryIcon } from '../../components/ui/Story';
+import AppIcon from '../../components/ui/AppIcon';
 import { ExerciseTypeInfo, ExerciseType } from '../../models/Workout';
 import { WorkoutFeedback, WorkoutFeedbackInfo, HamsterStateInfo } from '../../models/Activity';
 import { useResponsive, getTimerSize, getActionButtonSize } from '../../utils/responsive';
@@ -321,7 +322,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       <View style={[styles.container, styles.completedContainer]}>
         <View style={styles.completedContent}>
           <View style={styles.celebrationIcon}>
-            <StoryIcon name="trophy" art="player_done" size={110} color={Colors.brand} />
+            <StoryIcon name="trophy" art="player_done" size={96} color={Colors.brand} />
           </View>
           <Text style={styles.completedTitle}>Amazing Work!</Text>
           <Text style={styles.completedSubtitle}>
@@ -433,6 +434,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
 
       {/* Exercise Content */}
       <View style={styles.exerciseContent}>
+        {exerciseTypeInfo?.art ? <AppIcon name={exerciseTypeInfo.art} size={64} style={{ marginBottom: 8 }} /> : null}
         <View style={styles.typeBadge}>
           <Ionicons name={exerciseTypeInfo?.icon || 'flash'} size={16} color={Colors.ink} />
           <Text style={styles.typeBadgeText}>

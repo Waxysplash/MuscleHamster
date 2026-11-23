@@ -31,6 +31,7 @@ import { useAlert } from '../../context/AlertContext';
 import { describeReward } from '../../utils/rewardMessage';
 import SuggestedWorkoutsRow from '../../components/SuggestedWorkoutsRow';
 import { PROGRAMS } from '../../models/Programs';
+import { WorkoutTypeInfo } from '../../models/Workout';
 import { StoryCard, StoryIcon } from '../../components/ui/Story';
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 import Logger from '../../services/LoggerService';
@@ -350,9 +351,11 @@ export default function WorkoutsScreen({ navigation, route }) {
                       activeOpacity={0.85}
                     >
                       <StoryCard color={program.color} style={program.wide ? styles.programTileRow : styles.programTile}>
-                        <StoryIcon name={program.icon} art={program.type !== 'strength' ? `type_${program.type}` : undefined} size={48} color={Colors.surface} />
-                        <Text style={[T.title, { marginTop: 8 }]}>{program.title}</Text>
-                        <Text style={[T.small, { color: Colors.text }]} numberOfLines={2}>{program.subtitle}</Text>
+                        <StoryIcon name={program.icon} art={program.type === 'strength' ? 'tab_workouts' : WorkoutTypeInfo[program.type]?.art} size={48} color={Colors.surface} />
+                        <View style={program.wide ? { flex: 1 } : null}>
+                          <Text style={[T.title, { marginTop: program.wide ? 0 : 8 }]}>{program.title}</Text>
+                          <Text style={[T.small, { color: Colors.text }]} numberOfLines={2}>{program.subtitle}</Text>
+                        </View>
                       </StoryCard>
                     </TouchableOpacity>
                   ))}
@@ -386,7 +389,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                 <Text style={styles.hubSection}>Single exercises</Text>
                 <View style={styles.programGrid}>
                   {[
-                    { key: 'home', icon: 'home', title: 'At home', sub: 'No equipment needed' },
+                    { key: 'home', icon: 'home', art: 'today_exercise', title: 'At home', sub: 'No equipment needed' },
                     { key: 'gym', icon: 'barbell', art: 'tab_workouts', title: 'At the gym', sub: 'Machines and weights' },
                   ].map((row) => (
                     <TouchableOpacity
@@ -540,7 +543,7 @@ const styles = StyleSheet.create({
   programTileWrap: { width: '48%', marginBottom: 12 },
   programTile: { alignItems: 'flex-start', minHeight: 150 },
   programTileWide: { width: '100%', marginBottom: 12 },
-  programTileRow: { alignItems: 'flex-start' },
+  programTileRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   hubRow: { flexDirection: 'row', alignItems: 'center' },
   safeArea: {
     flex: 1,

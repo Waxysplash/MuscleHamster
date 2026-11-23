@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getProgram, LEVEL_INFO } from '../../models/Programs';
+import { WorkoutTypeInfo } from '../../models/Workout';
 import { getProgramWorkouts } from '../../services/WorkoutService';
 import { getWorkoutMinutes } from '../../services/SuggestionService';
 import { useUserProfile } from '../../context/UserProfileContext';
@@ -41,7 +42,7 @@ export default function ProgramScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.hero, { backgroundColor: program.color }]}>
-          <StoryIcon name={program.icon} art={program.type !== 'strength' ? `type_${program.type}` : undefined} size={72} color={Colors.surface} />
+          <StoryIcon name={program.icon} art={program.type === 'strength' ? 'tab_workouts' : WorkoutTypeInfo[program.type]?.art} size={72} color={Colors.surface} />
           <Text style={[T.hero, { marginTop: 10 }]}>{program.title}</Text>
           <Text style={[T.bodyBold, { color: Colors.brown }]}>{program.subtitle}</Text>
           <Text style={[T.body, { textAlign: 'center', marginTop: 8 }]}>{program.about}</Text>
