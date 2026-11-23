@@ -85,7 +85,7 @@ export default function HamsterScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel="Shop. Spend your points on outfits and items"
           >
-            <StoryIcon name="bag" size={56} color={Colors.surface} />
+            <StoryIcon name="bag" art="shop" size={56} color={Colors.surface} />
             <View style={styles.tileText}>
               <Text style={T.title}>Shop</Text>
               <Text style={[T.small, { color: Colors.text }]}>Spend your points on outfits and treats</Text>
@@ -101,7 +101,7 @@ export default function HamsterScreen({ navigation }) {
             accessibilityRole="button"
             accessibilityLabel={`Dress up ${hamsterName}. Choose what your hamster wears`}
           >
-            <StoryIcon name="shirt" size={56} color={Colors.surface} />
+            <StoryIcon name="shirt" art="dress_up" size={56} color={Colors.surface} />
             <View style={styles.tileText}>
               <Text style={T.title}>Dress up {hamsterName}</Text>
               <Text style={[T.small, { color: Colors.text }]}>Choose outfits and accessories you own</Text>

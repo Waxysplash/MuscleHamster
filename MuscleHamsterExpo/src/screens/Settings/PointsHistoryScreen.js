@@ -14,12 +14,12 @@ import { TransactionType, TransactionCategory, TransactionCategoryInfo } from '.
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 
 const CATEGORY_LOOK = {
-  [TransactionCategory.WORKOUT]: { icon: 'barbell', color: Colors.peach },
-  [TransactionCategory.STEPS]: { icon: 'walk', color: Colors.sky },
-  [TransactionCategory.REST_DAY]: { icon: 'cafe', color: Colors.sand },
-  [TransactionCategory.STREAK_FREEZE]: { icon: 'snow', color: Colors.sky },
-  [TransactionCategory.SHOP_PURCHASE]: { icon: 'bag-handle', color: Colors.peach },
-  [TransactionCategory.AD_REWARD]: { icon: 'gift', color: Colors.mint },
+  [TransactionCategory.WORKOUT]: { icon: 'barbell', art: 'tab_workouts', color: Colors.peach },
+  [TransactionCategory.STEPS]: { icon: 'walk', art: 'steps', color: Colors.sky },
+  [TransactionCategory.REST_DAY]: { icon: 'cafe', art: 'rest_day', color: Colors.sand },
+  [TransactionCategory.STREAK_FREEZE]: { icon: 'snow', art: 'streak_freeze', color: Colors.sky },
+  [TransactionCategory.SHOP_PURCHASE]: { icon: 'bag-handle', art: 'shop', color: Colors.peach },
+  [TransactionCategory.AD_REWARD]: { icon: 'gift', art: 'weekly_goal_reached', color: Colors.mint },
 };
 
 const formatNumber = (num) => String(num || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -149,7 +149,7 @@ export default function PointsHistoryScreen() {
         accessible
         accessibilityLabel={`${item.description}. ${categoryName}. ${isEarn ? 'Earned' : 'Spent'} ${item.amount} points`}
       >
-        <StoryIcon name={look.icon} size={40} color={look.color} />
+        <StoryIcon name={look.icon} art={look.art} size={40} color={look.color} />
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle} numberOfLines={2}>{item.description}</Text>
           <Text style={styles.rowSub}>{categoryName}</Text>

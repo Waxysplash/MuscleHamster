@@ -16,14 +16,14 @@ import { StatIcons } from '../../config/AssetImages';
 import { StoryCard, StoryIcon } from '../../components/ui/Story';
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 
-const Row = ({ icon, title, subtitle, onPress, last = false }) => (
+const Row = ({ icon, art, title, subtitle, onPress, last = false }) => (
   <TouchableOpacity
     style={[styles.row, last && { borderBottomWidth: 0 }]}
     onPress={onPress}
     accessibilityRole="button"
     accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
   >
-    <StoryIcon name={icon} size={40} color={Colors.peach} />
+    <StoryIcon name={icon} art={art} size={40} color={Colors.peach} />
     <View style={{ flex: 1 }}>
       <Text style={styles.rowTitle}>{title}</Text>
       {subtitle ? <Text style={styles.rowSubtitle}>{subtitle}</Text> : null}
@@ -80,22 +80,26 @@ export default function MeScreen({ navigation }) {
       <StoryCard padded={false} style={{ overflow: 'hidden' }}>
         <Row
           icon="person-circle"
+          art="tab_hamster"
           title="Profile & goals"
           subtitle="Fitness level, goals, workout days"
           onPress={() => navigation.navigate('ProfileSettings')}
         />
         <Row
           icon="receipt"
+          art="me_points_history"
           title="Points history"
           onPress={() => navigation.navigate('PointsHistory')}
         />
         <Row
           icon="notifications"
+          art="me_reminders"
           title="Reminders"
           onPress={() => navigation.navigate('NotificationSettings')}
         />
         <Row
           icon="settings"
+          art="me_settings"
           title="All settings"
           subtitle="Account, sound, privacy"
           last

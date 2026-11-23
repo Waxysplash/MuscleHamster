@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../../components/ui/AppIcon';
 import { useActivity } from '../../context/ActivityContext';
 import { PointsConfig } from '../../models/Activity';
 import { StatIcons } from '../../config/AssetImages';
@@ -109,7 +110,7 @@ export default function StreakFreezeScreen({ navigation }) {
       <View style={styles.container}>
         <View style={styles.successContent}>
           <View style={styles.successIcon}>
-            <Ionicons name="snow" size={60} color="#1A7F91" />
+            <AppIcon name="streak_freeze" size={72} />
           </View>
           <Text style={styles.successTitle}>Streak Restored!</Text>
           <Text style={styles.successSubtitle}>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../components/ui/AppIcon';
 
 import { HomeScreen } from '../screens/Home';
 import { DailyExerciseCheckInScreen } from '../screens/Home';
@@ -429,9 +430,7 @@ export default function MainTabNavigator() {
         component={HomeStackScreen}
         options={{
           title: 'Today',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sunny" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_today" size={28} opacity={focused ? 1 : 0.4} />,
           tabBarAccessibilityLabel: 'Today tab',
         }}
       />
@@ -439,9 +438,7 @@ export default function MainTabNavigator() {
         name="Workouts"
         component={WorkoutsStackScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="fitness" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_workouts" size={28} opacity={focused ? 1 : 0.4} />,
           tabBarAccessibilityLabel: 'Workouts tab',
         }}
       />
@@ -461,9 +458,7 @@ export default function MainTabNavigator() {
         name="Hamster"
         component={HamsterStackScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="paw" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_hamster" size={28} opacity={focused ? 1 : 0.4} />,
           tabBarAccessibilityLabel: 'Hamster tab: shop and dress up',
         }}
       />
@@ -471,9 +466,7 @@ export default function MainTabNavigator() {
         name="Me"
         component={MeStackScreen}
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle" size={size} color={color} />
-          ),
+          tabBarIcon: ({ focused }) => <AppIcon name="tab_me" size={28} opacity={focused ? 1 : 0.4} />,
           tabBarAccessibilityLabel: 'Me tab: progress and settings',
         }}
       />

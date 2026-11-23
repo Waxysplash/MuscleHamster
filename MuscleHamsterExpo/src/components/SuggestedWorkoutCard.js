@@ -14,6 +14,7 @@ import {
 import { WorkoutTypeInfo } from '../models/Workout';
 import { PLAIN_CATEGORY } from '../models/MoveGuide';
 import { StoryCard, StoryButton, StoryChip, StoryIcon } from './ui/Story';
+import AppIcon from './ui/AppIcon';
 import { Colors, Fonts, T } from '../config/theme';
 
 export default function SuggestedWorkoutCard({
@@ -55,7 +56,7 @@ export default function SuggestedWorkoutCard({
       </View>
 
       <View style={styles.workoutRow} accessible accessibilityLabel={`${workout.name}, ${minutes} minutes. ${plain || ''}. ${reason}`}>
-        <StoryIcon name={typeInfo?.icon || 'fitness'} size={52} color={Colors.peach} />
+        <StoryIcon name={typeInfo?.icon || 'fitness'} art={typeInfo?.art} size={52} color={Colors.peach} />
         <View style={styles.workoutText}>
           <Text style={T.heading}>{workout.name}</Text>
           <Text style={T.small}>{plain ? `${plain} · ` : ''}{minutes} min</Text>
@@ -79,7 +80,7 @@ export default function SuggestedWorkoutCard({
             accessibilityRole="button"
             accessibilityLabel="Show a different workout"
           >
-            <Ionicons name="shuffle" size={18} color={Colors.ink} />
+            <AppIcon name="shuffle" size={24} />
             <Text style={styles.footerText}>Something else</Text>
           </Pressable>
         ) : <View />}
@@ -90,7 +91,7 @@ export default function SuggestedWorkoutCard({
             accessibilityRole="button"
             accessibilityLabel="I'm resting today. Rest days count toward your streak"
           >
-            <Ionicons name="bed" size={18} color={Colors.ink} />
+            <AppIcon name="rest_day" size={24} />
             <Text style={styles.footerText}>I'm resting today</Text>
           </Pressable>
         )}

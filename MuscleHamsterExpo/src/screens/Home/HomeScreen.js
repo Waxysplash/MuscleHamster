@@ -27,6 +27,10 @@ import { getTodaysExercise } from '../../services/DailyExerciseService';
 import { useAuth } from '../../context/AuthContext';
 import ErrorBanner from '../../components/ErrorBanner';
 import { StoryCard, StoryButton, StoryIcon } from '../../components/ui/Story';
+import AppIcon from '../../components/ui/AppIcon';
+
+// Mood badge art per hamster state
+const MOOD_ART = { hungry: 'mood_hungry', chillin: 'mood_rested', rested: 'mood_rested' };
 import { Colors, Fonts, Outline, T } from '../../config/theme';
 import StepsCard from '../../components/StepsCard';
 import SuggestedWorkoutCard from '../../components/SuggestedWorkoutCard';
@@ -223,7 +227,7 @@ export default function HomeScreen({ navigation }) {
       return (
         <StoryCard color={Colors.mint} containerStyle={styles.cardGap}>
           <View style={styles.row}>
-            <StoryIcon name="checkmark" color={Colors.successFill} />
+            <StoryIcon name="checkmark" art="today_fed" size={56} color={Colors.successFill} />
             <View style={styles.rowText}>
               <Text style={T.heading}>{hamsterName} is fed for today!</Text>
               <Text style={T.small}>
@@ -241,9 +245,14 @@ export default function HomeScreen({ navigation }) {
       : '';
     return (
       <StoryCard color={Colors.peach} containerStyle={styles.cardGap}>
-        <Text style={T.label}>Today's exercise</Text>
-        <Text style={[T.title, { marginTop: 2 }]}>{todaysExercise ? todaysExercise.name : 'Getting it ready...'}</Text>
-        {todaysExercise ? <Text style={[T.body, { color: Colors.textSecondary }]}>{amount}</Text> : null}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={T.label}>Today's exercise</Text>
+            <Text style={[T.title, { marginTop: 2 }]}>{todaysExercise ? todaysExercise.name : 'Getting it ready...'}</Text>
+            {todaysExercise ? <Text style={[T.body, { color: Colors.textSecondary }]}>{amount}</Text> : null}
+          </View>
+          <AppIcon name="today_exercise" size={64} />
+        </View>
         <StoryButton
           title={`Feed ${hamsterName}`}
           icon="nutrition"
@@ -278,7 +287,7 @@ export default function HomeScreen({ navigation }) {
               {/* State Badge - Left */}
               <View style={styles.topBarLeft}>
                 <View style={styles.stateBadge}>
-                  <Ionicons name={hamsterInfo.icon} size={isTablet ? 16 : 14} color={hamsterInfo.color} />
+                  <AppIcon name={MOOD_ART[displayState] || 'mood_happy'} size={isTablet ? 26 : 22} />
                   <Text style={[styles.stateText, isTablet && { fontSize: 14 }]}>
                     {hamsterInfo.displayName}
                   </Text>
@@ -375,7 +384,10 @@ export default function HomeScreen({ navigation }) {
                 accessible
                 accessibilityLabel={`This week: ${Math.min(weeklyProgress.daysDone, weeklyProgress.target)} of ${weeklyProgress.target} active days${weeklyProgress.reached ? '. Weekly goal reached!' : ''}${currentStreak > 0 ? `. ${currentStreak} day streak.` : ''}`}
               >
-                <Text style={T.label}>This week</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <AppIcon name={weeklyProgress.reached ? 'weekly_goal_reached' : 'weekly_goal'} size={28} />
+                  <Text style={T.label}>This week</Text>
+                </View>
                 <View style={[styles.row, { marginTop: 8 }]}>
                   <View style={styles.weeklyDots}>
                     {Array.from({ length: weeklyProgress.target }).map((_, i) => (
@@ -408,7 +420,7 @@ export default function HomeScreen({ navigation }) {
           {previousBrokenStreak && previousBrokenStreak > 0 && (
             <StoryCard color={Colors.surface} containerStyle={styles.cardGap}>
               <View style={styles.row}>
-                <StoryIcon name="heart" />
+                <StoryIcon name="heart" art="welcome_back" size={56} />
                 <View style={styles.rowText}>
                   <Text style={T.heading}>Welcome back! {hamsterName} missed you</Text>
                   <Text style={T.small}>Want to bring back your {previousBrokenStreak}-day streak?</Text>

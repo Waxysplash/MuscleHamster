@@ -109,7 +109,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
     return (
       <StoryCard color={Colors.sky} containerStyle={styles.gap}>
         <View style={styles.row}>
-          <StoryIcon name="walk" color={Colors.surface} />
+          <StoryIcon name="walk" art="steps" color={Colors.surface} />
           <View style={styles.rowText}>
             <Text style={T.heading}>Count your steps</Text>
             <Text style={[T.small, { color: Colors.text }]}>Walking earns bonus points for {hamsterName}</Text>
@@ -138,7 +138,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
           accessibilityRole="button"
           accessibilityLabel="Step counter is off. Open Settings to turn on Motion and Fitness."
         >
-          <StoryIcon name="walk" color={Colors.sand} />
+          <StoryIcon name="walk" art="steps" color={Colors.sand} />
           <View style={styles.rowText}>
             <Text style={T.heading}>Step counter is off</Text>
             <Text style={T.small}>Turn on Motion & Fitness in Settings anytime</Text>
@@ -166,7 +166,7 @@ export default function StepsCard({ hamsterName = 'your hamster' }) {
         }`}
       >
         <View style={styles.row}>
-          <StoryIcon name="walk" color={Colors.surface} />
+          <StoryIcon name="walk" art="steps" color={Colors.surface} />
           <View style={styles.rowText}>
             <View style={styles.headerRow}>
               <Text style={T.title}>{formatSteps(current)}</Text>

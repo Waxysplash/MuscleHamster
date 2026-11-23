@@ -92,7 +92,7 @@ export default function WorkoutDetailScreen({ route, navigation }) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <StoryIcon name={typeInfo.icon} size={84} color={Colors.surface} />
+          <StoryIcon name={typeInfo.icon} art={typeInfo.art} size={84} color={Colors.surface} />
           <Text style={styles.category}>{typeInfo.displayName}{PLAIN_CATEGORY[workout.category] ? ` · ${PLAIN_CATEGORY[workout.category]}` : ''}</Text>
           <Text style={styles.title}>{workout.name}</Text>
         </View>

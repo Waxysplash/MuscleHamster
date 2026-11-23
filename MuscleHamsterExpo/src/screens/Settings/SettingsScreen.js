@@ -19,10 +19,10 @@ import { Colors, Fonts, Outline } from '../../config/theme';
 
 const APP_VERSION = Constants.expoConfig?.version || '';
 
-const Row = ({ icon, label, sub, onPress, right, last = false, accessibilityLabel }) => {
+const Row = ({ icon, art, label, sub, onPress, right, last = false, accessibilityLabel }) => {
   const content = (
     <>
-      <StoryIcon name={icon} size={40} />
+      <StoryIcon name={icon} art={art} size={40} />
       <View style={styles.rowInfo}>
         <Text style={styles.rowLabel}>{label}</Text>
         {sub ? <Text style={styles.rowSub}>{sub}</Text> : null}
@@ -90,12 +90,14 @@ export default function SettingsScreen({ navigation }) {
       <Group title="You">
         <Row
           icon="person-circle"
+          art="me_profile"
           label={currentUser ? currentUser.email : 'Sign in'}
           sub={currentUser ? 'Email, password and account' : 'Set up your account to save progress'}
           onPress={() => navigation.navigate('AccountSettings')}
         />
         <Row
           icon="paw"
+          art="tab_hamster"
           label="Profile and goals"
           sub={profile?.hamsterName ? `${profile.hamsterName}, fitness level, workout days` : 'Fitness level, goals, workout days'}
           onPress={() => navigation.navigate('ProfileSettings')}
@@ -106,6 +108,7 @@ export default function SettingsScreen({ navigation }) {
       <Group title="Reminders">
         <Row
           icon="notifications"
+          art="me_reminders"
           label="Reminders"
           sub="Daily nudge from your hamster"
           onPress={() => navigation.navigate('NotificationSettings')}

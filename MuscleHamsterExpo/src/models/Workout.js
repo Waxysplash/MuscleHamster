@@ -54,14 +54,14 @@ export const WorkoutType = {
 };
 
 export const WorkoutTypeInfo = {
-  [WorkoutType.STRENGTH]: { displayName: 'Strength', icon: 'barbell', color: '#E0703D', description: 'Build muscle and get stronger' },
-  [WorkoutType.CARDIO]: { displayName: 'Cardio', icon: 'heart', color: '#A65000', description: 'Get your heart pumping' },
-  [WorkoutType.HIIT]: { displayName: 'HIIT', icon: 'flash', color: '#C0392B', description: 'High intensity, maximum results' },
-  [WorkoutType.YOGA]: { displayName: 'Yoga', icon: 'leaf', color: '#2E7D32', description: 'Mind-body connection' },
-  [WorkoutType.STRETCHING]: { displayName: 'Stretching', icon: 'body', color: '#8B5A2B', description: 'Improve flexibility' },
-  [WorkoutType.PILATES]: { displayName: 'Pilates', icon: 'ellipse', color: '#8B5A2B', description: 'Core strength and control' },
-  [WorkoutType.MOBILITY]: { displayName: 'Mobility', icon: 'sync', color: '#00C7BE', description: 'Move better, feel better' },
-  [WorkoutType.CIRCUIT]: { displayName: 'Circuit', icon: 'repeat', color: '#C0392B', description: 'Non-stop action' },
+  [WorkoutType.STRENGTH]: { displayName: 'Strength', icon: 'barbell', art: 'type_strength', color: '#E0703D', description: 'Build muscle and get stronger' },
+  [WorkoutType.CARDIO]: { displayName: 'Cardio', icon: 'heart', art: 'type_cardio', color: '#A65000', description: 'Get your heart pumping' },
+  [WorkoutType.HIIT]: { displayName: 'HIIT', icon: 'flash', art: 'type_intervals', color: '#C0392B', description: 'High intensity, maximum results' },
+  [WorkoutType.YOGA]: { displayName: 'Yoga', icon: 'leaf', art: 'type_yoga', color: '#2E7D32', description: 'Mind-body connection' },
+  [WorkoutType.STRETCHING]: { displayName: 'Stretching', icon: 'body', art: 'type_stretching', color: '#8B5A2B', description: 'Improve flexibility' },
+  [WorkoutType.PILATES]: { displayName: 'Pilates', icon: 'ellipse', art: 'type_pilates', color: '#8B5A2B', description: 'Core strength and control' },
+  [WorkoutType.MOBILITY]: { displayName: 'Mobility', icon: 'sync', art: 'type_mobility', color: '#00C7BE', description: 'Move better, feel better' },
+  [WorkoutType.CIRCUIT]: { displayName: 'Circuit', icon: 'repeat', art: 'type_circuit', color: '#C0392B', description: 'Non-stop action' },
 };
 
 export const Equipment = {

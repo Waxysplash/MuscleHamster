@@ -2,7 +2,7 @@
 
 **Status:** v1.0.6 (Build 59) - Submitted to TestFlight (processing)
 **Version:** 1.0.6 (Build 59) - Daily exercise cycling, dynamic version, custom art refresh
-**Last Updated:** Nov 20, 2026 (Session 93)
+**Last Updated:** Nov 22, 2026 (Session 94)
 
 ---
 
@@ -141,6 +141,12 @@ eas submit --platform ios                         # Submit to App Store
 ---
 
 ## Session Log
+
+### Session 94 (Nov 22, 2026) — custom icon set
+- A graphic designer agent drew 37 custom vector icons (Priority 1 and 2 of the Icon List) in the Storybook style: `MuscleHamsterExpo/design/icons/` (svg/, STYLE.md, sheet.png, build.mjs generator).
+- `scripts/build-icons.mjs` turns them into `src/assets/icons/iconSet.js`; `components/ui/AppIcon.js` draws them; `StoryIcon art="..."` shows custom art bare (no extra circle) and falls back to the stock icon.
+- Wired in: tab bar (faded 0.4 when not selected), mood badge, Today cards (exercise, fed, welcome back, this week), Steps, Me and Settings rows, Shop and Dress up, Points history, workout types, programs, player finish, streak freeze.
+- Designer's weakest icons: type_mobility (reads like refresh), player_warmup (busy when small); today_exercise and player_done deserve full illustrations later. Priority 3 move pictures not started.
 
 ### Session 93 (Nov 20, 2026) — design canvas screens built
 - Built the four proposals from the design canvas into the app (Storybook style):

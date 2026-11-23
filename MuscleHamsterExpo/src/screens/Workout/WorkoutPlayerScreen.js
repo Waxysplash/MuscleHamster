@@ -321,7 +321,7 @@ export default function WorkoutPlayerScreen({ route, navigation }) {
       <View style={[styles.container, styles.completedContainer]}>
         <View style={styles.completedContent}>
           <View style={styles.celebrationIcon}>
-            <StoryIcon name="trophy" size={110} color={Colors.brand} />
+            <StoryIcon name="trophy" art="player_done" size={110} color={Colors.brand} />
           </View>
           <Text style={styles.completedTitle}>Amazing Work!</Text>
           <Text style={styles.completedSubtitle}>

@@ -350,7 +350,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                       activeOpacity={0.85}
                     >
                       <StoryCard color={program.color} style={program.wide ? styles.programTileRow : styles.programTile}>
-                        <StoryIcon name={program.icon} size={48} color={Colors.surface} />
+                        <StoryIcon name={program.icon} art={program.type !== 'strength' ? `type_${program.type}` : undefined} size={48} color={Colors.surface} />
                         <Text style={[T.title, { marginTop: 8 }]}>{program.title}</Text>
                         <Text style={[T.small, { color: Colors.text }]} numberOfLines={2}>{program.subtitle}</Text>
                       </StoryCard>
@@ -360,7 +360,7 @@ export default function WorkoutsScreen({ navigation, route }) {
 
                 <Text style={styles.hubSection}>Your workouts</Text>
                 {[
-                  { key: 'plan', icon: 'calendar', title: 'My plan', sub: 'Your week, day by day' },
+                  { key: 'plan', icon: 'calendar', art: 'weekly_goal', title: 'My plan', sub: 'Your week, day by day' },
                   { key: 'myworkouts', icon: 'create', title: 'My workouts', sub: 'Ones you made yourself' },
                 ].map((row) => (
                   <TouchableOpacity
@@ -372,7 +372,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                   >
                     <StoryCard containerStyle={{ marginBottom: 12 }}>
                       <View style={styles.hubRow}>
-                        <StoryIcon name={row.icon} size={44} />
+                        <StoryIcon name={row.icon} art={row.art} size={44} />
                         <View style={{ flex: 1, marginLeft: 12 }}>
                           <Text style={T.heading}>{row.title}</Text>
                           <Text style={T.small}>{row.sub}</Text>
@@ -387,7 +387,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                 <View style={styles.programGrid}>
                   {[
                     { key: 'home', icon: 'home', title: 'At home', sub: 'No equipment needed' },
-                    { key: 'gym', icon: 'barbell', title: 'At the gym', sub: 'Machines and weights' },
+                    { key: 'gym', icon: 'barbell', art: 'tab_workouts', title: 'At the gym', sub: 'Machines and weights' },
                   ].map((row) => (
                     <TouchableOpacity
                       key={row.key}
@@ -398,7 +398,7 @@ export default function WorkoutsScreen({ navigation, route }) {
                       activeOpacity={0.85}
                     >
                       <StoryCard style={styles.programTile}>
-                        <StoryIcon name={row.icon} size={44} />
+                        <StoryIcon name={row.icon} art={row.art} size={44} />
                         <Text style={[T.heading, { marginTop: 8 }]}>{row.title}</Text>
                         <Text style={T.small}>{row.sub}</Text>
                       </StoryCard>

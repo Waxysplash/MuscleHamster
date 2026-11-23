@@ -2,11 +2,12 @@
 // StoryCard   - outlined card with a solid "sticker" shadow (works the same on iOS and Android)
 // StoryButton - chunky pressable button; it sinks into its shadow when pressed
 // StoryChip   - small outlined pill for choices (time, filters)
-// StoryIcon   - outlined circle holding an icon (stand-in until the custom icon art lands)
+// StoryIcon   - custom icon art (art="..."), or an outlined circle holding a stock icon
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, Outline, Radius } from '../../config/theme';
+import AppIcon, { hasAppIcon } from './AppIcon';
 
 const S = Outline.shadow;
 
@@ -122,7 +123,10 @@ export function StoryChip({ label, selected = false, onPress, accessibilityLabel
   );
 }
 
-export function StoryIcon({ name, size = 44, color = Colors.peach, iconColor = Colors.ink }) {
+// art: a custom icon name (design/icons). Falls back to the stock icon `name` if missing.
+export function StoryIcon({ name, art, size = 44, color = Colors.peach, iconColor = Colors.ink }) {
+  // Custom art has its own ink outline, so it renders bare (no second circle)
+  if (hasAppIcon(art)) return <AppIcon name={art} size={size} />;
   return (
     <View
       style={{

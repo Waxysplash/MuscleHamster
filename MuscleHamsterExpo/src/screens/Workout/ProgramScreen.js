@@ -41,7 +41,7 @@ export default function ProgramScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={[styles.hero, { backgroundColor: program.color }]}>
-          <StoryIcon name={program.icon} size={72} color={Colors.surface} />
+          <StoryIcon name={program.icon} art={program.type !== 'strength' ? `type_${program.type}` : undefined} size={72} color={Colors.surface} />
           <Text style={[T.hero, { marginTop: 10 }]}>{program.title}</Text>
           <Text style={[T.bodyBold, { color: Colors.brown }]}>{program.subtitle}</Text>
           <Text style={[T.body, { textAlign: 'center', marginTop: 8 }]}>{program.about}</Text>
